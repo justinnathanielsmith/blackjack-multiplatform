@@ -51,6 +51,10 @@ This project uses **Amper**. You can use the provided `./amper` wrapper to build
 # Then serve the output from build/tasks/_wasmApp_linkWasmJs
 ```
 
+> [!IMPORTANT]
+> As of Amper 0.9.x, the Wasm toolchain does not automatically bundle Skiko assets.
+> You must manually ensure `skiko.mjs` and `skiko.wasm` are available in the deployment directory.
+
 ## 📜 Educational Focus
 
 This project is built with educational principles in mind, focusing on explaining the "Why" behind architectural decisions and platform-specific implementations. Check out the `GEMINI.md` for more context on the development guidelines.
