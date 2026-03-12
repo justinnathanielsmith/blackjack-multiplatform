@@ -18,12 +18,21 @@ This project uses **Jujutsu (JJ)** for version control instead of Git. Use JJ co
 - `androidApp`: The entry point for the Android executable.
 - `desktopApp`: The entry point for the JVM Desktop executable.
 - `iosApp`: The entry point for the iOS app.
+- `wasmApp`: The entry point for the Kotlin/Wasm web application.
 - `shared`: Contains common core logic, domains, or viewmodels. Divided into `core` and `data`.
 - `sharedUI`: Contains Compose Multiplatform UI components shared across desktop, android, and iOS.
 
 ### Execution
 - Use `./amper build` to run build steps via CLI, or integrate with JetBrains Fleet / IntelliJ IDEA.
 - Ensure any added directories/files are properly checked into `module.yaml` files if required, although Amper conventionally includes all code in `src/`.
+
+### Kotlin/Wasm Deployment (JetBrains Amper)
+> [!IMPORTANT]
+> As of Amper 0.9.x, the Wasm toolchain does not automatically bundle Skiko assets or provide a dev server.
+- **Serving**: Build via `./amper build`, then serve `build/tasks/_wasmApp_linkWasmJs` manually.
+- **Skiko Assets**: `skiko.mjs` and `skiko.wasm` must be extracted from the Skiko runtime JAR in the Amper cache (`~/Library/Caches/JetBrains/Amper/.m2.cache/org/jetbrains/skiko`) and placed alongside `wasmApp.mjs`.
+- **Import Maps**: Use an HTML `<script type="importmap">` to resolve bare module imports for libraries like `@js-joda/core`.
+
 
 ## Educational Principles
 This project is as much about learning as it is about building. 

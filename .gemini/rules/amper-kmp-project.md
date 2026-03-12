@@ -15,6 +15,7 @@ This project uses **JetBrains Amper** and **Compose Multiplatform**. You MUST ad
    - `androidApp`: The Android executable. Source is `androidApp/src/`. Resources are in `androidApp/res/`.
    - `desktopApp`: The Desktop executable.
    - `iosApp`: The iOS executable.
+   - `wasmApp`: The Kotlin/Wasm web executable. Source is `wasmApp/src/`. Resources are in `wasmApp/res/`.
    - `shared`: Common business logic.
    - `sharedUI`: Shared Compose UI logic.
    
@@ -25,3 +26,8 @@ This project uses **JetBrains Amper** and **Compose Multiplatform**. You MUST ad
 
 4. **KMP Structure**:
    - Do not assume `src/commonMain/kotlin` structure. Amper uses simplified `src/` and `src@platform/` paths.
+
+5. **Kotlin/Wasm Experimental Flow**:
+   - Amper 0.9.x does not provide an integrated dev-server for Wasm.
+   - You MUST manually extract Skiko assets from the Amper Maven cache and use `importmap` for JS dependencies in `index.html`.
+   - Use `./amper build` to generate the `.mjs` and `.wasm` binaries.

@@ -90,4 +90,52 @@ settings:
 dependencies:
   - ../sharedUI
   - $libs.androidx.activity.compose
+
+## Kotlin/Wasm (Experimental)
+
+As of Amper 0.9.x, Kotlin/Wasm support requires manual intervention for runtime assets and dependency resolution.
+
+### 1. Skiko Runtime Assets
+Compose Multiplatform on Wasm requires `skiko.mjs` and `skiko.wasm`. Amper downloads these into its Maven cache but does not yet bundle them into the distribution directory.
+
+**Extraction Procedure:**
+Find the Skiko runtime JAR in the Amper cache and extract the assets:
+```bash
+# Locate the JAR (version may vary)
+JAR_PATH=~/Library/Caches/JetBrains/Amper/.m2.cache/org/jetbrains/skiko/skiko-js-wasm-runtime/<version>/skiko-js-wasm-runtime-<version>.jar
+
+# Extract to the distribution directory
+unzip -j $JAR_PATH "*.mjs" "*.wasm" -d build/tasks/_<wasm-module>_linkWasmJs/
+```
+
+### 2. Dependency Resolution (Import Maps)
+The Kotlin/Wasm compiler generates imports for NPM dependencies (like `@js-joda/core`). Use an HTML `importmap` to resolve these to CDNs or local files.
+
+**Example `index.html`:**
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="importmap">
+    {
+        "imports": {
+            "skiko.mjs": "./skiko.mjs",
+            "@js-joda/core": "https://unpkg.com/@js-joda/core@5.6.3/dist/js-joda.esm.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <script type="module" src="your-app-binary.mjs"></script>
+</body>
+</html>
+```
+
+### 3. Serving the Application
+Amper does not include a development server. Use a simple HTTP server (like Python's) to serve the `linkWasmJs` output directory:
+```bash
+cd build/tasks/_wasmApp_linkWasmJs
+python3 -m http.server 8000
+```
 ```

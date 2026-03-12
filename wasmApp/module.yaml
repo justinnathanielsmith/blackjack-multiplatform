@@ -1,0 +1,13 @@
+product: wasm-js/app
+
+settings:
+  compose:
+    enabled: true
+
+dependencies:
+  - ../sharedUI
+  - $libs.kotlinx.coroutines.core
+  - $libs.decompose
+  - $libs.essenty.lifecycle
+  - $libs.kermit
+  - $compose.ui
