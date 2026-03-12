@@ -1,0 +1,61 @@
+build/
+.amper/
+.idea/
+
+firebase-debug.log
+# IntelliJ IDEA / Fleet
+.fleet/
+
+# Build artifacts
+composeApp/build/
+
+# --- JetBrains & Kotlin Multiplatform ---
+.kotlin/
+*.knm
+*.kexe
+*.klib
+*.ktm
+# Kotlin multiplatform generates specific build artifacts
+**/build/
+.gradle/
+
+# --- Android Specific ---
+*.iml
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.apk
+*.aar
+*.ap_
+*.dex
+capture.png
+
+# --- Local Configuration (DO NOT SHARE) ---
+local.properties
+.sdkmanrc
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/assetWizardSettings.xml
+.idea/navEditor.xml
+
+# --- iOS Specific (If using KMP for iOS) ---
+*.xcworkspace/
+!default.xcworkspace
+xcuserdata/
+DerivedData/
+*.moved-aside
+*.xcuserstate
+*.devicecheck
+.lsbom
+.DS_Store
+
+# --- Compose Multiplatform (If applicable) ---
+.idea/kotlin-multiplatform-resources.xml
+
+# --- Secrets & Keystores ---
+*.jks
+*.keystore
+*.p12
+*.key
+google-services.json

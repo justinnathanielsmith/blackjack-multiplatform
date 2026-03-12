@@ -1,0 +1,15 @@
+product: android/app
+
+settings:
+  compose: enabled
+  android:
+    applicationId: io.github.smithjustinn.blackjack
+    namespace: io.github.smithjustinn.blackjack
+    compileSdk: 36
+    minSdk: 26
+    targetSdk: 36
+
+dependencies:
+  - ../sharedUI
+  - $libs.androidx.activity.compose
+  - $libs.kotlinx.coroutines.android

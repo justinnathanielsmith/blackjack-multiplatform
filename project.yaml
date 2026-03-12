@@ -1,0 +1,8 @@
+# Amper project file
+modules:
+  - shared/core
+  - shared/data
+  - sharedUI
+  - androidApp
+  - desktopApp
+  - iosApp

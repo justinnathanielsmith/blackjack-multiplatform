@@ -1,0 +1,20 @@
+product:
+  type: lib
+  platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
+
+settings:
+  compose:
+    enabled: true
+  android:
+    namespace: io.github.smithjustinn.blackjack.shared.ui
+
+dependencies:
+  - ../shared/core: exported
+  - ../shared/data: exported
+  - $libs.decompose
+  - $libs.decompose.extensions.compose
+  - $libs.coil
+  - $libs.compottie
+  - $libs.compose.material3
+  - $libs.compose.resources
+  - $libs.kermit

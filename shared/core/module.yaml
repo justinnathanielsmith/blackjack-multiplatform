@@ -1,0 +1,20 @@
+product:
+  type: lib
+  platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
+
+settings:
+  android:
+    namespace: io.github.smithjustinn.blackjack.core
+
+dependencies:
+  - $libs.kotlinx.coroutines.core
+  - $libs.kotlinx.serialization.json
+  - $libs.kotlinx.datetime
+  - $libs.kotlinx.collections.immutable
+  - $libs.kermit
+  - $libs.decompose
+  - $libs.essenty.lifecycle
+
+test-dependencies:
+  - $libs.kotlinx.coroutines.test
+  - org.jetbrains.kotlin:kotlin-test:2.1.10

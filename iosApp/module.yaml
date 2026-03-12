@@ -1,0 +1,7 @@
+product: ios/app
+
+settings:
+  compose: enabled
+
+dependencies:
+  - ../sharedUI

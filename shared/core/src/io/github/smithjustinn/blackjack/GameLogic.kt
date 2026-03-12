@@ -1,0 +1,59 @@
+package io.github.smithjustinn.blackjack
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+enum class Suit {
+    HEARTS, DIAMONDS, CLUBS, SPADES
+}
+
+@Serializable
+enum class Rank(val value: Int) {
+    TWO(2), THREE(3), FOUR(4), FIVE(5), SIX(6), SEVEN(7), EIGHT(8), NINE(9), TEN(10),
+    JACK(10), QUEEN(10), KING(10), ACE(11)
+}
+
+@Serializable
+data class Card(val rank: Rank, val suit: Suit)
+
+@Serializable
+data class Hand(val cards: List<Card> = emptyList()) {
+    val score: Int
+        get() {
+            var s = cards.sumOf { it.rank.value }
+            var aces = cards.count { it.rank == Rank.ACE }
+            while (s > 21 && aces > 0) {
+                s -= 10
+                aces -= 1
+            }
+            return s
+        }
+
+    val isBust: Boolean get() = score > 21
+}
+
+@Serializable
+enum class GameStatus {
+    IDLE, PLAYING, PLAYER_WON, DEALER_WON, PUSH
+}
+
+@Serializable
+data class GameState(
+    val deck: List<Card> = emptyList(),
+    val playerHand: Hand = Hand(),
+    val dealerHand: Hand = Hand(),
+    val status: GameStatus = GameStatus.IDLE
+)
+
+sealed class GameAction {
+    data object NewGame : GameAction()
+    data object Hit : GameAction()
+    data object Stand : GameAction()
+}
+
+sealed class GameEffect {
+    data object PlayCardSound : GameEffect()
+    data object PlayWinSound : GameEffect()
+    data object PlayLoseSound : GameEffect()
+    data object Vibrate : GameEffect()
+}
