@@ -46,6 +46,7 @@ fun BlackjackContent(component: BlackjackComponent) {
         when (state.status) {
             GameStatus.PLAYER_WON -> audioService.playEffect(AudioService.SoundEffect.WIN)
             GameStatus.DEALER_WON -> audioService.playEffect(AudioService.SoundEffect.LOSE)
+            GameStatus.PUSH -> audioService.playEffect(AudioService.SoundEffect.PUSH)
             else -> {}
         }
     }

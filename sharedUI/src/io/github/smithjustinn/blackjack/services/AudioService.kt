@@ -12,6 +12,7 @@ import sharedui.generated.resources.audio_mismatch
 import sharedui.generated.resources.audio_nuts
 import sharedui.generated.resources.audio_plink
 import sharedui.generated.resources.audio_win
+import sharedui.generated.resources.audio_push
 
 import kotlinx.coroutines.flow.StateFlow
 
@@ -30,6 +31,7 @@ interface AudioService {
         CLICK,
         DEAL,
         PLINK,
+        PUSH,
     }
 
     companion object {
@@ -45,6 +47,7 @@ interface AudioService {
                 SoundEffect.CLICK -> Res.string.audio_click
                 SoundEffect.DEAL -> Res.string.audio_deal
                 SoundEffect.PLINK -> Res.string.audio_plink
+                SoundEffect.PUSH -> Res.string.audio_push
             }
         }
     }
