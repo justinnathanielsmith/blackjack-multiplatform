@@ -8,6 +8,13 @@ settings:
   android:
     namespace: io.github.smithjustinn.blackjack.shared.ui
 
+dependencies@jvm:
+  - $libs.javafx.base
+  - $libs.javafx.graphics
+  - $libs.javafx.controls
+  - $libs.javafx.media
+  - $libs.javafx.swing
+
 dependencies:
   - ../shared/core: exported
   - ../shared/data: exported

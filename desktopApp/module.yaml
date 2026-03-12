@@ -10,5 +10,10 @@ dependencies:
   - $libs.decompose
   - $libs.essenty.lifecycle
   - $libs.kermit
+  - $libs.javafx.media
+  - $libs.javafx.graphics
+  - $libs.javafx.base
+  - $libs.javafx.controls
+  - $libs.javafx.swing
   - $compose.desktop.currentOs
   - $compose.ui

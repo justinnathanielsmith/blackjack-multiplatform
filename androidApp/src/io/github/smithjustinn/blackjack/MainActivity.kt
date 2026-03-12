@@ -9,6 +9,8 @@ import io.github.smithjustinn.blackjack.di.AppGraph
 import io.github.smithjustinn.blackjack.ui.DefaultRootComponent
 import io.github.smithjustinn.blackjack.ui.RootContent
 import io.github.smithjustinn.blackjack.utils.CoroutineDispatchers
+import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.services.AndroidAudioServiceImpl
 import kotlinx.coroutines.MainScope
 
 class MainActivity : ComponentActivity() {
@@ -18,6 +20,7 @@ class MainActivity : ComponentActivity() {
         val root = DefaultRootComponent(defaultComponentContext())
         val appGraph = object : AppGraph {
             override val logger = Logger.withTag("Blackjack")
+            override val audioService: AudioService = AndroidAudioServiceImpl(this@MainActivity, logger)
             override val coroutineDispatchers = CoroutineDispatchers()
             override val applicationScope = MainScope()
         }

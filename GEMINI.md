@@ -24,3 +24,11 @@ This project uses **Jujutsu (JJ)** for version control instead of Git. Use JJ co
 ### Execution
 - Use `./amper build` to run build steps via CLI, or integrate with JetBrains Fleet / IntelliJ IDEA.
 - Ensure any added directories/files are properly checked into `module.yaml` files if required, although Amper conventionally includes all code in `src/`.
+
+## Educational Principles
+This project is as much about learning as it is about building. 
+- **Explain the "Why"**: Don't just implement fixes. Explain the underlying platform mechanics (e.g., JVM threads, Compose Insets).
+- **Walkthroughs**: After completing a complex task, always provide a `walkthrough.md` in the artifacts directory.
+- **Technical Context**: Use GitHub alerts (TIP/NOTE/IMPORTANT) in documentation to highlight "Aha!" moments and best practices.
+- **Active Dialogue**: Encourage questions about architecture (e.g., Scaffold vs. Box) even if the current implementation works.
+

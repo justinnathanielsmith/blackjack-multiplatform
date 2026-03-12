@@ -1,0 +1,12 @@
+<resources>
+    <string name="audio_click">click</string>
+    <string name="audio_deal">deal</string>
+    <string name="audio_flip">flip</string>
+    <string name="audio_highscore">highscore</string>
+    <string name="audio_lose">lose</string>
+    <string name="audio_match">match</string>
+    <string name="audio_mismatch">mismatch</string>
+    <string name="audio_nuts">nuts</string>
+    <string name="audio_plink">plink</string>
+    <string name="audio_win">win</string>
+</resources>
