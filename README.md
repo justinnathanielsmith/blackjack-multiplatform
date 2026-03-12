@@ -31,6 +31,22 @@ This project demonstrates a modern Kotlin Multiplatform (KMP) architecture, supp
 - `shared/core`: Domain logic, Blackjack state machine, and utility functions.
 - `sharedUI`: Shared Compose components, theme, and audio services.
 
+## 🧹 Linting
+
+This project uses **ktlint** for code formatting and **detekt** for static analysis.
+
+```bash
+./ktlint              # Check formatting
+./ktlint --format     # Auto-fix formatting issues
+./detekt              # Run static analysis
+./lint.sh             # Run both (for CI)
+jj fix                # Auto-format changed Kotlin files via jj
+```
+
+Configuration files:
+- `.editorconfig` - ktlint style configuration
+- `config/detekt.yml` - detekt rules and thresholds
+
 ## 🏗 Building and Running
 
 This project uses **Amper**. You can use the provided `./amper` wrapper to build and run the application.

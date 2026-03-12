@@ -17,17 +17,20 @@ import kotlinx.coroutines.MainScope
 fun main() {
     val lifecycle = LifecycleRegistry()
     val root = DefaultRootComponent(DefaultComponentContext(lifecycle))
-    val appGraph = object : AppGraph {
-        override val logger = Logger.withTag("Blackjack")
-        override val audioService: AudioService = object : AudioService {
-            override fun playEffect(effect: AudioService.SoundEffect) {
-                // Stub for WasmJS for now
-            }
-            override fun release() {}
+    val appGraph =
+        object : AppGraph {
+            override val logger = Logger.withTag("Blackjack")
+            override val audioService: AudioService =
+                object : AudioService {
+                    override fun playEffect(effect: AudioService.SoundEffect) {
+                        // Stub for WasmJS for now
+                    }
+
+                    override fun release() = Unit
+                }
+            override val coroutineDispatchers = CoroutineDispatchers()
+            override val applicationScope = MainScope()
         }
-        override val coroutineDispatchers = CoroutineDispatchers()
-        override val applicationScope = MainScope()
-    }
 
     ComposeViewport(document.body!!) {
         RootContent(root, appGraph)

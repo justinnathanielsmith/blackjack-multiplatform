@@ -59,3 +59,8 @@ DerivedData/
 *.p12
 *.key
 google-services.json
+
+# --- Linting Tools (binaries only) ---
+tools/ktlint
+tools/detekt-cli-*/
+tools/detekt-formatting-*.jar

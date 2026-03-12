@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.StateFlow
 interface BlackjackComponent {
     val state: StateFlow<GameState>
     val effects: SharedFlow<GameEffect>
+
     fun onAction(action: GameAction)
 }
 
 class DefaultBlackjackComponent(
     componentContext: ComponentContext,
-) : BlackjackComponent, ComponentContext by componentContext {
+) : BlackjackComponent,
+    ComponentContext by componentContext {
     private val stateMachine = BlackjackStateMachine(componentScope)
 
     override val state: StateFlow<GameState> = stateMachine.state

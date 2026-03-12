@@ -8,27 +8,29 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = ModernGold,
-    onPrimary = Color.Black,
-    secondary = OakMedium,
-    onSecondary = ModernGold,
-    background = FeltGreenDark,
-    onBackground = Color.White,
-    surface = DarkOak,
-    onSurface = ModernGold,
-)
+private val DarkColorScheme =
+    darkColorScheme(
+        primary = ModernGold,
+        onPrimary = Color.Black,
+        secondary = OakMedium,
+        onSecondary = ModernGold,
+        background = FeltGreenDark,
+        onBackground = Color.White,
+        surface = DarkOak,
+        onSurface = ModernGold,
+    )
 
-private val LightColorScheme = lightColorScheme(
-    primary = ModernGold,
-    onPrimary = Color.Black,
-    secondary = OakMedium,
-    onSecondary = ModernGold,
-    background = FeltGreenLight,
-    onBackground = Color.White,
-    surface = OakMedium,
-    onSurface = ModernGold,
-)
+private val LightColorScheme =
+    lightColorScheme(
+        primary = ModernGold,
+        onPrimary = Color.Black,
+        secondary = OakMedium,
+        onSecondary = ModernGold,
+        background = FeltGreenLight,
+        onBackground = Color.White,
+        surface = OakMedium,
+        onSurface = ModernGold,
+    )
 
 @Composable
 fun BlackjackTheme(

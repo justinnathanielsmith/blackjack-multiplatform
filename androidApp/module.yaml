@@ -13,3 +13,4 @@ dependencies:
   - ../sharedUI
   - $libs.androidx.activity.compose
   - $libs.kotlinx.coroutines.android
+  - $libs.decompose.extensions.android

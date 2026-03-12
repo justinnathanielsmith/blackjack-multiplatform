@@ -5,6 +5,8 @@ product:
 settings:
   compose:
     enabled: true
+  kotlin:
+    serialization: enabled
   android:
     namespace: io.github.smithjustinn.blackjack.shared.ui
 

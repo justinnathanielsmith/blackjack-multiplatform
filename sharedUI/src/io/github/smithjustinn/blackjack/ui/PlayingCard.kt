@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,35 +39,38 @@ import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 
 val Suit.color: Color
-    get() = when (this) {
-        Suit.HEARTS, Suit.DIAMONDS -> PokerRed
-        Suit.CLUBS, Suit.SPADES -> PokerBlack
-    }
+    get() =
+        when (this) {
+            Suit.HEARTS, Suit.DIAMONDS -> PokerRed
+            Suit.CLUBS, Suit.SPADES -> PokerBlack
+        }
 
 val Suit.symbol: String
-    get() = when (this) {
-        Suit.HEARTS -> "♥"
-        Suit.DIAMONDS -> "♦"
-        Suit.CLUBS -> "♣"
-        Suit.SPADES -> "♠"
-    }
+    get() =
+        when (this) {
+            Suit.HEARTS -> "♥"
+            Suit.DIAMONDS -> "♦"
+            Suit.CLUBS -> "♣"
+            Suit.SPADES -> "♠"
+        }
 
 val Rank.symbol: String
-    get() = when (this) {
-        Rank.TWO -> "2"
-        Rank.THREE -> "3"
-        Rank.FOUR -> "4"
-        Rank.FIVE -> "5"
-        Rank.SIX -> "6"
-        Rank.SEVEN -> "7"
-        Rank.EIGHT -> "8"
-        Rank.NINE -> "9"
-        Rank.TEN -> "10"
-        Rank.JACK -> "J"
-        Rank.QUEEN -> "Q"
-        Rank.KING -> "K"
-        Rank.ACE -> "A"
-    }
+    get() =
+        when (this) {
+            Rank.TWO -> "2"
+            Rank.THREE -> "3"
+            Rank.FOUR -> "4"
+            Rank.FIVE -> "5"
+            Rank.SIX -> "6"
+            Rank.SEVEN -> "7"
+            Rank.EIGHT -> "8"
+            Rank.NINE -> "9"
+            Rank.TEN -> "10"
+            Rank.JACK -> "J"
+            Rank.QUEEN -> "Q"
+            Rank.KING -> "K"
+            Rank.ACE -> "A"
+        }
 
 @Composable
 fun PlayingCard(
@@ -83,11 +85,11 @@ fun PlayingCard(
 
     val transition = updateTransition(targetState = isFaceUp, label = "cardFlip")
     val rotation by transition.animateFloat(
-        transitionSpec = { 
+        transitionSpec = {
             spring(
-                stiffness = Spring.StiffnessLow, 
-                dampingRatio = Spring.DampingRatioLowBouncy 
-            ) 
+                stiffness = Spring.StiffnessLow,
+                dampingRatio = Spring.DampingRatioLowBouncy
+            )
         },
         label = "rotation"
     ) { faceUp ->
@@ -95,15 +97,16 @@ fun PlayingCard(
     }
 
     Box(
-        modifier = modifier
-            .width(100.dp)
-            .aspectRatio(2.5f / 3.5f)
-            .graphicsLayer {
-                scaleX = appearScale.value
-                scaleY = appearScale.value
-                rotationY = rotation
-                cameraDistance = 12f * density
-            }
+        modifier =
+            modifier
+                .width(100.dp)
+                .aspectRatio(2.5f / 3.5f)
+                .graphicsLayer {
+                    scaleX = appearScale.value
+                    scaleY = appearScale.value
+                    rotationY = rotation
+                    cameraDistance = 12f * density
+                }
     ) {
         Card(
             modifier = Modifier.fillMaxSize(),
@@ -150,9 +153,10 @@ fun PlayingCard(
 
                     // Bottom Right
                     Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .graphicsLayer { rotationZ = 180f },
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomEnd)
+                                .graphicsLayer { rotationZ = 180f },
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -173,10 +177,11 @@ fun PlayingCard(
             } else {
                 // Back
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer { rotationY = 180f }
-                        .background(Color(0xFF0D47A1)) // Dark Blue back
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .graphicsLayer { rotationY = 180f }
+                            .background(Color(0xFF0D47A1)) // Dark Blue back
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
                         drawRoundRect(
@@ -185,7 +190,7 @@ fun PlayingCard(
                             cornerRadius = CornerRadius(6.dp.toPx()),
                             style = Stroke(width = 2.dp.toPx())
                         )
-                        
+
                         // Cross pattern
                         drawLine(
                             color = Color.White.copy(alpha = 0.1f),

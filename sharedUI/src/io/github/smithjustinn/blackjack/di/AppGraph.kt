@@ -13,6 +13,7 @@ interface AppGraph {
     val applicationScope: CoroutineScope
 }
 
-val LocalAppGraph = staticCompositionLocalOf<AppGraph> {
-    error("No AppGraph provided")
-}
+val LocalAppGraph =
+    staticCompositionLocalOf<AppGraph> {
+        error("No AppGraph provided")
+    }

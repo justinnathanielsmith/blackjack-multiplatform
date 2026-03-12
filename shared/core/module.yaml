@@ -3,6 +3,8 @@ product:
   platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64, wasmJs]
 
 settings:
+  kotlin:
+    serialization: enabled
   android:
     namespace: io.github.smithjustinn.blackjack.core
 

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# ktlint wrapper script - runs ktlint against Kotlin source files
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+KTLINT="$SCRIPT_DIR/tools/ktlint"
+
+if [[ ! -x "$KTLINT" ]]; then
+    echo "Error: ktlint not found at $KTLINT" >&2
+    echo "Run: curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.5.0/ktlint" >&2
+    exit 1
+fi
+
+# Default patterns: all .kt and .kts files, excluding build directories
+PATTERNS=(
+    "**/*.kt"
+    "**/*.kts"
+    "!**/build/**"
+    "!**/.gradle/**"
+    "!**/.amper/**"
+    "!**/.kotlin/**"
+)
+
+exec "$KTLINT" "${PATTERNS[@]}" "$@"

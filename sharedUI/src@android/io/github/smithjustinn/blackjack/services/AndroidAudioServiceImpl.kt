@@ -5,7 +5,6 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
 import co.touchlab.kermit.Logger
-import sharedui.generated.resources.Res
 import io.github.smithjustinn.blackjack.services.AudioService.Companion.toResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +14,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
+import sharedui.generated.resources.Res
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

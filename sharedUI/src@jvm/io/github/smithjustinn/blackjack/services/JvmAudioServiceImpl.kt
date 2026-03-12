@@ -4,9 +4,6 @@ import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.services.AudioService.Companion.toResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -77,5 +74,4 @@ class JvmAudioServiceImpl(
     override fun release() {
         // Nothing to forcefully release currently
     }
-
 }

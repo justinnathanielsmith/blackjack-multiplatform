@@ -1,7 +1,6 @@
 package io.github.smithjustinn.blackjack.services
 
 import co.touchlab.kermit.Logger
-import sharedui.generated.resources.Res
 import io.github.smithjustinn.blackjack.services.AudioService.Companion.toResource
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -21,7 +20,7 @@ import platform.AVFAudio.setActive
 import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.create
-
+import sharedui.generated.resources.Res
 
 @OptIn(ExperimentalForeignApi::class)
 class IosAudioServiceImpl(

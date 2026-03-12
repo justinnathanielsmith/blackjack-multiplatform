@@ -27,6 +27,7 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+decompose-extensions-android = { module = "com.arkivanov.decompose:extensions-android", version.ref = "decompose" }
 essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
 coil = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }

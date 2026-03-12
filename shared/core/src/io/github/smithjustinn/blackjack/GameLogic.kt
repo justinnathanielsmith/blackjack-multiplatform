@@ -4,20 +4,41 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class Suit {
-    HEARTS, DIAMONDS, CLUBS, SPADES
+    HEARTS,
+    DIAMONDS,
+    CLUBS,
+    SPADES
 }
 
 @Serializable
-enum class Rank(val value: Int) {
-    TWO(2), THREE(3), FOUR(4), FIVE(5), SIX(6), SEVEN(7), EIGHT(8), NINE(9), TEN(10),
-    JACK(10), QUEEN(10), KING(10), ACE(11)
+enum class Rank(
+    val value: Int
+) {
+    TWO(2),
+    THREE(3),
+    FOUR(4),
+    FIVE(5),
+    SIX(6),
+    SEVEN(7),
+    EIGHT(8),
+    NINE(9),
+    TEN(10),
+    JACK(10),
+    QUEEN(10),
+    KING(10),
+    ACE(11)
 }
 
 @Serializable
-data class Card(val rank: Rank, val suit: Suit)
+data class Card(
+    val rank: Rank,
+    val suit: Suit
+)
 
 @Serializable
-data class Hand(val cards: List<Card> = emptyList()) {
+data class Hand(
+    val cards: List<Card> = emptyList()
+) {
     val score: Int
         get() {
             var s = cards.sumOf { it.rank.value }
@@ -34,7 +55,11 @@ data class Hand(val cards: List<Card> = emptyList()) {
 
 @Serializable
 enum class GameStatus {
-    IDLE, PLAYING, PLAYER_WON, DEALER_WON, PUSH
+    IDLE,
+    PLAYING,
+    PLAYER_WON,
+    DEALER_WON,
+    PUSH
 }
 
 @Serializable
@@ -47,13 +72,18 @@ data class GameState(
 
 sealed class GameAction {
     data object NewGame : GameAction()
+
     data object Hit : GameAction()
+
     data object Stand : GameAction()
 }
 
 sealed class GameEffect {
     data object PlayCardSound : GameEffect()
+
     data object PlayWinSound : GameEffect()
+
     data object PlayLoseSound : GameEffect()
+
     data object Vibrate : GameEffect()
 }

@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.ui.theme.DarkOak
 import io.github.smithjustinn.blackjack.ui.theme.ModernGold
 import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 
@@ -49,29 +48,26 @@ fun CasinoButton(
     val alpha = if (enabled) 1f else 0.5f
 
     Box(
-        modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                this.alpha = alpha
-            }
-            .shadow(
-                elevation = if (isPressed) 2.dp else 6.dp,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(containerColor, containerColor.copy(alpha = 0.8f))
-                )
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = onClick
-            )
-            .padding(horizontal = 24.dp, vertical = 12.dp),
+        modifier =
+            modifier
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                    this.alpha = alpha
+                }.shadow(
+                    elevation = if (isPressed) 2.dp else 6.dp,
+                    shape = RoundedCornerShape(12.dp)
+                ).clip(RoundedCornerShape(12.dp))
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(containerColor, containerColor.copy(alpha = 0.8f))
+                    )
+                ).clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    enabled = enabled,
+                    onClick = onClick
+                ).padding(horizontal = 24.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
