@@ -1,8 +1,10 @@
 package io.github.smithjustinn.blackjack.ui
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -18,7 +20,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -28,14 +32,17 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
+import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 
 val Suit.color: Color
     get() = when (this) {
-        Suit.HEARTS, Suit.DIAMONDS -> Color(0xFFD32F2F)
-        Suit.CLUBS, Suit.SPADES -> Color(0xFF212121)
+        Suit.HEARTS, Suit.DIAMONDS -> PokerRed
+        Suit.CLUBS, Suit.SPADES -> PokerBlack
     }
 
 val Suit.symbol: String
@@ -69,9 +76,19 @@ fun PlayingCard(
     isFaceUp: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val appearScale = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        appearScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+    }
+
     val transition = updateTransition(targetState = isFaceUp, label = "cardFlip")
     val rotation by transition.animateFloat(
-        transitionSpec = { spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy) },
+        transitionSpec = { 
+            spring(
+                stiffness = Spring.StiffnessLow, 
+                dampingRatio = Spring.DampingRatioLowBouncy 
+            ) 
+        },
         label = "rotation"
     ) { faceUp ->
         if (faceUp) 0f else 180f
@@ -79,33 +96,37 @@ fun PlayingCard(
 
     Box(
         modifier = modifier
-            .width(80.dp)
+            .width(100.dp)
             .aspectRatio(2.5f / 3.5f)
             .graphicsLayer {
+                scaleX = appearScale.value
+                scaleY = appearScale.value
                 rotationY = rotation
                 cameraDistance = 12f * density
             }
     ) {
         Card(
             modifier = Modifier.fillMaxSize(),
-            shape = RoundedCornerShape(6.dp),
+            shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             if (rotation <= 90f) {
                 // Face
-                Box(modifier = Modifier.fillMaxSize().padding(4.dp)) {
+                Box(modifier = Modifier.fillMaxSize().padding(6.dp)) {
                     // Top Left
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = card.rank.symbol,
                             color = card.suit.color,
                             fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
                             text = card.suit.symbol,
                             color = card.suit.color,
+                            fontSize = 14.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -114,14 +135,16 @@ fun PlayingCard(
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             text = card.suit.symbol,
-                            color = card.suit.color.copy(alpha = 0.1f),
-                            style = MaterialTheme.typography.displayMedium
+                            color = card.suit.color.copy(alpha = 0.08f),
+                            fontSize = 64.sp,
+                            style = MaterialTheme.typography.displayLarge
                         )
                         Text(
                             text = card.rank.symbol,
                             color = card.suit.color,
                             fontWeight = FontWeight.ExtraBold,
-                            style = MaterialTheme.typography.headlineMedium
+                            fontSize = 32.sp,
+                            style = MaterialTheme.typography.headlineLarge
                         )
                     }
 
@@ -136,11 +159,13 @@ fun PlayingCard(
                             text = card.rank.symbol,
                             color = card.suit.color,
                             fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
                             text = card.suit.symbol,
                             color = card.suit.color,
+                            fontSize = 14.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -153,24 +178,26 @@ fun PlayingCard(
                         .graphicsLayer { rotationY = 180f }
                         .background(Color(0xFF0D47A1)) // Dark Blue back
                 ) {
-                    Canvas(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+                    Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
                         drawRoundRect(
-                            color = Color.White.copy(alpha = 0.5f),
+                            color = Color.White.copy(alpha = 0.4f),
                             size = size,
-                            cornerRadius = CornerRadius(4.dp.toPx()),
+                            cornerRadius = CornerRadius(6.dp.toPx()),
                             style = Stroke(width = 2.dp.toPx())
                         )
+                        
+                        // Cross pattern
                         drawLine(
-                            color = Color.White.copy(alpha = 0.2f),
+                            color = Color.White.copy(alpha = 0.1f),
                             start = Offset(0f, 0f),
                             end = Offset(size.width, size.height),
-                            strokeWidth = 2.dp.toPx()
+                            strokeWidth = 1.dp.toPx()
                         )
                         drawLine(
-                            color = Color.White.copy(alpha = 0.2f),
+                            color = Color.White.copy(alpha = 0.1f),
                             start = Offset(size.width, 0f),
                             end = Offset(0f, size.height),
-                            strokeWidth = 2.dp.toPx()
+                            strokeWidth = 1.dp.toPx()
                         )
                     }
                 }

@@ -1,11 +1,15 @@
 package io.github.smithjustinn.blackjack.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,51 +17,118 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
+import io.github.smithjustinn.blackjack.ui.components.CasinoButton
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.FeltGreenDark
+import io.github.smithjustinn.blackjack.ui.theme.FeltGreenLight
+import io.github.smithjustinn.blackjack.ui.theme.ModernGold
 
 @Composable
 fun BlackjackContent(component: BlackjackComponent) {
     val state by component.state.collectAsState()
 
-    val dealerScore = if (state.status == GameStatus.PLAYING && state.dealerHand.cards.isNotEmpty()) {
-        "?"
-    } else {
-        state.dealerHand.score.toString()
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Blackjack", style = MaterialTheme.typography.headlineLarge)
-
-        Text("Dealer's Hand (Score: $dealerScore)")
-        HandRow(state.dealerHand, hideFirstCard = state.status == GameStatus.PLAYING)
-
-        Text("Player's Hand (Score: ${state.playerHand.score})")
-        HandRow(state.playerHand, hideFirstCard = false)
-
-        Text("Status: ${state.status}", style = MaterialTheme.typography.titleMedium)
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(
-                onClick = { component.onAction(GameAction.Hit) },
-                enabled = state.status == GameStatus.PLAYING
-            ) {
-                Text("Hit")
+    BlackjackTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(FeltGreenLight, FeltGreenDark)
+                    )
+                )
+        ) {
+            val dealerScore = if (state.status == GameStatus.PLAYING && state.dealerHand.cards.isNotEmpty()) {
+                "?"
+            } else {
+                state.dealerHand.score.toString()
             }
-            Button(
-                onClick = { component.onAction(GameAction.Stand) },
-                enabled = state.status == GameStatus.PLAYING
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Stand")
-            }
-            Button(onClick = { component.onAction(GameAction.NewGame) }) {
-                Text("New Game")
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Dealer Area
+                Text(
+                    "DEALER",
+                    color = ModernGold.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+                Text(
+                    "Score: $dealerScore",
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HandRow(state.dealerHand, hideFirstCard = state.status == GameStatus.PLAYING)
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Status Message
+                if (state.status != GameStatus.PLAYING) {
+                    Text(
+                        text = state.status.toString().uppercase(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = ModernGold,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Player Area
+                HandRow(state.playerHand, hideFirstCard = false)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "PLAYER",
+                    color = ModernGold.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+                Text(
+                    "Score: ${state.playerHand.score}",
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                // Actions
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+                ) {
+                    if (state.status == GameStatus.PLAYING) {
+                        CasinoButton(
+                            text = "Hit",
+                            onClick = { component.onAction(GameAction.Hit) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CasinoButton(
+                            text = "Stand",
+                            onClick = { component.onAction(GameAction.Stand) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        CasinoButton(
+                            text = "New Game",
+                            onClick = { component.onAction(GameAction.NewGame) },
+                            modifier = Modifier.fillMaxWidth(0.8f)
+                        )
+                    }
+                }
             }
         }
     }
@@ -65,7 +136,10 @@ fun BlackjackContent(component: BlackjackComponent) {
 
 @Composable
 fun HandRow(hand: Hand, hideFirstCard: Boolean = false) {
-    Row(horizontalArrangement = Arrangement.spacedBy((-30).dp)) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy((-40).dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         hand.cards.forEachIndexed { index, card ->
             val isFaceUp = !(hideFirstCard && index == 0)
             PlayingCard(
