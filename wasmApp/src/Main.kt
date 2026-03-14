@@ -7,6 +7,7 @@ import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import io.github.smithjustinn.blackjack.di.AppGraph
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.services.NoOpHapticsService
 import io.github.smithjustinn.blackjack.ui.DefaultRootComponent
 import io.github.smithjustinn.blackjack.ui.RootContent
 import io.github.smithjustinn.blackjack.utils.CoroutineDispatchers
@@ -28,6 +29,7 @@ fun main() {
 
                     override fun release() = Unit
                 }
+            override val hapticsService = NoOpHapticsService
             override val coroutineDispatchers = CoroutineDispatchers()
             override val applicationScope = MainScope()
         }

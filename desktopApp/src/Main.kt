@@ -8,6 +8,7 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import io.github.smithjustinn.blackjack.di.AppGraph
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.JvmAudioServiceImpl
+import io.github.smithjustinn.blackjack.services.NoOpHapticsService
 import io.github.smithjustinn.blackjack.ui.DefaultRootComponent
 import io.github.smithjustinn.blackjack.ui.RootContent
 import io.github.smithjustinn.blackjack.utils.CoroutineDispatchers
@@ -21,6 +22,7 @@ fun main() =
             object : AppGraph {
                 override val logger = Logger.withTag("Blackjack")
                 override val audioService: AudioService = JvmAudioServiceImpl(logger)
+                override val hapticsService = NoOpHapticsService
                 override val coroutineDispatchers = CoroutineDispatchers()
                 override val applicationScope = MainScope()
             }

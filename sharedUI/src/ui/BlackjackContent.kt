@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameAction
+import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
@@ -54,7 +55,14 @@ import kotlinx.coroutines.launch
 fun BlackjackContent(component: BlackjackComponent) {
     val state by component.state.collectAsState()
     val audioService = LocalAppGraph.current.audioService
+    val hapticsService = LocalAppGraph.current.hapticsService
     val shakeOffset = remember { Animatable(0f) }
+
+    LaunchedEffect(component) {
+        component.effects.collect { effect: GameEffect ->
+            handleGameEffect(effect, hapticsService)
+        }
+    }
 
     LaunchedEffect(state.status) {
         when (state.status) {
