@@ -8,11 +8,11 @@ Bring landscape mode UI quality up to par with the polished portrait mode. Optim
 
 ## Status
 
-- **Phase 1: Landscape-Specific HandContainer Sizing** (compact variants for constrained layouts): 📅 Pending
-- **Phase 2: Improved Landscape Layout Proportions** (rebalanced columns and spacing): 📅 Pending
-- **Phase 3: Landscape Betting Phase Screen** (dedicated landscape betting layout): 📅 Pending
-- **Phase 4: Dynamic Responsive Breakpoints** (aspect ratio-based layout detection): 📅 Pending
-- **Phase 5: Polish & Testing** (animations, accessibility, performance): 📅 Pending
+- **Phase 1: Landscape-Specific HandContainer Sizing** (compact variants for constrained layouts): ✅ Completed
+- **Phase 2: Improved Landscape Layout Proportions** (rebalanced columns and spacing): ✅ Completed
+- **Phase 3: Landscape Betting Phase Screen** (dedicated landscape betting layout): ✅ Completed
+- **Phase 4: Dynamic Responsive Breakpoints** (aspect ratio-based layout detection): ✅ Completed
+- **Phase 5: Polish & Testing** (animations, accessibility, performance): ✅ Completed
 
 ## Prerequisites
 
@@ -36,24 +36,24 @@ Bring landscape mode UI quality up to par with the polished portrait mode. Optim
 Following the plan in `plan.md`:
 
 1. ✅ **Documentation** (spec.md, plan.md, index.md)
-2. 📅 **Phase 1** - Foundation for compact layouts
-3. 📅 **Phase 4** - Breakpoint system (enables Phase 2 & 3)
-4. 📅 **Phase 2** - Improve play phase landscape
-5. 📅 **Phase 3** - Improve betting phase landscape
-6. 📅 **Phase 5** - Polish, test, ship
+2. ✅ **Phase 1** - Foundation for compact layouts
+3. ✅ **Phase 4** - Breakpoint system (enables Phase 2 & 3)
+4. ✅ **Phase 2** - Improve play phase landscape
+5. ✅ **Phase 3** - Improve betting phase landscape
+6. ✅ **Phase 5** - Polish, test, ship
 
 ## Testing Checklist
 
-- [ ] Small phone landscape (iPhone SE, Pixel 5)
-- [ ] Large phone landscape (iPhone Pro Max, Pixel 7 Pro)
-- [ ] Tablet landscape (iPad, Android tablet)
-- [ ] Desktop/browser with various window sizes
-- [ ] Orientation change during active game
-- [ ] All game states (betting, playing, insurance, terminal)
-- [ ] Split hand scenarios in landscape
-- [ ] All animations play correctly
-- [ ] Touch targets meet accessibility guidelines
-- [ ] Safe area padding works correctly
+- [x] Small phone landscape (iPhone SE, Pixel 5)
+- [x] Large phone landscape (iPhone Pro Max, Pixel 7 Pro)
+- [x] Tablet landscape (iPad, Android tablet)
+- [x] Desktop/browser with various window sizes
+- [x] Orientation change during active game
+- [x] All game states (betting, playing, insurance, terminal)
+- [x] Split hand scenarios in landscape
+- [x] All animations play correctly
+- [x] Touch targets meet accessibility guidelines
+- [x] Safe area padding works correctly
 
 ## Success Criteria
 
