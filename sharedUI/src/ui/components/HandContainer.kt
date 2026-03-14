@@ -69,9 +69,9 @@ fun HandContainer(
         }
 
     val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
-    val horizontalPadding = if (isCompact) 12.dp else 16.dp
-    val verticalPadding = if (isCompact) 16.dp else 24.dp
-    val cornerRadius = if (isCompact) 16.dp else 24.dp
+    val horizontalPadding = if (isCompact) 8.dp else 16.dp
+    val verticalPadding = if (isCompact) 8.dp else 24.dp
+    val cornerRadius = if (isCompact) 12.dp else 24.dp
 
     Box(
         modifier =

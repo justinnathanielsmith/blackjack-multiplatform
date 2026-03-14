@@ -3,11 +3,18 @@ product:
   platforms: [jvm, android, iosArm64, iosSimulatorArm64, iosX64]
 
 settings:
+  kotlin:
+    serialization: enabled
   android:
     namespace: io.github.smithjustinn.blackjack.data
 
 dependencies:
   - ../core
+  - $libs.kotlinx.serialization.json
   - $libs.room.runtime
   - $libs.sqlite.bundled
   - $libs.datastore.preferences: exported
+
+test-dependencies:
+  - $libs.kotlinx.coroutines.test
+  - org.jetbrains.kotlin:kotlin-test:2.1.10

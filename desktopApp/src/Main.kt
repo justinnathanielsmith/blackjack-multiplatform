@@ -11,7 +11,7 @@ fun main() =
     application {
         val lifecycle = LifecycleRegistry()
         val appGraph = DesktopAppGraph()
-        val root = DefaultRootComponent(DefaultComponentContext(lifecycle), appGraph.balanceService)
+        val root = DefaultRootComponent(DefaultComponentContext(lifecycle), appGraph.balanceService, appGraph.settingsRepository)
 
         Window(
             onCloseRequest = {

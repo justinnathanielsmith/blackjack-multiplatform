@@ -35,7 +35,8 @@ class BlackjackStateMachine(
         scope.launch {
             mutex.withLock {
                 when (action) {
-                    is GameAction.NewGame -> handleNewGame(action.initialBalance)
+                    is GameAction.NewGame -> handleNewGame(action.initialBalance, action.rules)
+                    is GameAction.Surrender -> handleSurrender()
                     is GameAction.PlaceBet -> handlePlaceBet(action.amount)
                     is GameAction.ResetBet -> handleResetBet()
                     is GameAction.Deal -> handleDeal()
@@ -86,10 +87,17 @@ class BlackjackStateMachine(
         if (current.balance < extraCost) return
 
         val fullDeck =
-            Suit.entries
-                .flatMap { suit ->
-                    Rank.entries.map { rank -> Card(rank, suit) }
-                }.shuffled()
+            if (current.deck.isNotEmpty()) {
+                current.deck
+            } else {
+                (1..current.rules.deckCount)
+                    .flatMap {
+                        Suit.entries.flatMap { suit ->
+                            Rank.entries.map { rank -> Card(rank, suit) }
+                        }
+                    }
+                    .shuffled()
+            }
 
         // Round-robin deal: hand i gets deck[i] and deck[i + handCount]
         val hands =
@@ -115,7 +123,7 @@ class BlackjackStateMachine(
 
         val balanceUpdate =
             when (initialStatus) {
-                GameStatus.PLAYER_WON -> current.currentBet * 2
+                GameStatus.PLAYER_WON -> (current.currentBet * current.rules.blackjackPayout.numerator) / current.rules.blackjackPayout.denominator + current.currentBet
                 GameStatus.PUSH -> current.currentBet
                 else -> 0
             }
@@ -131,6 +139,7 @@ class BlackjackStateMachine(
                 status = initialStatus,
                 balance = newBalance + balanceUpdate,
                 currentBet = current.currentBet,
+                rules = current.rules,
             )
         emitEffect(GameEffect.PlayCardSound)
         if (initialStatus == GameStatus.PLAYER_WON) {
@@ -155,7 +164,7 @@ class BlackjackStateMachine(
         }
     }
 
-    private fun handleNewGame(initialBalance: Int? = null) {
+    private fun handleNewGame(initialBalance: Int? = null, rules: GameRules = GameRules()) {
         val currentState = _state.value
         _state.value =
             GameState(
@@ -166,7 +175,23 @@ class BlackjackStateMachine(
                 playerBets = persistentListOf(0),
                 activeHandIndex = 0,
                 handCount = 1,
+                rules = rules,
             )
+    }
+
+    private fun handleSurrender() {
+        val state = _state.value
+        if (state.status != GameStatus.PLAYING) return
+        if (state.activeHand.cards.size != 2) return
+        if (!state.rules.allowSurrender) return
+
+        val refund = state.activeBet / 2
+        _state.value =
+            state.copy(
+                balance = state.balance + refund,
+                status = GameStatus.DEALER_WON,
+            )
+        emitEffect(GameEffect.PlayLoseSound)
     }
 
     private fun handleHit() {
@@ -307,6 +332,9 @@ class BlackjackStateMachine(
     }
 
     private suspend fun runDealerTurn() {
+        if (_state.value.status != GameStatus.DEALER_TURN) {
+            _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
+        }
         revealDealerHoleCard()
         delay(DEALER_TURN_DELAY_MS) // Visual pause for hole card reveal
 
@@ -314,8 +342,9 @@ class BlackjackStateMachine(
 
         var currentDealerHand = _state.value.dealerHand
         var currentDeck = _state.value.deck
+        val rules = _state.value.rules
 
-        while (currentDealerHand.score < DEALER_STAND_THRESHOLD) {
+        while (shouldDealerDraw(currentDealerHand, rules)) {
             val newCard = currentDeck.firstOrNull() ?: break
             currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards.add(newCard))
             currentDeck = currentDeck.drop(1).toPersistentList()
@@ -330,6 +359,12 @@ class BlackjackStateMachine(
         }
 
         finalizeGame()
+    }
+
+    private fun shouldDealerDraw(hand: Hand, rules: GameRules): Boolean {
+        if (hand.score < 17) return true
+        if (hand.score == 17 && rules.dealerHitsSoft17 && hand.isSoft) return true
+        return false
     }
 
     private fun finalizeGame() {

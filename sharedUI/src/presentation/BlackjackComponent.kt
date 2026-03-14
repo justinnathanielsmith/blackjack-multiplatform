@@ -6,22 +6,29 @@ import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.services.BalanceService
+import io.github.smithjustinn.blackjack.data.AppSettings
+import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.utils.componentScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 interface BlackjackComponent {
     val state: StateFlow<GameState>
     val effects: SharedFlow<GameEffect>
+    val appSettings: StateFlow<AppSettings>
 
     fun onAction(action: GameAction)
+    fun updateSettings(transform: (AppSettings) -> AppSettings)
 }
 
 class DefaultBlackjackComponent(
     componentContext: ComponentContext,
     private val balanceService: BalanceService,
+    private val settingsRepository: SettingsRepository,
 ) : BlackjackComponent,
     ComponentContext by componentContext {
     private val stateMachine = BlackjackStateMachine(componentScope)
@@ -29,10 +36,21 @@ class DefaultBlackjackComponent(
     override val state: StateFlow<GameState> = stateMachine.state
     override val effects: SharedFlow<GameEffect> = stateMachine.effects
 
+    private val _appSettings = MutableStateFlow(AppSettings())
+    override val appSettings: StateFlow<AppSettings> = _appSettings.asStateFlow()
+
     init {
         componentScope.launch {
+            val settings = settingsRepository.settingsFlow.first()
+            _appSettings.value = settings
             val savedBalance = balanceService.balanceFlow.first()
-            stateMachine.dispatch(GameAction.NewGame(savedBalance))
+            stateMachine.dispatch(GameAction.NewGame(savedBalance, rules = settings.gameRules))
+
+            launch {
+                settingsRepository.settingsFlow.collect {
+                    _appSettings.value = it
+                }
+            }
 
             var lastSavedBalance = savedBalance
             stateMachine.state.collect { gameState ->
@@ -46,5 +64,11 @@ class DefaultBlackjackComponent(
 
     override fun onAction(action: GameAction) {
         stateMachine.dispatch(action)
+    }
+
+    override fun updateSettings(transform: (AppSettings) -> AppSettings) {
+        componentScope.launch {
+            settingsRepository.update(transform)
+        }
     }
 }

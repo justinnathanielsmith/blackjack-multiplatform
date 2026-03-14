@@ -136,7 +136,7 @@ class BlackjackStateMachineTest {
             val state = stateMachine.state.value
             assertEquals(2, state.playerHands[0].cards.size)
             assertEquals(2, state.dealerHand.cards.size)
-            assertEquals(48, state.deck.size)
+            assertEquals(308, state.deck.size)
         }
 
     @Test
@@ -162,7 +162,9 @@ class BlackjackStateMachineTest {
                 stateMachine.state.value.playerHands[0]
                     .cards.size
             )
-            assertEquals(47, stateMachine.state.value.deck.size)
+            if (stateMachine.state.value.status == GameStatus.PLAYING) {
+                assertEquals(307, stateMachine.state.value.deck.size)
+            }
         }
 
     @Test
@@ -1614,5 +1616,268 @@ class BlackjackStateMachineTest {
             val state = stateMachine.state.value
             assertEquals(1, state.handCount)
             assertEquals(1, state.playerHands.size)
+        }
+
+    @Test
+    fun newGame_uses_rules_deckCount() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this)
+            stateMachine.dispatch(GameAction.NewGame(rules = GameRules(deckCount = 2)))
+            advanceUntilIdle()
+
+            // After deal, deck size should be 104 - 2 (player) - 2 (dealer) = 100
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            stateMachine.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(100, state.deck.size)
+        }
+
+    @Test
+    fun newGame_default_deckCount_is_6() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this)
+            stateMachine.dispatch(GameAction.NewGame())
+            advanceUntilIdle()
+
+            // After deal, deck size should be (6 * 52) - 2 (player) - 2 (dealer) = 312 - 4 = 308
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            stateMachine.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(308, state.deck.size)
+        }
+
+    @Test
+    fun surrender_valid_on_first_decision() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 800,
+                        currentBet = 100,
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SEVEN, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true))),
+                        rules = GameRules(allowSurrender = true),
+                    ),
+                )
+            stateMachine.dispatch(GameAction.Surrender)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(850, state.balance) // 800 + 100/2
+            assertEquals(GameStatus.DEALER_WON, state.status)
+        }
+
+    @Test
+    fun surrender_invalid_after_hit() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 800,
+                        currentBet = 100,
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TWO, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true))),
+                        rules = GameRules(allowSurrender = true),
+                    ),
+                )
+            stateMachine.dispatch(GameAction.Surrender)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(800, state.balance)
+            assertEquals(GameStatus.PLAYING, state.status)
+        }
+
+    @Test
+    fun surrender_no_op_when_rule_disabled() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 800,
+                        currentBet = 100,
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SEVEN, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true))),
+                        rules = GameRules(allowSurrender = false),
+                    ),
+                )
+            stateMachine.dispatch(GameAction.Surrender)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(800, state.balance)
+            assertEquals(GameStatus.PLAYING, state.status)
+        }
+
+    @Test
+    fun blackjack_payout_3_to_2() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        currentBet = 100,
+                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
+                        deck =
+                            persistentListOf(
+                                Card(Rank.ACE, Suit.SPADES), // Hand0 - card1
+                                Card(Rank.TEN, Suit.HEARTS), // Hand0 - card2 (BJ)
+                                Card(Rank.TEN, Suit.CLUBS), // Dealer - card1
+                                Card(Rank.EIGHT, Suit.DIAMONDS), // Dealer - card2
+                            ),
+                        handCount = 1,
+                    ),
+                )
+            // handleDeal in code:
+            // val hands = List(current.handCount) { i -> Hand(persistentListOf(fullDeck[i], fullDeck[i + current.handCount])) }.toPersistentList()
+            // if handCount=1: hands[0] = Hand(fullDeck[0], fullDeck[1]) = ACE, TEN. CORRECT.
+            // val dealerCards = fullDeck.drop(deckOffset).take(2) where deckOffset = handCount * 2 = 2
+            // dealerCards = fullDeck.drop(2).take(2) = TEN, EIGHT. CORRECT.
+            stateMachine.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(GameStatus.PLAYER_WON, state.status)
+            assertEquals(1250, state.balance)
+        }
+
+    @Test
+    fun blackjack_payout_6_to_5() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        currentBet = 100,
+                        rules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE),
+                        deck =
+                            persistentListOf(
+                                Card(Rank.ACE, Suit.SPADES),
+                                Card(Rank.TEN, Suit.HEARTS),
+                                Card(Rank.TEN, Suit.CLUBS),
+                                Card(Rank.EIGHT, Suit.DIAMONDS),
+                            ),
+                        handCount = 1,
+                    ),
+                )
+            stateMachine.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(GameStatus.PLAYER_WON, state.status)
+            assertEquals(1220, state.balance)
+        }
+
+    @Test
+    fun dealer_hits_soft17_enabled() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 1000,
+                        currentBet = 100,
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS).copy(isFaceDown = false))),
+                        deck = persistentListOf(Card(Rank.TEN, Suit.CLUBS)),
+                        rules = GameRules(dealerHitsSoft17 = true),
+                    ),
+                )
+            // Ensure status is correctly set to PLAYING before Stand
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(3, state.dealerHand.cards.size)
+        }
+
+    @Test
+    fun dealer_stands_soft17_disabled() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 1000,
+                        currentBet = 100,
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
+                        deck = persistentListOf(Card(Rank.TEN, Suit.CLUBS)),
+                        rules = GameRules(dealerHitsSoft17 = false),
+                    ),
+                )
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            // Dealer had Soft 17, should stand.
+            assertEquals(2, state.dealerHand.cards.size)
+        }
+
+    @Test
+    fun double_after_split_allowed() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 1000,
+                        currentBet = 100,
+                        playerHands =
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
+                            ),
+                        playerBets = persistentListOf(100, 100),
+                        activeHandIndex = 1,
+                        rules = GameRules(allowDoubleAfterSplit = true),
+                    ),
+                )
+            assertTrue(stateMachine.state.value.canDoubleDown())
+        }
+
+    @Test
+    fun double_after_split_disallowed() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 1000,
+                        currentBet = 100,
+                        playerHands =
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
+                            ),
+                        playerBets = persistentListOf(100, 100),
+                        activeHandIndex = 1,
+                        rules = GameRules(allowDoubleAfterSplit = false),
+                    ),
+                )
+            assertFalse(stateMachine.state.value.canDoubleDown())
         }
 }

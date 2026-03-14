@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
 
         initDataStore(this)
         val appGraph = AndroidAppGraph(this)
-        val root = retainedComponent { DefaultRootComponent(it, appGraph.balanceService) }
+        val root = retainedComponent { DefaultRootComponent(it, appGraph.balanceService, appGraph.settingsRepository) }
 
         setContent {
             RootScreen(root, appGraph)

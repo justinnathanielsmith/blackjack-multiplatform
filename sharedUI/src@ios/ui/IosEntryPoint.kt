@@ -4,6 +4,8 @@ import androidx.compose.ui.window.ComposeUIViewController
 import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import io.github.smithjustinn.blackjack.data.SettingsRepository
+import io.github.smithjustinn.blackjack.data.createSettingsRepository
 import io.github.smithjustinn.blackjack.di.AppGraph
 import io.github.smithjustinn.blackjack.presentation.DefaultRootComponent
 import io.github.smithjustinn.blackjack.services.AudioService
@@ -15,7 +17,6 @@ import io.github.smithjustinn.blackjack.ui.screens.RootScreen
 import io.github.smithjustinn.blackjack.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import platform.UIKit.UIViewController
 
 fun BlackjackViewController(): UIViewController =
     ComposeUIViewController {
@@ -26,10 +27,11 @@ fun BlackjackViewController(): UIViewController =
                 override val audioService: AudioService = IosAudioServiceImpl(logger)
                 override val hapticsService = IosHapticsServiceImpl()
                 override val balanceService: BalanceService = createBalanceService()
+                override val settingsRepository: SettingsRepository = createSettingsRepository()
                 override val coroutineDispatchers = CoroutineDispatchers()
                 override val applicationScope: CoroutineScope = MainScope()
             }
-        val root = DefaultRootComponent(DefaultComponentContext(lifecycle), appGraph.balanceService)
+        val root = DefaultRootComponent(DefaultComponentContext(lifecycle), appGraph.balanceService, appGraph.settingsRepository)
 
         RootScreen(root, appGraph)
     }

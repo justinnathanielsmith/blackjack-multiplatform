@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import sharedui.generated.resources.hit
 import sharedui.generated.resources.new_game
 import sharedui.generated.resources.split
 import sharedui.generated.resources.stand
+import sharedui.generated.resources.surrender
 
 @Composable
 fun GameActions(
@@ -42,6 +46,7 @@ fun GameActions(
     layoutMode: LayoutMode = LayoutMode.PORTRAIT,
 ) {
     val audioService = LocalAppGraph.current.audioService
+    val appSettings by component.appSettings.collectAsState()
 
     val onHit =
         remember(audioService, component) {
@@ -71,11 +76,18 @@ fun GameActions(
                 component.onAction(GameAction.Split)
             }
         }
-    val onNewGame =
+    val onSurrender =
         remember(audioService, component) {
             {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onAction(GameAction.Surrender)
+            }
+        }
+    val onNewGame =
+        remember(audioService, component, appSettings) {
+            {
                 audioService.playEffect(AudioService.SoundEffect.FLIP)
-                component.onAction(GameAction.NewGame())
+                component.onAction(GameAction.NewGame(rules = appSettings.gameRules))
             }
         }
 
@@ -87,17 +99,24 @@ fun GameActions(
         },
         label = "GameActionsTransition"
     ) { status ->
+        val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
+        val buttonHeight = if (isCompact) 60.dp else 80.dp
+        val spacerHeight = if (isCompact) 8.dp else 16.dp
+        val totalActionsHeight = if (isCompact) 110.dp else 156.dp // (highActionRow + spacer + mainRow)
+
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(spacerHeight),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (status == GameStatus.PLAYING) {
                 val canSplit = state.canSplit()
                 val canDouble = state.canDoubleDown()
 
                 // High-action row (Split/Double) - Fixed height to prevent shift
+                val highActionHeight = if (canSplit || canDouble) 46.dp else 0.dp
                 Box(
-                    modifier = Modifier.fillMaxWidth().height(60.dp),
+                    modifier = Modifier.fillMaxWidth().height(highActionHeight),
                     contentAlignment = Alignment.Center
                 ) {
                     if (canSplit || canDouble) {
@@ -124,7 +143,7 @@ fun GameActions(
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(80.dp),
+                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     CasinoButton(
@@ -142,21 +161,22 @@ fun GameActions(
                     )
                 }
             } else if (status != GameStatus.INSURANCE_OFFERED) {
-                // Reserve space matching the PLAYING state height (60 + 16 + 80 = 156.dp approx)
+                // Reserve space matching the PLAYING state height
                 Column(
-                    modifier = Modifier.fillMaxWidth().height(156.dp),
-                    verticalArrangement = Arrangement.Center
+                    modifier = Modifier.fillMaxWidth().height(totalActionsHeight),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     CasinoButton(
                         text = stringResource(Res.string.new_game),
                         onClick = onNewGame,
-                        modifier = Modifier.fillMaxWidth().height(80.dp),
+                        modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth().height(buttonHeight),
                         isStrategic = true,
                     )
                 }
             } else {
                 // Insurance state - just a placeholder to maintain height if needed
-                Spacer(modifier = Modifier.height(156.dp))
+                Spacer(modifier = Modifier.height(totalActionsHeight))
             }
         }
     }

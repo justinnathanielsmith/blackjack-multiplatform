@@ -69,7 +69,34 @@ data class Hand(
         }
 
     val isBust: Boolean get() = score > 21
+
+    val isSoft: Boolean
+        get() {
+            if (cards.none { it.rank == Rank.ACE }) return false
+            var s = cards.sumOf { it.rank.value }
+            var aces = cards.count { it.rank == Rank.ACE }
+            val hardScore = cards.sumOf { if (it.rank == Rank.ACE) 1 else it.rank.value }
+            // If the current score is different from the score where all aces are 1, it's soft.
+            // Actually, a hand is soft if it contains an Ace that is being counted as 11.
+            // Our score calculation already handles this.
+            return score != hardScore
+        }
 }
+
+@Serializable
+enum class BlackjackPayout(val numerator: Int, val denominator: Int) {
+    THREE_TO_TWO(3, 2),
+    SIX_TO_FIVE(6, 5),
+}
+
+@Serializable
+data class GameRules(
+    val dealerHitsSoft17: Boolean = true,
+    val allowDoubleAfterSplit: Boolean = true,
+    val allowSurrender: Boolean = false,
+    val blackjackPayout: BlackjackPayout = BlackjackPayout.THREE_TO_TWO,
+    val deckCount: Int = 6,
+)
 
 @Serializable
 enum class GameStatus {
@@ -96,6 +123,7 @@ data class GameState(
     val balance: Int = 1000,
     val currentBet: Int = 0,
     val insuranceBet: Int = 0,
+    val rules: GameRules = GameRules(),
 ) {
     companion object {
         const val MAX_HANDS = 4
@@ -104,7 +132,10 @@ data class GameState(
     val activeHand: Hand get() = playerHands[activeHandIndex]
     val activeBet: Int get() = playerBets[activeHandIndex]
 
-    fun canDoubleDown(): Boolean = activeHand.cards.size == 2 && balance >= activeBet
+    fun canDoubleDown(): Boolean =
+        activeHand.cards.size == 2 &&
+            balance >= activeBet &&
+            (activeHandIndex == 0 || rules.allowDoubleAfterSplit)
 
     fun canSplit(): Boolean =
         playerHands.size < MAX_HANDS &&
@@ -115,8 +146,11 @@ data class GameState(
 
 sealed class GameAction {
     data class NewGame(
-        val initialBalance: Int? = null
+        val initialBalance: Int? = null,
+        val rules: GameRules = GameRules(),
     ) : GameAction()
+
+    data object Surrender : GameAction()
 
     data class PlaceBet(
         val amount: Int

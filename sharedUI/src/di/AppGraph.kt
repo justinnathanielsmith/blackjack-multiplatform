@@ -2,6 +2,7 @@ package io.github.smithjustinn.blackjack.di
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import co.touchlab.kermit.Logger
+import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.BalanceService
 import io.github.smithjustinn.blackjack.services.HapticsService
@@ -13,6 +14,7 @@ interface AppGraph {
     val audioService: AudioService
     val hapticsService: HapticsService
     val balanceService: BalanceService
+    val settingsRepository: SettingsRepository
     val coroutineDispatchers: CoroutineDispatchers
     val applicationScope: CoroutineScope
 }

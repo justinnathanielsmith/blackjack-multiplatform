@@ -16,8 +16,8 @@ fun HandRow(
     layoutMode: LayoutMode = LayoutMode.PORTRAIT,
 ) {
     val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
-    val cardSpacing = if (isCompact) (-30).dp else (-40).dp
-    val cardScale = if (isCompact) 0.85f else 1f
+    val cardSpacing = if (isCompact) (-35).dp else (-40).dp
+    val cardScale = if (isCompact) 0.8f else 1f
     Row(
         horizontalArrangement = Arrangement.spacedBy(cardSpacing),
         verticalAlignment = Alignment.CenterVertically,

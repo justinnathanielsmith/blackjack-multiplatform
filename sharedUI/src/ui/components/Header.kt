@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -37,7 +39,10 @@ import sharedui.generated.resources.balance
 import kotlin.math.abs
 
 @Composable
-fun Header(balance: Int) {
+fun Header(
+    balance: Int,
+    onSettingsClick: () -> Unit = {}
+) {
     var previousBalance by remember { mutableStateOf(balance) }
 
     val animatedBalance by animateIntAsState(
@@ -87,19 +92,24 @@ fun Header(balance: Int) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             HeaderIcon("history")
-            HeaderIcon("settings")
+            HeaderIcon("settings", onClick = onSettingsClick)
         }
     }
 }
 
 @Composable
-private fun HeaderIcon(text: String) {
+private fun HeaderIcon(
+    text: String,
+    onClick: () -> Unit = {}
+) {
     Box(
         modifier =
             Modifier
                 .size(40.dp)
                 .background(GlassDark, RoundedCornerShape(20.dp))
-                .border(1.dp, GlassLight, RoundedCornerShape(20.dp)),
+                .border(1.dp, GlassLight, RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(20.dp))
+                .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Text(

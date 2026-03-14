@@ -42,4 +42,19 @@
     <string name="result_win">Win</string>
     <string name="result_loss">Loss</string>
     <string name="result_push">Push</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_mute">Mute Sounds</string>
+    <string name="settings_debug">Debug Panel</string>
+    <string name="settings_game_rules">Game Rules</string>
+    <string name="settings_payout">Blackjack Payout</string>
+    <string name="settings_s17">Dealer Hits Soft 17</string>
+    <string name="settings_das">Double After Split</string>
+    <string name="settings_surrender">Allow Surrender</string>
+    <string name="settings_decks">Decks</string>
+    <string name="settings_rule_disclaimer">* Rule changes apply to the next game.</string>
+    <string name="close">Close</string>
+
+    <string name="surrender">Surrender</string>
 </resources>

@@ -25,7 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -40,6 +42,7 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.components.DebugPanel
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandContainer
@@ -47,6 +50,7 @@ import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
+import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -93,6 +97,8 @@ private fun androidx.compose.foundation.layout.BoxWithConstraintsScope.detectLay
 @Composable
 fun BlackjackScreen(component: BlackjackComponent) {
     val state by component.state.collectAsState()
+    val appSettings by component.appSettings.collectAsState()
+    var showSettings by remember { mutableStateOf(false) }
     val audioService = LocalAppGraph.current.audioService
     val hapticsService = LocalAppGraph.current.hapticsService
     val shakeOffset = remember { Animatable(0f) }
@@ -107,11 +113,17 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     LaunchedEffect(component) {
         component.effects.collect { effect: GameEffect ->
-            handleGameEffect(effect, hapticsService)
+            handleGameEffect(
+                effect = effect,
+                hapticsService = hapticsService,
+                audioService = audioService,
+                isSoundMuted = appSettings.isSoundMuted
+            )
         }
     }
 
     LaunchedEffect(state.status) {
+        if (appSettings.isSoundMuted) return@LaunchedEffect
         when (state.status) {
             GameStatus.PLAYER_WON -> {
                 audioService.playEffect(AudioService.SoundEffect.WIN)
@@ -156,7 +168,13 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         .fillMaxSize()
                         .safeDrawingPadding(),
             ) {
-                Header(balance = state.balance)
+                if (appSettings.isDebugMode) {
+                    DebugPanel(state = state, settings = appSettings, onAction = component::onAction)
+                }
+                Header(
+                    balance = state.balance,
+                    onSettingsClick = { showSettings = true }
+                )
 
                 Box(modifier = Modifier.weight(1f)) {
                     if (state.status == GameStatus.BETTING) {
@@ -196,6 +214,14 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         layoutMode = layoutMode,
                         showStatus = showStatus,
                     )
+
+                    if (showSettings) {
+                        SettingsOverlay(
+                            settings = appSettings,
+                            onUpdateSettings = component::updateSettings,
+                            onDismiss = { showSettings = false }
+                        )
+                    }
                 }
             }
         }
@@ -333,7 +359,7 @@ private fun LandscapeLayout(
     ) {
         // Left side: Cards
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(3f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
@@ -407,7 +433,7 @@ private fun LandscapeLayout(
 
         // Right side: Status and Actions
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(2f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
