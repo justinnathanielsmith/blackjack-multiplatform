@@ -33,11 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
@@ -115,12 +113,9 @@ fun BlackjackContent(component: BlackjackComponent) {
                     ConfettiEffect()
                 }
 
-                val dealerScore = getDealerScoreDisplay(state)
-
                 if (useCompactUI) {
                     LandscapeLayout(
                         state = state,
-                        dealerScore = dealerScore,
                         audioService = audioService,
                         component = component,
                         pulseScale = pulseScale
@@ -128,7 +123,6 @@ fun BlackjackContent(component: BlackjackComponent) {
                 } else {
                     PortraitLayout(
                         state = state,
-                        dealerScore = dealerScore,
                         audioService = audioService,
                         component = component,
                         pulseScale = pulseScale
@@ -142,7 +136,6 @@ fun BlackjackContent(component: BlackjackComponent) {
 @Composable
 private fun PortraitLayout(
     state: GameState,
-    dealerScore: String,
     audioService: AudioService,
     component: BlackjackComponent,
     pulseScale: Float
@@ -153,44 +146,17 @@ private fun PortraitLayout(
     ) {
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Dealer Area
-        Text(
-            "DEALER",
-            color = ModernGold.copy(alpha = 0.7f),
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
-        )
-        Text(
-            "Score: $dealerScore",
-            color = Color.White,
-            fontSize = 18.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
         HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Status Message
         if (state.status != GameStatus.PLAYING) {
             GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = false)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Player Area
         HandRow(state.playerHand, hideHoleCard = false)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            "PLAYER",
-            color = ModernGold.copy(alpha = 0.7f),
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
-        )
-        Text(
-            "Score: ${state.playerHand.score}",
-            color = Color.White,
-            fontSize = 18.sp
-        )
 
         Spacer(modifier = Modifier.height(48.dp))
 
@@ -206,7 +172,6 @@ private fun PortraitLayout(
 @Composable
 private fun LandscapeLayout(
     state: GameState,
-    dealerScore: String,
     audioService: AudioService,
     component: BlackjackComponent,
     pulseScale: Float
@@ -221,25 +186,9 @@ private fun LandscapeLayout(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Dealer Area
             HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
-            Text(
-                "DEALER Score: $dealerScore",
-                color = ModernGold.copy(alpha = 0.7f),
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp
-            )
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Player Area
             HandRow(state.playerHand, hideHoleCard = false)
-            Text(
-                "PLAYER Score: ${state.playerHand.score}",
-                color = ModernGold.copy(alpha = 0.7f),
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp
-            )
         }
 
         // Right side: Status and Actions
@@ -287,13 +236,7 @@ private fun GameStatusMessage(
     )
 }
 
-private fun getDealerScoreDisplay(state: GameState): String {
-    return if (state.status == GameStatus.PLAYING && state.dealerHand.cards.size >= 2) {
-        "?"
-    } else {
-        state.dealerHand.score.toString()
-    }
-}
+
 
 @Composable
 fun GameActions(

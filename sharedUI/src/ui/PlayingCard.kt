@@ -104,14 +104,6 @@ fun PlayingCard(
         if (faceUp) 0f else 180f
     }
 
-    val flipScale by transition.animateFloat(
-        transitionSpec = {
-            spring<Float>(stiffness = Spring.StiffnessLow)
-        },
-        label = "flipScale"
-    ) { faceUp ->
-        if (transition.isRunning || transition.targetState != transition.currentState) 1.05f else 1f
-    }
 
     val flipElevation by transition.animateDp(
         transitionSpec = {
@@ -129,8 +121,8 @@ fun PlayingCard(
                 .aspectRatio(2.5f / 3.5f)
                 .offset(y = dealOffset.value.dp)
                 .graphicsLayer {
-                    scaleX = appearScale.value * flipScale
-                    scaleY = appearScale.value * flipScale
+                    scaleX = appearScale.value
+                    scaleY = appearScale.value
                     rotationY = rotation
                     cameraDistance = 12f * density
                 }
