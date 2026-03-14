@@ -25,7 +25,6 @@ This project uses **Jujutsu (JJ)** for version control instead of Git. Use JJ co
 - `androidApp`: The entry point for the Android executable.
 - `desktopApp`: The entry point for the JVM Desktop executable.
 - `iosApp`: The entry point for the iOS app.
-- `wasmApp`: The entry point for the Kotlin/Wasm web application.
 - `shared`: Contains common core logic, domains, or viewmodels. Divided into `core` and `data`.
 - `sharedUI`: Contains Compose Multiplatform UI components shared across desktop, android, and iOS.
 
@@ -54,25 +53,6 @@ This project uses **Jujutsu (JJ)** for version control instead of Git. Use JJ co
 - Use `./amper build` to run build steps via CLI, or integrate with JetBrains Fleet / IntelliJ IDEA.
 - **Fast compilation check** (type errors only, no binary link): `./amper build -m sharedUI` — use this for rapid iteration when developing UI.
 - Ensure any added directories/files are properly checked into `module.yaml` files if required, although Amper conventionally includes all code in `src/`.
-
-### Kotlin/Wasm Deployment (JetBrains Amper)
-> [!IMPORTANT]
-> As of Amper 0.9.x, the Wasm toolchain does not automatically bundle Skiko assets or provide a dev server.
-
-#### Skiko Asset Extraction Procedure:
-Find the Skiko runtime JAR in the Amper cache and extract the assets:
-```bash
-# Locate the JAR (version may vary)
-JAR_PATH=~/Library/Caches/JetBrains/Amper/.m2.cache/org/jetbrains/skiko/skiko-js-wasm-runtime/<version>/skiko-js-wasm-runtime-<version>.jar
-
-# Extract to the distribution directory
-unzip -j $JAR_PATH "*.mjs" "*.wasm" -d build/tasks/_wasmApp_linkWasmJs/
-```
-
-- **Serving**: Build via `./amper build`, then serve `build/tasks/_wasmApp_linkWasmJs` manually.
-- **Skiko Assets**: `skiko.mjs` and `skiko.wasm` must be extracted and placed alongside `wasmApp.mjs` as shown above.
-- **Import Maps**: Use an HTML `<script type="importmap">` to resolve bare module imports for libraries like `@js-joda/core`.
-
 
 ## Educational Principles
 This project is as much about learning as it is about building. 

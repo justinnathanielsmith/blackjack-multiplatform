@@ -1,9 +1,11 @@
 package io.github.smithjustinn.blackjack.services
 
+import android.Manifest
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import androidx.annotation.RequiresPermission
 
 class AndroidHapticsServiceImpl(
     context: Context,
@@ -16,6 +18,7 @@ class AndroidHapticsServiceImpl(
             context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
         }
 
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun vibrate() {
         val deviceVibrator = vibrator ?: return
         if (!deviceVibrator.hasVibrator()) return

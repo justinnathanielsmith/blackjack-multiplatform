@@ -2,7 +2,7 @@
 
 A cross-platform Blackjack game built with **Compose Multiplatform** and **JetBrains Amper**.
 
-This project demonstrates a modern Kotlin Multiplatform (KMP) architecture, supporting **Android**, **iOS**, **Desktop (JVM)**, and **Web (Kotlin/Wasm)** from a single codebase.
+This project demonstrates a modern Kotlin Multiplatform (KMP) architecture, supporting **Android**, **iOS**, and **Desktop (JVM)** from a single codebase.
 
 ## 🚀 Features
 
@@ -20,14 +20,12 @@ This project demonstrates a modern Kotlin Multiplatform (KMP) architecture, supp
     - Android
     - iOS
     - Desktop (JVM)
-    - Web (Kotlin/Wasm)
 
 ## 📁 Project Structure
 
 - `androidApp`: Android-specific entry point and resources.
 - `iosApp`: iOS-specific entry point and Swift integration.
 - `desktopApp`: JVM Desktop entry point.
-- `wasmApp`: Kotlin/Wasm web application entry point.
 - `shared/core`: Domain logic, Blackjack state machine, and utility functions.
 - `sharedUI`: Shared Compose components, theme, and audio services.
 
@@ -60,16 +58,6 @@ This project uses **Amper**. You can use the provided `./amper` wrapper to build
 ```bash
 ./amper run :androidApp
 ```
-
-### Wasm
-```bash
-./amper build :wasmApp
-# Then serve the output from build/tasks/_wasmApp_linkWasmJs
-```
-
-> [!IMPORTANT]
-> As of Amper 0.9.x, the Wasm toolchain does not automatically bundle Skiko assets.
-> You must manually ensure `skiko.mjs` and `skiko.wasm` are available in the deployment directory.
 
 ## 📜 Educational Focus
 

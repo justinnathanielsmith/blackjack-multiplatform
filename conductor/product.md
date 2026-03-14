@@ -3,13 +3,12 @@
 A premium, cross-platform Blackjack game designed to demonstrate modern Kotlin Multiplatform (KMP) architecture and educational best practices.
 
 ## Core Vision
-To provide a polished, "juicy" Blackjack experience across mobile, desktop, and web, while serving as a reference implementation for high-quality Compose Multiplatform development.
+To provide a polished, "juicy" Blackjack experience across mobile and desktop, while serving as a reference implementation for high-quality Compose Multiplatform development.
 
 ## Target Platforms
 - **Android**: Native-like experience with Material 3.
 - **iOS**: Integrated via Compose Multiplatform.
 - **Desktop (JVM)**: High-performance desktop application.
-- **Web (Kotlin/Wasm)**: Modern web application leveraging Wasm.
 
 ## Key Features
 - **Shared Game Engine**: A robust Blackjack state machine implemented in `shared/core`.

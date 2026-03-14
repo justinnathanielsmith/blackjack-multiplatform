@@ -20,7 +20,7 @@ else
 fi
 
 # Default input paths
-INPUT_PATHS="shared,sharedUI,androidApp,desktopApp,iosApp,wasmApp"
+INPUT_PATHS="shared,sharedUI,androidApp,desktopApp,iosApp"
 
 exec "$DETEKT_CLI" \
     --input "$INPUT_PATHS" \

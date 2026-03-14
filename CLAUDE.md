@@ -40,7 +40,6 @@ dependencies:
 - `androidApp` - Android entry point
 - `desktopApp` - JVM Desktop entry point
 - `iosApp` - iOS entry point
-- `wasmApp` - Kotlin/Wasm web entry point
 
 ## Testing
 Run tests with `./amper test`. Tests use:
