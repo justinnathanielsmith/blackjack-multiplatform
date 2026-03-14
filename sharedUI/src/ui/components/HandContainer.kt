@@ -3,10 +3,9 @@ package io.github.smithjustinn.blackjack.ui.components
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -62,74 +61,29 @@ fun HandContainer(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 24.dp), // Overall container padding
+                .padding(horizontal = 16.dp, vertical = 24.dp),
     ) {
-        // Visual Background (Clipped)
+        // Visual Background
         Box(
-            modifier = Modifier
-                .matchParentSize()
-                .clip(RoundedCornerShape(24.dp))
-                .background(backgroundColor)
-                .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(24.dp))
+            modifier =
+                Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(backgroundColor)
+                    .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(24.dp))
         )
 
-        // Status Badge (Active/Pending) - Positioned relative to background
-        if (isActive || isPending) {
-            val badgeColor = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.2f)
-            val badgeTextColor = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.8f)
-            val badgeText = if (isActive) stringResource(Res.string.status_active) else "WAITING"
-            
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .offset(y = (-12).dp) // Changed offset to be slightly above the border, but not too much
-                        .background(badgeColor, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-            ) {
-                Text(
-                    text = badgeText.uppercase(),
-                    color = badgeTextColor,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp,
-                )
-            }
-        }
+        StatusBadge(isActive = isActive, isPending = isPending)
 
-        // Score Badge (Top Right)
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 8.dp, y = (-12).dp)
-                .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
-                .border(1.dp, if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            androidx.compose.animation.AnimatedContent(
-                targetState = score,
-                transitionSpec = {
-                    androidx.compose.animation.fadeIn() togetherWith androidx.compose.animation.fadeOut()
-                },
-                label = "scoreRoll"
-            ) { targetScore ->
-                Text(
-                    text = targetScore.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isActive) BackgroundDark else Color.White,
-                    fontWeight = FontWeight.Black,
-                )
-            }
-        }
+        ScoreBadge(score = score, isActive = isActive)
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 20.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Label at the top now for better visibility
             Text(
                 text = title.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
@@ -137,7 +91,7 @@ fun HandContainer(
                 fontWeight = FontWeight.Black,
                 letterSpacing = 3.sp,
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Box(
@@ -145,18 +99,82 @@ fun HandContainer(
                 contentAlignment = Alignment.Center
             ) {
                 content()
-                
-                // Bet indicator floating near the cards
+
                 if (bet != null) {
                     Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .offset(x = 12.dp, y = 12.dp)
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomEnd)
+                                .offset(x = 12.dp, y = 12.dp)
                     ) {
                         BetChip(amount = bet, isActive = isActive)
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.StatusBadge(
+    isActive: Boolean,
+    isPending: Boolean
+) {
+    if (!isActive && !isPending) return
+
+    val badgeColor = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.2f)
+    val badgeTextColor = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.8f)
+    val badgeText = if (isActive) stringResource(Res.string.status_active) else "WAITING"
+
+    Box(
+        modifier =
+            Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-12).dp)
+                .background(badgeColor, RoundedCornerShape(12.dp))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+    ) {
+        Text(
+            text = badgeText.uppercase(),
+            color = badgeTextColor,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.sp,
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.ScoreBadge(
+    score: Int,
+    isActive: Boolean
+) {
+    Box(
+        modifier =
+            Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 8.dp, y = (-12).dp)
+                .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
+                .border(
+                    1.dp,
+                    if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
+                    RoundedCornerShape(12.dp)
+                ).padding(horizontal = 10.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        androidx.compose.animation.AnimatedContent(
+            targetState = score,
+            transitionSpec = {
+                androidx.compose.animation.fadeIn() togetherWith androidx.compose.animation.fadeOut()
+            },
+            label = "scoreRoll"
+        ) { targetScore ->
+            Text(
+                text = targetScore.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                color = if (isActive) BackgroundDark else Color.White,
+                fontWeight = FontWeight.Black,
+            )
         }
     }
 }

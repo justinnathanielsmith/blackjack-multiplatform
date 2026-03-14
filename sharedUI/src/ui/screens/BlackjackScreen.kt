@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -9,6 +10,10 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -121,10 +127,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 Header(balance = state.balance)
 
                 Box(modifier = Modifier.weight(1f)) {
-                    if (state.status == GameStatus.PLAYER_WON) {
-                        ConfettiEffect()
-                    }
-
                     if (state.status == GameStatus.BETTING) {
                         BettingPhaseScreen(
                             state = state,
@@ -136,17 +138,33 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     } else if (useCompactUI) {
                         LandscapeLayout(
                             state = state,
-                            audioService = audioService,
                             component = component,
-                            pulseScale = pulseScale,
                         )
                     } else {
                         PortraitLayout(
                             state = state,
-                            audioService = audioService,
                             component = component,
-                            pulseScale = pulseScale,
                         )
+                    }
+
+                    // Game Status Overlay (On top of hands)
+                    val showStatus =
+                        state.status != GameStatus.PLAYING &&
+                            state.status != GameStatus.BETTING &&
+                            state.status != GameStatus.INSURANCE_OFFERED &&
+                            state.status != GameStatus.IDLE
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        this@Column.AnimatedVisibility(
+                            visible = showStatus,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                        ) {
+                            GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = useCompactUI)
+                        }
                     }
 
                     if (state.status == GameStatus.INSURANCE_OFFERED) {
@@ -154,6 +172,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             onInsure = { component.onAction(GameAction.TakeInsurance) },
                             onDecline = { component.onAction(GameAction.DeclineInsurance) },
                         )
+                    }
+
+                    if (state.status == GameStatus.PLAYER_WON) {
+                        ConfettiEffect()
                     }
                 }
             }
@@ -164,9 +186,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 @Composable
 private fun PortraitLayout(
     state: GameState,
-    audioService: AudioService,
     component: BlackjackComponent,
-    pulseScale: Float,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -180,16 +200,16 @@ private fun PortraitLayout(
             HandRow(state.dealerHand)
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        if (state.status != GameStatus.PLAYING &&
-            state.status != GameStatus.BETTING &&
-            state.status != GameStatus.INSURANCE_OFFERED
+        // Anchor Box to maintain stability and provide space
+        Box(
+            modifier =
+                Modifier
+                    .weight(0.5f)
+                    .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
-            GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = false)
+            // Empty, space is reserved
         }
-
-        Spacer(modifier = Modifier.weight(1f))
 
         val splitHand = state.splitHand
         if (splitHand != null) {
@@ -232,7 +252,6 @@ private fun PortraitLayout(
 
         GameActions(
             state = state,
-            audioService = audioService,
             component = component,
         )
     }
@@ -241,9 +260,7 @@ private fun PortraitLayout(
 @Composable
 private fun LandscapeLayout(
     state: GameState,
-    audioService: AudioService,
     component: BlackjackComponent,
-    pulseScale: Float,
 ) {
     Row(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -309,17 +326,20 @@ private fun LandscapeLayout(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            if (state.status != GameStatus.PLAYING &&
-                state.status != GameStatus.BETTING &&
-                state.status != GameStatus.INSURANCE_OFFERED
+            // Anchor Box to maintain stability
+            Box(
+                modifier =
+                    Modifier
+                        .height(80.dp)
+                        .fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = true)
-                Spacer(modifier = Modifier.height(16.dp))
+                // Empty, space is reserved
             }
+            Spacer(modifier = Modifier.height(16.dp))
 
             GameActions(
                 state = state,
-                audioService = audioService,
                 component = component,
             )
         }

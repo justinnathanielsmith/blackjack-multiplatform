@@ -53,10 +53,11 @@ fun BettingPhaseScreen(
     modifier: Modifier = Modifier,
 ) {
     require(state.status == GameStatus.BETTING)
-    
+
     Column(
-        modifier = modifier
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+        modifier =
+            modifier
+                .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -67,21 +68,21 @@ fun BettingPhaseScreen(
             fontWeight = FontWeight.Black,
             letterSpacing = 4.sp
         )
-        
+
         Spacer(modifier = Modifier.height(48.dp))
-        
+
         // Glassmorphic Info Card
         Column(
-            modifier = Modifier
-                .fillMaxWidth(if (isCompact) 1f else 0.8f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(GlassDark)
-                .border(
-                    width = 1.dp,
-                    color = Color.White.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .padding(24.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth(if (isCompact) 1f else 0.8f)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(GlassDark)
+                    .border(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(24.dp)
+                    ).padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -99,14 +100,19 @@ fun BettingPhaseScreen(
             ) { balance ->
                 Text(
                     text = formatCurrency(balance),
-                    style = if (isCompact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge,
+                    style =
+                        if (isCompact) {
+                            MaterialTheme.typography.headlineMedium
+                        } else {
+                            MaterialTheme.typography.headlineLarge
+                        },
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = stringResource(Res.string.bet).uppercase(),
                 style = MaterialTheme.typography.labelMedium,
@@ -122,15 +128,20 @@ fun BettingPhaseScreen(
             ) { bet ->
                 Text(
                     text = formatCurrency(bet),
-                    style = if (isCompact) MaterialTheme.typography.displaySmall else MaterialTheme.typography.displayMedium,
+                    style =
+                        if (isCompact) {
+                            MaterialTheme.typography.displaySmall
+                        } else {
+                            MaterialTheme.typography.displayMedium
+                        },
                     color = PrimaryGold,
                     fontWeight = FontWeight.Black
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(48.dp))
-        
+
         ChipSelector(
             balance = state.balance,
             onBetClick = { amount ->
@@ -138,9 +149,9 @@ fun BettingPhaseScreen(
                 component.onAction(GameAction.PlaceBet(amount))
             },
         )
-        
+
         Spacer(modifier = Modifier.height(48.dp))
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),

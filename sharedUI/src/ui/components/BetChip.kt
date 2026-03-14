@@ -40,27 +40,27 @@ fun BetChip(
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(
-        modifier = modifier
-            .size(if (isActive) 56.dp else 48.dp) // Smaller for hand display, larger for active
-            .shadow(
-                elevation = if (isActive) 12.dp else 4.dp,
-                shape = CircleShape,
-                ambientColor = Color.Black,
-                spotColor = if (isActive) PrimaryGold else Color.Black
-            )
-            .clip(CircleShape)
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(
-                        interactionSource = interactionSource,
-                        indication = null,
-                        enabled = enabled,
-                        onClick = onClick
-                    )
-                } else {
-                    Modifier
-                }
-            ),
+        modifier =
+            modifier
+                .size(if (isActive) 56.dp else 48.dp) // Smaller for hand display, larger for active
+                .shadow(
+                    elevation = if (isActive) 12.dp else 4.dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black,
+                    spotColor = if (isActive) PrimaryGold else Color.Black
+                ).clip(CircleShape)
+                .then(
+                    if (onClick != null) {
+                        Modifier.clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            enabled = enabled,
+                            onClick = onClick
+                        )
+                    } else {
+                        Modifier
+                    }
+                ),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -87,13 +87,15 @@ fun BetChip(
                 color = Color.White.copy(alpha = 0.3f),
                 radius = radius * 0.9f,
                 center = center,
-                style = Stroke(
-                    width = 3.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(
-                        floatArrayOf(10f, 10f),
-                        0f
+                style =
+                    Stroke(
+                        width = 3.dp.toPx(),
+                        pathEffect =
+                            PathEffect.dashPathEffect(
+                                floatArrayOf(10f, 10f),
+                                0f
+                            )
                     )
-                )
             )
 
             // Center circle for value
@@ -105,9 +107,10 @@ fun BetChip(
         }
 
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(2.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(2.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -118,14 +121,15 @@ fun BetChip(
                 style = MaterialTheme.typography.labelSmall
             )
         }
-        
+
         // Disable overlay
         if (!enabled) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.4f))
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.4f))
             )
         }
     }

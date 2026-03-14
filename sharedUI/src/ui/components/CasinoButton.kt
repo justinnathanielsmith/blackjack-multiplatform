@@ -38,7 +38,8 @@ fun CasinoButton(
     containerColor: Color? = null,
     contentColor: Color? = null,
     contentPadding: androidx.compose.foundation.layout.PaddingValues =
-        androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp, vertical = 20.dp),
+        androidx.compose.foundation.layout
+            .PaddingValues(horizontal = 24.dp, vertical = 20.dp),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -54,79 +55,100 @@ fun CasinoButton(
         contentColor ?: if (isStrategic) BackgroundDark else MaterialTheme.colorScheme.onSecondary
 
     // Disabled colors: desaturated and darker
-    val baseColor = if (enabled) {
-        resolvedContainerColor
-    } else {
-        // Simple desaturation/darkening for disabled state
-        Color(0xFF2A2A2A) 
-    }
-    
+    val baseColor = resolvedContainerColor
+
     val shadowColor = if (enabled) Color.Black.copy(alpha = 0.5f) else Color.Transparent
 
     Box(
-        modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .shadow(
-                elevation = if (isPressed || !enabled) 1.dp else 6.dp,
-                shape = RoundedCornerShape(16.dp),
-                ambientColor = shadowColor,
-                spotColor = shadowColor
-            )
-            .clip(RoundedCornerShape(16.dp))
-            .background(
-                Brush.verticalGradient(
-                    colors = if (enabled) {
-                        listOf(
-                            baseColor,
-                            // Slightly darker version for 3D effect
-                            Color(
-                                (baseColor.red * 0.85f).coerceIn(0f, 1f),
-                                (baseColor.green * 0.85f).coerceIn(0f, 1f),
-                                (baseColor.blue * 0.85f).coerceIn(0f, 1f),
-                                baseColor.alpha
-                            )
+        modifier =
+            modifier
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }.then(
+                    if (enabled) {
+                        Modifier.shadow(
+                            elevation = if (isPressed) 1.dp else 6.dp,
+                            shape = RoundedCornerShape(16.dp),
+                            ambientColor = shadowColor,
+                            spotColor = shadowColor
                         )
                     } else {
-                        listOf(baseColor, baseColor)
+                        Modifier
                     }
-                )
-            )
-            .then(
-                if (enabled) {
-                    Modifier.border(
-                        width = 1.dp,
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.3f),
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.2f)
-                            )
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                } else {
-                    Modifier.border(
-                        width = 1.dp,
-                        color = Color.White.copy(alpha = 0.05f),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                }
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = onClick
-            )
-            .padding(contentPadding),
+                ).clip(RoundedCornerShape(16.dp))
+                .background(
+                    if (enabled) {
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    baseColor,
+                                    // Slightly darker version for 3D effect
+                                    Color(
+                                        (baseColor.red * 0.85f).coerceIn(0f, 1f),
+                                        (baseColor.green * 0.85f).coerceIn(0f, 1f),
+                                        (baseColor.blue * 0.85f).coerceIn(0f, 1f),
+                                        baseColor.alpha
+                                    )
+                                )
+                        )
+                    } else {
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    io.github.smithjustinn.blackjack.ui.theme.GlassDark,
+                                    io.github.smithjustinn.blackjack.ui.theme.GlassDark
+                                )
+                        )
+                    }
+                ).then(
+                    if (enabled) {
+                        Modifier.border(
+                            width = 1.dp,
+                            brush =
+                                Brush.verticalGradient(
+                                    colors =
+                                        listOf(
+                                            Color.White.copy(alpha = 0.3f),
+                                            Color.Transparent,
+                                            Color.Black.copy(alpha = 0.2f)
+                                        )
+                                ),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                    } else {
+                        Modifier.border(
+                            width = 1.dp,
+                            color =
+                                if (isStrategic) {
+                                    io.github.smithjustinn.blackjack.ui.theme.PrimaryGold.copy(
+                                        alpha = 0.2f
+                                    )
+                                } else {
+                                    Color.White.copy(alpha = 0.1f)
+                                },
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                    }
+                ).clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    enabled = enabled,
+                    onClick = onClick
+                ).padding(contentPadding),
         contentAlignment = Alignment.Center
     ) {
+        val disabledContentColor =
+            if (isStrategic) {
+                io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+                    .copy(alpha = 0.3f)
+            } else {
+                resolvedContentColor.copy(alpha = 0.3f)
+            }
+
         Text(
             text = text.uppercase(),
-            color = if (enabled) resolvedContentColor else resolvedContentColor.copy(alpha = 0.2f),
+            color = if (enabled) resolvedContentColor else disabledContentColor,
             fontSize = 18.sp,
             fontWeight = FontWeight.Black,
             style = MaterialTheme.typography.labelLarge,
