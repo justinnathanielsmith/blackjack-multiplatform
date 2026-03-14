@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -301,26 +299,13 @@ private fun PortraitLayout(
             HandRow(state.dealerHand, isDealer = true, layoutMode = layoutMode)
         }
 
-        // Anchor Box to maintain stability and provide space
-        Box(
-            modifier =
-                Modifier
-                    .weight(0.5f)
-                    .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            // Empty, space is reserved
-        }
-
         val hands = state.playerHands
         if (hands.size > 1) {
             Column(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                        .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 hands.forEachIndexed { index, hand ->
@@ -333,14 +318,24 @@ private fun PortraitLayout(
                         isActive = isActive,
                         isPending = isPending,
                         result = state.handResult(index),
-                        layoutMode = layoutMode,
-                        modifier = Modifier.fillMaxWidth(),
+                        layoutMode = LayoutMode.LANDSCAPE_COMPACT,
+                        modifier = Modifier.weight(1f),
                     ) {
-                        HandRow(hand, layoutMode = layoutMode)
+                        HandRow(hand, layoutMode = LayoutMode.LANDSCAPE_COMPACT)
                     }
                 }
             }
         } else {
+            // Anchor Box to maintain stability and provide space
+            Box(
+                modifier =
+                    Modifier
+                        .weight(0.5f)
+                        .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                // Empty, space is reserved
+            }
             HandContainer(
                 title = stringResource(Res.string.you),
                 score = hands[0].score,
@@ -374,7 +369,7 @@ private fun LandscapeLayout(
     ) {
         // Left side: Cards
         Column(
-            modifier = Modifier.weight(3f),
+            modifier = Modifier.weight(2.5f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
@@ -425,7 +420,7 @@ private fun LandscapeLayout(
 
         // Right side: Status and Actions
         Column(
-            modifier = Modifier.weight(2f),
+            modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {

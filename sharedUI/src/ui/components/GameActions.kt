@@ -141,23 +141,44 @@ fun GameActions(
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    CasinoButton(
-                        text = stringResource(Res.string.hit),
-                        onClick = onHit,
-                        modifier = Modifier.weight(1f),
-                        isStrategic = true,
-                    )
-                    CasinoButton(
-                        text = stringResource(Res.string.stand),
-                        onClick = onStand,
-                        modifier = Modifier.weight(1f),
-                        containerColor = GlassDark,
-                        contentColor = Color.White,
-                    )
+                if (isCompact) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().height(buttonHeight * 2 + 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        CasinoButton(
+                            text = stringResource(Res.string.hit),
+                            onClick = onHit,
+                            modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                            isStrategic = true,
+                        )
+                        CasinoButton(
+                            text = stringResource(Res.string.stand),
+                            onClick = onStand,
+                            modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                            containerColor = GlassDark,
+                            contentColor = Color.White,
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        CasinoButton(
+                            text = stringResource(Res.string.hit),
+                            onClick = onHit,
+                            modifier = Modifier.weight(1f),
+                            isStrategic = true,
+                        )
+                        CasinoButton(
+                            text = stringResource(Res.string.stand),
+                            onClick = onStand,
+                            modifier = Modifier.weight(1f),
+                            containerColor = GlassDark,
+                            contentColor = Color.White,
+                        )
+                    }
                 }
             } else if (status != GameStatus.INSURANCE_OFFERED) {
                 // Reserve space matching the PLAYING state height
