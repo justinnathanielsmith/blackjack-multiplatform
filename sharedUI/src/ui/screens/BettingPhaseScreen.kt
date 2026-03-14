@@ -67,6 +67,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.bet_multiplier
 import sharedui.generated.resources.bet_total_label
 import sharedui.generated.resources.deal
 import sharedui.generated.resources.reset_bet
@@ -147,6 +148,7 @@ fun BettingPhaseScreen(
 
             BetDisplayCard(
                 currentBet = state.currentBet,
+                handCount = state.handCount,
                 onPositioned = { betDisplayOffset = it },
             )
 
@@ -183,8 +185,10 @@ fun BettingPhaseScreen(
 @Composable
 private fun BetDisplayCard(
     currentBet: Int,
+    handCount: Int,
     onPositioned: (Offset) -> Unit,
 ) {
+    val totalBet = currentBet * handCount
     Column(
         modifier =
             Modifier
@@ -202,14 +206,30 @@ private fun BetDisplayCard(
                 },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = stringResource(Res.string.bet_total_label).uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            color = PrimaryGold.copy(alpha = 0.8f),
-            letterSpacing = 2.sp,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.bet_total_label).uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = PrimaryGold.copy(alpha = 0.8f),
+                letterSpacing = 2.sp,
+            )
+            if (handCount > 1) {
+                Text(
+                    text = stringResource(Res.string.bet_multiplier, handCount),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = PrimaryGold,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(PrimaryGold.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                )
+            }
+        }
         AnimatedContent(
-            targetState = currentBet,
+            targetState = totalBet,
             transitionSpec = {
                 fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200))
             },

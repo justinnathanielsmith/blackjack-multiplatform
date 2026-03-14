@@ -29,6 +29,7 @@
     <string name="hand_count_label">Hands</string>
     <string name="total_bet">Total: %1$s</string>
     <string name="bet_total_label">Total Bet</string>
+    <string name="bet_multiplier">x%1$d</string>
     <string name="hand_number">Hand %1$d</string>
 
     <!-- Game status messages -->
