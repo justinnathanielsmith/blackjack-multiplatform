@@ -71,6 +71,7 @@ enum class GameStatus {
     BETTING,
     IDLE,
     PLAYING,
+    INSURANCE_OFFERED,
     DEALER_TURN,
     PLAYER_WON,
     DEALER_WON,
@@ -84,7 +85,11 @@ data class GameState(
     val dealerHand: Hand = Hand(),
     val status: GameStatus = GameStatus.IDLE,
     val balance: Int = 1000,
-    val currentBet: Int = 0
+    val currentBet: Int = 0,
+    val insuranceBet: Int = 0,
+    val splitHand: Hand? = null,
+    val splitBet: Int = 0,
+    val isPlayingSplitHand: Boolean = false,
 )
 
 sealed class GameAction {
@@ -103,6 +108,14 @@ sealed class GameAction {
     data object Hit : GameAction()
 
     data object Stand : GameAction()
+
+    data object DoubleDown : GameAction()
+
+    data object TakeInsurance : GameAction()
+
+    data object DeclineInsurance : GameAction()
+
+    data object Split : GameAction()
 }
 
 sealed class GameEffect {

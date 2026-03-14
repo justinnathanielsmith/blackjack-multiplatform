@@ -40,6 +40,10 @@ class BlackjackStateMachine(
                     is GameAction.Deal -> handleDeal()
                     is GameAction.Hit -> handleHit()
                     is GameAction.Stand -> handleStand()
+                    is GameAction.DoubleDown -> handleDoubleDown()
+                    is GameAction.TakeInsurance -> handleTakeInsurance()
+                    is GameAction.DeclineInsurance -> handleDeclineInsurance()
+                    is GameAction.Split -> Unit
                 }
             }
         }
@@ -112,6 +116,9 @@ class BlackjackStateMachine(
         if (initialStatus == GameStatus.PLAYER_WON) {
             emitEffect(GameEffect.PlayWinSound)
         }
+        if (initialStatus == GameStatus.PLAYING && dealerCards[0].rank == Rank.ACE) {
+            _state.value = _state.value.copy(status = GameStatus.INSURANCE_OFFERED)
+        }
     }
 
     private fun handleNewGame(initialBalance: Int? = null) {
@@ -157,6 +164,71 @@ class BlackjackStateMachine(
             )
     }
 
+    private suspend fun runDealerTurn() {
+        revealDealerHoleCard()
+        delay(DEALER_TURN_DELAY_MS) // Visual pause for hole card reveal
+
+        // Insurance payout: dealer natural BJ (2-card 21) pays 2:1 + returns stake = 3x
+        val stateAfterReveal = _state.value
+        val dealerHasNaturalBJ = stateAfterReveal.dealerHand.score == 21 && stateAfterReveal.dealerHand.cards.size == 2
+        if (stateAfterReveal.insuranceBet > 0 && dealerHasNaturalBJ) {
+            _state.value =
+                stateAfterReveal.copy(
+                    balance = stateAfterReveal.balance + stateAfterReveal.insuranceBet * 3
+                )
+        }
+
+        var currentDealerHand = _state.value.dealerHand
+        var currentDeck = _state.value.deck
+
+        while (currentDealerHand.score < DEALER_STAND_THRESHOLD) {
+            val newCard = currentDeck.firstOrNull() ?: break
+            currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards + newCard)
+            currentDeck = currentDeck.drop(1)
+
+            _state.value =
+                _state.value.copy(
+                    deck = currentDeck,
+                    dealerHand = currentDealerHand
+                )
+            emitEffect(GameEffect.PlayCardSound)
+            delay(DEALER_TURN_DELAY_MS) // Visual pacing for dealer hits
+        }
+
+        val playerScore = _state.value.playerHand.score
+        val dealerScore = _state.value.dealerHand.score
+
+        val finalStatus =
+            when {
+                _state.value.dealerHand.isBust -> GameStatus.PLAYER_WON
+                playerScore > dealerScore -> GameStatus.PLAYER_WON
+                playerScore < dealerScore -> GameStatus.DEALER_WON
+                else -> GameStatus.PUSH
+            }
+
+        val balanceUpdate =
+            when (finalStatus) {
+                GameStatus.PLAYER_WON -> _state.value.currentBet * 2
+                GameStatus.PUSH -> _state.value.currentBet
+                else -> 0
+            }
+
+        _state.value =
+            _state.value.copy(
+                status = finalStatus,
+                balance = _state.value.balance + balanceUpdate
+            )
+
+        when (finalStatus) {
+            GameStatus.PLAYER_WON -> emitEffect(GameEffect.PlayWinSound)
+            GameStatus.DEALER_WON -> {
+                emitEffect(GameEffect.PlayLoseSound)
+                emitEffect(GameEffect.Vibrate)
+            }
+            else -> {}
+        }
+    }
+
     private fun handleStand() {
         val currentState = _state.value
         if (currentState.status != GameStatus.PLAYING) return
@@ -164,61 +236,63 @@ class BlackjackStateMachine(
         scope.launch {
             mutex.withLock {
                 _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
+                runDealerTurn()
+            }
+        }
+    }
 
-                revealDealerHoleCard()
-                delay(DEALER_TURN_DELAY_MS) // Visual pause for hole card reveal
+    private fun handleDoubleDown() {
+        val state = _state.value
+        if (state.status != GameStatus.PLAYING) return
+        if (state.playerHand.cards.size != 2) return
+        if (state.balance < state.currentBet) return
 
-                var currentDealerHand = _state.value.dealerHand
-                var currentDeck = _state.value.deck
+        val drawnCard = state.deck.first()
+        val remainingDeck = state.deck.drop(1)
+        val newPlayerHand = Hand(state.playerHand.cards + drawnCard)
+        val busted = newPlayerHand.isBust
 
-                while (currentDealerHand.score < DEALER_STAND_THRESHOLD) {
-                    val newCard = currentDeck.firstOrNull() ?: break
-                    currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards + newCard)
-                    currentDeck = currentDeck.drop(1)
-
-                    _state.value =
-                        _state.value.copy(
-                            deck = currentDeck,
-                            dealerHand = currentDealerHand
-                        )
-                    emitEffect(GameEffect.PlayCardSound)
-                    delay(DEALER_TURN_DELAY_MS) // Visual pacing for dealer hits
-                }
-
-                val playerScore = _state.value.playerHand.score
-                val dealerScore = _state.value.dealerHand.score
-
-                val finalStatus =
-                    when {
-                        _state.value.dealerHand.isBust -> GameStatus.PLAYER_WON
-                        playerScore > dealerScore -> GameStatus.PLAYER_WON
-                        playerScore < dealerScore -> GameStatus.DEALER_WON
-                        else -> GameStatus.PUSH
-                    }
-
-                val balanceUpdate =
-                    when (finalStatus) {
-                        GameStatus.PLAYER_WON -> _state.value.currentBet * 2
-                        GameStatus.PUSH -> _state.value.currentBet
-                        else -> 0
-                    }
-
-                _state.value =
-                    _state.value.copy(
-                        status = finalStatus,
-                        balance = _state.value.balance + balanceUpdate
-                    )
-
-                when (finalStatus) {
-                    GameStatus.PLAYER_WON -> emitEffect(GameEffect.PlayWinSound)
-                    GameStatus.DEALER_WON -> {
-                        emitEffect(GameEffect.PlayLoseSound)
-                        emitEffect(GameEffect.Vibrate)
-                    }
-                    else -> {}
+        _state.value =
+            state.copy(
+                deck = remainingDeck,
+                playerHand = newPlayerHand,
+                balance = state.balance - state.currentBet,
+                currentBet = state.currentBet * 2,
+                status = if (busted) GameStatus.DEALER_WON else GameStatus.DEALER_TURN,
+            )
+        emitEffect(GameEffect.PlayCardSound)
+        if (busted) {
+            emitEffect(GameEffect.PlayLoseSound)
+            emitEffect(GameEffect.Vibrate)
+        } else {
+            scope.launch {
+                mutex.withLock {
+                    runDealerTurn()
                 }
             }
         }
+    }
+
+    private fun handleTakeInsurance() {
+        val state = _state.value
+        if (state.status != GameStatus.INSURANCE_OFFERED) return
+        val insuranceBet = state.currentBet / 2
+        _state.value =
+            state.copy(
+                balance = state.balance - insuranceBet,
+                insuranceBet = insuranceBet,
+                status = GameStatus.PLAYING,
+            )
+    }
+
+    private fun handleDeclineInsurance() {
+        val state = _state.value
+        if (state.status != GameStatus.INSURANCE_OFFERED) return
+        _state.value =
+            state.copy(
+                insuranceBet = 0,
+                status = GameStatus.PLAYING,
+            )
     }
 
     private fun emitEffect(effect: GameEffect) {
