@@ -1,7 +1,8 @@
-package io.github.smithjustinn.blackjack.ui
+package io.github.smithjustinn.blackjack.ui.ui
 
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.services.HapticsService
+import io.github.smithjustinn.blackjack.ui.handleGameEffect
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
