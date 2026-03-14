@@ -1,0 +1,205 @@
+00:01.821 INFO  :iosApp:manageXCodeProject XCode project exists: /Users/justinsmith/Projects/blackjack/iosApp/module.xcodeproj
+00:01.894 INFO  :iosApp:manageXCodeProject Amper Phase is valid
+00:01.965 INFO  :data:linkIosSimulatorArm64TestDebug No test code was found compiled for fragments [appleTest, commonTest, iosSimulatorArm64Test, iosTest, nativeTest] of module 'data', skipping linking
+00:01.963 INFO  :data:linkIosArm64TestDebug No test code was found compiled for fragments [appleTest, commonTest, iosArm64Test, iosTest, nativeTest] of module 'data', skipping linking
+00:01.963 INFO  :data:linkIosX64TestDebug No test code was found compiled for fragments [appleTest, commonTest, iosTest, iosX64Test, nativeTest] of module 'data', skipping linking
+00:02.485 INFO  :sharedUI:compileIosSimulatorArm64Debug Compiling module 'sharedUI' for platform 'iosSimulatorArm64'...
+00:02.942 INFO  :sharedUI:compileIosX64Debug Compiling module 'sharedUI' for platform 'iosX64'...
+00:03.557 INFO  :sharedUI:compileIosArm64Debug Compiling module 'sharedUI' for platform 'iosArm64'...
+00:09.615 WARN  :desktopApp:resolveDependenciesJvm Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.619 WARN  :desktopApp:resolveDependenciesJvmTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.620 WARN  :desktopApp:resolveDependenciesJvm Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.620 WARN  :desktopApp:resolveDependenciesJvmTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.627 WARN  :sharedUI:resolveDependenciesJvm Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.636 WARN  :sharedUI:resolveDependenciesJvm Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.717 WARN  :sharedUI:resolveDependenciesAndroid Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.720 WARN  :sharedUI:resolveDependenciesAndroid Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:09.918 INFO  :sharedUI:compileJvm      Compiling module 'sharedUI' for platform 'jvm'...
+00:10.346 WARN  :sharedUI:resolveDependenciesJvmTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:10.349 WARN  :sharedUI:resolveDependenciesJvmTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:10.674 WARN  :androidApp:resolveDependenciesAndroidTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:10.686 WARN  :androidApp:resolveDependenciesAndroidTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:10.776 WARN  :sharedUI:resolveDependenciesAndroidTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:10.796 WARN  :sharedUI:resolveDependenciesAndroidTest Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:11.225 WARN  :androidApp:resolveDependenciesAndroid Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+00:11.226 WARN  :androidApp:resolveDependenciesAndroid Declared version 1.8.0 of dependency org.jetbrains.kotlinx:kotlinx-serialization-json is overridden, the actual version is 1.9.0.
+> :data:checkAndroidSdkLicenseAndroid 8s
+> :androidApp:resolveDependenciesAndroid 9s
+00:11.792 INFO  :sharedUI:compileAndroidDebug Compiling module 'sharedUI' for platform 'android'...
+00:23.456 ERROR :sharedUI:compileIosX64Debug /Users/justinsmith/Projects/blackjack/sharedUI/src@ios/services/IosAudioServiceImpl.kt:60:24: warning: this declaration needs opt-in. Its usage should be marked with '@kotlinx.cinterop.BetaInteropApi' or '@OptIn(kotlinx.cinterop.BetaInteropApi::class)'
+00:23.457 ERROR :sharedUI:compileIosX64Debug                 NSData.create(
+00:23.458 ERROR :sharedUI:compileIosX64Debug                        ^^^^^^
+00:23.469 ERROR :sharedUI:compileIosX64Debug /Users/justinsmith/Projects/blackjack/sharedUI/src@ios/services/IosAudioServiceImpl.kt:105:17: warning: condition is always 'true'.
+00:23.471 ERROR :sharedUI:compileIosX64Debug             if (player != null) {
+00:23.473 ERROR :sharedUI:compileIosX64Debug                 ^^^^^^^^^^^^^^
+00:23.527 INFO  :iosApp:frameworkIosX64Debug Linking native 'iosX64' framework for module 'iosApp'...
+00:23.533 INFO  :sharedUI:compileIosX64TestDebug Compiling module 'sharedUI' for platform 'iosX64'...
+00:23.538 INFO  :iosApp:linkIosX64TestDebug No test code was found compiled for fragments [appleTest, commonTest, iosTest, iosX64Test, nativeTest] of module 'iosApp', skipping linking
+00:23.612 ERROR :sharedUI:compileIosArm64Debug /Users/justinsmith/Projects/blackjack/sharedUI/src@ios/services/IosAudioServiceImpl.kt:60:24: warning: this declaration needs opt-in. Its usage should be marked with '@kotlinx.cinterop.BetaInteropApi' or '@OptIn(kotlinx.cinterop.BetaInteropApi::class)'
+00:23.614 ERROR :sharedUI:compileIosArm64Debug                 NSData.create(
+00:23.614 ERROR :sharedUI:compileIosArm64Debug                        ^^^^^^
+00:23.614 ERROR :sharedUI:compileIosArm64Debug /Users/justinsmith/Projects/blackjack/sharedUI/src@ios/services/IosAudioServiceImpl.kt:105:17: warning: condition is always 'true'.
+00:23.615 ERROR :sharedUI:compileIosArm64Debug             if (player != null) {
+00:23.619 ERROR :sharedUI:compileIosArm64Debug                 ^^^^^^^^^^^^^^
+00:23.671 INFO  :sharedUI:compileIosArm64TestDebug Compiling module 'sharedUI' for platform 'iosArm64'...
+00:23.684 INFO  :iosApp:frameworkIosArm64Debug Linking native 'iosArm64' framework for module 'iosApp'...
+00:23.686 INFO  :iosApp:linkIosArm64TestDebug No test code was found compiled for fragments [appleTest, commonTest, iosArm64Test, iosTest, nativeTest] of module 'iosApp', skipping linking
+00:24.027 ERROR :sharedUI:compileIosSimulatorArm64Debug /Users/justinsmith/Projects/blackjack/sharedUI/src@ios/services/IosAudioServiceImpl.kt:60:24: warning: this declaration needs opt-in. Its usage should be marked with '@kotlinx.cinterop.BetaInteropApi' or '@OptIn(kotlinx.cinterop.BetaInteropApi::class)'
+00:24.030 ERROR :sharedUI:compileIosSimulatorArm64Debug                 NSData.create(
+00:24.031 ERROR :sharedUI:compileIosSimulatorArm64Debug                        ^^^^^^
+00:24.031 ERROR :sharedUI:compileIosSimulatorArm64Debug /Users/justinsmith/Projects/blackjack/sharedUI/src@ios/services/IosAudioServiceImpl.kt:105:17: warning: condition is always 'true'.
+00:24.032 ERROR :sharedUI:compileIosSimulatorArm64Debug             if (player != null) {
+00:24.039 ERROR :sharedUI:compileIosSimulatorArm64Debug                 ^^^^^^^^^^^^^^
+00:24.073 INFO  :sharedUI:compileIosSimulatorArm64TestDebug Compiling module 'sharedUI' for platform 'iosSimulatorArm64'...
+00:24.079 INFO  :iosApp:frameworkIosSimulatorArm64Debug Linking native 'iosSimulatorArm64' framework for module 'iosApp'...
+00:24.087 INFO  :iosApp:linkIosSimulatorArm64TestDebug No test code was found compiled for fragments [appleTest, commonTest, iosSimulatorArm64Test, iosTest, nativeTest] of module 'iosApp', skipping linking
+00:31.081 INFO  :androidApp:compileAndroidDebug Compiling module 'androidApp' for platform 'android'...
+00:31.098 INFO  :sharedUI:compileAndroidTestDebug Compiling module 'sharedUI' for platform 'android'...
+00:35.377 INFO  :desktopApp:compileJvm    Compiling module 'desktopApp' for platform 'jvm'...
+00:35.388 INFO  :sharedUI:compileJvmTest  Compiling module 'sharedUI' for platform 'jvm'...
+01:01.878 INFO  :androidApp:buildAndroidDebug Gradle build started
+01:04.902 WARN  :androidApp:buildAndroidDebug This will fail with an error in Gradle 9.0.
+02:09.419 INFO  :androidApp:buildAndroidDebug Gradle build finished successfully
+04:44.077 INFO  :iosApp:buildIosAppIosX64Debug Using xcbeautify (2.28.0) to parse xcodebuild output.
+04:47.667 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug Using xcbeautify (2.28.0) to parse xcodebuild output.
+05:04.299 WARN  :iosApp:buildIosAppIosArm64Debug `DEVELOPMENT_TEAM` build setting is not detected in the Xcode project. Adding `CODE_SIGNING_ALLOWED=NO` to disable signing. You can still sign the app manually later.
+05:04.307 INFO  :iosApp:buildIosAppIosArm64Debug Using xcbeautify (2.28.0) to parse xcodebuild output.
+05:19.736 INFO  :iosApp:buildIosAppIosArm64Debug note: Building targets in dependency order
+05:19.741 INFO  :iosApp:buildIosAppIosArm64Debug note: Target dependency graph (1 target)
+05:19.742 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp.hmap
+05:19.742 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp.DependencyStaticMetadataFileList
+05:19.743 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp.DependencyMetadataFileList
+05:19.743 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp-project-headers.hmap
+05:19.744 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp-own-target-headers.hmap
+05:19.745 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp-generated-files.hmap
+05:19.745 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp-all-target-headers.hmap
+05:19.745 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp-all-non-framework-target-headers.hmap
+05:19.745 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp-DebugDylibPath-normal-arm64.txt
+05:19.746 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp-DebugDylibInstallName-normal-arm64.txt
+05:19.747 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File Script-6DB3F56E12EE4F04E6B7F86B.sh
+05:19.748 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp.SwiftConstValuesFileList
+05:19.748 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp.SwiftFileList
+05:19.749 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File iosApp.LinkFileList
+05:19.750 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File app_const_extract_protocols.json
+05:19.750 INFO  :iosApp:buildIosAppIosArm64Debug [app] Write Auxiliary File app-OutputFileMap.json
+05:19.750 INFO  :iosApp:buildIosAppIosArm64Debug [app] Running script Build Kotlin with Amper
+05:19.750 INFO  :iosApp:buildIosAppIosArm64Debug [app] Linking __preview.dylib
+05:19.751 INFO  :iosApp:buildIosAppIosArm64Debug [app] Generate Asset Symbols Assets.xcassets
+05:19.751 INFO  :iosApp:buildIosAppIosArm64Debug [app] Compiling Main.swift
+05:19.752 INFO  :iosApp:buildIosAppIosArm64Debug [app] Compiling GeneratedAssetSymbols.swift
+05:19.753 INFO  :iosApp:buildIosAppIosArm64Debug [app] Copy arm64-apple-ios.abi.json -> app.abi.json
+05:19.754 INFO  :iosApp:buildIosAppIosArm64Debug [app] Copy arm64-apple-ios.swiftmodule -> app.swiftmodule
+05:19.754 INFO  :iosApp:buildIosAppIosArm64Debug [app] Copy arm64-apple-ios.swiftdoc -> app.swiftdoc
+05:19.755 INFO  :iosApp:buildIosAppIosArm64Debug [app] Copy arm64-apple-ios.swiftsourceinfo -> app.swiftsourceinfo
+05:19.755 INFO  :iosApp:buildIosAppIosArm64Debug [app] Linking iosApp.debug.dylib
+05:19.755 INFO  :iosApp:buildIosAppIosArm64Debug note: Using stub executor library with Swift entry point. (in target 'app' from project 'module')
+05:19.756 INFO  :iosApp:buildIosAppIosArm64Debug [app] Linking iosApp
+05:19.757 INFO  :iosApp:buildIosAppIosArm64Debug [app] Generating iosApp.app.dSYM
+05:19.757 INFO  :iosApp:buildIosAppIosArm64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosArm64Debug/bin/Debug-iphoneos/iosApp.app/Assets.car (in target 'app' from project 'module')
+05:19.758 INFO  :iosApp:buildIosAppIosArm64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosArm64Debug/bin/Debug-iphoneos/iosApp.app/AppIcon76x76@2x~ipad.png (in target 'app' from project 'module')
+05:19.758 INFO  :iosApp:buildIosAppIosArm64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosArm64Debug/bin/Debug-iphoneos/iosApp.app/AppIcon60x60@2x.png (in target 'app' from project 'module')
+05:19.759 INFO  :iosApp:buildIosAppIosArm64Debug [app] Processing Info.plist
+05:19.760 INFO  :iosApp:buildIosAppIosArm64Debug [app] Extract App Intents Metadata
+05:19.761 INFO  :iosApp:buildIosAppIosArm64Debug [app] Generating iosApp.app.dSYM
+05:19.761 INFO  :iosApp:buildIosAppIosArm64Debug [app] RegisterExecutionPolicyException iosApp.app
+05:19.762 INFO  :iosApp:buildIosAppIosArm64Debug [app] Validate iosApp.app
+05:19.762 INFO  :iosApp:buildIosAppIosArm64Debug ⚠️ All interface orientations must be supported unless the app requires full screen. (in target 'app' from project 'module')
+05:19.777 INFO  :iosApp:buildIosAppIosArm64Debug [app] Touching iosApp.app
+05:19.778 INFO  :iosApp:buildIosAppIosArm64Debug note: Run script build phase 'Build Kotlin with Amper' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'app' from project 'module')
+05:19.779 INFO  :iosApp:buildIosAppIosArm64Debug Build Succeeded
+05:19.782 INFO  :iosApp:buildIosAppIosArm64Debug Full xcodebuild log can be found at file:///Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosArm64Debug/xcodebuild.log
+05:19.905 INFO  :iosApp:buildIosAppIosX64Debug note: Building targets in dependency order
+05:19.905 INFO  :iosApp:buildIosAppIosX64Debug note: Target dependency graph (1 target)
+05:19.906 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp-project-headers.hmap
+05:19.906 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp.DependencyStaticMetadataFileList
+05:19.907 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp.hmap
+05:19.907 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp.DependencyMetadataFileList
+05:19.907 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp-own-target-headers.hmap
+05:19.908 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp-all-target-headers.hmap
+05:19.908 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp-generated-files.hmap
+05:19.908 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp-all-non-framework-target-headers.hmap
+05:19.909 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp-DebugDylibPath-normal-x86_64.txt
+05:19.910 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp-DebugDylibInstallName-normal-x86_64.txt
+05:19.910 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File Script-6DB3F56E12EE4F04E6B7F86B.sh
+05:19.911 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp.SwiftFileList
+05:19.912 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp.SwiftConstValuesFileList
+05:19.912 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File iosApp.LinkFileList
+05:19.913 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File app_const_extract_protocols.json
+05:19.914 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File app-OutputFileMap.json
+05:19.914 INFO  :iosApp:buildIosAppIosX64Debug [app] Write Auxiliary File Entitlements-Simulated.plist
+05:19.915 INFO  :iosApp:buildIosAppIosX64Debug [app] Running script Build Kotlin with Amper
+05:19.915 INFO  :iosApp:buildIosAppIosX64Debug [app] Linking __preview.dylib
+05:19.915 INFO  :iosApp:buildIosAppIosX64Debug [app] Generate Asset Symbols Assets.xcassets
+05:19.915 INFO  :iosApp:buildIosAppIosX64Debug [app] Compiling GeneratedAssetSymbols.swift
+05:19.915 INFO  :iosApp:buildIosAppIosX64Debug [app] Compiling Main.swift
+05:19.915 INFO  :iosApp:buildIosAppIosX64Debug [app] Copy x86_64-apple-ios-simulator.abi.json -> app.abi.json
+05:19.916 INFO  :iosApp:buildIosAppIosX64Debug [app] Copy x86_64-apple-ios-simulator.swiftmodule -> app.swiftmodule
+05:19.917 INFO  :iosApp:buildIosAppIosX64Debug [app] Copy x86_64-apple-ios-simulator.swiftdoc -> app.swiftdoc
+05:19.917 INFO  :iosApp:buildIosAppIosX64Debug [app] Copy x86_64-apple-ios-simulator.swiftsourceinfo -> app.swiftsourceinfo
+05:19.917 INFO  :iosApp:buildIosAppIosX64Debug [app] Linking iosApp.debug.dylib
+05:19.918 INFO  :iosApp:buildIosAppIosX64Debug note: Using stub executor library with Swift entry point. (in target 'app' from project 'module')
+05:19.918 INFO  :iosApp:buildIosAppIosX64Debug [app] Linking iosApp
+05:19.918 INFO  :iosApp:buildIosAppIosX64Debug [app] Generating iosApp.app.dSYM
+05:19.919 INFO  :iosApp:buildIosAppIosX64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosX64Debug/bin/Debug-iphonesimulator/iosApp.app/AppIcon76x76@2x~ipad.png (in target 'app' from project 'module')
+05:19.919 INFO  :iosApp:buildIosAppIosX64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosX64Debug/bin/Debug-iphonesimulator/iosApp.app/AppIcon60x60@2x.png (in target 'app' from project 'module')
+05:19.920 INFO  :iosApp:buildIosAppIosX64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosX64Debug/bin/Debug-iphonesimulator/iosApp.app/Assets.car (in target 'app' from project 'module')
+05:19.920 INFO  :iosApp:buildIosAppIosX64Debug [app] Processing Info.plist
+05:19.921 INFO  :iosApp:buildIosAppIosX64Debug [app] Extract App Intents Metadata
+05:19.921 INFO  :iosApp:buildIosAppIosX64Debug [app] Generating iosApp.app.dSYM
+05:19.922 INFO  :iosApp:buildIosAppIosX64Debug Signing iosApp.debug.dylib (in target 'app' from project 'module')
+05:19.922 INFO  :iosApp:buildIosAppIosX64Debug Signing __preview.dylib (in target 'app' from project 'module')
+05:19.922 INFO  :iosApp:buildIosAppIosX64Debug Signing iosApp.app (in target 'app' from project 'module')
+05:19.923 INFO  :iosApp:buildIosAppIosX64Debug [app] RegisterExecutionPolicyException iosApp.app
+05:19.923 INFO  :iosApp:buildIosAppIosX64Debug [app] Validate iosApp.app
+05:19.923 INFO  :iosApp:buildIosAppIosX64Debug [app] Touching iosApp.app
+05:19.923 INFO  :iosApp:buildIosAppIosX64Debug note: Run script build phase 'Build Kotlin with Amper' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'app' from project 'module')
+05:19.924 INFO  :iosApp:buildIosAppIosX64Debug Build Succeeded
+05:19.925 INFO  :iosApp:buildIosAppIosX64Debug Full xcodebuild log can be found at file:///Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosX64Debug/xcodebuild.log
+05:19.930 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug note: Building targets in dependency order
+05:19.930 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug note: Target dependency graph (1 target)
+05:19.931 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp.DependencyStaticMetadataFileList
+05:19.931 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp.hmap
+05:19.931 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp.DependencyMetadataFileList
+05:19.931 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp-project-headers.hmap
+05:19.931 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp-own-target-headers.hmap
+05:19.932 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp-generated-files.hmap
+05:19.932 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp-all-target-headers.hmap
+05:19.933 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp-all-non-framework-target-headers.hmap
+05:19.933 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp-DebugDylibPath-normal-arm64.txt
+05:19.933 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp-DebugDylibInstallName-normal-arm64.txt
+05:19.933 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File Script-6DB3F56E12EE4F04E6B7F86B.sh
+05:19.934 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp.SwiftFileList
+05:19.934 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp.SwiftConstValuesFileList
+05:19.934 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File iosApp.LinkFileList
+05:19.935 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File app_const_extract_protocols.json
+05:19.935 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File app-OutputFileMap.json
+05:19.936 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Write Auxiliary File Entitlements-Simulated.plist
+05:19.936 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Running script Build Kotlin with Amper
+05:19.937 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Linking __preview.dylib
+05:19.937 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Generate Asset Symbols Assets.xcassets
+05:19.937 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Compiling GeneratedAssetSymbols.swift
+05:19.938 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Compiling Main.swift
+05:19.938 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Copy arm64-apple-ios-simulator.swiftdoc -> app.swiftdoc
+05:19.938 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Copy arm64-apple-ios-simulator.swiftmodule -> app.swiftmodule
+05:19.938 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Copy arm64-apple-ios-simulator.abi.json -> app.abi.json
+05:19.938 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Copy arm64-apple-ios-simulator.swiftsourceinfo -> app.swiftsourceinfo
+05:19.938 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Linking iosApp.debug.dylib
+05:19.938 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug note: Using stub executor library with Swift entry point. (in target 'app' from project 'module')
+05:19.939 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Linking iosApp
+05:19.940 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Generating iosApp.app.dSYM
+05:19.940 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosSimulatorArm64Debug/bin/Debug-iphonesimulator/iosApp.app/Assets.car (in target 'app' from project 'module')
+05:19.940 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosSimulatorArm64Debug/bin/Debug-iphonesimulator/iosApp.app/AppIcon60x60@2x.png (in target 'app' from project 'module')
+05:19.941 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug note: Emplaced /Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosSimulatorArm64Debug/bin/Debug-iphonesimulator/iosApp.app/AppIcon76x76@2x~ipad.png (in target 'app' from project 'module')
+05:19.941 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Processing Info.plist
+05:19.942 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Extract App Intents Metadata
+05:19.942 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Generating iosApp.app.dSYM
+05:19.942 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug Signing iosApp.debug.dylib (in target 'app' from project 'module')
+05:19.943 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug Signing __preview.dylib (in target 'app' from project 'module')
+05:19.943 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug Signing iosApp.app (in target 'app' from project 'module')
+05:19.943 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] RegisterExecutionPolicyException iosApp.app
+05:19.943 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Validate iosApp.app
+05:19.943 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug [app] Touching iosApp.app
+05:19.944 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug note: Run script build phase 'Build Kotlin with Amper' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'app' from project 'module')
+05:19.944 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug Build Succeeded
+05:19.944 INFO  :iosApp:buildIosAppIosSimulatorArm64Debug Full xcodebuild log can be found at file:///Users/justinsmith/Projects/blackjack/build/tasks/_iosApp_buildIosAppIosSimulatorArm64Debug/xcodebuild.log
+Build successful

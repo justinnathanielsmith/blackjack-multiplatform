@@ -10,3 +10,4 @@ dependencies:
   - ../core
   - $libs.room.runtime
   - $libs.sqlite.bundled
+  - $libs.datastore.preferences: exported

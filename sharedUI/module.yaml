@@ -19,6 +19,7 @@ dependencies@jvm:
 
 dependencies:
   - ../shared/core: exported
+  - ../shared/data: exported
   - $libs.decompose
   - $libs.decompose.extensions.compose
   - $libs.coil
@@ -26,7 +27,6 @@ dependencies:
   - $libs.compose.material3
   - $libs.compose.resources
   - $libs.kermit
-  - $libs.datastore.preferences
 
 test-dependencies:
   - $kotlin.test
