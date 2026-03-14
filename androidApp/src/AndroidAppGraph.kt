@@ -10,6 +10,7 @@ import io.github.smithjustinn.blackjack.services.AndroidAudioServiceImpl
 import io.github.smithjustinn.blackjack.services.AndroidHapticsServiceImpl
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.BalanceService
+import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.services.createBalanceService
 import io.github.smithjustinn.blackjack.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +22,7 @@ class AndroidAppGraph(
     init {
         initDataStore(context)
     }
+
     override val logger: Logger = Logger.withTag("Blackjack")
     override val audioService: AudioService = AndroidAudioServiceImpl(context, logger)
     override val hapticsService: HapticsService = AndroidHapticsServiceImpl(context)

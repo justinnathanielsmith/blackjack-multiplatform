@@ -6,6 +6,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GameEffectHandlerTest {
+    private val audioService =
+        object : io.github.smithjustinn.blackjack.services.AudioService {
+            override fun playEffect(effect: io.github.smithjustinn.blackjack.services.AudioService.SoundEffect) {}
+
+            override fun release() {}
+        }
+
     @Test
     fun vibrateEffectTriggersHaptics() {
         var calls = 0
@@ -16,7 +23,12 @@ class GameEffectHandlerTest {
                 }
             }
 
-        handleGameEffect(GameEffect.Vibrate, hapticsService)
+        handleGameEffect(
+            effect = GameEffect.Vibrate,
+            hapticsService = hapticsService,
+            audioService = audioService,
+            isSoundMuted = false
+        )
 
         assertEquals(1, calls)
     }
@@ -31,7 +43,12 @@ class GameEffectHandlerTest {
                 }
             }
 
-        handleGameEffect(GameEffect.PlayWinSound, hapticsService)
+        handleGameEffect(
+            effect = GameEffect.PlayWinSound,
+            hapticsService = hapticsService,
+            audioService = audioService,
+            isSoundMuted = false
+        )
 
         assertEquals(0, calls)
     }

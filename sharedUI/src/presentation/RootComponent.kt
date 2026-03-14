@@ -14,5 +14,6 @@ class DefaultRootComponent(
     settingsRepository: SettingsRepository,
 ) : RootComponent,
     ComponentContext by componentContext {
-    override val blackjackComponent: BlackjackComponent = DefaultBlackjackComponent(this, balanceService, settingsRepository)
+    override val blackjackComponent: BlackjackComponent =
+        DefaultBlackjackComponent(this, balanceService, settingsRepository)
 }

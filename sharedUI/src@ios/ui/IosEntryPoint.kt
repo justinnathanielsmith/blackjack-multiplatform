@@ -4,6 +4,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import platform.UIKit.UIViewController
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.data.createSettingsRepository
 import io.github.smithjustinn.blackjack.di.AppGraph
@@ -31,7 +32,12 @@ fun BlackjackViewController(): UIViewController =
                 override val coroutineDispatchers = CoroutineDispatchers()
                 override val applicationScope: CoroutineScope = MainScope()
             }
-        val root = DefaultRootComponent(DefaultComponentContext(lifecycle), appGraph.balanceService, appGraph.settingsRepository)
+        val root =
+            DefaultRootComponent(
+                DefaultComponentContext(lifecycle),
+                appGraph.balanceService,
+                appGraph.settingsRepository
+            )
 
         RootScreen(root, appGraph)
     }

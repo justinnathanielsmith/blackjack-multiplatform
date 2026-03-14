@@ -1660,9 +1660,18 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 800,
                         currentBet = 100,
-                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SEVEN, Suit.HEARTS)))),
+                        playerHands =
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SEVEN, Suit.HEARTS)))
+                            ),
                         playerBets = persistentListOf(100),
-                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true))),
+                        dealerHand =
+                            Hand(
+                                persistentListOf(
+                                    Card(Rank.TEN, Suit.CLUBS),
+                                    Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true)
+                                )
+                            ),
                         rules = GameRules(allowSurrender = true),
                     ),
                 )
@@ -1684,9 +1693,24 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 800,
                         currentBet = 100,
-                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TWO, Suit.HEARTS), Card(Rank.FIVE, Suit.CLUBS)))),
+                        playerHands =
+                            persistentListOf(
+                                Hand(
+                                    persistentListOf(
+                                        Card(Rank.TEN, Suit.SPADES),
+                                        Card(Rank.TWO, Suit.HEARTS),
+                                        Card(Rank.FIVE, Suit.CLUBS)
+                                    )
+                                )
+                            ),
                         playerBets = persistentListOf(100),
-                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true))),
+                        dealerHand =
+                            Hand(
+                                persistentListOf(
+                                    Card(Rank.TEN, Suit.CLUBS),
+                                    Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true)
+                                )
+                            ),
                         rules = GameRules(allowSurrender = true),
                     ),
                 )
@@ -1708,9 +1732,18 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 800,
                         currentBet = 100,
-                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SEVEN, Suit.HEARTS)))),
+                        playerHands =
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SEVEN, Suit.HEARTS)))
+                            ),
                         playerBets = persistentListOf(100),
-                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true))),
+                        dealerHand =
+                            Hand(
+                                persistentListOf(
+                                    Card(Rank.TEN, Suit.CLUBS),
+                                    Card(Rank.SEVEN, Suit.DIAMONDS).copy(isFaceDown = true)
+                                )
+                            ),
                         rules = GameRules(allowSurrender = false),
                     ),
                 )
@@ -1795,9 +1828,18 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 1000,
                         currentBet = 100,
-                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))),
+                        playerHands =
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))
+                            ),
                         playerBets = persistentListOf(100),
-                        dealerHand = Hand(persistentListOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS).copy(isFaceDown = false))),
+                        dealerHand =
+                            Hand(
+                                persistentListOf(
+                                    Card(Rank.ACE, Suit.CLUBS),
+                                    Card(Rank.SIX, Suit.DIAMONDS).copy(isFaceDown = false)
+                                )
+                            ),
                         deck = persistentListOf(Card(Rank.TEN, Suit.CLUBS)),
                         rules = GameRules(dealerHitsSoft17 = true),
                     ),
@@ -1820,7 +1862,10 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 1000,
                         currentBet = 100,
-                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))),
+                        playerHands =
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))
+                            ),
                         playerBets = persistentListOf(100),
                         dealerHand = Hand(persistentListOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
                         deck = persistentListOf(Card(Rank.TEN, Suit.CLUBS)),

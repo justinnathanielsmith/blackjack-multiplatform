@@ -3,9 +3,9 @@ package io.github.smithjustinn.blackjack.ui.screens
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -43,8 +43,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
@@ -55,6 +55,8 @@ import io.github.smithjustinn.blackjack.ui.components.BetChip
 import io.github.smithjustinn.blackjack.ui.components.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.ChipSelector
 import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
+import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
+import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
@@ -85,7 +87,9 @@ data class FlyingChip(
 
 private fun chipColor(value: Int) =
     when (value) {
-        10 -> PokerRed
+        5 -> PokerRed
+        10 -> ChipBlue
+        25 -> ChipGreen
         50 -> PrimaryGold
         100 -> PokerBlack
         else -> PokerBlack
@@ -474,60 +478,58 @@ private fun FlyingChipAnimation(
     onAnimationEnd: () -> Unit,
 ) {
     val density = LocalDensity.current
-    val animOffset = remember { Animatable(chip.startOffset, Offset.VectorConverter) }
+    val dropHeight = with(density) { 64.dp.toPx() }
+
+    val animX = remember { Animatable(chip.startOffset.x) }
+    val animY = remember { Animatable(chip.startOffset.y) }
+    val scaleX = remember { Animatable(1f) }
+    val scaleY = remember { Animatable(1f) }
     val alpha = remember { Animatable(1f) }
-    val scale = remember { Animatable(1f) }
-    val arcY = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
+        // Phase 1: glide to just above the target (180ms)
+        val aboveY = targetOffset.y - dropHeight
         launch {
-            animOffset.animateTo(
-                targetValue = targetOffset,
-                animationSpec = tween(durationMillis = 350, easing = FastOutLinearInEasing),
+            animX.animateTo(
+                targetValue = targetOffset.x,
+                animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
             )
         }
+        animY.animateTo(
+            targetValue = aboveY,
+            animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+        )
+
+        // Phase 2: fall onto the stack (220ms, gravity easing)
+        animY.animateTo(
+            targetValue = targetOffset.y,
+            animationSpec = tween(durationMillis = 220, easing = FastOutLinearInEasing),
+        )
+
+        // Phase 3: squash on landing
         launch {
-            arcY.animateTo(
-                targetValue = -100f,
-                animationSpec =
-                    keyframes {
-                        durationMillis = 350
-                        -100f at 175
-                        0f at 350
-                    },
-            )
+            scaleX.animateTo(1.2f, animationSpec = tween(50))
+            scaleX.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
         }
         launch {
-            alpha.animateTo(
-                targetValue = 0f,
-                animationSpec =
-                    keyframes {
-                        durationMillis = 350
-                        1f at 250
-                        0f at 350
-                    },
-            )
+            scaleY.animateTo(0.8f, animationSpec = tween(50))
+            scaleY.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
         }
-        launch {
-            scale.animateTo(
-                targetValue = 0.6f,
-                animationSpec = tween(durationMillis = 350),
-            )
-        }
-        delay(350)
+
+        // Phase 4: fade out after brief pause
+        delay(120)
+        alpha.animateTo(0f, animationSpec = tween(180))
         onAnimationEnd()
     }
-
-    val currentOffset = animOffset.value + Offset(0f, arcY.value * density.density)
 
     Box(
         modifier =
             Modifier
-                .offset { currentOffset.round() }
+                .offset { IntOffset(animX.value.toInt(), animY.value.toInt()) }
                 .graphicsLayer {
                     this.alpha = alpha.value
-                    this.scaleX = scale.value
-                    this.scaleY = scale.value
+                    this.scaleX = scaleX.value
+                    this.scaleY = scaleY.value
                 },
     ) {
         BetChip(

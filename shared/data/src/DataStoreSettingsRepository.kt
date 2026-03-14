@@ -16,7 +16,6 @@ private val SETTINGS_KEY = stringPreferencesKey("app_settings")
 class DataStoreSettingsRepository(
     private val dataStore: DataStore<Preferences>
 ) : SettingsRepository {
-
     override val settingsFlow: Flow<AppSettings> =
         dataStore.data
             .catch { emit(emptyPreferences()) }
@@ -28,13 +27,13 @@ class DataStoreSettingsRepository(
 
     override suspend fun update(transform: (AppSettings) -> AppSettings) {
         dataStore.edit { prefs ->
-            val current = prefs[SETTINGS_KEY]
-                ?.let { runCatching { Json.decodeFromString<AppSettings>(it) }.getOrNull() }
-                ?: AppSettings()
+            val current =
+                prefs[SETTINGS_KEY]
+                    ?.let { runCatching { Json.decodeFromString<AppSettings>(it) }.getOrNull() }
+                    ?: AppSettings()
             prefs[SETTINGS_KEY] = Json.encodeToString(transform(current))
         }
     }
 }
 
-fun createSettingsRepository(): SettingsRepository =
-    DataStoreSettingsRepository(createDataStore())
+fun createSettingsRepository(): SettingsRepository = DataStoreSettingsRepository(createDataStore())

@@ -12,17 +12,21 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
+import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 
-private val CHIP_VALUES = listOf(10, 50, 100)
+private val CHIP_VALUES = listOf(5, 10, 25, 50, 100)
 
 private fun chipColor(value: Int) =
     when (value) {
-        10 -> PokerRed
+        5 -> PokerRed
+        10 -> ChipBlue
+        25 -> ChipGreen
         50 -> PrimaryGold
         100 -> PokerBlack
         else -> PokerBlack
@@ -44,7 +48,7 @@ fun ChipSelector(
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         CHIP_VALUES.forEach { value ->
             val enabled = balance >= value

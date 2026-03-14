@@ -1,7 +1,14 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -17,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.data.AppSettings
-import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 
 @Composable
 fun DebugPanel(
@@ -26,10 +32,11 @@ fun DebugPanel(
     onAction: (GameAction) -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Black.copy(alpha = 0.8f))
-            .padding(12.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(Color.Black.copy(alpha = 0.8f))
+                .padding(12.dp)
     ) {
         Text(
             text = "DEBUG PANEL",
@@ -64,7 +71,10 @@ fun DebugPanel(
 }
 
 @Composable
-private fun DebugItem(label: String, value: String) {
+private fun DebugItem(
+    label: String,
+    value: String
+) {
     Column {
         Text(text = label, fontSize = 9.sp, color = Color.Gray)
         Text(

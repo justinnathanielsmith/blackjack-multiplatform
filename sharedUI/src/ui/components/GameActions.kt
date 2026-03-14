@@ -37,7 +37,6 @@ import sharedui.generated.resources.hit
 import sharedui.generated.resources.new_game
 import sharedui.generated.resources.split
 import sharedui.generated.resources.stand
-import sharedui.generated.resources.surrender
 
 @Composable
 fun GameActions(

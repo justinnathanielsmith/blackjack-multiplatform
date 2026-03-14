@@ -86,18 +86,7 @@ class BlackjackStateMachine(
         val extraCost = current.currentBet * (current.handCount - 1)
         if (current.balance < extraCost) return
 
-        val fullDeck =
-            if (current.deck.isNotEmpty()) {
-                current.deck
-            } else {
-                (1..current.rules.deckCount)
-                    .flatMap {
-                        Suit.entries.flatMap { suit ->
-                            Rank.entries.map { rank -> Card(rank, suit) }
-                        }
-                    }
-                    .shuffled()
-            }
+        val fullDeck = getInitialDeck(current)
 
         // Round-robin deal: hand i gets deck[i] and deck[i + handCount]
         val hands =
@@ -123,7 +112,10 @@ class BlackjackStateMachine(
 
         val balanceUpdate =
             when (initialStatus) {
-                GameStatus.PLAYER_WON -> (current.currentBet * current.rules.blackjackPayout.numerator) / current.rules.blackjackPayout.denominator + current.currentBet
+                GameStatus.PLAYER_WON ->
+                    (current.currentBet * current.rules.blackjackPayout.numerator) /
+                        current.rules.blackjackPayout.denominator +
+                        current.currentBet
                 GameStatus.PUSH -> current.currentBet
                 else -> 0
             }
@@ -164,7 +156,23 @@ class BlackjackStateMachine(
         }
     }
 
-    private fun handleNewGame(initialBalance: Int? = null, rules: GameRules = GameRules()) {
+    private fun getInitialDeck(current: GameState): List<Card> {
+        return if (current.deck.isNotEmpty()) {
+            current.deck
+        } else {
+            (1..current.rules.deckCount)
+                .flatMap {
+                    Suit.entries.flatMap { suit ->
+                        Rank.entries.map { rank -> Card(rank, suit) }
+                    }
+                }.shuffled()
+        }
+    }
+
+    private fun handleNewGame(
+        initialBalance: Int? = null,
+        rules: GameRules = GameRules()
+    ) {
         val currentState = _state.value
         _state.value =
             GameState(
@@ -361,9 +369,12 @@ class BlackjackStateMachine(
         finalizeGame()
     }
 
-    private fun shouldDealerDraw(hand: Hand, rules: GameRules): Boolean {
-        if (hand.score < 17) return true
-        if (hand.score == 17 && rules.dealerHitsSoft17 && hand.isSoft) return true
+    private fun shouldDealerDraw(
+        hand: Hand,
+        rules: GameRules
+    ): Boolean {
+        if (hand.score < DEALER_STAND_THRESHOLD) return true
+        if (hand.score == DEALER_STAND_THRESHOLD && rules.dealerHitsSoft17 && hand.isSoft) return true
         return false
     }
 

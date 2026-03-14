@@ -377,44 +377,21 @@ private fun LandscapeLayout(
 
             val hands = state.playerHands
             if (hands.size > 1) {
-                androidx.compose.foundation.layout.BoxWithConstraints {
-                    val useVerticalSplit = maxWidth < 700.dp
-                    if (useVerticalSplit) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            hands.forEachIndexed { index, hand ->
-                                val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                                val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
-                                HandContainer(
-                                    title = stringResource(Res.string.hand_number, index + 1),
-                                    score = hand.score,
-                                    bet = state.playerBets.getOrNull(index),
-                                    isActive = isActive,
-                                    isPending = isPending,
-                                    result = state.handResult(index),
-                                    layoutMode = layoutMode,
-                                ) {
-                                    HandRow(hand, layoutMode = layoutMode)
-                                }
-                            }
-                        }
-                    } else {
-                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            hands.forEachIndexed { index, hand ->
-                                val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                                val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
-                                HandContainer(
-                                    title = stringResource(Res.string.hand_number, index + 1),
-                                    score = hand.score,
-                                    bet = state.playerBets.getOrNull(index),
-                                    isActive = isActive,
-                                    isPending = isPending,
-                                    result = state.handResult(index),
-                                    layoutMode = layoutMode,
-                                    modifier = Modifier.weight(1f),
-                                ) {
-                                    HandRow(hand, layoutMode = layoutMode)
-                                }
-                            }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    hands.forEachIndexed { index, hand ->
+                        val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                        val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
+                        HandContainer(
+                            title = stringResource(Res.string.hand_number, index + 1),
+                            score = hand.score,
+                            bet = state.playerBets.getOrNull(index),
+                            isActive = isActive,
+                            isPending = isPending,
+                            result = state.handResult(index),
+                            layoutMode = layoutMode,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            HandRow(hand, layoutMode = layoutMode)
                         }
                     }
                 }

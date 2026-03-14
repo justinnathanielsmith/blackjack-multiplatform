@@ -5,9 +5,9 @@ import io.github.smithjustinn.blackjack.BlackjackStateMachine
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
-import io.github.smithjustinn.blackjack.services.BalanceService
 import io.github.smithjustinn.blackjack.data.AppSettings
 import io.github.smithjustinn.blackjack.data.SettingsRepository
+import io.github.smithjustinn.blackjack.services.BalanceService
 import io.github.smithjustinn.blackjack.utils.componentScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,6 +22,7 @@ interface BlackjackComponent {
     val appSettings: StateFlow<AppSettings>
 
     fun onAction(action: GameAction)
+
     fun updateSettings(transform: (AppSettings) -> AppSettings)
 }
 

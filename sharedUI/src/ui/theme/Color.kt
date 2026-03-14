@@ -18,3 +18,7 @@ val PokerRed = Color(0xFFD32F2F)
 val OakMedium = Color(0xFF4E2C1C)
 val PokerBlack = Color(0xFF212121)
 val WhiteSoft = Color(0xFFF5F5F5)
+
+// Casino Chip Colors
+val ChipBlue = Color(0xFF1565C0)
+val ChipGreen = Color(0xFF2E7D32)

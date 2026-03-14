@@ -2,12 +2,32 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,7 +41,18 @@ import io.github.smithjustinn.blackjack.data.AppSettings
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
-import sharedui.generated.resources.*
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.close
+import sharedui.generated.resources.settings_das
+import sharedui.generated.resources.settings_debug
+import sharedui.generated.resources.settings_decks
+import sharedui.generated.resources.settings_game_rules
+import sharedui.generated.resources.settings_mute
+import sharedui.generated.resources.settings_payout
+import sharedui.generated.resources.settings_rule_disclaimer
+import sharedui.generated.resources.settings_s17
+import sharedui.generated.resources.settings_surrender
+import sharedui.generated.resources.settings_title
 
 @Composable
 fun SettingsOverlay(
@@ -31,17 +62,19 @@ fun SettingsOverlay(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             color = GlassDark,
             tonalElevation = 8.dp
         ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState())
+                modifier =
+                    Modifier
+                        .padding(24.dp)
+                        .verticalScroll(rememberScrollState())
             ) {
                 Text(
                     text = stringResource(Res.string.settings_title).uppercase(),
@@ -80,16 +113,27 @@ fun SettingsOverlay(
 
                 SettingsDropdown(
                     title = stringResource(Res.string.settings_payout),
-                    currentValue = when (settings.gameRules.blackjackPayout) {
-                        BlackjackPayout.THREE_TO_TWO -> "3:2"
-                        BlackjackPayout.SIX_TO_FIVE -> "6:5"
-                    },
+                    currentValue =
+                        when (settings.gameRules.blackjackPayout) {
+                            BlackjackPayout.THREE_TO_TWO -> "3:2"
+                            BlackjackPayout.SIX_TO_FIVE -> "6:5"
+                        },
                     options = listOf("3:2", "6:5"),
                     onOptionSelected = { option ->
                         onUpdateSettings {
-                            it.copy(gameRules = it.gameRules.copy(
-                                blackjackPayout = if (option == "3:2") BlackjackPayout.THREE_TO_TWO else BlackjackPayout.SIX_TO_FIVE
-                            ))
+                            it.copy(
+                                gameRules =
+                                    it.gameRules.copy(
+                                        blackjackPayout =
+                                            if (option ==
+                                                "3:2"
+                                            ) {
+                                                BlackjackPayout.THREE_TO_TWO
+                                            } else {
+                                                BlackjackPayout.SIX_TO_FIVE
+                                            }
+                                    )
+                            )
                         }
                     }
                 )
@@ -97,19 +141,25 @@ fun SettingsOverlay(
                 SettingsToggle(
                     title = stringResource(Res.string.settings_s17),
                     checked = settings.gameRules.dealerHitsSoft17,
-                    onCheckedChange = { newVal -> onUpdateSettings { it.copy(gameRules = it.gameRules.copy(dealerHitsSoft17 = newVal)) } }
+                    onCheckedChange = { newVal ->
+                        onUpdateSettings { it.copy(gameRules = it.gameRules.copy(dealerHitsSoft17 = newVal)) }
+                    }
                 )
 
                 SettingsToggle(
                     title = stringResource(Res.string.settings_das),
                     checked = settings.gameRules.allowDoubleAfterSplit,
-                    onCheckedChange = { newVal -> onUpdateSettings { it.copy(gameRules = it.gameRules.copy(allowDoubleAfterSplit = newVal)) } }
+                    onCheckedChange = { newVal ->
+                        onUpdateSettings { it.copy(gameRules = it.gameRules.copy(allowDoubleAfterSplit = newVal)) }
+                    }
                 )
 
                 SettingsToggle(
                     title = stringResource(Res.string.settings_surrender),
                     checked = settings.gameRules.allowSurrender,
-                    onCheckedChange = { newVal -> onUpdateSettings { it.copy(gameRules = it.gameRules.copy(allowSurrender = newVal)) } }
+                    onCheckedChange = { newVal ->
+                        onUpdateSettings { it.copy(gameRules = it.gameRules.copy(allowSurrender = newVal)) }
+                    }
                 )
 
                 SettingsDropdown(
@@ -152,9 +202,10 @@ private fun SettingsToggle(
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -162,10 +213,11 @@ private fun SettingsToggle(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = PrimaryGold,
-                checkedTrackColor = PrimaryGold.copy(alpha = 0.5f)
-            )
+            colors =
+                SwitchDefaults.colors(
+                    checkedThumbColor = PrimaryGold,
+                    checkedTrackColor = PrimaryGold.copy(alpha = 0.5f)
+                )
         )
     }
 }
@@ -180,18 +232,20 @@ private fun SettingsDropdown(
     var expanded by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = title, color = Color.White)
         Box {
             Surface(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { expanded = true },
+                modifier =
+                    Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { expanded = true },
                 color = Color.White.copy(alpha = 0.1f)
             ) {
                 Text(

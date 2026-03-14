@@ -84,7 +84,10 @@ data class Hand(
 }
 
 @Serializable
-enum class BlackjackPayout(val numerator: Int, val denominator: Int) {
+enum class BlackjackPayout(
+    val numerator: Int,
+    val denominator: Int
+) {
     THREE_TO_TWO(3, 2),
     SIX_TO_FIVE(6, 5),
 }
