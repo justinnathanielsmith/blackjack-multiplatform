@@ -1,5 +1,8 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -92,22 +95,22 @@ class BlackjackStateMachine(
         // Round-robin deal: hand i gets deck[i] and deck[i + handCount]
         val hands =
             List(current.handCount) { i ->
-                Hand(listOf(fullDeck[i], fullDeck[i + current.handCount]))
-            }
+                Hand(persistentListOf(fullDeck[i], fullDeck[i + current.handCount]))
+            }.toPersistentList()
         val deckOffset = current.handCount * 2
         val dealerCards = fullDeck.drop(deckOffset).take(2)
-        val dealerHandHidden = Hand(listOf(dealerCards[0], dealerCards[1].copy(isFaceDown = true)))
-        val remainingDeck = fullDeck.drop(deckOffset + 2)
+        val dealerHandHidden = Hand(persistentListOf(dealerCards[0], dealerCards[1].copy(isFaceDown = true)))
+        val remainingDeck = fullDeck.drop(deckOffset + 2).toPersistentList()
 
         val newBalance = current.balance - extraCost
-        val bets = List(current.handCount) { current.currentBet }
+        val bets = List(current.handCount) { current.currentBet }.toPersistentList()
 
         val initialStatus = determineInitialStatus(hands, dealerHandHidden, current.handCount)
 
         val dealerHand =
             when (initialStatus) {
                 GameStatus.PUSH, GameStatus.DEALER_WON ->
-                    Hand(dealerHandHidden.cards.map { it.copy(isFaceDown = false) })
+                    Hand(dealerHandHidden.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
                 else -> dealerHandHidden
             }
 
@@ -160,8 +163,8 @@ class BlackjackStateMachine(
                 status = GameStatus.BETTING,
                 balance = initialBalance ?: currentState.balance,
                 currentBet = 0,
-                playerHands = listOf(Hand()),
-                playerBets = listOf(0),
+                playerHands = persistentListOf(Hand()),
+                playerBets = persistentListOf(0),
                 activeHandIndex = 0,
                 handCount = 1,
             )
@@ -180,10 +183,10 @@ class BlackjackStateMachine(
         if (isAceSplit && state.activeHand.cards.size >= 2) return
 
         val newCard = state.deck.first()
-        val remainingDeck = state.deck.drop(1)
-        val newHand = state.activeHand.copy(cards = state.activeHand.cards + newCard)
+        val remainingDeck = state.deck.drop(1).toPersistentList()
+        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(newCard))
         val updatedHands =
-            state.playerHands.toMutableList().also { it[state.activeHandIndex] = newHand }
+            state.playerHands.toPersistentList().set(state.activeHandIndex, newHand)
 
         if (newHand.isBust) {
             val newState = state.copy(deck = remainingDeck, playerHands = updatedHands)
@@ -222,23 +225,21 @@ class BlackjackStateMachine(
 
         val card1 = state.activeHand.cards[0]
         val card2 = state.activeHand.cards[1]
-        val newPrimaryHand = Hand(listOf(card1, state.deck[0]))
-        val newSplitHand = Hand(listOf(card2, state.deck[1]))
+        val newPrimaryHand = Hand(persistentListOf(card1, state.deck[0]))
+        val newSplitHand = Hand(persistentListOf(card2, state.deck[1]))
         val isAceSplit = card1.rank == Rank.ACE
 
         val updatedHands =
-            state.playerHands.toMutableList().apply {
-                set(state.activeHandIndex, newPrimaryHand)
-                add(state.activeHandIndex + 1, newSplitHand)
-            }
+            state.playerHands.toPersistentList()
+                .set(state.activeHandIndex, newPrimaryHand)
+                .add(state.activeHandIndex + 1, newSplitHand)
         val updatedBets =
-            state.playerBets.toMutableList().apply {
-                add(state.activeHandIndex + 1, state.currentBet)
-            }
+            state.playerBets.toPersistentList()
+                .add(state.activeHandIndex + 1, state.currentBet)
 
         val newState =
             state.copy(
-                deck = state.deck.drop(2),
+                deck = state.deck.drop(2).toPersistentList(),
                 playerHands = updatedHands,
                 playerBets = updatedBets,
                 balance = state.balance - state.currentBet,
@@ -264,14 +265,14 @@ class BlackjackStateMachine(
         if (!state.canDoubleDown()) return
 
         val drawnCard = state.deck.first()
-        val remainingDeck = state.deck.drop(1)
-        val newHand = state.activeHand.copy(cards = state.activeHand.cards + drawnCard)
+        val remainingDeck = state.deck.drop(1).toPersistentList()
+        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(drawnCard))
         val updatedHands =
-            state.playerHands.toMutableList().also { it[state.activeHandIndex] = newHand }
+            state.playerHands.toPersistentList().set(state.activeHandIndex, newHand)
 
         // Double the bet for this hand; deduct the extra (original activeBet) from balance
         val newBets =
-            state.playerBets.toMutableList().also { it[state.activeHandIndex] *= 2 }
+            state.playerBets.toPersistentList().set(state.activeHandIndex, state.activeBet * 2)
         val newBalance = state.balance - state.activeBet
 
         val newState =
@@ -298,7 +299,7 @@ class BlackjackStateMachine(
                     _state.value.dealerHand.copy(
                         cards =
                             _state.value.dealerHand.cards
-                                .map { it.copy(isFaceDown = false) }
+                                .map { it.copy(isFaceDown = false) }.toPersistentList()
                     )
             )
     }
@@ -314,8 +315,8 @@ class BlackjackStateMachine(
 
         while (currentDealerHand.score < DEALER_STAND_THRESHOLD) {
             val newCard = currentDeck.firstOrNull() ?: break
-            currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards + newCard)
-            currentDeck = currentDeck.drop(1)
+            currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards.add(newCard))
+            currentDeck = currentDeck.drop(1).toPersistentList()
 
             _state.value =
                 _state.value.copy(

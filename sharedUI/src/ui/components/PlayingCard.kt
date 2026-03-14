@@ -28,10 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -119,8 +121,8 @@ fun PlayingCard(
                 .scale(scale)
                 .width(96.dp)
                 .aspectRatio(24f / 34f)
-                .offset { IntOffset(0, offsetY.value.roundToInt()) }
                 .graphicsLayer {
+                    translationY = offsetY.value
                     rotationY = rotation
                     cameraDistance = 12f * density
                 },
@@ -203,31 +205,31 @@ fun PlayingCard(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .background(FeltDark),
-                ) {
-                    Canvas(modifier = Modifier.fillMaxSize().padding(1.dp)) {
-                        val cellSize = 8.dp.toPx()
-                        for (x in 0..(size.width / cellSize).toInt()) {
-                            for (y in 0..(size.height / cellSize).toInt()) {
-                                if ((x + y) % 2 == 0) {
-                                    drawRect(
-                                        color = PrimaryGold.copy(alpha = 0.05f),
-                                        topLeft = Offset(x * cellSize, y * cellSize),
-                                        size =
-                                            androidx.compose.ui.geometry
-                                                .Size(cellSize, cellSize),
+                            .background(FeltDark)
+                            .drawWithCache {
+                                onDrawBehind {
+                                    val cellSize = 8.dp.toPx()
+                                    for (x in 0..(size.width / cellSize).toInt()) {
+                                        for (y in 0..(size.height / cellSize).toInt()) {
+                                            if ((x + y) % 2 == 0) {
+                                                drawRect(
+                                                    color = PrimaryGold.copy(alpha = 0.05f),
+                                                    topLeft = Offset(x * cellSize, y * cellSize),
+                                                    size = androidx.compose.ui.geometry.Size(cellSize, cellSize),
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    drawRoundRect(
+                                        color = Color.White.copy(alpha = 0.2f),
+                                        size = size,
+                                        cornerRadius = CornerRadius(6.dp.toPx()),
+                                        style = Stroke(width = 2.dp.toPx()),
                                     )
                                 }
-                            }
-                        }
-
-                        drawRoundRect(
-                            color = Color.White.copy(alpha = 0.2f),
-                            size = size,
-                            cornerRadius = CornerRadius(6.dp.toPx()),
-                            style = Stroke(width = 2.dp.toPx()),
-                        )
-                    }
+                            },
+                ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             text = "👑",

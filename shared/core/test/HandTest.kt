@@ -1,5 +1,7 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.persistentListOf
+
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -8,7 +10,7 @@ class HandTest {
     fun testVisibleScore_countsOnlyFaceUpCards() {
         val hand =
             Hand(
-                listOf(
+                persistentListOf(
                     Card(Rank.EIGHT, Suit.HEARTS),
                     Card(Rank.TEN, Suit.SPADES, isFaceDown = true)
                 )
@@ -21,7 +23,7 @@ class HandTest {
     fun testVisibleScore_allFaceUp_matchesScore() {
         val hand =
             Hand(
-                listOf(
+                persistentListOf(
                     Card(Rank.KING, Suit.HEARTS),
                     Card(Rank.SEVEN, Suit.SPADES)
                 )
@@ -33,7 +35,7 @@ class HandTest {
     fun testVisibleScore_allFaceDown_returnsZero() {
         val hand =
             Hand(
-                listOf(
+                persistentListOf(
                     Card(Rank.TEN, Suit.HEARTS, isFaceDown = true),
                     Card(Rank.ACE, Suit.SPADES, isFaceDown = true)
                 )
@@ -46,7 +48,7 @@ class HandTest {
         // Face-up: ACE + NINE = 20 (not busting), face-down: TEN
         val hand =
             Hand(
-                listOf(
+                persistentListOf(
                     Card(Rank.ACE, Suit.HEARTS),
                     Card(Rank.NINE, Suit.SPADES),
                     Card(Rank.TEN, Suit.CLUBS, isFaceDown = true)

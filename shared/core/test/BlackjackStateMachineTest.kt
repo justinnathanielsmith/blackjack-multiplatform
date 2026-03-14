@@ -1,5 +1,7 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.persistentListOf
+
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -197,10 +199,10 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS)))),
-                        playerBets = listOf(100),
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = emptyList(),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.KING, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -222,10 +224,10 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS)))),
-                        playerBets = listOf(100),
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
-                        deck = emptyList(),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -268,16 +270,16 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
                         dealerHand =
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.TEN, Suit.CLUBS),
                                     Card(Rank.NINE, Suit.DIAMONDS, isFaceDown = true),
                                 ),
                             ),
-                        deck = emptyList(),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -300,16 +302,16 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))),
-                        playerBets = listOf(100),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
                         dealerHand =
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.TEN, Suit.CLUBS),
                                     Card(Rank.NINE, Suit.DIAMONDS, isFaceDown = true),
                                 ),
                             ),
-                        deck = listOf(Card(Rank.FIVE, Suit.SPADES)), // Player draws 5 → 25 bust
+                        deck = persistentListOf(Card(Rank.FIVE, Suit.SPADES)), // Player draws 5 → 25 bust
                     ),
                 )
             stateMachine.dispatch(GameAction.Hit)
@@ -332,10 +334,10 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
-                        deck = emptyList(),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -359,10 +361,10 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
-                        deck = listOf(Card(Rank.TWO, Suit.SPADES)),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
+                        deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
                     ),
                 )
             stateMachine.dispatch(GameAction.DoubleDown)
@@ -386,10 +388,10 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = listOf(Card(Rank.TWO, Suit.SPADES)),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
                     ),
                 )
             stateMachine.dispatch(GameAction.DoubleDown)
@@ -414,10 +416,10 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.NINE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = listOf(Card(Rank.TEN, Suit.SPADES)),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.NINE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(Card(Rank.TEN, Suit.SPADES)),
                     ),
                 )
             stateMachine.dispatch(GameAction.DoubleDown)
@@ -438,17 +440,17 @@ class BlackjackStateMachineTest {
                     balance = 900,
                     currentBet = 100,
                     playerHands =
-                        listOf(
+                        persistentListOf(
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.FIVE, Suit.SPADES),
                                     Card(Rank.SIX, Suit.HEARTS),
                                     Card(Rank.TWO, Suit.CLUBS),
                                 ),
                             ),
                         ),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TWO, Suit.SPADES)),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.DoubleDown)
@@ -465,10 +467,10 @@ class BlackjackStateMachineTest {
                     status = GameStatus.PLAYING,
                     balance = 99, // one less than the bet
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                    playerBets = listOf(100),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TWO, Suit.SPADES)),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.DoubleDown)
@@ -485,10 +487,10 @@ class BlackjackStateMachineTest {
                     status = GameStatus.BETTING,
                     balance = 900,
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                    playerBets = listOf(100),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TWO, Suit.SPADES)),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.DoubleDown)
@@ -550,16 +552,16 @@ class BlackjackStateMachineTest {
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
                         dealerHand =
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.ACE, Suit.CLUBS),
                                     Card(Rank.SEVEN, Suit.DIAMONDS, isFaceDown = true),
                                 ),
                             ),
-                        deck = emptyList(),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.TakeInsurance)
@@ -582,16 +584,16 @@ class BlackjackStateMachineTest {
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
                         currentBet = 100,
-                        playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
                         dealerHand =
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.ACE, Suit.CLUBS),
                                     Card(Rank.SEVEN, Suit.DIAMONDS, isFaceDown = true),
                                 ),
                             ),
-                        deck = emptyList(),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.DeclineInsurance)
@@ -617,16 +619,16 @@ class BlackjackStateMachineTest {
                         balance = 850,
                         currentBet = 100,
                         insuranceBet = 50,
-                        playerHands = listOf(Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                        playerBets = listOf(100),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
                         dealerHand =
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.ACE, Suit.CLUBS),
                                     Card(Rank.TEN, Suit.DIAMONDS, isFaceDown = true),
                                 ),
                             ),
-                        deck = emptyList(),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -651,16 +653,16 @@ class BlackjackStateMachineTest {
                         balance = 850,
                         currentBet = 100,
                         insuranceBet = 50,
-                        playerHands = listOf(Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS)))),
-                        playerBets = listOf(100),
+                        playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS)))),
+                        playerBets = persistentListOf(100),
                         dealerHand =
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.ACE, Suit.CLUBS),
                                     Card(Rank.SIX, Suit.DIAMONDS, isFaceDown = true),
                                 ),
                             ),
-                        deck = emptyList(),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -679,16 +681,16 @@ class BlackjackStateMachineTest {
                     status = GameStatus.PLAYING,
                     balance = 900,
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                    playerBets = listOf(100),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
                     dealerHand =
                         Hand(
-                            listOf(
+                            persistentListOf(
                                 Card(Rank.ACE, Suit.CLUBS),
                                 Card(Rank.SEVEN, Suit.DIAMONDS, isFaceDown = true),
                             ),
                         ),
-                    deck = emptyList(),
+                    deck = persistentListOf(),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.TakeInsurance)
@@ -707,11 +709,11 @@ class BlackjackStateMachineTest {
                     status = GameStatus.PLAYING,
                     balance = 900,
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS)))),
-                    playerBets = listOf(100),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
                     deck =
-                        listOf(
+                        persistentListOf(
                             Card(Rank.TWO, Suit.SPADES),
                             Card(Rank.THREE, Suit.HEARTS),
                             Card(Rank.FOUR, Suit.CLUBS),
@@ -753,12 +755,12 @@ class BlackjackStateMachineTest {
                         balance = 900,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS)))
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS)))
                             ),
-                        playerBets = listOf(100),
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
+                        playerBets = persistentListOf(100),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
                     ),
                 )
             stateMachine.dispatch(GameAction.Split)
@@ -777,10 +779,10 @@ class BlackjackStateMachineTest {
                     status = GameStatus.PLAYING,
                     balance = 900,
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS)))),
-                    playerBets = listOf(100),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Split)
@@ -797,10 +799,10 @@ class BlackjackStateMachineTest {
                     status = GameStatus.PLAYING,
                     balance = 50,
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS)))),
-                    playerBets = listOf(100),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Split)
@@ -818,17 +820,17 @@ class BlackjackStateMachineTest {
                     balance = 900,
                     currentBet = 100,
                     playerHands =
-                        listOf(
+                        persistentListOf(
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.EIGHT, Suit.SPADES),
                                     Card(Rank.EIGHT, Suit.HEARTS),
                                     Card(Rank.TWO, Suit.CLUBS),
                                 ),
                             ),
                         ),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Split)
@@ -846,13 +848,13 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
-                            Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.FOUR, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS)),
+                    playerBets = persistentListOf(100, 100),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.FOUR, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Split)
@@ -871,14 +873,14 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
-                            Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.FOUR, Suit.SPADES)),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.FOUR, Suit.SPADES)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Hit)
@@ -905,14 +907,14 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
-                            Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.FOUR, Suit.SPADES)),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.FOUR, Suit.SPADES)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Hit)
@@ -938,14 +940,14 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
-                            Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = emptyList(),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Stand)
@@ -965,14 +967,14 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
-                            Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                            Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = emptyList(),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Stand)
@@ -998,20 +1000,20 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
                             Hand(
-                                listOf(
+                                persistentListOf(
                                     Card(Rank.EIGHT, Suit.CLUBS),
                                     Card(Rank.EIGHT, Suit.DIAMONDS),
                                     Card(Rank.SIX, Suit.SPADES),
                                 ),
                             ),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
-                    deck = emptyList(),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
+                    deck = persistentListOf(),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Stand)
@@ -1034,14 +1036,14 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
-                            Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                            Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.HEARTS), Card(Rank.SIX, Suit.SPADES))),
-                    deck = listOf(Card(Rank.KING, Suit.CLUBS)),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.HEARTS), Card(Rank.SIX, Suit.SPADES))),
+                    deck = persistentListOf(Card(Rank.KING, Suit.CLUBS)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Stand)
@@ -1062,14 +1064,14 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
-                            Hand(listOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
+                            Hand(persistentListOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TWO, Suit.SPADES)),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Hit)
@@ -1087,10 +1089,10 @@ class BlackjackStateMachineTest {
                     status = GameStatus.PLAYING,
                     balance = 900,
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.ACE, Suit.HEARTS)))),
-                    playerBets = listOf(100),
-                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.THREE, Suit.CLUBS)),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.ACE, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.THREE, Suit.CLUBS)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Split)
@@ -1114,14 +1116,14 @@ class BlackjackStateMachineTest {
                     balance = 800,
                     currentBet = 100,
                     playerHands =
-                        listOf(
-                            Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
-                            Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
+                            Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
                         ),
-                    playerBets = listOf(100, 100),
+                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
-                    dealerHand = Hand(listOf(Card(Rank.SEVEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                    deck = listOf(Card(Rank.TEN, Suit.HEARTS)),
+                    dealerHand = Hand(persistentListOf(Card(Rank.SEVEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.TEN, Suit.HEARTS)),
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
             stateMachine.dispatch(GameAction.Hit)
@@ -1154,8 +1156,8 @@ class BlackjackStateMachineTest {
                     status = GameStatus.PLAYING,
                     balance = 900,
                     currentBet = 100,
-                    playerHands = listOf(Hand(listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
-                    playerBets = listOf(100),
+                    playerHands = persistentListOf(Hand(persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS)))),
+                    playerBets = persistentListOf(100),
                     handCount = 1,
                 )
             val stateMachine = BlackjackStateMachine(this, initialState)
@@ -1192,7 +1194,7 @@ class BlackjackStateMachineTest {
 
             val state = stateMachine.state.value
             assertEquals(2, state.playerHands.size)
-            assertEquals(listOf(100, 100), state.playerBets)
+            assertEquals(persistentListOf(100, 100), state.playerBets)
         }
 
     @Test
@@ -1237,14 +1239,14 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
-                                Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 0,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = emptyList(),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -1266,14 +1268,14 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
-                                Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = emptyList(),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -1299,14 +1301,14 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
-                                Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 0,
-                        dealerHand = Hand(listOf(Card(Rank.SEVEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = listOf(Card(Rank.TEN, Suit.HEARTS)),
+                        dealerHand = Hand(persistentListOf(Card(Rank.SEVEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(Card(Rank.TEN, Suit.HEARTS)),
                     ),
                 )
             stateMachine.dispatch(GameAction.Hit)
@@ -1330,20 +1332,20 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
                                 Hand(
-                                    listOf(
+                                    persistentListOf(
                                         Card(Rank.TEN, Suit.CLUBS),
                                         Card(Rank.TEN, Suit.DIAMONDS),
                                         Card(Rank.SIX, Suit.SPADES),
                                     ),
                                 ),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
-                        deck = emptyList(),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -1365,20 +1367,20 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
                                 Hand(
-                                    listOf(
+                                    persistentListOf(
                                         Card(Rank.TEN, Suit.CLUBS),
                                         Card(Rank.TEN, Suit.DIAMONDS),
                                         Card(Rank.SIX, Suit.SPADES),
                                     ),
                                 ),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
-                        deck = emptyList(),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -1399,14 +1401,14 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
-                                Hand(listOf(Card(Rank.NINE, Suit.CLUBS), Card(Rank.FOUR, Suit.DIAMONDS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.NINE, Suit.CLUBS), Card(Rank.FOUR, Suit.DIAMONDS))),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.TEN, Suit.HEARTS))),
-                        deck = emptyList(),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.TEN, Suit.HEARTS))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -1427,14 +1429,14 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS))),
-                                Hand(listOf(Card(Rank.NINE, Suit.CLUBS), Card(Rank.TEN, Suit.DIAMONDS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.NINE, Suit.CLUBS), Card(Rank.TEN, Suit.DIAMONDS))),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.SPADES))),
-                        deck = emptyList(),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.SPADES))),
+                        deck = persistentListOf(),
                     ),
                 )
             stateMachine.dispatch(GameAction.Stand)
@@ -1457,15 +1459,15 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS))),
-                                Hand(listOf(Card(Rank.SEVEN, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.SEVEN, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
                             ),
-                        playerBets = listOf(100, 100),
+                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 0,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
                         deck =
-                            listOf(
+                            persistentListOf(
                                 Card(Rank.TWO, Suit.SPADES),
                                 Card(Rank.THREE, Suit.HEARTS),
                                 Card(Rank.FOUR, Suit.CLUBS)
@@ -1492,15 +1494,15 @@ class BlackjackStateMachineTest {
                         balance = 800,
                         currentBet = 100,
                         playerHands =
-                            listOf(
-                                Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS))),
-                                Hand(listOf(Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
-                                Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.SEVEN, Suit.SPADES))),
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
+                                Hand(persistentListOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.SEVEN, Suit.SPADES))),
                             ),
-                        playerBets = listOf(100, 100, 100),
+                        playerBets = persistentListOf(100, 100, 100),
                         activeHandIndex = 1,
-                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
-                        deck = listOf(Card(Rank.TWO, Suit.SPADES)),
+                        dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
                     ),
                 )
             stateMachine.dispatch(GameAction.DoubleDown)

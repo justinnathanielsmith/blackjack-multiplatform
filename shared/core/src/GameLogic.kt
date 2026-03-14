@@ -1,6 +1,8 @@
 package io.github.smithjustinn.blackjack
 
 import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -41,7 +43,7 @@ data class Card(
 @Immutable
 @Serializable
 data class Hand(
-    val cards: List<Card> = emptyList()
+    val cards: PersistentList<Card> = persistentListOf()
 ) {
     val score: Int
         get() {
@@ -84,9 +86,9 @@ enum class GameStatus {
 @Immutable
 @Serializable
 data class GameState(
-    val deck: List<Card> = emptyList(),
-    val playerHands: List<Hand> = listOf(Hand()),
-    val playerBets: List<Int> = listOf(0),
+    val deck: PersistentList<Card> = persistentListOf(),
+    val playerHands: PersistentList<Hand> = persistentListOf(Hand()),
+    val playerBets: PersistentList<Int> = persistentListOf(0),
     val activeHandIndex: Int = 0,
     val handCount: Int = 1,
     val dealerHand: Hand = Hand(),
