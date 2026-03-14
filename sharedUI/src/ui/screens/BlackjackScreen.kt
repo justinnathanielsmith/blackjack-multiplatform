@@ -12,21 +12,20 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -82,22 +81,6 @@ fun GameState.handResult(index: Int): HandResult {
         dealerBust || hand.score > dealerScore -> HandResult.WIN
         hand.score == dealerScore -> HandResult.PUSH
         else -> HandResult.LOSS
-    }
-}
-
-enum class LayoutMode {
-    PORTRAIT,
-    LANDSCAPE_COMPACT, // Phone landscape
-    LANDSCAPE_WIDE, // Tablet/desktop landscape
-}
-
-@Composable
-private fun androidx.compose.foundation.layout.BoxWithConstraintsScope.detectLayoutMode(): LayoutMode {
-    val aspectRatio = maxWidth / maxHeight
-    return when {
-        maxHeight > maxWidth -> LayoutMode.PORTRAIT
-        aspectRatio > 1.8f -> LayoutMode.LANDSCAPE_WIDE // Very wide (desktop/tablet)
-        else -> LayoutMode.LANDSCAPE_COMPACT // Phone landscape
     }
 }
 
@@ -183,84 +166,85 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     .background(backgroundBrush)
                     .graphicsLayer { translationX = shakeOffset.value * density },
         ) {
-            val layoutMode = detectLayoutMode()
-
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
-            ) {
-                if (appSettings.isDebugMode) {
-                    DebugPanel(
-                        state = state,
-                        settings = appSettings,
-                        onAction = component::onAction,
-                        onResetBalance = component::resetBalance
-                    )
+            val isPortrait = maxHeight > maxWidth
+            val gameModifier =
+                if (isPortrait) {
+                    Modifier.fillMaxSize()
+                } else {
+                    val gameWidth = minOf(maxWidth, maxHeight * (9f / 16f))
+                    val gameHeight = gameWidth * (16f / 9f)
+                    Modifier.size(gameWidth, gameHeight).align(Alignment.Center)
                 }
-                Header(
-                    balance = state.balance,
-                    onSettingsClick = { showSettings = true }
-                )
 
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+            Box(modifier = gameModifier) {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
                 ) {
-                    if (layoutMode != LayoutMode.PORTRAIT) {
-                        LandscapeLayout(
+                    if (appSettings.isDebugMode) {
+                        DebugPanel(
                             state = state,
-                            component = component,
-                            layoutMode = layoutMode,
+                            settings = appSettings,
+                            onAction = component::onAction,
+                            onResetBalance = component::resetBalance
                         )
-                    } else {
+                    }
+                    Header(
+                        balance = state.balance,
+                        onSettingsClick = { showSettings = true }
+                    )
+
+                    Box(
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+                    ) {
                         PortraitLayout(
                             state = state,
                             component = component,
-                            layoutMode = layoutMode,
                         )
-                    }
 
-                    // Game Status Overlay (On top of hands)
-                    val showStatus =
-                        state.status != GameStatus.PLAYING &&
-                            state.status != GameStatus.BETTING &&
-                            state.status != GameStatus.INSURANCE_OFFERED &&
-                            state.status != GameStatus.IDLE
+                        // Game Status Overlay (On top of hands)
+                        val showStatus =
+                            state.status != GameStatus.PLAYING &&
+                                state.status != GameStatus.BETTING &&
+                                state.status != GameStatus.INSURANCE_OFFERED &&
+                                state.status != GameStatus.IDLE
 
-                    // Game Overlays & Status
-                    BlackjackGameOverlay(
-                        state = state,
-                        component = component,
-                        flashAlphaProvider = { flashAlpha.value },
-                        layoutMode = layoutMode,
-                        showStatus = showStatus,
-                    )
-
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = state.status == GameStatus.BETTING,
-                        enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
-                        exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
-                    ) {
-                        BettingPhaseScreen(
+                        // Game Overlays & Status
+                        BlackjackGameOverlay(
                             state = state,
                             component = component,
-                            audioService = audioService,
+                            flashAlphaProvider = { flashAlpha.value },
+                            showStatus = showStatus,
                         )
-                    }
 
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = showSettings,
-                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
-                    ) {
-                        SettingsOverlay(
-                            settings = appSettings,
-                            onUpdateSettings = component::updateSettings,
-                            onDismiss = { showSettings = false }
-                        )
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = state.status == GameStatus.BETTING,
+                            enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
+                            exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
+                        ) {
+                            BettingPhaseScreen(
+                                state = state,
+                                component = component,
+                                audioService = audioService,
+                            )
+                        }
+
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = showSettings,
+                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                        ) {
+                            SettingsOverlay(
+                                settings = appSettings,
+                                onUpdateSettings = component::updateSettings,
+                                onDismiss = { showSettings = false }
+                            )
+                        }
                     }
                 }
             }
@@ -273,7 +257,6 @@ private fun BlackjackGameOverlay(
     state: GameState,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
-    layoutMode: LayoutMode,
     showStatus: Boolean,
 ) {
     Box(
@@ -285,7 +268,7 @@ private fun BlackjackGameOverlay(
             enter = fadeIn() + scaleIn(initialScale = 0.8f),
             exit = fadeOut() + scaleOut(targetScale = 0.8f),
         ) {
-            GameStatusMessage(status = state.status, layoutMode = layoutMode)
+            GameStatusMessage(status = state.status)
         }
 
         if (state.status == GameStatus.INSURANCE_OFFERED) {
@@ -320,11 +303,9 @@ private fun BlackjackGameOverlay(
 private fun PortraitLayout(
     state: GameState,
     component: BlackjackComponent,
-    layoutMode: LayoutMode,
 ) {
     val hands = state.playerHands
     val isMultiHand = hands.size > 1
-    val multiHandLayoutMode = if (isMultiHand) LayoutMode.LANDSCAPE_COMPACT else layoutMode
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -337,13 +318,13 @@ private fun PortraitLayout(
         HandContainer(
             title = stringResource(Res.string.dealer),
             score = dealerDisplayScore,
-            layoutMode = multiHandLayoutMode,
+            isCompact = isMultiHand,
             isExtraCompact = isMultiHand,
         ) {
             HandRow(
                 state.dealerHand,
                 isDealer = true,
-                layoutMode = multiHandLayoutMode,
+                isCompact = isMultiHand,
                 scale = if (isMultiHand) 0.72f else null,
             )
         }
@@ -367,11 +348,11 @@ private fun PortraitLayout(
                         isActive = isActive,
                         isPending = isPending,
                         result = state.handResult(index),
-                        layoutMode = LayoutMode.LANDSCAPE_COMPACT,
+                        isCompact = true,
                         isExtraCompact = true,
                         modifier = Modifier.weight(1f),
                     ) {
-                        HandRow(hand, layoutMode = LayoutMode.LANDSCAPE_COMPACT, scale = playerCardScale)
+                        HandRow(hand, isCompact = true, scale = playerCardScale)
                     }
                 }
             }
@@ -382,9 +363,8 @@ private fun PortraitLayout(
                 score = hands[0].score,
                 bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
                 isActive = state.status == GameStatus.PLAYING,
-                layoutMode = layoutMode,
             ) {
-                HandRow(hands[0], layoutMode = layoutMode)
+                HandRow(hands[0])
             }
         }
 
@@ -393,91 +373,7 @@ private fun PortraitLayout(
         GameActions(
             state = state,
             component = component,
-            layoutMode = multiHandLayoutMode,
+            isCompact = isMultiHand,
         )
-    }
-}
-
-@Composable
-private fun LandscapeLayout(
-    state: GameState,
-    component: BlackjackComponent,
-    layoutMode: LayoutMode,
-) {
-    val cardScale = if (layoutMode == LayoutMode.LANDSCAPE_COMPACT) 0.65f else null
-    Row(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        // Left side: Cards
-        Column(
-            modifier = Modifier.weight(2.5f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            val dealerDisplayScore =
-                if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-            Box(modifier = Modifier.weight(1f)) {
-                HandContainer(
-                    title = stringResource(Res.string.dealer),
-                    score = dealerDisplayScore,
-                    isExtraCompact = true,
-                    layoutMode = layoutMode,
-                ) {
-                    HandRow(state.dealerHand, isDealer = true, layoutMode = layoutMode, scale = cardScale)
-                }
-            }
-
-            val hands = state.playerHands
-            if (hands.size > 1) {
-                Box(modifier = Modifier.weight(1f)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        hands.forEachIndexed { index, hand ->
-                            val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                            val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
-                            HandContainer(
-                                title = stringResource(Res.string.hand_number, index + 1),
-                                score = hand.score,
-                                bet = state.playerBets.getOrNull(index),
-                                isActive = isActive,
-                                isPending = isPending,
-                                result = state.handResult(index),
-                                isExtraCompact = true,
-                                layoutMode = layoutMode,
-                                modifier = Modifier.weight(1f),
-                            ) {
-                                HandRow(hand, layoutMode = layoutMode, scale = cardScale)
-                            }
-                        }
-                    }
-                }
-            } else {
-                Box(modifier = Modifier.weight(1f)) {
-                    HandContainer(
-                        title = stringResource(Res.string.you),
-                        score = hands[0].score,
-                        bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
-                        isActive = state.status == GameStatus.PLAYING,
-                        isExtraCompact = true,
-                        layoutMode = layoutMode,
-                    ) {
-                        HandRow(hands[0], layoutMode = layoutMode, scale = cardScale)
-                    }
-                }
-            }
-        }
-
-        // Right side: Status and Actions
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            GameActions(
-                state = state,
-                component = component,
-                layoutMode = layoutMode,
-            )
-        }
     }
 }

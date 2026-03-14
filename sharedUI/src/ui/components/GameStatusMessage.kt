@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
@@ -38,10 +37,8 @@ import sharedui.generated.resources.status_push
 @Composable
 fun GameStatusMessage(
     status: GameStatus,
-    layoutMode: LayoutMode,
+    isCompact: Boolean = false,
 ) {
-    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
-
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,

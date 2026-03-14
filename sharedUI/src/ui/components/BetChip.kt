@@ -65,15 +65,13 @@ fun BetChip(
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                }
-                .size(chipSize)
+                }.size(chipSize)
                 .shadow(
                     elevation = if (isActive) 12.dp else 6.dp,
                     shape = CircleShape,
                     ambientColor = Color.Black.copy(alpha = 0.5f),
                     spotColor = if (isActive) chipColor.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.3f),
-                )
-                .then(
+                ).then(
                     if (onClick != null) {
                         Modifier.clickable(
                             interactionSource = interactionSource,
@@ -93,7 +91,7 @@ fun BetChip(
 
             // Side depth offset (3D effect)
             val depthOffset = 3.dp.toPx()
-            
+
             // Draw the "side" of the chip for 3D depth
             drawCircle(
                 color = chipColor.copy(alpha = 0.7f),
@@ -122,13 +120,15 @@ fun BetChip(
                 color = Color.White.copy(alpha = 0.6f),
                 radius = radius * 0.92f,
                 center = center,
-                style = Stroke(
-                    width = 4.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(
-                        floatArrayOf(dashLength / 2, dashLength / 2),
-                        0f
+                style =
+                    Stroke(
+                        width = 4.dp.toPx(),
+                        pathEffect =
+                            PathEffect.dashPathEffect(
+                                floatArrayOf(dashLength / 2, dashLength / 2),
+                                0f
+                            )
                     )
-                )
             )
 
             // Inner circle highlight
@@ -154,19 +154,21 @@ fun BetChip(
                     .padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
-            val displayAmount = when {
-                amount >= 1000 -> "${amount / 1000}K"
-                else -> amount.toString()
-            }
-            
+            val displayAmount =
+                when {
+                    amount >= 1000 -> "${amount / 1000}K"
+                    else -> amount.toString()
+                }
+
             Text(
                 text = displayAmount,
                 color = if (enabled) textColor else textColor.copy(alpha = 0.4f),
                 fontSize = if (isActive) 15.sp else 13.sp,
                 fontWeight = FontWeight.Black,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    letterSpacing = 0.sp
-                )
+                style =
+                    MaterialTheme.typography.labelSmall.copy(
+                        letterSpacing = 0.sp
+                    )
             )
         }
 

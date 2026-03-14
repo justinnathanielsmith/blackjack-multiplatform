@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
@@ -52,7 +51,7 @@ fun HandContainer(
     isActive: Boolean = false,
     isPending: Boolean = false,
     result: HandResult = HandResult.NONE,
-    layoutMode: LayoutMode = LayoutMode.PORTRAIT,
+    isCompact: Boolean = false,
     isExtraCompact: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -74,7 +73,6 @@ fun HandContainer(
             GlassDark.copy(alpha = 0.3f)
         }
 
-    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val isAnyCompact = isCompact || isExtraCompact
     val horizontalPadding = if (isCompact) 8.dp else 16.dp
     val verticalPadding =

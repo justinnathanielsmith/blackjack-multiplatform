@@ -88,10 +88,11 @@ class BlackjackStateMachine(
         if (delta == 0) return
         val balanceAdjustment = current.currentBet * delta
         if (balanceAdjustment > current.balance) return
-        _state.value = current.copy(
-            handCount = count,
-            balance = current.balance - balanceAdjustment
-        )
+        _state.value =
+            current.copy(
+                handCount = count,
+                balance = current.balance - balanceAdjustment
+            )
     }
 
     private fun handleDeal() {

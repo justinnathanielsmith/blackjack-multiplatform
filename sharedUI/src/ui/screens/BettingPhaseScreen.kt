@@ -222,9 +222,10 @@ private fun BetDisplayCard(
                     style = MaterialTheme.typography.labelSmall,
                     color = PrimaryGold,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .background(PrimaryGold.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                    modifier =
+                        Modifier
+                            .background(PrimaryGold.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
                 )
             }
         }
