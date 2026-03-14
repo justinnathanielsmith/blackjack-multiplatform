@@ -24,6 +24,8 @@ interface BlackjackComponent {
     fun onAction(action: GameAction)
 
     fun updateSettings(transform: (AppSettings) -> AppSettings)
+
+    fun resetBalance()
 }
 
 class DefaultBlackjackComponent(
@@ -70,6 +72,18 @@ class DefaultBlackjackComponent(
     override fun updateSettings(transform: (AppSettings) -> AppSettings) {
         componentScope.launch {
             settingsRepository.update(transform)
+        }
+    }
+
+    override fun resetBalance() {
+        componentScope.launch {
+            balanceService.resetBalance()
+            stateMachine.dispatch(
+                GameAction.NewGame(
+                    initialBalance = BalanceService.DEFAULT_BALANCE,
+                    rules = _appSettings.value.gameRules
+                )
+            )
         }
     }
 }

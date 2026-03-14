@@ -29,7 +29,8 @@ import io.github.smithjustinn.blackjack.data.AppSettings
 fun DebugPanel(
     state: GameState,
     settings: AppSettings,
-    onAction: (GameAction) -> Unit
+    onAction: (GameAction) -> Unit,
+    onResetBalance: () -> Unit
 ) {
     Column(
         modifier =
@@ -65,6 +66,15 @@ fun DebugPanel(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
             ) {
                 Text("RESTART (NEW RULES)", fontSize = 10.sp)
+            }
+            Button(
+                onClick = onResetBalance,
+                modifier = Modifier.height(32.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000))
+            ) {
+                Text("RESET BALANCE", fontSize = 10.sp)
             }
         }
     }

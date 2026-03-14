@@ -4,7 +4,6 @@ import androidx.compose.ui.window.ComposeUIViewController
 import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import platform.UIKit.UIViewController
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.data.createSettingsRepository
 import io.github.smithjustinn.blackjack.di.AppGraph
@@ -18,6 +17,7 @@ import io.github.smithjustinn.blackjack.ui.screens.RootScreen
 import io.github.smithjustinn.blackjack.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
+import platform.UIKit.UIViewController
 
 fun BlackjackViewController(): UIViewController =
     ComposeUIViewController {

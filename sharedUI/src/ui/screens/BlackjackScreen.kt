@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -169,7 +171,12 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         .safeDrawingPadding(),
             ) {
                 if (appSettings.isDebugMode) {
-                    DebugPanel(state = state, settings = appSettings, onAction = component::onAction)
+                    DebugPanel(
+                        state = state,
+                        settings = appSettings,
+                        onAction = component::onAction,
+                        onResetBalance = component::resetBalance
+                    )
                 }
                 Header(
                     balance = state.balance,
@@ -307,7 +314,15 @@ private fun PortraitLayout(
 
         val hands = state.playerHands
         if (hands.size > 1) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 hands.forEachIndexed { index, hand ->
                     val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
                     val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
@@ -319,7 +334,7 @@ private fun PortraitLayout(
                         isPending = isPending,
                         result = state.handResult(index),
                         layoutMode = layoutMode,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         HandRow(hand, layoutMode = layoutMode)
                     }

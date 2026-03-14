@@ -24,6 +24,10 @@ class BalanceService internal constructor(
         dataStore.edit { prefs -> prefs[BALANCE_KEY] = balance }
     }
 
+    suspend fun resetBalance() {
+        dataStore.edit { prefs -> prefs[BALANCE_KEY] = DEFAULT_BALANCE }
+    }
+
     companion object {
         private val BALANCE_KEY = intPreferencesKey("balance")
         const val DEFAULT_BALANCE = 1000
