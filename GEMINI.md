@@ -29,8 +29,30 @@ This project uses **Jujutsu (JJ)** for version control instead of Git. Use JJ co
 - `shared`: Contains common core logic, domains, or viewmodels. Divided into `core` and `data`.
 - `sharedUI`: Contains Compose Multiplatform UI components shared across desktop, android, and iOS.
 
+### UI Development Protocol
+
+> [!IMPORTANT]
+> **Before modifying or creating any `@Composable` screen, you MUST:**
+> 1. Read the corresponding `*Component.kt` interface in `sharedUI/src/ui/` to find the **exact type** emitted by `state: StateFlow<T>`.
+> 2. Read the domain model file in `shared/core/src/` to verify all property names and sealed class values.
+> 3. Only then write or modify composables, ensuring `state` is passed as an **explicit typed parameter** to all extracted private composables.
+>
+> **Why:** Kotlin closures inside extracted `@Composable` functions do NOT capture the outer `state` variable. Every inner composable needs `state` as an explicit parameter, typed with the exact class from the Component interface. Failure to do this causes `Unresolved reference` compilation errors.
+
+**Domain Model Quick Reference** (from `shared/core/src/GameLogic.kt`):
+
+| Type | Key Properties |
+|---|---|
+| `GameState` | `deck: List<Card>`, `playerHand: Hand`, `dealerHand: Hand`, `status: GameStatus` |
+| `Hand` | `cards: List<Card>`, `score: Int`, `isBust: Boolean` |
+| `Card` | `rank: Rank`, `suit: Suit` |
+| `GameStatus` | `IDLE`, `PLAYING`, `DEALER_TURN`, `PLAYER_WON`, `DEALER_WON`, `PUSH` |
+| `GameAction` | `NewGame`, `Hit`, `Stand` (sealed) |
+| `GameEffect` | `PlayCardSound`, `PlayWinSound`, `PlayLoseSound`, `Vibrate` (sealed) |
+
 ### Execution
 - Use `./amper build` to run build steps via CLI, or integrate with JetBrains Fleet / IntelliJ IDEA.
+- **Fast compilation check** (type errors only, no binary link): `./amper build -m sharedUI` — use this for rapid iteration when developing UI.
 - Ensure any added directories/files are properly checked into `module.yaml` files if required, although Amper conventionally includes all code in `src/`.
 
 ### Kotlin/Wasm Deployment (JetBrains Amper)

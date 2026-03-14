@@ -20,7 +20,16 @@ if ! "$SCRIPT_DIR/lint.sh"; then
 fi
 
 echo ""
-echo "=== 3. Running JVM Unit Tests ==="
+echo "=== 3. Fast Type-Check (sharedUI compilation only) ==="
+# Compiles sharedUI to catch type errors and unresolved references
+# without a full binary link — much faster than building a runnable target.
+if ! "$SCRIPT_DIR/amper" build -m sharedUI; then
+    echo "✗ sharedUI compilation failed"
+    exit 1
+fi
+
+echo ""
+echo "=== 4. Running JVM Unit Tests ==="
 # We run granular JVM test tasks to avoid time-consuming Android/iOS builds
 if ! "$SCRIPT_DIR/amper" test -m core -m data -m sharedUI -m desktopApp --platform jvm; then
     echo "✗ JVM Unit Tests failed"
