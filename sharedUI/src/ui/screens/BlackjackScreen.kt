@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -229,7 +231,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         showStatus = showStatus,
                     )
 
-                    if (state.status == GameStatus.BETTING) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = state.status == GameStatus.BETTING,
+                        enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
+                        exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
+                    ) {
                         BettingPhaseScreen(
                             state = state,
                             component = component,
@@ -237,7 +243,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         )
                     }
 
-                    if (showSettings) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = showSettings,
+                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                    ) {
                         SettingsOverlay(
                             settings = appSettings,
                             onUpdateSettings = component::updateSettings,
@@ -358,16 +368,7 @@ private fun PortraitLayout(
                 }
             }
         } else {
-            // Anchor Box to maintain stability and provide space
-            Box(
-                modifier =
-                    Modifier
-                        .weight(0.5f)
-                        .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                // Empty, space is reserved
-            }
+            Spacer(modifier = Modifier.weight(1f))
             HandContainer(
                 title = stringResource(Res.string.you),
                 score = hands[0].score,
@@ -379,7 +380,7 @@ private fun PortraitLayout(
             }
         }
 
-        Spacer(modifier = Modifier.height(if (isMultiHand) 8.dp else 32.dp))
+        Spacer(modifier = Modifier.height(if (isMultiHand) 8.dp else 12.dp))
 
         GameActions(
             state = state,

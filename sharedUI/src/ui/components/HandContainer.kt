@@ -1,7 +1,12 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -72,16 +77,18 @@ fun HandContainer(
     val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val isAnyCompact = isCompact || isExtraCompact
     val horizontalPadding = if (isCompact) 8.dp else 16.dp
-    val verticalPadding = when {
-        isExtraCompact -> 4.dp
-        isCompact -> 8.dp
-        else -> 24.dp
-    }
-    val cornerRadius = when {
-        isExtraCompact -> 8.dp
-        isCompact -> 12.dp
-        else -> 24.dp
-    }
+    val verticalPadding =
+        when {
+            isExtraCompact -> 4.dp
+            isCompact -> 8.dp
+            else -> 16.dp
+        }
+    val cornerRadius =
+        when {
+            isExtraCompact -> 8.dp
+            isCompact -> 12.dp
+            else -> 24.dp
+        }
 
     Box(
         modifier =
@@ -103,20 +110,23 @@ fun HandContainer(
 
         ScoreBadge(score = score, isActive = isActive, isCompact = isAnyCompact)
 
-        val contentPadding = when {
-            isExtraCompact -> 10.dp
-            isCompact -> 16.dp
-            else -> 20.dp
-        }
-        val topPadding = when {
-            isExtraCompact -> 14.dp
-            isCompact -> 24.dp
-            else -> 28.dp
-        }
-        val bottomPadding = when {
-            isExtraCompact -> 8.dp
-            else -> contentPadding
-        }
+        val contentPadding =
+            when {
+                isExtraCompact -> 10.dp
+                isCompact -> 16.dp
+                else -> 16.dp
+            }
+        val topPadding =
+            when {
+                isExtraCompact -> 14.dp
+                isCompact -> 24.dp
+                else -> 20.dp
+            }
+        val bottomPadding =
+            when {
+                isExtraCompact -> 8.dp
+                else -> contentPadding
+            }
         val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
 
         Column(
@@ -235,8 +245,6 @@ private fun BoxScope.ScoreBadge(
 
 @Composable
 private fun BoxScope.HandOutcomeBadge(result: HandResult) {
-    if (result == HandResult.NONE) return
-
     val color =
         when (result) {
             HandResult.WIN -> Color(0xFFFFD700) // gold
@@ -244,12 +252,6 @@ private fun BoxScope.HandOutcomeBadge(result: HandResult) {
             HandResult.PUSH -> Color(0xFF888888) // gray
             HandResult.NONE -> Color.Transparent
         }
-
-    val scale by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
-        label = "badgeScale",
-    )
 
     val text =
         when (result) {
@@ -259,21 +261,26 @@ private fun BoxScope.HandOutcomeBadge(result: HandResult) {
             HandResult.NONE -> ""
         }
 
-    Box(
-        modifier =
-            Modifier
-                .align(Alignment.Center)
-                .scale(scale)
-                .background(color, RoundedCornerShape(8.dp))
-                .border(2.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+    AnimatedVisibility(
+        visible = result != HandResult.NONE,
+        enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 600f)) + fadeIn(tween(150)),
+        exit = scaleOut(tween(150)) + fadeOut(tween(150)),
+        modifier = Modifier.align(Alignment.Center),
     ) {
-        Text(
-            text = text.uppercase(),
-            color = Color.White,
-            fontWeight = FontWeight.Black,
-            fontSize = 20.sp,
-            letterSpacing = 2.sp,
-        )
+        Box(
+            modifier =
+                Modifier
+                    .background(color, RoundedCornerShape(8.dp))
+                    .border(2.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+        ) {
+            Text(
+                text = text.uppercase(),
+                color = Color.White,
+                fontWeight = FontWeight.Black,
+                fontSize = 20.sp,
+                letterSpacing = 2.sp,
+            )
+        }
     }
 }

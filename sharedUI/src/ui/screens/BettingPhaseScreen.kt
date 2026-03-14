@@ -4,11 +4,11 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
-import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.BetChip
@@ -106,7 +105,6 @@ fun BettingPhaseScreen(
     audioService: AudioService,
     modifier: Modifier = Modifier,
 ) {
-    require(state.status == GameStatus.BETTING)
     val flyingChips = remember { mutableStateListOf<FlyingChip>() }
     var betDisplayOffset by remember { mutableStateOf(Offset.Zero) }
 
@@ -135,9 +133,9 @@ fun BettingPhaseScreen(
                     .clip(RoundedCornerShape(24.dp))
                     .background(GlassDark)
                     .border(1.dp, PrimaryGold.copy(alpha = 0.5f), RoundedCornerShape(24.dp))
-                    .padding(24.dp),
+                    .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = stringResource(Res.string.status_betting).uppercase(),
@@ -197,7 +195,7 @@ private fun BetDisplayCard(
                     width = 1.dp,
                     color = Color.White.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(16.dp),
-                ).padding(24.dp)
+                ).padding(horizontal = 20.dp, vertical = 14.dp)
                 .onGloballyPositioned {
                     val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
                     onPositioned(center)
@@ -227,10 +225,11 @@ private fun BetDisplayCard(
                 style = MaterialTheme.typography.displayMedium,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,
-                modifier = Modifier.graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                }
+                modifier =
+                    Modifier.graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    }
             )
         }
     }
@@ -246,10 +245,11 @@ private fun BettingActions(
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = if (canDeal) 1.05f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "dealPulse"
     )
 
@@ -267,10 +267,11 @@ private fun BettingActions(
         CasinoButton(
             text = stringResource(Res.string.deal),
             onClick = onDeal,
-            modifier = Modifier.weight(1f).graphicsLayer {
-                scaleX = pulseScale
-                scaleY = pulseScale
-            },
+            modifier =
+                Modifier.weight(1f).graphicsLayer {
+                    scaleX = pulseScale
+                    scaleY = pulseScale
+                },
             enabled = canDeal,
             isStrategic = true,
         )

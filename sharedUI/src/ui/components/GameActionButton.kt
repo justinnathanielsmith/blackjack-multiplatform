@@ -142,7 +142,7 @@ fun GameActionButton(
             } else {
                 resolvedContentColor.copy(alpha = 0.3f)
             }
-            
+
         val finalColor = if (enabled) resolvedContentColor else disabledContentColor
 
         Column(

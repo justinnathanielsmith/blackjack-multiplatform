@@ -1,9 +1,12 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
@@ -26,7 +28,6 @@ import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
-import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.double_down
@@ -86,80 +87,86 @@ fun GameActions(
         label = "GameActionsTransition"
     ) { status ->
         val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
-        val buttonHeight = if (isCompact) 48.dp else 80.dp
-        val spacerHeight = if (isCompact) 6.dp else 16.dp
+        val buttonHeight = if (isCompact) 48.dp else 60.dp
+        val spacerHeight = if (isCompact) 4.dp else 8.dp
         val totalActionsHeight = (buttonHeight * 2) + spacerHeight // Reserved space for two rows of buttons
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(spacerHeight),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (status == GameStatus.PLAYING) {
+            AnimatedVisibility(
+                visible = status == GameStatus.PLAYING,
+                enter = fadeIn(tween(300)) + expandVertically(tween(300)),
+                exit = fadeOut(tween(300)) + shrinkVertically(tween(300)),
+            ) {
                 val canSplit = state.canSplit()
                 val canDouble = state.canDoubleDown()
 
-                // High-action row (Split/Double) - Fixed height to prevent shift
-                Box(
-                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                    contentAlignment = Alignment.Center
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(spacerHeight),
                 ) {
-                    if (canSplit || canDouble) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            if (canDouble) {
-                                GameActionButton(
-                                    icon = "x2",
-                                    label = stringResource(Res.string.double_down),
-                                    onClick = onDoubleDown,
-                                    modifier = Modifier.weight(1f).height(buttonHeight),
-                                    isStrategic = true,
-                                )
-                            } else if (canSplit) {
-                                // Provide empty space to keep grid consistent if only split is available
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                            
-                            if (canSplit) {
-                                GameActionButton(
-                                    icon = "⑃",
-                                    label = stringResource(Res.string.split),
-                                    onClick = onSplit,
-                                    modifier = Modifier.weight(1f).height(buttonHeight),
-                                )
-                            } else if (canDouble) {
-                                // Provide empty space to keep grid consistent if only double is available
-                                Spacer(modifier = Modifier.weight(1f))
+                    // High-action row (Split/Double) - Fixed height to prevent shift
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (canSplit || canDouble) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                if (canDouble) {
+                                    GameActionButton(
+                                        icon = "x2",
+                                        label = stringResource(Res.string.double_down),
+                                        onClick = onDoubleDown,
+                                        modifier = Modifier.weight(1f).height(buttonHeight),
+                                        isStrategic = true,
+                                    )
+                                } else if (canSplit) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
+
+                                if (canSplit) {
+                                    GameActionButton(
+                                        icon = "⑃",
+                                        label = stringResource(Res.string.split),
+                                        onClick = onSplit,
+                                        modifier = Modifier.weight(1f).height(buttonHeight),
+                                    )
+                                } else if (canDouble) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
                             }
                         }
                     }
-                }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    GameActionButton(
-                        icon = "👇",
-                        label = stringResource(Res.string.hit),
-                        onClick = onHit,
-                        modifier = Modifier.weight(1f).height(buttonHeight),
-                        isStrategic = true,
-                    )
-                    GameActionButton(
-                        icon = "✋",
-                        label = stringResource(Res.string.stand),
-                        onClick = onStand,
-                        modifier = Modifier.weight(1f).height(buttonHeight),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        GameActionButton(
+                            icon = "👇",
+                            label = stringResource(Res.string.hit),
+                            onClick = onHit,
+                            modifier = Modifier.weight(1f).height(buttonHeight),
+                            isStrategic = true,
+                        )
+                        GameActionButton(
+                            icon = "✋",
+                            label = stringResource(Res.string.stand),
+                            onClick = onStand,
+                            modifier = Modifier.weight(1f).height(buttonHeight),
+                        )
+                    }
                 }
-            } else if (status != GameStatus.INSURANCE_OFFERED) {
-                // Space reserved — betting overlay handles next game start
+            }
+
+            if (status != GameStatus.PLAYING && status != GameStatus.INSURANCE_OFFERED) {
                 Spacer(modifier = Modifier.height(totalActionsHeight))
-            } else {
-                // Insurance state - just a placeholder to maintain height if needed
+            } else if (status == GameStatus.INSURANCE_OFFERED) {
                 Spacer(modifier = Modifier.height(totalActionsHeight))
             }
         }

@@ -18,11 +18,12 @@ fun HandRow(
 ) {
     val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val cardScale = scale ?: if (isCompact) 0.8f else 1f
-    val cardSpacing = when {
-        cardScale < 0.7f -> (-22).dp
-        isCompact -> (-35).dp
-        else -> (-40).dp
-    }
+    val cardSpacing =
+        when {
+            cardScale < 0.7f -> (-22).dp
+            isCompact -> (-35).dp
+            else -> (-40).dp
+        }
     Row(
         horizontalArrangement = Arrangement.spacedBy(cardSpacing),
         verticalAlignment = Alignment.CenterVertically,

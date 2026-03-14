@@ -43,6 +43,7 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.close
+import sharedui.generated.resources.hand_count_label
 import sharedui.generated.resources.settings_das
 import sharedui.generated.resources.settings_debug
 import sharedui.generated.resources.settings_decks
@@ -52,7 +53,6 @@ import sharedui.generated.resources.settings_payout
 import sharedui.generated.resources.settings_rule_disclaimer
 import sharedui.generated.resources.settings_s17
 import sharedui.generated.resources.settings_surrender
-import sharedui.generated.resources.hand_count_label
 import sharedui.generated.resources.settings_title
 
 @Composable

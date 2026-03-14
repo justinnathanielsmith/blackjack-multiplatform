@@ -35,7 +35,13 @@ class BlackjackStateMachine(
         scope.launch {
             mutex.withLock {
                 when (action) {
-                    is GameAction.NewGame -> handleNewGame(action.initialBalance, action.rules, action.handCount, action.lastBet)
+                    is GameAction.NewGame ->
+                        handleNewGame(
+                            action.initialBalance,
+                            action.rules,
+                            action.handCount,
+                            action.lastBet
+                        )
                     is GameAction.Surrender -> handleSurrender()
                     is GameAction.PlaceBet -> handlePlaceBet(action.amount)
                     is GameAction.ResetBet -> handleResetBet()

@@ -6,15 +6,24 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
+import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -56,20 +65,36 @@ fun GameStatusMessage(
             GameStatus.PUSH -> stringResource(Res.string.status_push)
             else -> ""
         }
-    Text(
-        text = statusText,
-        style =
-            if (isCompact) {
-                MaterialTheme.typography.displaySmall
-            } else {
-                MaterialTheme.typography.displayMedium
-            },
-        color = PrimaryGold,
-        fontWeight = FontWeight.Black,
+    Box(
         modifier =
-            Modifier.graphicsLayer {
-                scaleX = if (status == GameStatus.PUSH || status == GameStatus.PLAYER_WON) pulseScale else 1f
-                scaleY = if (status == GameStatus.PUSH || status == GameStatus.PLAYER_WON) pulseScale else 1f
-            },
-    )
+            Modifier
+                .clip(RoundedCornerShape(24.dp))
+                .background(GlassDark)
+                .border(
+                    1.dp,
+                    when (status) {
+                        GameStatus.PLAYER_WON -> PrimaryGold.copy(alpha = 0.8f)
+                        GameStatus.DEALER_WON -> Color.Red.copy(alpha = 0.6f)
+                        else -> Color.White.copy(alpha = 0.2f)
+                    },
+                    RoundedCornerShape(24.dp),
+                ).padding(horizontal = 32.dp, vertical = 16.dp),
+    ) {
+        Text(
+            text = statusText,
+            style =
+                if (isCompact) {
+                    MaterialTheme.typography.displaySmall
+                } else {
+                    MaterialTheme.typography.displayMedium
+                },
+            color = PrimaryGold,
+            fontWeight = FontWeight.Black,
+            modifier =
+                Modifier.graphicsLayer {
+                    scaleX = if (status == GameStatus.PUSH || status == GameStatus.PLAYER_WON) pulseScale else 1f
+                    scaleY = if (status == GameStatus.PUSH || status == GameStatus.PLAYER_WON) pulseScale else 1f
+                },
+        )
+    }
 }

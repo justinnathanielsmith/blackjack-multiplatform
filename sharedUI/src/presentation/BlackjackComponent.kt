@@ -47,7 +47,9 @@ class DefaultBlackjackComponent(
             val settings = settingsRepository.settingsFlow.first()
             _appSettings.value = settings
             val savedBalance = balanceService.balanceFlow.first()
-            stateMachine.dispatch(GameAction.NewGame(savedBalance, rules = settings.gameRules, handCount = settings.defaultHandCount))
+            stateMachine.dispatch(
+                GameAction.NewGame(savedBalance, rules = settings.gameRules, handCount = settings.defaultHandCount)
+            )
 
             launch {
                 settingsRepository.settingsFlow.collect {
