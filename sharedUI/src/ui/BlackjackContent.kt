@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -346,10 +347,12 @@ fun HandRow(
     ) {
         hand.cards.forEachIndexed { index, card ->
             val isFaceUp = !(hideHoleCard && index == 1)
-            PlayingCard(
-                card = card,
-                isFaceUp = isFaceUp
-            )
+            key(card) {
+                PlayingCard(
+                    card = card,
+                    isFaceUp = isFaceUp
+                )
+            }
         }
     }
 }
