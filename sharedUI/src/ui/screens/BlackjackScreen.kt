@@ -22,7 +22,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -185,7 +189,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .safeDrawingPadding(),
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
             ) {
                 if (appSettings.isDebugMode) {
                     DebugPanel(
@@ -200,7 +204,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     onSettingsClick = { showSettings = true }
                 )
 
-                Box(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+                ) {
                     if (layoutMode != LayoutMode.PORTRAIT) {
                         LandscapeLayout(
                             state = state,
@@ -396,57 +404,65 @@ private fun LandscapeLayout(
     component: BlackjackComponent,
     layoutMode: LayoutMode,
 ) {
+    val cardScale = if (layoutMode == LayoutMode.LANDSCAPE_COMPACT) 0.65f else null
     Row(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(32.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // Left side: Cards
         Column(
             modifier = Modifier.weight(2.5f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             val dealerDisplayScore =
                 if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-            HandContainer(
-                title = stringResource(Res.string.dealer),
-                score = dealerDisplayScore,
-                layoutMode = layoutMode
-            ) {
-                HandRow(state.dealerHand, isDealer = true, layoutMode = layoutMode)
+            Box(modifier = Modifier.weight(1f)) {
+                HandContainer(
+                    title = stringResource(Res.string.dealer),
+                    score = dealerDisplayScore,
+                    isExtraCompact = true,
+                    layoutMode = layoutMode,
+                ) {
+                    HandRow(state.dealerHand, isDealer = true, layoutMode = layoutMode, scale = cardScale)
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             val hands = state.playerHands
             if (hands.size > 1) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    hands.forEachIndexed { index, hand ->
-                        val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                        val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
-                        HandContainer(
-                            title = stringResource(Res.string.hand_number, index + 1),
-                            score = hand.score,
-                            bet = state.playerBets.getOrNull(index),
-                            isActive = isActive,
-                            isPending = isPending,
-                            result = state.handResult(index),
-                            layoutMode = layoutMode,
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            HandRow(hand, layoutMode = layoutMode)
+                Box(modifier = Modifier.weight(1f)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        hands.forEachIndexed { index, hand ->
+                            val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                            val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
+                            HandContainer(
+                                title = stringResource(Res.string.hand_number, index + 1),
+                                score = hand.score,
+                                bet = state.playerBets.getOrNull(index),
+                                isActive = isActive,
+                                isPending = isPending,
+                                result = state.handResult(index),
+                                isExtraCompact = true,
+                                layoutMode = layoutMode,
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                HandRow(hand, layoutMode = layoutMode, scale = cardScale)
+                            }
                         }
                     }
                 }
             } else {
-                HandContainer(
-                    title = stringResource(Res.string.you),
-                    score = hands[0].score,
-                    bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
-                    isActive = state.status == GameStatus.PLAYING,
-                    layoutMode = layoutMode,
-                ) {
-                    HandRow(hands[0], layoutMode = layoutMode)
+                Box(modifier = Modifier.weight(1f)) {
+                    HandContainer(
+                        title = stringResource(Res.string.you),
+                        score = hands[0].score,
+                        bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
+                        isActive = state.status == GameStatus.PLAYING,
+                        isExtraCompact = true,
+                        layoutMode = layoutMode,
+                    ) {
+                        HandRow(hands[0], layoutMode = layoutMode, scale = cardScale)
+                    }
                 }
             }
         }
@@ -455,7 +471,7 @@ private fun LandscapeLayout(
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.Center,
         ) {
             GameActions(
                 state = state,
