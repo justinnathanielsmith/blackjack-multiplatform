@@ -36,7 +36,14 @@ fun ActionIcon(
                     .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(24.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            Text(text = icon, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = icon,
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                softWrap = false,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Visible
+            )
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(

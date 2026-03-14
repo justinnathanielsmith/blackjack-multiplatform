@@ -2,14 +2,14 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.theme.OakMedium
+import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 
 private val CHIP_VALUES = listOf(10, 50, 100)
 
@@ -18,7 +18,13 @@ private fun chipColor(value: Int) =
         10 -> PokerRed
         50 -> PrimaryGold
         100 -> PokerBlack
-        else -> OakMedium
+        else -> PokerBlack
+    }
+
+private fun chipTextColor(value: Int) =
+    when (value) {
+        50 -> FeltDark
+        else -> WhiteSoft
     }
 
 @Composable
@@ -29,17 +35,16 @@ fun ChipSelector(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         CHIP_VALUES.forEach { value ->
             val enabled = balance >= value
-            CasinoButton(
-                text = "$$value",
+            BetChip(
+                amount = value,
+                chipColor = chipColor(value),
+                textColor = chipTextColor(value),
                 onClick = { onBetClick(value) },
-                modifier = Modifier.size(width = 72.dp, height = 72.dp),
-                enabled = enabled,
-                contentColor = PrimaryGold,
-                containerColor = chipColor(value),
+                enabled = enabled
             )
         }
     }

@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -42,12 +43,20 @@ fun Header(balance: Int) {
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp,
             )
-            Text(
-                text = "$$balance.00",
-                style = MaterialTheme.typography.headlineSmall,
-                color = PrimaryGold,
-                fontWeight = FontWeight.Black,
-            )
+            androidx.compose.animation.AnimatedContent(
+                targetState = balance,
+                transitionSpec = {
+                    androidx.compose.animation.fadeIn() togetherWith androidx.compose.animation.fadeOut()
+                },
+                label = "balanceRoll"
+            ) { targetBalance ->
+                Text(
+                    text = "$$targetBalance.00",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = PrimaryGold,
+                    fontWeight = FontWeight.Black,
+                )
+            }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             HeaderIcon("history")

@@ -85,6 +85,7 @@ fun PlayingCard(
 ) {
     val appearScale = remember { Animatable(0f) }
     val dealOffset = remember { Animatable(-200f) }
+    val dealRotationZ = remember { Animatable(-15f) }
 
     LaunchedEffect(Unit) {
         appearScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
@@ -92,6 +93,10 @@ fun PlayingCard(
 
     LaunchedEffect(Unit) {
         dealOffset.animateTo(0f, spring(stiffness = Spring.StiffnessLow))
+    }
+
+    LaunchedEffect(Unit) {
+        dealRotationZ.animateTo(0f, spring(stiffness = Spring.StiffnessLow))
     }
 
     val transition = updateTransition(targetState = isFaceUp, label = "cardFlip")
@@ -126,6 +131,7 @@ fun PlayingCard(
                     scaleX = appearScale.value
                     scaleY = appearScale.value
                     rotationY = rotation
+                    rotationZ = dealRotationZ.value
                     cameraDistance = 12f * density
                 },
     ) {

@@ -82,7 +82,7 @@ fun GameActions(
             }
         } else if (state.status != GameStatus.INSURANCE_OFFERED) {
             CasinoButton(
-                text = stringResource(Res.string.deal),
+                text = "NEW GAME",
                 onClick = {
                     audioService.playEffect(AudioService.SoundEffect.FLIP)
                     component.onAction(GameAction.NewGame())
