@@ -7,14 +7,17 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Hand
+import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 
 @Composable
 fun HandRow(
     hand: Hand,
     isDealer: Boolean = false,
-    isCompact: Boolean = false,
+    layoutMode: LayoutMode = LayoutMode.PORTRAIT,
 ) {
+    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val cardSpacing = if (isCompact) (-30).dp else (-40).dp
+    val cardScale = if (isCompact) 0.85f else 1f
     Row(
         horizontalArrangement = Arrangement.spacedBy(cardSpacing),
         verticalAlignment = Alignment.CenterVertically,
@@ -26,6 +29,7 @@ fun HandRow(
                     isFaceUp = !card.isFaceDown,
                     isDealer = isDealer,
                     animationDelay = index * 100,
+                    scale = cardScale,
                 )
             }
         }

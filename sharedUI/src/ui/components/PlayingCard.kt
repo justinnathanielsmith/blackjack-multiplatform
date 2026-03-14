@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -88,6 +89,7 @@ fun PlayingCard(
     isDealer: Boolean,
     modifier: Modifier = Modifier,
     animationDelay: Int = 0,
+    scale: Float = 1f,
 ) {
     val offsetY = remember { Animatable(if (isDealer) -300f else 300f) }
 
@@ -114,6 +116,7 @@ fun PlayingCard(
     Box(
         modifier =
             modifier
+                .scale(scale)
                 .width(96.dp)
                 .aspectRatio(24f / 34f)
                 .offset { IntOffset(0, offsetY.value.roundToInt()) }

@@ -54,6 +54,7 @@ import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.BetChip
 import io.github.smithjustinn.blackjack.ui.components.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.ChipSelector
+import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
@@ -102,9 +103,10 @@ fun BettingPhaseScreen(
     state: GameState,
     component: BlackjackComponent,
     audioService: AudioService,
-    isCompact: Boolean,
+    layoutMode: LayoutMode,
     modifier: Modifier = Modifier,
 ) {
+    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     require(state.status == GameStatus.BETTING)
     val flyingChips = remember { mutableStateListOf<FlyingChip>() }
     var betDisplayOffset by remember { mutableStateOf(Offset.Zero) }
@@ -122,153 +124,42 @@ fun BettingPhaseScreen(
     )
 
     Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = stringResource(Res.string.status_betting).uppercase(),
-                style =
-                    if (isCompact) {
-                        MaterialTheme.typography.headlineSmall
-                    } else {
-                        MaterialTheme.typography.headlineMedium
-                    },
-                color = PrimaryGold,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 4.sp,
-            )
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // Glassmorphic Info Card
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(if (isCompact) 1f else 0.8f)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(GlassDark)
-                        .border(
-                            width = 1.dp,
-                            color = Color.White.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(24.dp),
-                        ).padding(24.dp)
-                        .onGloballyPositioned {
-                            betDisplayOffset =
-                                it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                        },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(Res.string.balance).uppercase(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.6f),
-                    letterSpacing = 2.sp,
-                )
-                Text(
-                    text = formatCurrency(animatedBalance),
-                    style =
-                        if (isCompact) {
-                            MaterialTheme.typography.headlineMedium
-                        } else {
-                            MaterialTheme.typography.headlineLarge
-                        },
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = stringResource(Res.string.bet).uppercase(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = PrimaryGold.copy(alpha = 0.8f),
-                    letterSpacing = 2.sp,
-                )
-                AnimatedContent(
-                    targetState = state.currentBet,
-                    transitionSpec = {
-                        fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200))
-                    },
-                    label = "betAmount",
-                ) { bet ->
-                    Text(
-                        text = formatCurrency(bet),
-                        style =
-                            if (isCompact) {
-                                MaterialTheme.typography.displaySmall
-                            } else {
-                                MaterialTheme.typography.displayMedium
-                            },
-                        color = PrimaryGold,
-                        fontWeight = FontWeight.Black,
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            ChipSelector(
-                balance = state.balance,
-                onBetClick = { amount, offset ->
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onAction(GameAction.PlaceBet(amount))
-                    if (offset != Offset.Zero) {
-                        flyingChips.add(
-                            FlyingChip(
-                                id = (0..Long.MAX_VALUE).random(),
-                                startOffset = offset,
-                                amount = amount,
-                                color = chipColor(amount),
-                                textColor = chipTextColor(amount),
-                            ),
-                        )
-                    }
-                },
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            HandCountSelector(
-                handCount = state.handCount,
-                currentBet = state.currentBet,
-                onSelectCount = { count ->
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onAction(GameAction.SelectHandCount(count))
-                },
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-            ) {
-                CasinoButton(
-                    text = stringResource(Res.string.reset_bet),
-                    onClick = {
-                        audioService.playEffect(AudioService.SoundEffect.CLICK)
-                        component.onAction(GameAction.ResetBet)
-                    },
-                    modifier = Modifier.weight(1f),
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White.copy(alpha = 0.7f),
-                )
-                CasinoButton(
-                    text = stringResource(Res.string.deal),
-                    onClick = {
-                        audioService.playEffect(AudioService.SoundEffect.FLIP)
-                        component.onAction(GameAction.Deal)
-                    },
-                    modifier = Modifier.weight(1f),
-                    enabled = state.currentBet > 0,
-                    isStrategic = true,
+        val onChipSelected: (Int, Offset) -> Unit = { amount, offset ->
+            audioService.playEffect(AudioService.SoundEffect.CLICK)
+            component.onAction(GameAction.PlaceBet(amount))
+            if (offset != Offset.Zero) {
+                flyingChips.add(
+                    FlyingChip(
+                        id = (0..Long.MAX_VALUE).random(),
+                        startOffset = offset,
+                        amount = amount,
+                        color = chipColor(amount),
+                        textColor = chipTextColor(amount),
+                    ),
                 )
             }
+        }
+
+        if (layoutMode == LayoutMode.PORTRAIT) {
+            PortraitBettingLayout(
+                state = state,
+                component = component,
+                audioService = audioService,
+                isCompact = isCompact,
+                animatedBalance = animatedBalance,
+                onBetDisplayPositioned = { betDisplayOffset = it },
+                onChipSelected = onChipSelected,
+            )
+        } else {
+            LandscapeBettingLayout(
+                state = state,
+                component = component,
+                audioService = audioService,
+                isCompact = isCompact,
+                animatedBalance = animatedBalance,
+                onBetDisplayPositioned = { betDisplayOffset = it },
+                onChipSelected = onChipSelected,
+            )
         }
 
         // Animated Chips Overlay
@@ -280,6 +171,258 @@ fun BettingPhaseScreen(
                     onAnimationEnd = { flyingChips.remove(chip) },
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun InfoCard(
+    isCompact: Boolean,
+    animatedBalance: Int,
+    currentBet: Int,
+    onPositioned: (Offset) -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth(if (isCompact) 1f else 0.8f)
+                .clip(RoundedCornerShape(24.dp))
+                .background(GlassDark)
+                .border(
+                    width = 1.dp,
+                    color = Color.White.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(24.dp),
+                ).padding(if (isCompact) 16.dp else 24.dp)
+                .onGloballyPositioned {
+                    val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                    onPositioned(center)
+                },
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(Res.string.balance).uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.White.copy(alpha = 0.6f),
+            letterSpacing = 2.sp,
+        )
+        Text(
+            text = formatCurrency(animatedBalance),
+            style =
+                if (isCompact) {
+                    MaterialTheme.typography.headlineMedium
+                } else {
+                    MaterialTheme.typography.headlineLarge
+                },
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+        )
+
+        Spacer(modifier = Modifier.height(if (isCompact) 8.dp else 16.dp))
+
+        Text(
+            text = stringResource(Res.string.bet).uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = PrimaryGold.copy(alpha = 0.8f),
+            letterSpacing = 2.sp,
+        )
+        AnimatedContent(
+            targetState = currentBet,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200))
+            },
+            label = "betAmount",
+        ) { bet ->
+            Text(
+                text = formatCurrency(bet),
+                style =
+                    if (isCompact) {
+                        MaterialTheme.typography.displaySmall
+                    } else {
+                        MaterialTheme.typography.displayMedium
+                    },
+                color = PrimaryGold,
+                fontWeight = FontWeight.Black,
+            )
+        }
+    }
+}
+
+@Composable
+private fun BettingActions(
+    canDeal: Boolean,
+    onReset: () -> Unit,
+    onDeal: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+    ) {
+        CasinoButton(
+            text = stringResource(Res.string.reset_bet),
+            onClick = onReset,
+            modifier = Modifier.weight(1f),
+            containerColor = Color.Transparent,
+            contentColor = Color.White.copy(alpha = 0.7f),
+        )
+        CasinoButton(
+            text = stringResource(Res.string.deal),
+            onClick = onDeal,
+            modifier = Modifier.weight(1f),
+            enabled = canDeal,
+            isStrategic = true,
+        )
+    }
+}
+
+@Composable
+private fun PortraitBettingLayout(
+    state: GameState,
+    component: BlackjackComponent,
+    audioService: AudioService,
+    isCompact: Boolean,
+    animatedBalance: Int,
+    onBetDisplayPositioned: (Offset) -> Unit,
+    onChipSelected: (Int, Offset) -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = stringResource(Res.string.status_betting).uppercase(),
+            style =
+                if (isCompact) {
+                    MaterialTheme.typography.headlineSmall
+                } else {
+                    MaterialTheme.typography.headlineMedium
+                },
+            color = PrimaryGold,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 4.sp,
+        )
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        InfoCard(
+            isCompact = isCompact,
+            animatedBalance = animatedBalance,
+            currentBet = state.currentBet,
+            onPositioned = onBetDisplayPositioned,
+        )
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        ChipSelector(
+            balance = state.balance,
+            onBetClick = onChipSelected,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        HandCountSelector(
+            handCount = state.handCount,
+            currentBet = state.currentBet,
+            onSelectCount = { count ->
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onAction(GameAction.SelectHandCount(count))
+            },
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        BettingActions(
+            canDeal = state.currentBet > 0,
+            onReset = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onAction(GameAction.ResetBet)
+            },
+            onDeal = {
+                audioService.playEffect(AudioService.SoundEffect.FLIP)
+                component.onAction(GameAction.Deal)
+            },
+        )
+    }
+}
+
+@Composable
+private fun LandscapeBettingLayout(
+    state: GameState,
+    component: BlackjackComponent,
+    audioService: AudioService,
+    isCompact: Boolean,
+    animatedBalance: Int,
+    onBetDisplayPositioned: (Offset) -> Unit,
+    onChipSelected: (Int, Offset) -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(32.dp),
+    ) {
+        // Left column: Info Card
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = stringResource(Res.string.status_betting).uppercase(),
+                style = MaterialTheme.typography.headlineSmall,
+                color = PrimaryGold,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 2.sp,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            InfoCard(
+                isCompact = true,
+                animatedBalance = animatedBalance,
+                currentBet = state.currentBet,
+                onPositioned = onBetDisplayPositioned,
+            )
+        }
+
+        // Right column: Selectors and Actions
+        Column(
+            modifier = Modifier.weight(1.3f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            ChipSelector(
+                balance = state.balance,
+                onBetClick = onChipSelected,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            HandCountSelector(
+                handCount = state.handCount,
+                currentBet = state.currentBet,
+                onSelectCount = { count ->
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onAction(GameAction.SelectHandCount(count))
+                },
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            BettingActions(
+                canDeal = state.currentBet > 0,
+                onReset = {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onAction(GameAction.ResetBet)
+                },
+                onDeal = {
+                    audioService.playEffect(AudioService.SoundEffect.FLIP)
+                    component.onAction(GameAction.Deal)
+                },
+            )
         }
     }
 }

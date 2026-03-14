@@ -24,6 +24,7 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -34,7 +35,9 @@ import sharedui.generated.resources.stand
 fun GameActions(
     state: GameState,
     component: BlackjackComponent,
+    layoutMode: LayoutMode = LayoutMode.PORTRAIT,
 ) {
+    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val audioService = LocalAppGraph.current.audioService
     AnimatedContent(
         targetState = state.status,

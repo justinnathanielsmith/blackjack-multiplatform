@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
@@ -43,7 +44,7 @@ fun HandContainer(
     isActive: Boolean = false,
     isPending: Boolean = false,
     result: HandResult = HandResult.NONE,
-    isCompact: Boolean = false,
+    layoutMode: LayoutMode = LayoutMode.PORTRAIT,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -64,6 +65,7 @@ fun HandContainer(
             GlassDark.copy(alpha = 0.3f)
         }
 
+    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val horizontalPadding = if (isCompact) 12.dp else 16.dp
     val verticalPadding = if (isCompact) 16.dp else 24.dp
     val cornerRadius = if (isCompact) 16.dp else 24.dp
@@ -84,9 +86,9 @@ fun HandContainer(
                     .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(cornerRadius))
         )
 
-        StatusBadge(isActive = isActive, isPending = isPending)
+        StatusBadge(isActive = isActive, isPending = isPending, isCompact = isCompact)
 
-        ScoreBadge(score = score, isActive = isActive)
+        ScoreBadge(score = score, isActive = isActive, isCompact = isCompact)
 
         val contentPadding = if (isCompact) 16.dp else 20.dp
         val topPadding = if (isCompact) 24.dp else 28.dp
@@ -136,7 +138,8 @@ fun HandContainer(
 @Composable
 private fun BoxScope.StatusBadge(
     isActive: Boolean,
-    isPending: Boolean
+    isPending: Boolean,
+    isCompact: Boolean,
 ) {
     if (!isActive && !isPending) return
 
@@ -149,6 +152,7 @@ private fun BoxScope.StatusBadge(
             Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = (-12).dp)
+                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                 .background(badgeColor, RoundedCornerShape(12.dp))
                 .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
@@ -165,13 +169,15 @@ private fun BoxScope.StatusBadge(
 @Composable
 private fun BoxScope.ScoreBadge(
     score: Int,
-    isActive: Boolean
+    isActive: Boolean,
+    isCompact: Boolean,
 ) {
     Box(
         modifier =
             Modifier
                 .align(Alignment.TopEnd)
                 .offset(x = 8.dp, y = (-12).dp)
+                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                 .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
                 .border(
                     1.dp,

@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -22,8 +23,9 @@ import sharedui.generated.resources.status_push
 fun GameStatusMessage(
     status: GameStatus,
     pulseScale: Float,
-    isCompact: Boolean,
+    layoutMode: LayoutMode,
 ) {
+    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val statusText =
         when (status) {
             GameStatus.BETTING -> stringResource(Res.string.status_betting)
