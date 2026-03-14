@@ -12,24 +12,28 @@ private val DarkColorScheme =
     darkColorScheme(
         primary = ModernGold,
         onPrimary = Color.Black,
-        secondary = OakMedium,
-        onSecondary = ModernGold,
-        background = FeltGreenDark,
+        secondary = ModernGold,
+        onSecondary = Color.Black,
+        background = DeepFeltGreenDark,
         onBackground = Color.White,
-        surface = DarkOak,
-        onSurface = ModernGold,
+        surface = DeepFeltGreen,
+        onSurface = Color.White,
+        error = TacticalRed,
+        onError = Color.White,
     )
 
 private val LightColorScheme =
     lightColorScheme(
         primary = ModernGold,
         onPrimary = Color.Black,
-        secondary = OakMedium,
-        onSecondary = ModernGold,
-        background = FeltGreenLight,
+        secondary = ModernGold,
+        onSecondary = Color.Black,
+        background = DeepFeltGreen,
         onBackground = Color.White,
-        surface = OakMedium,
-        onSurface = ModernGold,
+        surface = DeepFeltGreenDark,
+        onSurface = Color.White,
+        error = TacticalRed,
+        onError = Color.White,
     )
 
 @Composable
@@ -39,8 +43,11 @@ fun BlackjackTheme(
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
+    val typography = androidx.compose.material3.Typography()
+
     MaterialTheme(
         colorScheme = colorScheme,
+        typography = typography,
         content = {
             Surface(color = Color.Transparent) {
                 content()

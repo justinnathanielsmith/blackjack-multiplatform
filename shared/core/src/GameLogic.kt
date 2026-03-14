@@ -90,7 +90,18 @@ data class GameState(
     val splitHand: Hand? = null,
     val splitBet: Int = 0,
     val isPlayingSplitHand: Boolean = false,
-)
+) {
+    fun canSplit(): Boolean =
+        playerHand.cards.size == 2 &&
+            playerHand.cards[0].rank == playerHand.cards[1].rank &&
+            balance >= currentBet &&
+            splitHand == null
+
+    fun canDoubleDown(): Boolean =
+        playerHand.cards.size == 2 &&
+            balance >= currentBet &&
+            splitHand == null
+}
 
 sealed class GameAction {
     data class NewGame(

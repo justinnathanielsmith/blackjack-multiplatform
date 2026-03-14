@@ -9,6 +9,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 class BlackjackStateMachineTest {
     @Test
@@ -670,5 +671,386 @@ class BlackjackStateMachineTest {
             advanceUntilIdle()
 
             assertEquals(initialState, stateMachine.state.value)
+        }
+
+    // --- Splitting ---
+
+    @Test
+    fun split_creates_two_hands() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 900,
+                    currentBet = 100,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck =
+                        listOf(
+                            Card(Rank.TWO, Suit.SPADES),
+                            Card(Rank.THREE, Suit.HEARTS),
+                            Card(Rank.FOUR, Suit.CLUBS)
+                        )
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(2, state.playerHand.cards.size)
+            assertEquals(2, state.splitHand?.cards?.size)
+            assertEquals(Rank.EIGHT, state.playerHand.cards[0].rank)
+            assertEquals(
+                Rank.EIGHT,
+                state.splitHand
+                    ?.cards
+                    ?.get(0)
+                    ?.rank
+            )
+            assertEquals(1, state.deck.size) // started with 3, used 2
+        }
+
+    @Test
+    fun split_deducts_balance() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 900,
+                        currentBet = 100,
+                        playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS))),
+                        dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                        deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS))
+                    )
+                )
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(800, state.balance)
+            assertEquals(100, state.splitBet)
+        }
+
+    @Test
+    fun split_invalid_non_pair() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 900,
+                    currentBet = 100,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            assertEquals(initialState, stateMachine.state.value)
+        }
+
+    @Test
+    fun split_invalid_insufficient_balance() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 50,
+                    currentBet = 100,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            assertEquals(initialState, stateMachine.state.value)
+        }
+
+    @Test
+    fun split_invalid_after_hit() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 900,
+                    currentBet = 100,
+                    playerHand =
+                        Hand(
+                            listOf(
+                                Card(Rank.EIGHT, Suit.SPADES),
+                                Card(Rank.EIGHT, Suit.HEARTS),
+                                Card(Rank.TWO, Suit.CLUBS)
+                            )
+                        ),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.TWO, Suit.SPADES), Card(Rank.THREE, Suit.HEARTS))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            assertEquals(initialState, stateMachine.state.value)
+        }
+
+    @Test
+    fun split_invalid_when_already_split() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                    splitHand = Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.FOUR, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            assertEquals(initialState, stateMachine.state.value)
+        }
+
+    @Test
+    fun hit_routes_to_active_hand() =
+        runTest {
+            // isPlayingSplitHand=false → hit goes to playerHand, splitHand unchanged
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = false,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                    splitHand = Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.FOUR, Suit.SPADES))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Hit)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(3, state.playerHand.cards.size) // primary got card
+            assertEquals(2, state.splitHand?.cards?.size) // split unchanged
+        }
+
+    @Test
+    fun hit_routes_to_split_hand() =
+        runTest {
+            // isPlayingSplitHand=true → hit goes to splitHand, playerHand unchanged
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = true,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                    splitHand = Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.FOUR, Suit.SPADES))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Hit)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(2, state.playerHand.cards.size) // primary unchanged
+            assertEquals(3, state.splitHand?.cards?.size) // split got card
+        }
+
+    @Test
+    fun stand_advances_to_split_hand() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = false,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                    splitHand = Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = emptyList()
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertTrue(state.isPlayingSplitHand)
+            assertEquals(GameStatus.PLAYING, state.status)
+        }
+
+    @Test
+    fun stand_enters_dealer_turn_after_split_hand() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = true,
+                    playerHand = Hand(listOf(Card(Rank.EIGHT, Suit.SPADES), Card(Rank.TWO, Suit.CLUBS))),
+                    splitHand = Hand(listOf(Card(Rank.EIGHT, Suit.HEARTS), Card(Rank.THREE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = emptyList()
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertTrue(
+                state.status == GameStatus.PLAYER_WON ||
+                    state.status == GameStatus.DEALER_WON ||
+                    state.status == GameStatus.PUSH
+            )
+        }
+
+    @Test
+    fun split_independent_payouts_primary_wins_split_loses() =
+        runTest {
+            // Primary: TEN + TEN = 20 (wins vs dealer 18), Split: EIGHT + EIGHT + SIX = 22 (bust)
+            // balance=800, currentBet=100, splitBet=100
+            // Primary payout: 200, Split payout: 0 → balance = 800 + 200 = 1000
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = true,
+                    playerHand = Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                    splitHand =
+                        Hand(
+                            listOf(
+                                Card(Rank.EIGHT, Suit.CLUBS),
+                                Card(Rank.EIGHT, Suit.DIAMONDS),
+                                Card(Rank.SIX, Suit.SPADES)
+                            )
+                        ),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
+                    deck = emptyList()
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(GameStatus.PLAYER_WON, state.status)
+            assertEquals(1000, state.balance)
+        }
+
+    @Test
+    fun split_independent_payouts_both_win() =
+        runTest {
+            // Primary: TEN + TEN = 20, Split: TEN + NINE = 19, Dealer: TEN + SIX draws KING → 26 (bust)
+            // balance=800, currentBet=100, splitBet=100
+            // Primary payout: 200, Split payout: 200 → balance = 800 + 400 = 1200
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = true,
+                    playerHand = Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                    splitHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.HEARTS), Card(Rank.SIX, Suit.SPADES))),
+                    deck = listOf(Card(Rank.KING, Suit.CLUBS))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(GameStatus.PLAYER_WON, state.status)
+            assertEquals(1200, state.balance)
+        }
+
+    @Test
+    fun split_ace_no_extra_hit() =
+        runTest {
+            // Split aces: hit should be blocked
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = false,
+                    playerHand = Hand(listOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
+                    splitHand = Hand(listOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.TWO, Suit.SPADES))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Hit)
+            advanceUntilIdle()
+
+            assertEquals(initialState, stateMachine.state.value)
+        }
+
+    @Test
+    fun split_ace_auto_stands_after_deal() =
+        runTest {
+            // Split aces → dealer turn should auto-run, no player input needed
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 900,
+                    currentBet = 100,
+                    playerHand = Hand(listOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.ACE, Suit.HEARTS))),
+                    dealerHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.THREE, Suit.CLUBS))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertTrue(
+                state.status == GameStatus.PLAYER_WON ||
+                    state.status == GameStatus.DEALER_WON ||
+                    state.status == GameStatus.PUSH
+            )
+        }
+
+    @Test
+    fun bust_on_primary_hand_advances_to_split() =
+        runTest {
+            // Primary: TEN + FIVE = 15, hit TEN → 25 (bust) → advances to split hand, game continues
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    splitBet = 100,
+                    isPlayingSplitHand = false,
+                    playerHand = Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
+                    splitHand = Hand(listOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
+                    dealerHand = Hand(listOf(Card(Rank.SEVEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = listOf(Card(Rank.TEN, Suit.HEARTS))
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Hit)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertTrue(state.isPlayingSplitHand)
+            assertEquals(GameStatus.PLAYING, state.status)
+            assertTrue(state.playerHand.isBust)
         }
 }

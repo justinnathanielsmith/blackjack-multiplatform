@@ -3,6 +3,7 @@ package io.github.smithjustinn.blackjack.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -25,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.ModernGold
-import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 
 @Composable
 fun CasinoButton(
@@ -33,8 +33,9 @@ fun CasinoButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    containerColor: Color = OakMedium,
-    contentColor: Color = ModernGold
+    isStrategic: Boolean = false,
+    containerColor: Color? = null,
+    contentColor: Color? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -47,6 +48,10 @@ fun CasinoButton(
 
     val alpha = if (enabled) 1f else 0.5f
 
+    // Strategic buttons have a metallic gold fill/glow per DESIGN.md
+    val resolvedContainerColor = containerColor ?: if (isStrategic) ModernGold else MaterialTheme.colorScheme.secondary
+    val resolvedContentColor = contentColor ?: if (isStrategic) Color.Black else MaterialTheme.colorScheme.onSecondary
+
     Box(
         modifier =
             modifier
@@ -55,27 +60,44 @@ fun CasinoButton(
                     scaleY = scale
                     this.alpha = alpha
                 }.shadow(
-                    elevation = if (isPressed) 2.dp else 6.dp,
-                    shape = RoundedCornerShape(12.dp)
+                    elevation = if (isPressed) 2.dp else 8.dp,
+                    shape = RoundedCornerShape(12.dp),
+                    ambientColor = if (isStrategic) ModernGold.copy(alpha = 0.5f) else Color.Black,
+                    spotColor = if (isStrategic) ModernGold else Color.Black
                 ).clip(RoundedCornerShape(12.dp))
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(containerColor, containerColor.copy(alpha = 0.8f))
+                        colors = listOf(
+                            resolvedContainerColor.copy(alpha = 1f),
+                            resolvedContainerColor.copy(alpha = 0.85f),
+                            resolvedContainerColor.copy(alpha = 0.7f)
+                        )
                     )
+                ).border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        colors = if (isStrategic) {
+                            listOf(Color.White.copy(alpha = 0.3f), Color.Transparent)
+                        } else {
+                            listOf(Color.White.copy(alpha = 0.15f), Color.Transparent)
+                        }
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ).clickable(
                     interactionSource = interactionSource,
                     indication = null,
                     enabled = enabled,
                     onClick = onClick
-                ).padding(horizontal = 24.dp, vertical = 12.dp),
+                ).padding(horizontal = 24.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text.uppercase(),
-            color = contentColor,
+            color = resolvedContentColor,
             fontSize = 16.sp,
-            fontWeight = FontWeight.ExtraBold,
-            style = MaterialTheme.typography.labelLarge
+            fontWeight = FontWeight.Black,
+            style = MaterialTheme.typography.labelLarge,
+            letterSpacing = 0.5.sp
         )
     }
 }

@@ -15,6 +15,7 @@
     <string name="hit">Hit</string>
     <string name="stand">Stand</string>
     <string name="deal">Deal</string>
+    <string name="split">Split</string>
 
     <!-- Betting -->
     <string name="status_betting">Place your bet</string>

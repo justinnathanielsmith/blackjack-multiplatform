@@ -10,6 +10,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,16 +47,20 @@ import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.CasinoButton
+import io.github.smithjustinn.blackjack.ui.components.SplitHandIndicator
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import io.github.smithjustinn.blackjack.ui.theme.FeltGreenDark
-import io.github.smithjustinn.blackjack.ui.theme.FeltGreenLight
+import io.github.smithjustinn.blackjack.ui.theme.DeepFeltGreen
+import io.github.smithjustinn.blackjack.ui.theme.DeepFeltGreenDark
+import io.github.smithjustinn.blackjack.ui.theme.GlassBlack
+import io.github.smithjustinn.blackjack.ui.theme.GlassWhite
 import io.github.smithjustinn.blackjack.ui.theme.ModernGold
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.deal
 import sharedui.generated.resources.hit
+import sharedui.generated.resources.split
 import sharedui.generated.resources.stand
 import sharedui.generated.resources.status_betting
 import sharedui.generated.resources.status_dealer_turn
@@ -115,7 +122,10 @@ fun BlackjackContent(component: BlackjackComponent) {
                     .fillMaxSize()
                     .background(
                         Brush.radialGradient(
-                            colors = listOf(FeltGreenLight, FeltGreenDark)
+                            0.0f to DeepFeltGreen,
+                            0.7f to DeepFeltGreenDark,
+                            1.0f to Color.Black,
+                            radius = 2000f
                         )
                     ).offset(x = shakeOffset.value.dp)
         ) {
@@ -156,6 +166,63 @@ fun BlackjackContent(component: BlackjackComponent) {
                         pulseScale = pulseScale
                     )
                 }
+
+                if (state.status == GameStatus.INSURANCE_OFFERED) {
+                    InsuranceOverlay(
+                        onInsure = { component.onAction(GameAction.TakeInsurance) },
+                        onDecline = { component.onAction(GameAction.DeclineInsurance) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InsuranceOverlay(
+    onInsure: () -> Unit,
+    onDecline: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize().background(GlassBlack),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .padding(32.dp)
+                    .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(24.dp))
+                    .border(1.dp, GlassWhite, RoundedCornerShape(24.dp))
+                    .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "INSURANCE?",
+                style = MaterialTheme.typography.headlineMedium,
+                color = ModernGold,
+                fontWeight = FontWeight.Black
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Dealer shows an ACE. Insurance pays 2:1.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                CasinoButton(
+                    text = "NO THANKS",
+                    onClick = onDecline,
+                    modifier = Modifier.weight(1f),
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White
+                )
+                CasinoButton(
+                    text = "INSURE",
+                    onClick = onInsure,
+                    modifier = Modifier.weight(1f),
+                    isStrategic = true
+                )
             }
         }
     }
@@ -177,7 +244,7 @@ private fun PortraitLayout(
         val dealerDisplayScore =
             if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
         Text(
-            text = dealerDisplayScore.toString(),
+            text = "DEALER: $dealerDisplayScore",
             style = MaterialTheme.typography.titleMedium,
             color = ModernGold,
             fontWeight = FontWeight.Bold
@@ -186,13 +253,57 @@ private fun PortraitLayout(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (state.status != GameStatus.PLAYING && state.status != GameStatus.BETTING) {
+        if (state.status != GameStatus.PLAYING &&
+            state.status != GameStatus.BETTING &&
+            state.status != GameStatus.INSURANCE_OFFERED
+        ) {
             GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = false)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        HandRow(state.playerHand)
+        val splitHand = state.splitHand
+        if (splitHand != null) {
+            val primaryActive = !state.isPlayingSplitHand && state.status == GameStatus.PLAYING
+            val splitActive = state.isPlayingSplitHand && state.status == GameStatus.PLAYING
+
+            SplitHandIndicator(
+                isActive = primaryActive,
+                isResolved = state.isPlayingSplitHand || state.status != GameStatus.PLAYING
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "PRIMARY: ${state.playerHand.score}",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = ModernGold
+                    )
+                    HandRow(state.playerHand)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SplitHandIndicator(isActive = splitActive, isResolved = state.status != GameStatus.PLAYING) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "SPLIT: ${splitHand.score}",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = ModernGold
+                    )
+                    HandRow(splitHand)
+                }
+            }
+        } else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "YOU: ${state.playerHand.score}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = ModernGold,
+                    fontWeight = FontWeight.Bold
+                )
+                HandRow(state.playerHand)
+            }
+        }
 
         Spacer(modifier = Modifier.height(48.dp))
 
@@ -218,30 +329,79 @@ private fun LandscapeLayout(
     ) {
         // Left side: Cards
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1.2f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             val dealerDisplayScore =
                 if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
             Text(
-                text = dealerDisplayScore.toString(),
+                text = "DEALER: $dealerDisplayScore",
                 style = MaterialTheme.typography.titleMedium,
                 color = ModernGold,
                 fontWeight = FontWeight.Bold
             )
             HandRow(state.dealerHand)
+
             Spacer(modifier = Modifier.height(16.dp))
-            HandRow(state.playerHand)
+
+            val splitHand = state.splitHand
+            if (splitHand != null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    val primaryActive = !state.isPlayingSplitHand && state.status == GameStatus.PLAYING
+                    val splitActive = state.isPlayingSplitHand && state.status == GameStatus.PLAYING
+
+                    SplitHandIndicator(
+                        isActive = primaryActive,
+                        isResolved = state.isPlayingSplitHand || state.status != GameStatus.PLAYING,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "P: ${state.playerHand.score}",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = ModernGold
+                            )
+                            HandRow(state.playerHand)
+                        }
+                    }
+
+                    SplitHandIndicator(
+                        isActive = splitActive,
+                        isResolved = state.status != GameStatus.PLAYING,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "S: ${splitHand.score}",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = ModernGold
+                            )
+                            HandRow(splitHand)
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    text = "YOU: ${state.playerHand.score}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = ModernGold,
+                    fontWeight = FontWeight.Bold
+                )
+                HandRow(state.playerHand)
+            }
         }
 
         // Right side: Status and Actions
         Column(
-            modifier = Modifier.weight(0.6f),
+            modifier = Modifier.weight(0.8f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (state.status != GameStatus.PLAYING && state.status != GameStatus.BETTING) {
+            if (state.status != GameStatus.PLAYING &&
+                state.status != GameStatus.BETTING &&
+                state.status != GameStatus.INSURANCE_OFFERED
+            ) {
                 GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = true)
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -271,6 +431,7 @@ private fun GameStatusMessage(
             GameStatus.PLAYER_WON -> stringResource(Res.string.status_player_won)
             GameStatus.DEALER_WON -> stringResource(Res.string.status_dealer_won)
             GameStatus.PUSH -> stringResource(Res.string.status_push)
+            else -> ""
         }
     Text(
         text = statusText,
@@ -284,8 +445,8 @@ private fun GameStatusMessage(
         fontWeight = FontWeight.Black,
         modifier =
             Modifier.graphicsLayer {
-                scaleX = if (status == GameStatus.PUSH) pulseScale else 1f
-                scaleY = if (status == GameStatus.PUSH) pulseScale else 1f
+                scaleX = if (status == GameStatus.PUSH || status == GameStatus.PLAYER_WON) pulseScale else 1f
+                scaleY = if (status == GameStatus.PUSH || status == GameStatus.PLAYER_WON) pulseScale else 1f
             }
     )
 }
@@ -298,7 +459,7 @@ fun GameActions(
     isCompact: Boolean
 ) {
     Row(
-        modifier = if (isCompact) Modifier.fillMaxWidth() else Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
     ) {
         if (state.status == GameStatus.PLAYING) {
@@ -318,7 +479,33 @@ fun GameActions(
                 },
                 modifier = Modifier.weight(1f)
             )
-        } else {
+
+            val canSplit = state.canSplit()
+            if (canSplit) {
+                CasinoButton(
+                    text = stringResource(Res.string.split),
+                    onClick = {
+                        audioService.playEffect(AudioService.SoundEffect.DEAL)
+                        component.onAction(GameAction.Split)
+                    },
+                    modifier = Modifier.weight(1f),
+                    isStrategic = true
+                )
+            }
+
+            val canDouble = state.canDoubleDown()
+            if (canDouble) {
+                CasinoButton(
+                    text = "x2",
+                    onClick = {
+                        audioService.playEffect(AudioService.SoundEffect.DEAL)
+                        component.onAction(GameAction.DoubleDown)
+                    },
+                    modifier = Modifier.weight(0.6f),
+                    isStrategic = true
+                )
+            }
+        } else if (state.status != GameStatus.INSURANCE_OFFERED) {
             CasinoButton(
                 text = stringResource(Res.string.deal),
                 onClick = {
