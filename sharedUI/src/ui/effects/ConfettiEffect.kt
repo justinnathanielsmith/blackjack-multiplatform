@@ -12,7 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
-import io.github.smithjustinn.blackjack.ui.theme.ModernGold
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import kotlin.math.PI
@@ -60,7 +60,7 @@ fun ConfettiEffect(
     colors: List<Color> =
         listOf(
             PokerRed,
-            ModernGold,
+            PrimaryGold,
             PokerBlack,
             Color.White,
         ),

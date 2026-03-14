@@ -25,7 +25,7 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.ChipSelector
-import io.github.smithjustinn.blackjack.ui.theme.ModernGold
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance
@@ -60,14 +60,14 @@ fun BettingPhaseContent(
                 } else {
                     MaterialTheme.typography.headlineLarge
                 },
-            color = ModernGold,
+            color = PrimaryGold,
             fontWeight = FontWeight.Black
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "${stringResource(Res.string.balance)}: ${formatCurrency(state.balance)}",
             style = MaterialTheme.typography.titleLarge,
-            color = ModernGold
+            color = PrimaryGold
         )
         Spacer(modifier = Modifier.height(8.dp))
         AnimatedContent(
@@ -80,7 +80,7 @@ fun BettingPhaseContent(
             Text(
                 text = "${stringResource(Res.string.bet)}: ${formatCurrency(bet)}",
                 style = MaterialTheme.typography.titleLarge,
-                color = ModernGold
+                color = PrimaryGold
             )
         }
         Spacer(modifier = Modifier.height(32.dp))

@@ -10,13 +10,13 @@ import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = ModernGold,
-        onPrimary = Color.Black,
-        secondary = ModernGold,
-        onSecondary = Color.Black,
-        background = DeepFeltGreenDark,
+        primary = PrimaryGold,
+        onPrimary = BackgroundDark,
+        secondary = PrimaryGold,
+        onSecondary = BackgroundDark,
+        background = BackgroundDark,
         onBackground = Color.White,
-        surface = DeepFeltGreen,
+        surface = FeltGreen,
         onSurface = Color.White,
         error = TacticalRed,
         onError = Color.White,
@@ -24,13 +24,13 @@ private val DarkColorScheme =
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = ModernGold,
-        onPrimary = Color.Black,
-        secondary = ModernGold,
-        onSecondary = Color.Black,
-        background = DeepFeltGreen,
+        primary = PrimaryGold,
+        onPrimary = BackgroundDark,
+        secondary = PrimaryGold,
+        onSecondary = BackgroundDark,
+        background = FeltGreen,
         onBackground = Color.White,
-        surface = DeepFeltGreenDark,
+        surface = FeltDark,
         onSurface = Color.White,
         error = TacticalRed,
         onError = Color.White,

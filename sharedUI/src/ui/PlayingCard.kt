@@ -37,8 +37,10 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
 val Suit.color: Color
     get() =
@@ -199,28 +201,36 @@ fun PlayingCard(
                         Modifier
                             .fillMaxSize()
                             .graphicsLayer { rotationY = 180f }
-                            .background(Color(0xFF0D47A1)) // Dark Blue back
+                            .background(FeltDark) // Premium Felt Dark back
                 ) {
-                    Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+                    Canvas(modifier = Modifier.fillMaxSize().padding(1.dp)) {
+                        // Pattern background
+                        val cellSize = 8.dp.toPx()
+                        for (x in 0..(size.width / cellSize).toInt()) {
+                            for (y in 0..(size.height / cellSize).toInt()) {
+                                if ((x + y) % 2 == 0) {
+                                    drawRect(
+                                        color = PrimaryGold.copy(alpha = 0.05f),
+                                        topLeft = Offset(x * cellSize, y * cellSize),
+                                        size = androidx.compose.ui.geometry.Size(cellSize, cellSize)
+                                    )
+                                }
+                            }
+                        }
+
                         drawRoundRect(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = Color.White.copy(alpha = 0.2f),
                             size = size,
                             cornerRadius = CornerRadius(6.dp.toPx()),
                             style = Stroke(width = 2.dp.toPx())
                         )
-
-                        // Cross pattern
-                        drawLine(
-                            color = Color.White.copy(alpha = 0.1f),
-                            start = Offset(0f, 0f),
-                            end = Offset(size.width, size.height),
-                            strokeWidth = 1.dp.toPx()
-                        )
-                        drawLine(
-                            color = Color.White.copy(alpha = 0.1f),
-                            start = Offset(size.width, 0f),
-                            end = Offset(0f, size.height),
-                            strokeWidth = 1.dp.toPx()
+                    }
+                    // Crown / Logo in center
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "👑",
+                            fontSize = 40.sp,
+                            modifier = Modifier.graphicsLayer { rotationY = 180f }
                         )
                     }
                 }
