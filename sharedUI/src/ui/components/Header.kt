@@ -51,6 +51,11 @@ fun Header(balance: Int) {
         finishedListener = { previousBalance = it },
     )
 
+    val formattedBalance =
+        remember(animatedBalance) {
+            animatedBalance.formatWithCommas()
+        }
+
     Row(
         modifier =
             Modifier
@@ -63,7 +68,7 @@ fun Header(balance: Int) {
         Column(
             modifier =
                 Modifier.semantics(mergeDescendants = true) {
-                    contentDescription = "Balance: $${animatedBalance.formatWithCommas()}"
+                    contentDescription = "Balance: $$formattedBalance"
                 },
         ) {
             Text(
@@ -74,7 +79,7 @@ fun Header(balance: Int) {
                 letterSpacing = 2.sp,
             )
             Text(
-                text = "$${animatedBalance.formatWithCommas()}",
+                text = "$$formattedBalance",
                 style = MaterialTheme.typography.headlineSmall,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,

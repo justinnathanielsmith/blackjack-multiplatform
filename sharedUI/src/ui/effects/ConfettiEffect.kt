@@ -69,17 +69,17 @@ fun ConfettiEffect(
     val frameState = remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
-        // Create a burst of particles
-        val newParticles =
-            List(particleCount) {
+        // Create a burst of particles directly in the list to avoid intermediate List allocation
+        repeat(particleCount) {
+            particles.add(
                 Particle(
                     color = colors.random(),
                     size = Random.nextFloat() * MAX_PARTICLE_SIZE_DIFF + MIN_PARTICLE_SIZE,
                     angle = Random.nextDouble(0.0, 2.0 * PI),
                     speed = Random.nextFloat() * MAX_PARTICLE_SPEED_DIFF + MIN_PARTICLE_SPEED,
                 )
-            }
-        particles.addAll(newParticles)
+            )
+        }
 
         // Animation loop
         while (particles.isNotEmpty()) {

@@ -1,6 +1,5 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
@@ -230,11 +229,13 @@ class BlackjackStateMachine(
         val isAceSplit = card1.rank == Rank.ACE
 
         val updatedHands =
-            state.playerHands.toPersistentList()
+            state.playerHands
+                .toPersistentList()
                 .set(state.activeHandIndex, newPrimaryHand)
                 .add(state.activeHandIndex + 1, newSplitHand)
         val updatedBets =
-            state.playerBets.toPersistentList()
+            state.playerBets
+                .toPersistentList()
                 .add(state.activeHandIndex + 1, state.currentBet)
 
         val newState =
@@ -299,7 +300,8 @@ class BlackjackStateMachine(
                     _state.value.dealerHand.copy(
                         cards =
                             _state.value.dealerHand.cards
-                                .map { it.copy(isFaceDown = false) }.toPersistentList()
+                                .map { it.copy(isFaceDown = false) }
+                                .toPersistentList()
                     )
             )
     }

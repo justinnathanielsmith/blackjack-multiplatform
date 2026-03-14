@@ -160,13 +160,13 @@ private fun BoxWithConstraintsScope.detectLayoutMode(): LayoutMode {
 
 #### Step 5.1: Verify animations work in landscape
 - Test all animation sequences:
-  - [ ] Card deal animation
-  - [ ] Hole card flip
-  - [ ] Chip toss animation
-  - [ ] Balance counter roll
-  - [ ] Confetti effect
-  - [ ] Button press feedback
-  - [ ] Status message transitions
+  - [x] Card deal animation
+  - [x] Hole card flip
+  - [x] Chip toss animation
+  - [x] Balance counter roll
+  - [x] Confetti effect
+  - [x] Button press feedback
+  - [x] Status message transitions
 - Verify no clipping or overflow issues
 
 #### Step 5.2: Verify overlays scale correctly
@@ -177,10 +177,10 @@ private fun BoxWithConstraintsScope.detectLayoutMode(): LayoutMode {
 
 #### Step 5.3: Test orientation changes
 - Start game in portrait → rotate to landscape during:
-  - [ ] Betting phase
-  - [ ] Playing phase
-  - [ ] Insurance decision
-  - [ ] Terminal state (win/loss/push)
+  - [x] Betting phase
+  - [x] Playing phase
+  - [x] Insurance decision
+  - [x] Terminal state (win/loss/push)
 - Verify no crashes, layout shifts, or broken animations
 
 #### Step 5.4: Accessibility audit
@@ -215,12 +215,12 @@ private fun BoxWithConstraintsScope.detectLayoutMode(): LayoutMode {
 
 ## Success Metrics
 
-- [ ] All layouts render correctly in portrait, landscape-compact, and landscape-wide modes
-- [ ] No visual jank or layout shifts during orientation changes
-- [ ] All animations play at 60fps
-- [ ] Touch targets meet accessibility guidelines
-- [ ] Code passes ktlint and detekt checks
-- [ ] Manual testing completed on at least 3 different screen sizes
+- [x] All layouts render correctly in portrait, landscape-compact, and landscape-wide modes
+- [x] No visual jank or layout shifts during orientation changes
+- [x] All animations play at 60fps
+- [x] Touch targets meet accessibility guidelines
+- [x] Code passes ktlint and detekt checks
+- [x] Manual testing completed on at least 3 different screen sizes
 
 ## Rollback Plan
 

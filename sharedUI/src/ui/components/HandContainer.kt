@@ -33,7 +33,11 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.result_loss
+import sharedui.generated.resources.result_push
+import sharedui.generated.resources.result_win
 import sharedui.generated.resources.status_active
+import sharedui.generated.resources.status_waiting
 
 @Composable
 fun HandContainer(
@@ -144,7 +148,12 @@ private fun BoxScope.StatusBadge(
 
     val badgeColor = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.2f)
     val badgeTextColor = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.8f)
-    val badgeText = if (isActive) stringResource(Res.string.status_active) else "WAITING"
+    val badgeText =
+        if (isActive) {
+            stringResource(Res.string.status_active)
+        } else {
+            stringResource(Res.string.status_waiting)
+        }
 
     Box(
         modifier =
@@ -220,6 +229,14 @@ private fun BoxScope.HandOutcomeBadge(result: HandResult) {
         label = "badgeScale",
     )
 
+    val text =
+        when (result) {
+            HandResult.WIN -> stringResource(Res.string.result_win)
+            HandResult.LOSS -> stringResource(Res.string.result_loss)
+            HandResult.PUSH -> stringResource(Res.string.result_push)
+            HandResult.NONE -> ""
+        }
+
     Box(
         modifier =
             Modifier
@@ -230,7 +247,7 @@ private fun BoxScope.HandOutcomeBadge(result: HandResult) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Text(
-            text = result.name,
+            text = text.uppercase(),
             color = Color.White,
             fontWeight = FontWeight.Black,
             fontSize = 20.sp,

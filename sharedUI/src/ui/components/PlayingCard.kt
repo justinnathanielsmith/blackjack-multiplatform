@@ -6,14 +6,12 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,11 +31,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
@@ -48,7 +44,6 @@ import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.delay
-import kotlin.math.roundToInt
 
 val Suit.color: Color
     get() =
@@ -118,10 +113,11 @@ fun PlayingCard(
     Box(
         modifier =
             modifier
-                .scale(scale)
                 .width(96.dp)
                 .aspectRatio(24f / 34f)
                 .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
                     translationY = offsetY.value
                     rotationY = rotation
                     cameraDistance = 12f * density
@@ -207,19 +203,30 @@ fun PlayingCard(
                             .fillMaxSize()
                             .background(FeltDark)
                             .drawWithCache {
-                                onDrawBehind {
-                                    val cellSize = 8.dp.toPx()
-                                    for (x in 0..(size.width / cellSize).toInt()) {
-                                        for (y in 0..(size.height / cellSize).toInt()) {
-                                            if ((x + y) % 2 == 0) {
-                                                drawRect(
-                                                    color = PrimaryGold.copy(alpha = 0.05f),
-                                                    topLeft = Offset(x * cellSize, y * cellSize),
-                                                    size = androidx.compose.ui.geometry.Size(cellSize, cellSize),
+                                // Pre-build the checkerboard path to avoid repeated for-loops in onDrawBehind
+                                val cellSize = 8.dp.toPx()
+                                val checkerPath =
+                                    androidx.compose.ui.graphics
+                                        .Path()
+                                for (x in 0..(size.width / cellSize).toInt()) {
+                                    for (y in 0..(size.height / cellSize).toInt()) {
+                                        if ((x + y) % 2 == 0) {
+                                            checkerPath.addRect(
+                                                androidx.compose.ui.geometry.Rect(
+                                                    Offset(x * cellSize, y * cellSize),
+                                                    androidx.compose.ui.geometry
+                                                        .Size(cellSize, cellSize)
                                                 )
-                                            }
+                                            )
                                         }
                                     }
+                                }
+
+                                onDrawBehind {
+                                    drawPath(
+                                        path = checkerPath,
+                                        color = PrimaryGold.copy(alpha = 0.05f)
+                                    )
 
                                     drawRoundRect(
                                         color = Color.White.copy(alpha = 0.2f),

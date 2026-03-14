@@ -38,4 +38,8 @@
     <string name="status_dealer_won">Dealer Wins</string>
     <string name="status_push">Push</string>
     <string name="status_active">Active</string>
+    <string name="status_waiting">Waiting</string>
+    <string name="result_win">Win</string>
+    <string name="result_loss">Loss</string>
+    <string name="result_push">Push</string>
 </resources>

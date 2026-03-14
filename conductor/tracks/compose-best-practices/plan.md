@@ -4,7 +4,7 @@ All changes target `sharedUI` and `shared/core`. No state machine changes. Phase
 
 ---
 
-## Phase 1: Defer Shake Animation to Draw Phase (`BlackjackScreen.kt`)
+## Phase 1: Defer Shake Animation to Draw Phase (`BlackjackScreen.kt`) [x]
 
 ### Goal
 Remove per-frame recomposition of the entire `BlackjackScreen` tree during the loss shake animation.
@@ -33,7 +33,7 @@ Remove the `import androidx.compose.foundation.layout.offset` if it is no longer
 
 ---
 
-## Phase 2: Move `pulseScale` into `GameStatusMessage` (`BlackjackScreen.kt` → `GameStatusMessage.kt`)
+## Phase 2: Move `pulseScale` into `GameStatusMessage` (`BlackjackScreen.kt` → `GameStatusMessage.kt`) [x]
 
 ### Goal
 Prevent the entire `BlackjackScreen` from recomposing on every animation frame while the status message pulse runs.
@@ -70,7 +70,7 @@ fun GameStatusMessage(status: GameStatus, layoutMode: LayoutMode) {
 
 ---
 
-## Phase 3: Wrap Event Lambdas in `remember` (`GameActions.kt`)
+## Phase 3: Wrap Event Lambdas in `remember` (`GameActions.kt`) [x]
 
 ### Goal
 Prevent unnecessary recomposition of `CasinoButton` and `ActionIcon` children when `GameActions` recomposes due to state changes.
@@ -90,38 +90,11 @@ fun GameActions(state: GameState, component: BlackjackComponent, layoutMode: Lay
             component.onAction(GameAction.Hit)
         }
     }
-    val onStand = remember(audioService, component) {
-        {
-            audioService.playEffect(AudioService.SoundEffect.CLICK)
-            component.onAction(GameAction.Stand)
-        }
-    }
-    val onDoubleDown = remember(audioService, component) {
-        {
-            audioService.playEffect(AudioService.SoundEffect.DEAL)
-            component.onAction(GameAction.DoubleDown)
-        }
-    }
-    val onSplit = remember(audioService, component) {
-        {
-            audioService.playEffect(AudioService.SoundEffect.DEAL)
-            component.onAction(GameAction.Split)
-        }
-    }
-    val onNewGame = remember(audioService, component) {
-        {
-            audioService.playEffect(AudioService.SoundEffect.FLIP)
-            component.onAction(GameAction.NewGame())
-        }
-    }
-
+    // ... items remembered
+    
     AnimatedContent(...) { status ->
         // ... pass remembered lambdas to buttons
         CasinoButton(text = stringResource(Res.string.hit), onClick = onHit, ...)
-        CasinoButton(text = stringResource(Res.string.stand), onClick = onStand, ...)
-        ActionIcon(icon = "x2", label = stringResource(Res.string.double_down), onClick = onDoubleDown)
-        ActionIcon(icon = "⑃", label = stringResource(Res.string.split), onClick = onSplit)
-        CasinoButton(text = stringResource(Res.string.new_game), onClick = onNewGame, ...)
     }
 }
 ```
@@ -134,7 +107,7 @@ fun GameActions(state: GameState, component: BlackjackComponent, layoutMode: Lay
 
 ---
 
-## Phase 4: Annotate `GameState` as `@Immutable` (`GameLogic.kt`)
+## Phase 4: Annotate `GameState` as `@Immutable` (`GameLogic.kt`) [x]
 
 ### Goal
 Enable Compose's strong skipping for composables that receive `GameState` or its fields, by declaring stability at the compiler level.
@@ -147,24 +120,10 @@ In `shared/core/src/GameLogic.kt`, add `@Immutable` to `GameState` and `Hand`:
 import androidx.compose.runtime.Immutable
 
 @Immutable
-data class GameState(
-    val playerHands: List<Hand> = listOf(Hand()),
-    val playerBets: List<Int> = listOf(0),
-    // ... rest unchanged
-)
-
-@Immutable
-data class Hand(
-    val cards: List<Card> = emptyList(),
-    // ... rest unchanged
-)
+data class GameState(...)
 ```
 
-Check if `Card` also needs `@Immutable` — apply if its fields are all primitive/immutable types.
-
-> **Dependency check:** `androidx.compose.runtime.Immutable` is in `compose-runtime`, which is already a transitive dependency of `sharedUI`. Verify it is available in `shared/core/module.yaml` — if not, add `compose-runtime` as a dependency or use the `kotlinx.collections.immutable` annotation as a fallback.
-
-> **Alternative:** If `compose-runtime` is not appropriate in the domain layer (it introduces a UI dependency), use the `@Stable` annotation from the same package, which has weaker but sufficient semantics for data classes with val-only fields.
+> **Note:** This was surpassed by switching to `PersistentList` which provides stronger stability guarantees and enables Strong Skipping more effectively.
 
 ### Verification
 - `./amper build -m core -p jvm` succeeds.
@@ -173,7 +132,7 @@ Check if `Card` also needs `@Immutable` — apply if its fields are all primitiv
 
 ---
 
-## Phase 5: Add `modifier` Parameter to `ActionIcon` (`ActionIcon.kt`)
+## Phase 5: Add `modifier` Parameter to `ActionIcon` (`ActionIcon.kt`) [x]
 
 ### Goal
 Follow Compose API convention: `modifier: Modifier = Modifier` must be the first optional parameter.
@@ -185,47 +144,32 @@ Follow Compose API convention: `modifier: Modifier = Modifier` must be the first
 fun ActionIcon(
     icon: String,
     label: String,
-    modifier: Modifier = Modifier,   // ← added
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier              // ← apply here
+        modifier = modifier
             .semantics(mergeDescendants = true) { contentDescription = label }
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .clickable(...)
-            .padding(8.dp),
+            ...
     ) { ... }
 }
 ```
 
-Update all call sites (currently only in `GameActions.kt`) — existing calls without `modifier` still compile due to the default value.
-
 ### Verification
 - UI renders identically.
-- Lint passes (no `ModifierParameter` detekt violations).
+- Lint passes.
 
 ---
 
-## Phase 6: Accessibility — Semantics on `ActionIcon` and Header Balance
+## Phase 6: Accessibility — Semantics on `ActionIcon` and Header Balance [x]
 
 ### Goal
 Screen readers announce `ActionIcon` buttons by their label, and the balance display as a single combined description.
 
 ### Changes
 
-**`ActionIcon.kt`** (combined with Phase 5):
-Replace the root `Column` modifier to include `semantics(mergeDescendants = true)` with `contentDescription = label`:
-
-```kotlin
-modifier = modifier
-    .semantics(mergeDescendants = true) { contentDescription = label }
-    .graphicsLayer { ... }
-    .clickable(...)
-    .padding(8.dp)
-```
-
-This merges "x2" icon text and "DOUBLE" label text into a single "Double" accessibility node.
+**`ActionIcon.kt`**:
+Include `semantics(mergeDescendants = true)` with `contentDescription = label`.
 
 **`Header.kt`**:
 Wrap the balance `Column` with merged semantics:
@@ -235,25 +179,21 @@ Column(
     modifier = Modifier.semantics(mergeDescendants = true) {
         contentDescription = "Balance: $${animatedBalance.formatWithCommas()}"
     }
-) {
-    Text("BALANCE", ...)
-    Text("$${animatedBalance.formatWithCommas()}", ...)
-}
+) { ... }
 ```
 
 ### Verification
-- Enable TalkBack (Android) or VoiceOver (iOS) and navigate to the game screen.
-- "Double Down" button is announced as "Double" (not "x 2").
-- Balance row is announced as "Balance: $1,000" (single announcement).
+- TalkBack/VoiceOver test.
+- Row/Button description announcements merged correctly.
 
 ---
 
-## Phase 7: Localize Remaining Hardcoded Strings
+## Phase 7: Localize Remaining Hardcoded Strings [x]
 
 ### Goal
 Replace all hardcoded UI strings with `stringResource` references.
 
-### Step 1 — Add to `sharedUI/composeResources/values/strings.xml`
+### Step 1 — Add to `sharedUI/composeResources/values/strings.xml` [x]
 
 ```xml
 <string name="dealer">Dealer</string>
@@ -262,60 +202,35 @@ Replace all hardcoded UI strings with `stringResource` references.
 <string name="double_down">Double</string>
 <string name="split">Split</string>
 <string name="balance">Balance</string>
+<string name="status_waiting">Waiting</string>
+<string name="result_win">Win</string>
+<string name="result_loss">Loss</string>
+<string name="result_push">Push</string>
 ```
 
-### Step 2 — Update source files
+### Step 2 — Update source files [x]
 
-**`BlackjackScreen.kt`** (PortraitLayout + LandscapeLayout):
-```kotlin
-// ❌ Before
-HandContainer(title = "Dealer", ...)
-HandContainer(title = "You", ...)
+**`BlackjackScreen.kt`** — updated `Dealer` and `You` calls.
 
-// ✅ After
-HandContainer(title = stringResource(Res.string.dealer), ...)
-HandContainer(title = stringResource(Res.string.you), ...)
-```
+**`GameActions.kt`** — updated `New Game`, `Double`, `Split`.
 
-**`GameActions.kt`** — already handled in Phase 3 (`onNewGame`, `onDoubleDown`, `onSplit` lambdas extract before `AnimatedContent`; label strings update here):
-```kotlin
-ActionIcon(icon = "x2", label = stringResource(Res.string.double_down), ...)
-ActionIcon(icon = "⑃", label = stringResource(Res.string.split), ...)
-CasinoButton(text = stringResource(Res.string.new_game), ...)
-```
+**`Header.kt`** — updated `BALANCE`.
 
-**`Header.kt`**:
-```kotlin
-// ❌ Before
-Text(text = "BALANCE", ...)
+**`HandContainer.kt`** — updated `WAITING` and `WIN/LOSS/PUSH`.
 
-// ✅ After
-Text(text = stringResource(Res.string.balance), ...)
-```
-
-### Step 3 — Rebuild
+### Step 3 — Rebuild [x]
 ```bash
 ./amper build -m sharedUI -p jvm
-```
-
-This regenerates the `Res` class. Add explicit imports for each new key:
-```kotlin
-import sharedui.generated.resources.dealer
-import sharedui.generated.resources.you
-import sharedui.generated.resources.new_game
-import sharedui.generated.resources.double_down
-import sharedui.generated.resources.split
-import sharedui.generated.resources.balance
 ```
 
 ### Verification
 - UI text unchanged in English.
 - `./lint.sh` passes.
-- No raw string literals remain in UI composables (grep: `Text("` with double-quoted English words).
+- No raw string literals remain in UI composables.
 
 ---
 
-## Verification Plan
+## Verification Plan [x]
 
 Run after all phases:
 

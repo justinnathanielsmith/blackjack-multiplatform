@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -48,7 +49,6 @@ import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
-import kotlinx.collections.immutable.PersistentList
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
@@ -131,18 +131,22 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
+    val backgroundBrush =
+        remember(FeltGreen, FeltDark) {
+            Brush.radialGradient(
+                0.0f to FeltGreen,
+                1.0f to FeltDark,
+                radius = 2000f,
+            )
+        }
+
     BlackjackTheme {
         BoxWithConstraints(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(
-                        Brush.radialGradient(
-                            0.0f to FeltGreen,
-                            1.0f to FeltDark,
-                            radius = 2000f,
-                        ),
-                    ).graphicsLayer { translationX = shakeOffset.value * density },
+                    .background(backgroundBrush)
+                    .graphicsLayer { translationX = shakeOffset.value * density },
         ) {
             val layoutMode = detectLayoutMode()
 
@@ -188,7 +192,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     BlackjackGameOverlay(
                         state = state,
                         component = component,
-                        flashAlpha = flashAlpha.value,
+                        flashAlphaProvider = { flashAlpha.value },
                         layoutMode = layoutMode,
                         showStatus = showStatus,
                     )
@@ -202,7 +206,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 private fun BlackjackGameOverlay(
     state: GameState,
     component: BlackjackComponent,
-    flashAlpha: Float,
+    flashAlphaProvider: () -> Float,
     layoutMode: LayoutMode,
     showStatus: Boolean,
 ) {
@@ -232,12 +236,15 @@ private fun BlackjackGameOverlay(
             )
         }
 
+        val flashAlpha = flashAlphaProvider()
         if (flashAlpha > 0f) {
             Box(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(Color.White.copy(alpha = flashAlpha)),
+                        .drawBehind {
+                            drawRect(Color.White.copy(alpha = flashAlphaProvider()))
+                        },
             )
         }
     }
@@ -387,7 +394,7 @@ private fun LandscapeLayout(
                 }
             } else {
                 HandContainer(
-                    title = "You",
+                    title = stringResource(Res.string.you),
                     score = hands[0].score,
                     bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
                     isActive = state.status == GameStatus.PLAYING,
