@@ -2,6 +2,7 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun CasinoButton(
     text: String,
@@ -45,9 +47,14 @@ fun CasinoButton(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = spring(dampingRatio = 0.7f, stiffness = 400f),
-        label = "buttonScale"
+        targetValue = if (isPressed) 0.93f else 1f,
+        animationSpec =
+            if (isPressed) {
+                tween(durationMillis = 80)
+            } else {
+                spring(dampingRatio = 0.4f, stiffness = 400f)
+            },
+        label = "buttonScale",
     )
 
     val resolvedContainerColor = containerColor ?: if (isStrategic) PrimaryGold else MaterialTheme.colorScheme.secondary

@@ -1,10 +1,10 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
@@ -42,6 +44,8 @@ import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 val Suit.color: Color
     get() =
@@ -81,57 +85,40 @@ val Rank.symbol: String
 fun PlayingCard(
     card: Card,
     isFaceUp: Boolean,
+    isDealer: Boolean,
     modifier: Modifier = Modifier,
+    animationDelay: Int = 0,
 ) {
-    val appearScale = remember { Animatable(0f) }
-    val dealOffset = remember { Animatable(-200f) }
-    val dealRotationZ = remember { Animatable(-15f) }
+    val offsetY = remember { Animatable(if (isDealer) -300f else 300f) }
 
-    LaunchedEffect(Unit) {
-        appearScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
-    }
-
-    LaunchedEffect(Unit) {
-        dealOffset.animateTo(0f, spring(stiffness = Spring.StiffnessLow))
-    }
-
-    LaunchedEffect(Unit) {
-        dealRotationZ.animateTo(0f, spring(stiffness = Spring.StiffnessLow))
+    LaunchedEffect(card) {
+        delay(animationDelay.toLong())
+        offsetY.animateTo(
+            targetValue = 0f,
+            animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing),
+        )
     }
 
     val transition = updateTransition(targetState = isFaceUp, label = "cardFlip")
     val rotation by transition.animateFloat(
         transitionSpec = {
-            spring<Float>(
-                stiffness = Spring.StiffnessLow,
-                dampingRatio = Spring.DampingRatioLowBouncy,
-            )
+            tween(durationMillis = 400, easing = FastOutSlowInEasing)
         },
         label = "rotation",
     ) { faceUp ->
-        if (faceUp) 0f else 180f
+        if (faceUp) 180f else 0f
     }
 
-    val flipElevation by transition.animateDp(
-        transitionSpec = {
-            spring(stiffness = Spring.StiffnessLow)
-        },
-        label = "flipElevation",
-    ) { _ ->
-        if (transition.isRunning || transition.targetState != transition.currentState) 12.dp else 6.dp
-    }
+    val showBack = rotation < 90f
 
     Box(
         modifier =
             modifier
                 .width(96.dp)
                 .aspectRatio(24f / 34f)
-                .offset(y = dealOffset.value.dp)
+                .offset { IntOffset(0, offsetY.value.roundToInt()) }
                 .graphicsLayer {
-                    scaleX = appearScale.value
-                    scaleY = appearScale.value
                     rotationY = rotation
-                    rotationZ = dealRotationZ.value
                     cameraDistance = 12f * density
                 },
     ) {
@@ -139,11 +126,17 @@ fun PlayingCard(
             modifier = Modifier.fillMaxSize().border(0.5.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = flipElevation),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         ) {
-            if (rotation <= 90f) {
+            if (!showBack) {
                 // Face
-                Box(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(6.dp)
+                            .graphicsLayer { rotationY = 180f },
+                ) {
                     // Top Left
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
@@ -207,7 +200,6 @@ fun PlayingCard(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .graphicsLayer { rotationY = 180f }
                             .background(FeltDark),
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize().padding(1.dp)) {
@@ -237,7 +229,6 @@ fun PlayingCard(
                         Text(
                             text = "👑",
                             fontSize = 40.sp,
-                            modifier = Modifier.graphicsLayer { rotationY = 180f },
                         )
                     }
                 }

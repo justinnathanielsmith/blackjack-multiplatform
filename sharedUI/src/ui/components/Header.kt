@@ -1,6 +1,8 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,9 +29,23 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import kotlin.math.abs
 
 @Composable
 fun Header(balance: Int) {
+    var previousBalance by remember { mutableStateOf(balance) }
+
+    val animatedBalance by animateIntAsState(
+        targetValue = balance,
+        animationSpec =
+            tween(
+                durationMillis = if (abs(balance - previousBalance) > 200) 600 else 300,
+                easing = FastOutSlowInEasing,
+            ),
+        label = "balanceRoll",
+        finishedListener = { previousBalance = it },
+    )
+
     Row(
         modifier =
             Modifier
@@ -43,20 +63,12 @@ fun Header(balance: Int) {
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp,
             )
-            androidx.compose.animation.AnimatedContent(
-                targetState = balance,
-                transitionSpec = {
-                    androidx.compose.animation.fadeIn() togetherWith androidx.compose.animation.fadeOut()
-                },
-                label = "balanceRoll"
-            ) { targetBalance ->
-                Text(
-                    text = "$$targetBalance.00",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = PrimaryGold,
-                    fontWeight = FontWeight.Black,
-                )
-            }
+            Text(
+                text = "$${animatedBalance.formatWithCommas()}",
+                style = MaterialTheme.typography.headlineSmall,
+                color = PrimaryGold,
+                fontWeight = FontWeight.Black,
+            )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             HeaderIcon("history")
@@ -80,4 +92,14 @@ private fun HeaderIcon(text: String) {
             fontSize = 18.sp,
         )
     }
+}
+
+private fun Int.formatWithCommas(): String {
+    val s = this.toString()
+    if (s.length <= 3) return s
+    return s
+        .reversed()
+        .chunked(3)
+        .joinToString(",")
+        .reversed()
 }

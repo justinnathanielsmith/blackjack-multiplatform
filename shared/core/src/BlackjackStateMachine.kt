@@ -18,7 +18,6 @@ class BlackjackStateMachine(
     initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
 ) {
     companion object {
-        private const val INITIAL_DEAL_CARDS = 4
         private const val DEALER_STAND_THRESHOLD = 17
         private const val DEALER_TURN_DELAY_MS = 600L
     }
@@ -45,6 +44,7 @@ class BlackjackStateMachine(
                     is GameAction.TakeInsurance -> handleTakeInsurance()
                     is GameAction.DeclineInsurance -> handleDeclineInsurance()
                     is GameAction.Split -> handleSplit()
+                    is GameAction.SelectHandCount -> handleSelectHandCount(action.count)
                 }
             }
         }
@@ -71,33 +71,59 @@ class BlackjackStateMachine(
             )
     }
 
+    private fun handleSelectHandCount(count: Int) {
+        if (_state.value.status != GameStatus.BETTING) return
+        if (count !in 1..3) return
+        _state.value = _state.value.copy(handCount = count)
+    }
+
     @Suppress("CyclomaticComplexMethod")
     private fun handleDeal() {
         val current = _state.value
         if (current.status != GameStatus.BETTING || current.currentBet <= 0) return
+
+        val extraCost = current.currentBet * (current.handCount - 1)
+        if (current.balance < extraCost) return
+
         val fullDeck =
             Suit.entries
                 .flatMap { suit ->
                     Rank.entries.map { rank -> Card(rank, suit) }
                 }.shuffled()
-        val playerHand = Hand(fullDeck.take(2))
-        val dealerCards = fullDeck.drop(2).take(2)
-        val dealerHandHidden = Hand(listOf(dealerCards[0], dealerCards[1].copy(isFaceDown = true)))
-        val remainingDeck = fullDeck.drop(INITIAL_DEAL_CARDS)
-        val initialStatus =
-            when {
-                playerHand.score == 21 && dealerHandHidden.score == 21 -> GameStatus.PUSH
-                playerHand.score == 21 -> GameStatus.PLAYER_WON
-                dealerHandHidden.score == 21 -> GameStatus.DEALER_WON
-                else -> GameStatus.PLAYING
+
+        // Round-robin deal: hand i gets deck[i] and deck[i + handCount]
+        val hands =
+            List(current.handCount) { i ->
+                Hand(listOf(fullDeck[i], fullDeck[i + current.handCount]))
             }
-        // Reveal hole card when dealer's hand is exposed (PUSH or DEALER_WON); keep hidden otherwise
+        val deckOffset = current.handCount * 2
+        val dealerCards = fullDeck.drop(deckOffset).take(2)
+        val dealerHandHidden = Hand(listOf(dealerCards[0], dealerCards[1].copy(isFaceDown = true)))
+        val remainingDeck = fullDeck.drop(deckOffset + 2)
+
+        val newBalance = current.balance - extraCost
+        val bets = List(current.handCount) { current.currentBet }
+
+        // Natural BJ only checked in single-hand mode
+        val initialStatus =
+            if (current.handCount == 1) {
+                when {
+                    hands[0].score == 21 && dealerHandHidden.score == 21 -> GameStatus.PUSH
+                    hands[0].score == 21 -> GameStatus.PLAYER_WON
+                    dealerHandHidden.score == 21 -> GameStatus.DEALER_WON
+                    else -> GameStatus.PLAYING
+                }
+            } else {
+                GameStatus.PLAYING
+            }
+
         val dealerHand =
             when (initialStatus) {
                 GameStatus.PUSH, GameStatus.DEALER_WON ->
                     Hand(dealerHandHidden.cards.map { it.copy(isFaceDown = false) })
                 else -> dealerHandHidden
             }
+
         val balanceUpdate =
             when (initialStatus) {
                 GameStatus.PLAYER_WON -> current.currentBet * 2
@@ -108,11 +134,14 @@ class BlackjackStateMachine(
         _state.value =
             GameState(
                 deck = remainingDeck,
-                playerHand = playerHand,
+                playerHands = hands,
+                playerBets = bets,
+                activeHandIndex = 0,
+                handCount = current.handCount,
                 dealerHand = dealerHand,
                 status = initialStatus,
-                balance = current.balance + balanceUpdate,
-                currentBet = current.currentBet
+                balance = newBalance + balanceUpdate,
+                currentBet = current.currentBet,
             )
         emitEffect(GameEffect.PlayCardSound)
         if (initialStatus == GameStatus.PLAYER_WON) {
@@ -129,63 +158,137 @@ class BlackjackStateMachine(
             GameState(
                 status = GameStatus.BETTING,
                 balance = initialBalance ?: currentState.balance,
-                currentBet = 0
+                currentBet = 0,
+                playerHands = listOf(Hand()),
+                playerBets = listOf(0),
+                activeHandIndex = 0,
+                handCount = 1,
             )
     }
 
     private fun handleHit() {
-        val currentState = _state.value
-        if (currentState.status != GameStatus.PLAYING) return
+        val state = _state.value
+        if (state.status != GameStatus.PLAYING) return
 
         // Block hits on split aces
-        if (currentState.splitHand != null && currentState.playerHand.cards[0].rank == Rank.ACE) return
+        val isAceSplit =
+            state.playerHands.size > 1 &&
+                state.activeHand.cards
+                    .firstOrNull()
+                    ?.rank == Rank.ACE
+        if (isAceSplit && state.activeHand.cards.size >= 2) return
 
-        val newCard = currentState.deck.first()
-        val remainingDeck = currentState.deck.drop(1)
+        val newCard = state.deck.first()
+        val remainingDeck = state.deck.drop(1)
+        val newHand = state.activeHand.copy(cards = state.activeHand.cards + newCard)
+        val updatedHands =
+            state.playerHands.toMutableList().also { it[state.activeHandIndex] = newHand }
 
-        when {
-            currentState.splitHand != null && !currentState.isPlayingSplitHand -> {
-                // Playing primary hand during split
-                val newPlayerHand = currentState.playerHand.copy(cards = currentState.playerHand.cards + newCard)
-                _state.value =
-                    if (newPlayerHand.isBust) {
-                        // Primary busts → advance to split hand, game continues
-                        currentState.copy(deck = remainingDeck, playerHand = newPlayerHand, isPlayingSplitHand = true)
-                    } else {
-                        currentState.copy(deck = remainingDeck, playerHand = newPlayerHand)
-                    }
-                emitEffect(GameEffect.PlayCardSound)
-            }
-            currentState.splitHand != null && currentState.isPlayingSplitHand -> {
-                // Playing split hand
-                val newSplitHand = currentState.splitHand.copy(cards = currentState.splitHand.cards + newCard)
-                if (newSplitHand.isBust) {
-                    // Split hand busts → go to dealer turn
-                    _state.value =
-                        currentState.copy(
-                            deck = remainingDeck,
-                            splitHand = newSplitHand,
-                            status = GameStatus.DEALER_TURN
-                        )
-                    emitEffect(GameEffect.PlayCardSound)
-                    scope.launch { mutex.withLock { runDealerTurn() } }
-                } else {
-                    _state.value = currentState.copy(deck = remainingDeck, splitHand = newSplitHand)
-                    emitEffect(GameEffect.PlayCardSound)
-                }
-            }
-            else -> {
-                // Normal hit (no split)
-                val newPlayerHand = currentState.playerHand.copy(cards = currentState.playerHand.cards + newCard)
-                val newStatus = if (newPlayerHand.isBust) GameStatus.DEALER_WON else GameStatus.PLAYING
-                _state.value = currentState.copy(deck = remainingDeck, playerHand = newPlayerHand, status = newStatus)
-                emitEffect(GameEffect.PlayCardSound)
-                if (newStatus == GameStatus.DEALER_WON) {
-                    emitEffect(GameEffect.PlayLoseSound)
-                    emitEffect(GameEffect.Vibrate)
+        if (newHand.isBust) {
+            val newState = state.copy(deck = remainingDeck, playerHands = updatedHands)
+            _state.value = newState
+            emitEffect(GameEffect.PlayCardSound)
+            advanceOrEndTurn(newState)
+        } else {
+            _state.value = state.copy(deck = remainingDeck, playerHands = updatedHands)
+            emitEffect(GameEffect.PlayCardSound)
+        }
+    }
+
+    private fun advanceOrEndTurn(state: GameState) {
+        if (state.activeHandIndex < state.playerHands.size - 1) {
+            _state.value = state.copy(activeHandIndex = state.activeHandIndex + 1)
+        } else {
+            scope.launch {
+                mutex.withLock {
+                    _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
+                    runDealerTurn()
                 }
             }
         }
+    }
+
+    private fun handleStand() {
+        val state = _state.value
+        if (state.status != GameStatus.PLAYING) return
+        advanceOrEndTurn(state)
+    }
+
+    private fun handleSplit() {
+        val state = _state.value
+        if (state.status != GameStatus.PLAYING || !state.canSplit()) return
+        if (state.deck.size < 2) return
+
+        val card1 = state.activeHand.cards[0]
+        val card2 = state.activeHand.cards[1]
+        val newPrimaryHand = Hand(listOf(card1, state.deck[0]))
+        val newSplitHand = Hand(listOf(card2, state.deck[1]))
+        val isAceSplit = card1.rank == Rank.ACE
+
+        val updatedHands =
+            state.playerHands.toMutableList().apply {
+                set(state.activeHandIndex, newPrimaryHand)
+                add(state.activeHandIndex + 1, newSplitHand)
+            }
+        val updatedBets =
+            state.playerBets.toMutableList().apply {
+                add(state.activeHandIndex + 1, state.currentBet)
+            }
+
+        val newState =
+            state.copy(
+                deck = state.deck.drop(2),
+                playerHands = updatedHands,
+                playerBets = updatedBets,
+                balance = state.balance - state.currentBet,
+            )
+        _state.value = newState
+        emitEffect(GameEffect.PlayCardSound)
+        emitEffect(GameEffect.PlayCardSound)
+
+        if (isAceSplit) {
+            // Ace split: both ace hands receive exactly one card and can't be hit → dealer turn
+            scope.launch {
+                mutex.withLock {
+                    _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
+                    runDealerTurn()
+                }
+            }
+        }
+    }
+
+    @Suppress("ReturnCount")
+    private fun handleDoubleDown() {
+        val state = _state.value
+        if (state.status != GameStatus.PLAYING) return
+        if (!state.canDoubleDown()) return
+
+        val drawnCard = state.deck.first()
+        val remainingDeck = state.deck.drop(1)
+        val newHand = state.activeHand.copy(cards = state.activeHand.cards + drawnCard)
+        val updatedHands =
+            state.playerHands.toMutableList().also { it[state.activeHandIndex] = newHand }
+
+        // Double the bet for this hand; deduct the extra (original activeBet) from balance
+        val newBets =
+            state.playerBets.toMutableList().also { it[state.activeHandIndex] *= 2 }
+        val newBalance = state.balance - state.activeBet
+
+        val newState =
+            state.copy(
+                deck = remainingDeck,
+                playerHands = updatedHands,
+                playerBets = newBets,
+                balance = newBalance,
+            )
+        _state.value = newState
+        emitEffect(GameEffect.PlayCardSound)
+
+        if (newHand.isBust) {
+            emitEffect(GameEffect.PlayLoseSound)
+            emitEffect(GameEffect.Vibrate)
+        }
+        advanceOrEndTurn(newState)
     }
 
     private fun revealDealerHoleCard() {
@@ -207,7 +310,8 @@ class BlackjackStateMachine(
 
         // Insurance payout: dealer natural BJ (2-card 21) pays 2:1 + returns stake = 3x
         val stateAfterReveal = _state.value
-        val dealerHasNaturalBJ = stateAfterReveal.dealerHand.score == 21 && stateAfterReveal.dealerHand.cards.size == 2
+        val dealerHasNaturalBJ =
+            stateAfterReveal.dealerHand.score == 21 && stateAfterReveal.dealerHand.cards.size == 2
         if (stateAfterReveal.insuranceBet > 0 && dealerHasNaturalBJ) {
             _state.value =
                 stateAfterReveal.copy(
@@ -234,56 +338,35 @@ class BlackjackStateMachine(
 
         val dealerScore = _state.value.dealerHand.score
         val dealerBust = _state.value.dealerHand.isBust
-        val splitHand = _state.value.splitHand
 
-        val finalStatus: GameStatus
-        if (splitHand != null) {
-            // Resolve each hand independently
-            val primaryPayout = resolveHand(_state.value.playerHand, _state.value.currentBet, dealerScore, dealerBust)
-            val splitPayout = resolveHand(splitHand, _state.value.splitBet, dealerScore, dealerBust)
+        var totalPayout = 0
+        var anyWin = false
+        var allPush = true
 
-            val primaryWins =
-                !_state.value.playerHand.isBust && (dealerBust || _state.value.playerHand.score > dealerScore)
-            val splitWins = !splitHand.isBust && (dealerBust || splitHand.score > dealerScore)
-            val primaryPushes =
-                !_state.value.playerHand.isBust && !dealerBust && _state.value.playerHand.score == dealerScore
-            val splitPushes = !splitHand.isBust && !dealerBust && splitHand.score == dealerScore
+        for (i in _state.value.playerHands.indices) {
+            val hand = _state.value.playerHands[i]
+            val bet = _state.value.playerBets[i]
+            val payout = resolveHand(hand, bet, dealerScore, dealerBust)
+            totalPayout += payout
 
-            finalStatus =
-                when {
-                    primaryWins || splitWins -> GameStatus.PLAYER_WON
-                    primaryPushes && splitPushes -> GameStatus.PUSH
-                    else -> GameStatus.DEALER_WON
-                }
-
-            _state.value =
-                _state.value.copy(
-                    status = finalStatus,
-                    balance = _state.value.balance + primaryPayout + splitPayout
-                )
-        } else {
-            val playerScore = _state.value.playerHand.score
-            finalStatus =
-                when {
-                    dealerBust -> GameStatus.PLAYER_WON
-                    playerScore > dealerScore -> GameStatus.PLAYER_WON
-                    playerScore < dealerScore -> GameStatus.DEALER_WON
-                    else -> GameStatus.PUSH
-                }
-
-            val balanceUpdate =
-                when (finalStatus) {
-                    GameStatus.PLAYER_WON -> _state.value.currentBet * 2
-                    GameStatus.PUSH -> _state.value.currentBet
-                    else -> 0
-                }
-
-            _state.value =
-                _state.value.copy(
-                    status = finalStatus,
-                    balance = _state.value.balance + balanceUpdate
-                )
+            val handWins = !hand.isBust && (dealerBust || hand.score > dealerScore)
+            val handPushes = !hand.isBust && !dealerBust && hand.score == dealerScore
+            if (handWins) anyWin = true
+            if (!handPushes) allPush = false
         }
+
+        val finalStatus =
+            when {
+                anyWin -> GameStatus.PLAYER_WON
+                allPush -> GameStatus.PUSH
+                else -> GameStatus.DEALER_WON
+            }
+
+        _state.value =
+            _state.value.copy(
+                status = finalStatus,
+                balance = _state.value.balance + totalPayout,
+            )
 
         when (finalStatus) {
             GameStatus.PLAYER_WON -> emitEffect(GameEffect.PlayWinSound)
@@ -299,7 +382,7 @@ class BlackjackStateMachine(
         hand: Hand,
         bet: Int,
         dealerScore: Int,
-        dealerBust: Boolean
+        dealerBust: Boolean,
     ): Int =
         when {
             hand.isBust -> 0
@@ -308,96 +391,6 @@ class BlackjackStateMachine(
             hand.score == dealerScore -> bet
             else -> 0
         }
-
-    private fun handleStand() {
-        val currentState = _state.value
-        if (currentState.status != GameStatus.PLAYING) return
-
-        if (currentState.splitHand != null && !currentState.isPlayingSplitHand) {
-            // Advance from primary hand to split hand
-            _state.value = currentState.copy(isPlayingSplitHand = true)
-            return
-        }
-
-        scope.launch {
-            mutex.withLock {
-                _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
-                runDealerTurn()
-            }
-        }
-    }
-
-    private fun handleSplit() {
-        val state = _state.value
-        if (state.status != GameStatus.PLAYING ||
-            state.playerHand.cards.size != 2 ||
-            state.playerHand.cards[0].rank != state.playerHand.cards[1].rank
-        ) {
-            return
-        }
-        if (state.balance < state.currentBet || state.splitHand != null || state.deck.size < 2) return
-
-        val card1 = state.playerHand.cards[0]
-        val card2 = state.playerHand.cards[1]
-        val newPlayerHand = Hand(listOf(card1, state.deck[0]))
-        val newSplitHand = Hand(listOf(card2, state.deck[1]))
-        val isAceSplit = card1.rank == Rank.ACE
-
-        _state.value =
-            state.copy(
-                deck = state.deck.drop(2),
-                playerHand = newPlayerHand,
-                splitHand = newSplitHand,
-                balance = state.balance - state.currentBet,
-                splitBet = state.currentBet,
-                isPlayingSplitHand = false
-            )
-        emitEffect(GameEffect.PlayCardSound)
-
-        if (isAceSplit) {
-            // Aces get exactly one card each, then auto-stand both hands → dealer turn
-            _state.value = _state.value.copy(isPlayingSplitHand = true)
-            scope.launch {
-                mutex.withLock {
-                    _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
-                    runDealerTurn()
-                }
-            }
-        }
-    }
-
-    @Suppress("ReturnCount")
-    private fun handleDoubleDown() {
-        val state = _state.value
-        if (state.status != GameStatus.PLAYING) return
-        if (state.playerHand.cards.size != 2) return
-        if (state.balance < state.currentBet) return
-
-        val drawnCard = state.deck.first()
-        val remainingDeck = state.deck.drop(1)
-        val newPlayerHand = Hand(state.playerHand.cards + drawnCard)
-        val busted = newPlayerHand.isBust
-
-        _state.value =
-            state.copy(
-                deck = remainingDeck,
-                playerHand = newPlayerHand,
-                balance = state.balance - state.currentBet,
-                currentBet = state.currentBet * 2,
-                status = if (busted) GameStatus.DEALER_WON else GameStatus.DEALER_TURN,
-            )
-        emitEffect(GameEffect.PlayCardSound)
-        if (busted) {
-            emitEffect(GameEffect.PlayLoseSound)
-            emitEffect(GameEffect.Vibrate)
-        } else {
-            scope.launch {
-                mutex.withLock {
-                    runDealerTurn()
-                }
-            }
-        }
-    }
 
     private fun handleTakeInsurance() {
         val state = _state.value

@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
@@ -46,6 +47,7 @@ import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandContainer
+import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
@@ -55,6 +57,25 @@ import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.hand_number
+
+fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
+
+@Suppress("ReturnCount")
+fun GameState.handResult(index: Int): HandResult {
+    if (!status.isTerminal()) return HandResult.NONE
+    val hand = playerHands.getOrNull(index) ?: return HandResult.NONE
+    val dealerScore = dealerHand.score
+    val dealerBust = dealerHand.isBust
+    return when {
+        hand.isBust -> HandResult.LOSS
+        dealerBust || hand.score > dealerScore -> HandResult.WIN
+        hand.score == dealerScore -> HandResult.PUSH
+        else -> HandResult.LOSS
+    }
+}
 
 @Composable
 fun BlackjackScreen(component: BlackjackComponent) {
@@ -62,6 +83,14 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val audioService = LocalAppGraph.current.audioService
     val hapticsService = LocalAppGraph.current.hapticsService
     val shakeOffset = remember { Animatable(0f) }
+    val flashAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(state.status) {
+        if (state.status == GameStatus.PLAYER_WON) {
+            flashAlpha.animateTo(0.15f, tween(100))
+            flashAlpha.animateTo(0f, tween(400))
+        }
+    }
 
     LaunchedEffect(component) {
         component.effects.collect { effect: GameEffect ->
@@ -154,31 +183,63 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             state.status != GameStatus.INSURANCE_OFFERED &&
                             state.status != GameStatus.IDLE
 
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        this@Column.AnimatedVisibility(
-                            visible = showStatus,
-                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
-                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
-                        ) {
-                            GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = useCompactUI)
-                        }
-                    }
-
-                    if (state.status == GameStatus.INSURANCE_OFFERED) {
-                        InsuranceOverlay(
-                            onInsure = { component.onAction(GameAction.TakeInsurance) },
-                            onDecline = { component.onAction(GameAction.DeclineInsurance) },
-                        )
-                    }
-
-                    if (state.status == GameStatus.PLAYER_WON) {
-                        ConfettiEffect()
-                    }
+                    // Game Overlays & Status
+                    BlackjackGameOverlay(
+                        state = state,
+                        component = component,
+                        flashAlpha = flashAlpha.value,
+                        pulseScale = pulseScale,
+                        useCompactUI = useCompactUI,
+                        showStatus = showStatus,
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun BlackjackGameOverlay(
+    state: GameState,
+    component: BlackjackComponent,
+    flashAlpha: Float,
+    pulseScale: Float,
+    useCompactUI: Boolean,
+    showStatus: Boolean,
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        androidx.compose.animation.AnimatedVisibility(
+            visible = showStatus,
+            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+            exit = fadeOut() + scaleOut(targetScale = 0.8f),
+        ) {
+            GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = useCompactUI)
+        }
+
+        if (state.status == GameStatus.INSURANCE_OFFERED) {
+            InsuranceOverlay(
+                onInsure = { component.onAction(GameAction.TakeInsurance) },
+                onDecline = { component.onAction(GameAction.DeclineInsurance) },
+            )
+        }
+
+        if (state.status == GameStatus.PLAYER_WON) {
+            val isBlackjack = state.playerHands.any { it.cards.size == 2 && it.score == 21 }
+            ConfettiEffect(
+                particleCount = if (isBlackjack) 250 else 120,
+            )
+        }
+
+        if (flashAlpha > 0f) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.White.copy(alpha = flashAlpha)),
+            )
         }
     }
 }
@@ -197,7 +258,7 @@ private fun PortraitLayout(
         val dealerDisplayScore =
             if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
         HandContainer(title = "Dealer", score = dealerDisplayScore) {
-            HandRow(state.dealerHand)
+            HandRow(state.dealerHand, isDealer = true)
         }
 
         // Anchor Box to maintain stability and provide space
@@ -211,40 +272,33 @@ private fun PortraitLayout(
             // Empty, space is reserved
         }
 
-        val splitHand = state.splitHand
-        if (splitHand != null) {
-            val primaryActive = !state.isPlayingSplitHand && state.status == GameStatus.PLAYING
-            val splitActive = state.isPlayingSplitHand && state.status == GameStatus.PLAYING
-
-            HandContainer(
-                title = "Hand 1",
-                score = state.playerHand.score,
-                bet = state.currentBet,
-                isActive = primaryActive,
-                isPending = !primaryActive && state.status == GameStatus.PLAYING,
-            ) {
-                HandRow(state.playerHand)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            HandContainer(
-                title = "Hand 2",
-                score = splitHand.score,
-                bet = state.splitBet,
-                isActive = splitActive,
-                isPending = !splitActive && state.status == GameStatus.PLAYING,
-            ) {
-                HandRow(splitHand)
+        val hands = state.playerHands
+        if (hands.size > 1) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                hands.forEachIndexed { index, hand ->
+                    val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                    val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
+                    HandContainer(
+                        title = stringResource(Res.string.hand_number, index + 1),
+                        score = hand.score,
+                        bet = state.playerBets.getOrNull(index),
+                        isActive = isActive,
+                        isPending = isPending,
+                        result = state.handResult(index),
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        HandRow(hand)
+                    }
+                }
             }
         } else {
             HandContainer(
                 title = "You",
-                score = state.playerHand.score,
+                score = hands[0].score,
                 bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
                 isActive = state.status == GameStatus.PLAYING,
             ) {
-                HandRow(state.playerHand)
+                HandRow(hands[0])
             }
         }
 
@@ -275,47 +329,38 @@ private fun LandscapeLayout(
             val dealerDisplayScore =
                 if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
             HandContainer(title = "Dealer", score = dealerDisplayScore) {
-                HandRow(state.dealerHand)
+                HandRow(state.dealerHand, isDealer = true)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            val splitHand = state.splitHand
-            if (splitHand != null) {
-                val primaryActive = !state.isPlayingSplitHand && state.status == GameStatus.PLAYING
-                val splitActive = state.isPlayingSplitHand && state.status == GameStatus.PLAYING
-
+            val hands = state.playerHands
+            if (hands.size > 1) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    HandContainer(
-                        title = "H1",
-                        score = state.playerHand.score,
-                        bet = state.currentBet,
-                        isActive = primaryActive,
-                        isPending = !primaryActive && state.status == GameStatus.PLAYING,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        HandRow(state.playerHand)
-                    }
-
-                    HandContainer(
-                        title = "H2",
-                        score = splitHand.score,
-                        bet = state.splitBet,
-                        isActive = splitActive,
-                        isPending = !splitActive && state.status == GameStatus.PLAYING,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        HandRow(splitHand)
+                    hands.forEachIndexed { index, hand ->
+                        val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                        val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
+                        HandContainer(
+                            title = "H${index + 1}",
+                            score = hand.score,
+                            bet = state.playerBets.getOrNull(index),
+                            isActive = isActive,
+                            isPending = isPending,
+                            result = state.handResult(index),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            HandRow(hand)
+                        }
                     }
                 }
             } else {
                 HandContainer(
                     title = "You",
-                    score = state.playerHand.score,
+                    score = hands[0].score,
                     bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
                     isActive = state.status == GameStatus.PLAYING,
                 ) {
-                    HandRow(state.playerHand)
+                    HandRow(hands[0])
                 }
             }
         }

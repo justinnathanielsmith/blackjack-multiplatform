@@ -8,5 +8,6 @@ This file tracks the progress of various development streams.
 | `dealer-hidden-card` | Implement Dealer Hidden Card | ✅ Completed | [Link](./tracks/dealer-hidden-card/index.md) |
 | `betting-system` | Betting System & Chip Management | ✅ Completed | [Link](./tracks/betting-system/index.md) |
 | `advanced-rules` | Doubling Down, Splitting & Insurance | ✅ Completed | [Link](./tracks/advanced-rules/index.md) |
-| `ui-juice` | UI Polish & "Juicy" Animations | 🚧 In Progress | [Link](./tracks/ui-juice/index.md) |
-| `multi-hand` | Multi-Hand Support | 📅 Backlog | - |
+| `ui-juice` | UI Polish & "Juicy" Animations | ✅ Completed | [Link](./tracks/ui-juice/index.md) |
+| `landscape-layout` | Landscape Mode Optimization | 🚧 In Progress | [Link](./tracks/landscape-layout/index.md) |
+| `multi-hand` | Multi-Hand Support | 📅 Backlog | [Link](./tracks/multi-hand/index.md) |

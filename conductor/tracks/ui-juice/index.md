@@ -8,13 +8,13 @@ Make the game feel alive. Add motion, timing, and tactile feedback that reward e
 
 ## Status
 
-- **Phase 1: Hole Card Flip Animation** (dealer reveal): 📅 Backlog
-- **Phase 2: Card Deal Animation** (slide-in from deck): 📅 Backlog
-- **Phase 3: Chip Toss Animation** (bet placement feedback): 📅 Backlog
-- **Phase 4: Balance Counter Animation** (animated number roll): 📅 Backlog
-- **Phase 5: Per-Hand Outcome Badges** (WIN/LOSS/PUSH on each hand): 📅 Backlog
-- **Phase 6: Button Press Feedback** (scale bounce on tap): 📅 Backlog
-- **Phase 7: Enhanced Win Celebration** (full-screen confetti + sound): 📅 Backlog
+- **Phase 1: Hole Card Flip Animation** (dealer reveal): ✅ Completed
+- **Phase 2: Card Deal Animation** (slide-in from deck): ✅ Completed
+- **Phase 3: Chip Toss Animation** (bet placement feedback): ✅ Completed
+- **Phase 4: Balance Counter Animation** (animated number roll): ✅ Completed
+- **Phase 5: Per-Hand Outcome Badges** (WIN/LOSS/PUSH on each hand): ✅ Completed
+- **Phase 6: Button Press Feedback** (scale bounce on tap): ✅ Completed
+- **Phase 7: Enhanced Win Celebration** (full-screen confetti + sound): ✅ Completed
 
 ## Prerequisites
 

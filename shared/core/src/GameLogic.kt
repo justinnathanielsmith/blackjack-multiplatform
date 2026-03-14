@@ -81,26 +81,30 @@ enum class GameStatus {
 @Serializable
 data class GameState(
     val deck: List<Card> = emptyList(),
-    val playerHand: Hand = Hand(),
+    val playerHands: List<Hand> = listOf(Hand()),
+    val playerBets: List<Int> = listOf(0),
+    val activeHandIndex: Int = 0,
+    val handCount: Int = 1,
     val dealerHand: Hand = Hand(),
     val status: GameStatus = GameStatus.IDLE,
     val balance: Int = 1000,
     val currentBet: Int = 0,
     val insuranceBet: Int = 0,
-    val splitHand: Hand? = null,
-    val splitBet: Int = 0,
-    val isPlayingSplitHand: Boolean = false,
 ) {
-    fun canSplit(): Boolean =
-        playerHand.cards.size == 2 &&
-            playerHand.cards[0].rank == playerHand.cards[1].rank &&
-            balance >= currentBet &&
-            splitHand == null
+    companion object {
+        const val MAX_HANDS = 4
+    }
 
-    fun canDoubleDown(): Boolean =
-        playerHand.cards.size == 2 &&
-            balance >= currentBet &&
-            splitHand == null
+    val activeHand: Hand get() = playerHands[activeHandIndex]
+    val activeBet: Int get() = playerBets[activeHandIndex]
+
+    fun canDoubleDown(): Boolean = activeHand.cards.size == 2 && balance >= activeBet
+
+    fun canSplit(): Boolean =
+        playerHands.size < MAX_HANDS &&
+            activeHand.cards.size == 2 &&
+            activeHand.cards[0].rank == activeHand.cards[1].rank &&
+            balance >= currentBet
 }
 
 sealed class GameAction {
@@ -127,6 +131,10 @@ sealed class GameAction {
     data object DeclineInsurance : GameAction()
 
     data object Split : GameAction()
+
+    data class SelectHandCount(
+        val count: Int
+    ) : GameAction()
 }
 
 sealed class GameEffect {

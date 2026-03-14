@@ -1,5 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,9 +17,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,6 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.status_active
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun HandContainer(
     title: String,
@@ -37,6 +42,8 @@ fun HandContainer(
     bet: Int? = null,
     isActive: Boolean = false,
     isPending: Boolean = false,
+    result: HandResult = HandResult.NONE,
+    isCompact: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -57,36 +64,44 @@ fun HandContainer(
             GlassDark.copy(alpha = 0.3f)
         }
 
+    val horizontalPadding = if (isCompact) 12.dp else 16.dp
+    val verticalPadding = if (isCompact) 16.dp else 24.dp
+    val cornerRadius = if (isCompact) 16.dp else 24.dp
+
     Box(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 24.dp),
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
     ) {
         // Visual Background
         Box(
             modifier =
                 Modifier
                     .matchParentSize()
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(RoundedCornerShape(cornerRadius))
                     .background(backgroundColor)
-                    .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(24.dp))
+                    .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(cornerRadius))
         )
 
         StatusBadge(isActive = isActive, isPending = isPending)
 
         ScoreBadge(score = score, isActive = isActive)
 
+        val contentPadding = if (isCompact) 16.dp else 20.dp
+        val topPadding = if (isCompact) 24.dp else 28.dp
+        val titleStyle = if (isCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
+
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 20.dp),
+                    .padding(start = contentPadding, end = contentPadding, top = topPadding, bottom = contentPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = title.uppercase(),
-                style = MaterialTheme.typography.labelMedium,
+                style = titleStyle,
                 color = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.5f),
                 fontWeight = FontWeight.Black,
                 letterSpacing = 3.sp,
@@ -96,9 +111,11 @@ fun HandContainer(
 
             Box(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 content()
+
+                HandOutcomeBadge(result = result)
 
                 if (bet != null) {
                     Box(
@@ -106,6 +123,7 @@ fun HandContainer(
                             Modifier
                                 .align(Alignment.BottomEnd)
                                 .offset(x = 12.dp, y = 12.dp)
+                                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                     ) {
                         BetChip(amount = bet, isActive = isActive)
                     }
@@ -176,5 +194,42 @@ private fun BoxScope.ScoreBadge(
                 fontWeight = FontWeight.Black,
             )
         }
+    }
+}
+
+@Composable
+private fun BoxScope.HandOutcomeBadge(result: HandResult) {
+    if (result == HandResult.NONE) return
+
+    val color =
+        when (result) {
+            HandResult.WIN -> Color(0xFFFFD700) // gold
+            HandResult.LOSS -> Color(0xFFCC2222) // red
+            HandResult.PUSH -> Color(0xFF888888) // gray
+            HandResult.NONE -> Color.Transparent
+        }
+
+    val scale by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
+        label = "badgeScale",
+    )
+
+    Box(
+        modifier =
+            Modifier
+                .align(Alignment.Center)
+                .scale(scale)
+                .background(color, RoundedCornerShape(8.dp))
+                .border(2.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = result.name,
+            color = Color.White,
+            fontWeight = FontWeight.Black,
+            fontSize = 20.sp,
+            letterSpacing = 2.sp,
+        )
     }
 }
