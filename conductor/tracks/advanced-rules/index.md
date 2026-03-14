@@ -9,12 +9,12 @@ Add three standard Blackjack player options — Double Down, Insurance, and Spli
 ## Status
 
 - **Phase 1: Domain Models** (GameStatus, GameState, GameAction): ✅ Completed
-- **Phase 2: Double Down** (state machine + tests): 📅 Backlog
-- **Phase 3: Insurance** (state machine + tests): 📅 Backlog
-- **Phase 4: Splitting** (state machine + tests): 📅 Backlog
-- **Phase 5: UI — Double Down button**: 📅 Backlog
-- **Phase 6: UI — Insurance prompt**: 📅 Backlog
-- **Phase 7: UI — Split hand display**: 📅 Backlog
+- **Phase 2: Double Down** (state machine + tests): ✅ Completed
+- **Phase 3: Insurance** (state machine + tests): ✅ Completed
+- **Phase 4: Splitting** (state machine + tests): ✅ Completed
+- **Phase 5: UI — Double Down button**: ✅ Completed
+- **Phase 6: UI — Insurance prompt**: ✅ Completed
+- **Phase 7: UI — Split hand display**: ✅ Completed
 
 ## Prerequisites
 
