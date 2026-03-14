@@ -152,6 +152,7 @@ sealed class GameAction {
         val initialBalance: Int? = null,
         val rules: GameRules = GameRules(),
         val handCount: Int = 1,
+        val lastBet: Int = 0,
     ) : GameAction()
 
     data object Surrender : GameAction()

@@ -13,10 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +31,6 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.double_down
 import sharedui.generated.resources.hit
-import sharedui.generated.resources.new_game
 import sharedui.generated.resources.split
 import sharedui.generated.resources.stand
 
@@ -45,7 +41,6 @@ fun GameActions(
     layoutMode: LayoutMode = LayoutMode.PORTRAIT,
 ) {
     val audioService = LocalAppGraph.current.audioService
-    val appSettings by component.appSettings.collectAsState()
 
     val onHit =
         remember(audioService, component) {
@@ -82,14 +77,6 @@ fun GameActions(
                 component.onAction(GameAction.Surrender)
             }
         }
-    val onNewGame =
-        remember(audioService, component, appSettings) {
-            {
-                audioService.playEffect(AudioService.SoundEffect.FLIP)
-                component.onAction(GameAction.NewGame(rules = appSettings.gameRules, handCount = appSettings.defaultHandCount))
-            }
-        }
-
     AnimatedContent(
         targetState = state.status,
         transitionSpec = {
@@ -169,19 +156,8 @@ fun GameActions(
                     )
                 }
             } else if (status != GameStatus.INSURANCE_OFFERED) {
-                // Reserve space matching the PLAYING state height
-                Column(
-                    modifier = Modifier.fillMaxWidth().height(totalActionsHeight),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    CasinoButton(
-                        text = stringResource(Res.string.new_game),
-                        onClick = onNewGame,
-                        modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth().height(buttonHeight),
-                        isStrategic = true,
-                    )
-                }
+                // Space reserved — betting overlay handles next game start
+                Spacer(modifier = Modifier.height(totalActionsHeight))
             } else {
                 // Insurance state - just a placeholder to maintain height if needed
                 Spacer(modifier = Modifier.height(totalActionsHeight))

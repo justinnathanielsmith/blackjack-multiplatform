@@ -35,7 +35,7 @@ class BlackjackStateMachine(
         scope.launch {
             mutex.withLock {
                 when (action) {
-                    is GameAction.NewGame -> handleNewGame(action.initialBalance, action.rules, action.handCount)
+                    is GameAction.NewGame -> handleNewGame(action.initialBalance, action.rules, action.handCount, action.lastBet)
                     is GameAction.Surrender -> handleSurrender()
                     is GameAction.PlaceBet -> handlePlaceBet(action.amount)
                     is GameAction.ResetBet -> handleResetBet()
@@ -173,13 +173,16 @@ class BlackjackStateMachine(
         initialBalance: Int? = null,
         rules: GameRules = GameRules(),
         handCount: Int = 1,
+        lastBet: Int = 0,
     ) {
         val currentState = _state.value
+        val newBalance = initialBalance ?: currentState.balance
+        val clampedBet = lastBet.coerceIn(0, newBalance)
         _state.value =
             GameState(
                 status = GameStatus.BETTING,
-                balance = initialBalance ?: currentState.balance,
-                currentBet = 0,
+                balance = newBalance - clampedBet,
+                currentBet = clampedBet,
                 playerHands = persistentListOf(Hand()),
                 playerBets = persistentListOf(0),
                 activeHandIndex = 0,

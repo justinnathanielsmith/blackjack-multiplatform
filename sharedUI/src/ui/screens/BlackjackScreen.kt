@@ -56,6 +56,7 @@ import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -108,6 +109,22 @@ fun BlackjackScreen(component: BlackjackComponent) {
         if (state.status == GameStatus.PLAYER_WON) {
             flashAlpha.animateTo(0.15f, tween(100))
             flashAlpha.animateTo(0f, tween(400))
+        }
+    }
+
+    LaunchedEffect(state.status) {
+        if (state.status.isTerminal()) {
+            val bet = state.currentBet
+            val rules = appSettings.gameRules
+            val handCount = appSettings.defaultHandCount
+            delay(2000L)
+            component.onAction(
+                GameAction.NewGame(
+                    rules = rules,
+                    handCount = handCount,
+                    lastBet = bet,
+                )
+            )
         }
     }
 
