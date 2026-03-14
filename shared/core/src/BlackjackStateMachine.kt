@@ -102,7 +102,7 @@ class BlackjackStateMachine(
         scope.launch {
             mutex.withLock {
                 _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
-                
+
                 var currentDealerHand = _state.value.dealerHand
                 var currentDeck = _state.value.deck
 

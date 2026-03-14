@@ -12,6 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
+import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
@@ -88,7 +90,7 @@ fun BlackjackContent(component: BlackjackComponent) {
     )
 
     BlackjackTheme {
-        Box(
+        BoxWithConstraints(
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -98,6 +100,10 @@ fun BlackjackContent(component: BlackjackComponent) {
                         )
                     ).offset(x = shakeOffset.value.dp)
         ) {
+            val isLandscape = maxWidth > maxHeight
+            val isCompactHeight = maxHeight < 500.dp
+            val useCompactUI = isLandscape && isCompactHeight
+
             Box(
                 modifier =
                     Modifier
@@ -107,108 +113,224 @@ fun BlackjackContent(component: BlackjackComponent) {
                 if (state.status == GameStatus.PLAYER_WON) {
                     ConfettiEffect()
                 }
-                val dealerScore =
-                    if (state.status == GameStatus.PLAYING && state.dealerHand.cards.size >= 2) {
-                        "?"
-                    } else {
-                        state.dealerHand.score.toString()
-                    }
 
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.height(32.dp))
+                val dealerScore = getDealerScoreDisplay(state)
 
-                    // Dealer Area
-                    Text(
-                        "DEALER",
-                        color = ModernGold.copy(alpha = 0.7f),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                if (useCompactUI) {
+                    LandscapeLayout(
+                        state = state,
+                        dealerScore = dealerScore,
+                        audioService = audioService,
+                        component = component,
+                        pulseScale = pulseScale
                     )
-                    Text(
-                        "Score: $dealerScore",
-                        color = Color.White,
-                        fontSize = 18.sp
+                } else {
+                    PortraitLayout(
+                        state = state,
+                        dealerScore = dealerScore,
+                        audioService = audioService,
+                        component = component,
+                        pulseScale = pulseScale
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Status Message
-                    if (state.status != GameStatus.PLAYING) {
-                        Text(
-                            text = state.status.toString().uppercase(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = ModernGold,
-                            fontWeight = FontWeight.Black,
-                            modifier =
-                                Modifier.graphicsLayer {
-                                    scaleX = if (state.status == GameStatus.PUSH) pulseScale else 1f
-                                    scaleY = if (state.status == GameStatus.PUSH) pulseScale else 1f
-                                }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Player Area
-                    HandRow(state.playerHand, hideHoleCard = false)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "PLAYER",
-                        color = ModernGold.copy(alpha = 0.7f),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        "Score: ${state.playerHand.score}",
-                        color = Color.White,
-                        fontSize = 18.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(48.dp))
-
-                    // Actions
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
-                    ) {
-                        if (state.status == GameStatus.PLAYING) {
-                            CasinoButton(
-                                text = "Hit",
-                                onClick = {
-                                    audioService.playEffect(AudioService.SoundEffect.DEAL)
-                                    component.onAction(GameAction.Hit)
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                            CasinoButton(
-                                text = "Stand",
-                                onClick = {
-                                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                                    component.onAction(GameAction.Stand)
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                        } else {
-                            CasinoButton(
-                                text = "New Game",
-                                onClick = {
-                                    audioService.playEffect(AudioService.SoundEffect.FLIP)
-                                    component.onAction(GameAction.NewGame)
-                                },
-                                modifier = Modifier.fillMaxWidth(0.8f)
-                            )
-                        }
-                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PortraitLayout(
+    state: GameState,
+    dealerScore: String,
+    audioService: AudioService,
+    component: BlackjackComponent,
+    pulseScale: Float
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Dealer Area
+        Text(
+            "DEALER",
+            color = ModernGold.copy(alpha = 0.7f),
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp
+        )
+        Text(
+            "Score: $dealerScore",
+            color = Color.White,
+            fontSize = 18.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Status Message
+        if (state.status != GameStatus.PLAYING) {
+            GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = false)
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Player Area
+        HandRow(state.playerHand, hideHoleCard = false)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            "PLAYER",
+            color = ModernGold.copy(alpha = 0.7f),
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp
+        )
+        Text(
+            "Score: ${state.playerHand.score}",
+            color = Color.White,
+            fontSize = 18.sp
+        )
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        GameActions(
+            state = state,
+            audioService = audioService,
+            component = component,
+            isCompact = false
+        )
+    }
+}
+
+@Composable
+private fun LandscapeLayout(
+    state: GameState,
+    dealerScore: String,
+    audioService: AudioService,
+    component: BlackjackComponent,
+    pulseScale: Float
+) {
+    Row(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // Left side: Cards
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Dealer Area
+            HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
+            Text(
+                "DEALER Score: $dealerScore",
+                color = ModernGold.copy(alpha = 0.7f),
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Player Area
+            HandRow(state.playerHand, hideHoleCard = false)
+            Text(
+                "PLAYER Score: ${state.playerHand.score}",
+                color = ModernGold.copy(alpha = 0.7f),
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp
+            )
+        }
+
+        // Right side: Status and Actions
+        Column(
+            modifier = Modifier.weight(0.6f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (state.status != GameStatus.PLAYING) {
+                GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = true)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            GameActions(
+                state = state,
+                audioService = audioService,
+                component = component,
+                isCompact = true
+            )
+        }
+    }
+}
+
+@Composable
+private fun GameStatusMessage(
+    status: GameStatus,
+    pulseScale: Float,
+    isCompact: Boolean
+) {
+    Text(
+        text = status.toString().uppercase(),
+        style =
+            if (isCompact) {
+                MaterialTheme.typography.headlineMedium
+            } else {
+                MaterialTheme.typography.headlineLarge
+            },
+        color = ModernGold,
+        fontWeight = FontWeight.Black,
+        modifier =
+            Modifier.graphicsLayer {
+                scaleX = if (status == GameStatus.PUSH) pulseScale else 1f
+                scaleY = if (status == GameStatus.PUSH) pulseScale else 1f
+            }
+    )
+}
+
+private fun getDealerScoreDisplay(state: GameState): String {
+    return if (state.status == GameStatus.PLAYING && state.dealerHand.cards.size >= 2) {
+        "?"
+    } else {
+        state.dealerHand.score.toString()
+    }
+}
+
+@Composable
+fun GameActions(
+    state: GameState,
+    audioService: AudioService,
+    component: BlackjackComponent,
+    isCompact: Boolean
+) {
+    Row(
+        modifier = if (isCompact) Modifier.fillMaxWidth() else Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+    ) {
+        if (state.status == GameStatus.PLAYING) {
+            CasinoButton(
+                text = "Hit",
+                onClick = {
+                    audioService.playEffect(AudioService.SoundEffect.DEAL)
+                    component.onAction(GameAction.Hit)
+                },
+                modifier = Modifier.weight(1f)
+            )
+            CasinoButton(
+                text = "Stand",
+                onClick = {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onAction(GameAction.Stand)
+                },
+                modifier = Modifier.weight(1f)
+            )
+        } else {
+            CasinoButton(
+                text = "New Game",
+                onClick = {
+                    audioService.playEffect(AudioService.SoundEffect.FLIP)
+                    component.onAction(GameAction.NewGame)
+                },
+                modifier = if (isCompact) Modifier.fillMaxWidth() else Modifier.fillMaxWidth(0.8f)
+            )
         }
     }
 }
