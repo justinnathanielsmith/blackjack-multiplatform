@@ -1,7 +1,7 @@
-# Project Instructions
+# Project Context
 
 ## What This Is
-Premium Blackjack game — Kotlin Multiplatform (Android, iOS, Desktop). Standard Blackjack rules: split, double-down, insurance, dealer AI. Uses state machine + reactive UI pattern.
+Premium Blackjack game — Kotlin Multiplatform (Android, iOS, Desktop JVM). Standard rules: split, double-down, insurance, dealer AI. State machine + reactive Compose UI.
 
 **Key source files:**
 - Domain model & rules: `shared/core/src/GameLogic.kt`
@@ -17,13 +17,12 @@ No `gradlew`. Use `./amper`.
 ./amper build -p jvm                          # Fast: JVM only
 ./amper test -p jvm                           # Fast: JVM tests only
 ./amper build -m core -m sharedUI -p jvm      # Specific modules
-./amper test -m core -m sharedUI -p jvm
 ./amper build                                 # All platforms (slow)
 ```
 
-Config files: `project.yaml` (root), `<module>/module.yaml` (per-module), `gradle/libs.versions.toml` (versions).
+Config: `project.yaml` (root), `<module>/module.yaml` (per-module), `gradle/libs.versions.toml` (versions). Dependencies: `$libs.` prefix for version catalog, `$compose.` for Compose Multiplatform.
 
-Module layout: `src/` (code), `test/` (tests), `res/` (Android resources), `src@android/` etc. (platform-specific). Flat layout — file path does not need to match package.
+Flat layout: file path does not need to match package name.
 
 ## Module Map
 - `shared/core` — Domain: `GameState`, `GameAction`, `BlackjackStateMachine`, `GameLogic`
@@ -38,7 +37,7 @@ Module layout: `src/` (code), `test/` (tests), `res/` (Android resources), `src@
 - **Composition Locals**: DI for services via `LocalAppGraph`
 - **Immutable domain**: All types `@Serializable`, copy-on-write
 
-### GameState shape (key fields)
+### GameState shape
 ```kotlin
 GameState(
     playerHands: List<Hand>,      // multi-hand support built in
@@ -56,18 +55,19 @@ GameState(
 ### GameStatus flow
 `BETTING → IDLE/PLAYING → (INSURANCE_OFFERED) → DEALER_TURN → PLAYER_WON/DEALER_WON/PUSH`
 
+### GameAction values
+`NewGame`, `PlaceBet`, `ResetBet`, `Deal`, `Hit`, `Stand`, `DoubleDown`, `TakeInsurance`, `DeclineInsurance`, `Split`, `SelectHandCount`
+
 ## UI Layout Modes
-`BlackjackScreen` detects 3 modes via `LayoutMode` enum:
+`BlackjackScreen` uses `LayoutMode` enum:
 - `PORTRAIT` — `maxHeight > maxWidth`
 - `LANDSCAPE_COMPACT` — aspect ratio ≤ 1.8 (phones)
 - `LANDSCAPE_WIDE` — aspect ratio > 1.8 (desktop)
 
-## Testing
-```bash
-./amper test -p jvm
-```
-Uses `kotlin.test` assertions, `kotlinx.coroutines.test` (`runTest`, `advanceUntilIdle`).
-Write tests first (spec-driven). Tracks in `conductor/tracks/<name>/spec.md` and `plan.md`.
+## UI Development Protocol
+> **Before modifying any `@Composable` screen:**
+> 1. Read the corresponding `*Component.kt` interface for the **exact type** emitted by `state: StateFlow<T>`.
+> 2. Pass `state` as an **explicit typed parameter** to all extracted private composables — closures do NOT capture the outer `state` variable. Failure causes `Unresolved reference` errors.
 
 ## Compose String Resources
 - **Never hardcode UI strings.** Use `stringResource(Res.string.xxx)`.
@@ -75,15 +75,10 @@ Write tests first (spec-driven). Tracks in `conductor/tracks/<name>/spec.md` and
 - Build project after adding strings (generates `Res` class).
 - Add explicit imports: `import sharedui.generated.resources.my_string_key`.
 
-## Linting
-```bash
-./ktlint --format     # Auto-fix formatting
-./lint.sh             # ktlint + detekt (CI check)
-jj fix                # Auto-format changed files (jj VCS)
-```
-Config: `.editorconfig` (ktlint, `package-name` disabled), `config/detekt.yml` (`InvalidPackageDeclaration` disabled).
-**Before committing:** `./ktlint --format` then `./lint.sh`.
+## Testing
+Uses `kotlin.test` + `kotlinx.coroutines.test` (`runTest`, `advanceUntilIdle`).
+Write tests first. Tracks in `conductor/tracks/<name>/spec.md` and `plan.md`.
 
 ## Spec-Driven Development
-Tracks live in `conductor/tracks/<track-name>/`. Each track has `spec.md` (requirements) and `plan.md` (steps).
+Tracks in `conductor/tracks/<track-name>/`. Each has `spec.md` (requirements) and `plan.md` (steps).
 Always write tests against spec before implementing.

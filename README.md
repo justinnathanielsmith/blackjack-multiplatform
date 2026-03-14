@@ -1,53 +1,42 @@
 # Blackjack Multiplatform
 
-A cross-platform Blackjack game built with **Compose Multiplatform** and **JetBrains Amper**.
+A premium cross-platform Blackjack game built with **Compose Multiplatform** and **JetBrains Amper**.
 
-This project demonstrates a modern Kotlin Multiplatform (KMP) architecture, supporting **Android**, **iOS**, and **Desktop (JVM)** from a single codebase.
+This project demonstrates a modern Kotlin Multiplatform (KMP) architecture, supporting **Android**, **iOS**, and **Desktop (JVM)** from a single codebase. It features a reactive UI pattern powered by a state machine and Decompose for lifecycle management.
 
 ## 🚀 Features
 
-- **Cross-Platform UI**: Beautifully crafted game interface using Compose Multiplatform.
-- **Shared Game Logic**: Core Blackjack engine and state machine implemented in pure Kotlin.
-- **Rich Audio**: Integrated sound effects for dealing, flipping cards, and game outcomes.
-- **Modern Tech Stack**: Uses Amper for build configuration and Jujutsu (jj) for version control.
+- **Cross-Platform UI**: Beautifully crafted game interface using Compose Multiplatform with adaptive layouts for Portrait and Landscape.
+- **Shared Game Logic**: Core Blackjack engine, standard rules (Split, Double-down, Insurance), and dealer AI implemented in pure Kotlin.
+- **Reactive Architecture**: State machine pattern using `StateFlow` and decoupled side effects (audio, haptics) via `SharedFlow`.
+- **Rich Audio & Haptics**: Integrated sound effects for dealing, flipping cards, and game outcomes, with haptic feedback on supported platforms.
+- **Modern Tech Stack**: Uses **Amper** for build configuration and **Jujutsu (jj)** for version control.
 
 ## 🛠 Tech Stack
 
 - **UI Framework**: [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
-- **Build System**: [JetBrains Amper](https://github.com/JetBrains/amper)
+- **Build System**: [JetBrains Amper](https://github.com/JetBrains/amper) (No Gradle/Gradlew)
 - **Version Control**: [Jujutsu (jj)](https://github.com/martinvonz/jj)
+- **Lifecycle Management**: [Decompose](https://github.com/arkivanov/Decompose)
+- **Serialization**: `kotlinx-serialization`
+- **Concurrency**: `kotlinx-coroutines`
 - **Platforms**:
     - Android
     - iOS
     - Desktop (JVM)
 
-## 📁 Project Structure
+## 📁 Module Map
 
+- `shared/core`: Domain logic, `BlackjackStateMachine`, `GameLogic`, and core models (`GameState`, `Card`, `Hand`).
+- `shared/data`: Persistence layer (DataStore).
+- `sharedUI`: Shared Compose components, screens, theme, and service interfaces (Audio, Haptics).
 - `androidApp`: Android-specific entry point and resources.
-- `iosApp`: iOS-specific entry point and Swift integration.
 - `desktopApp`: JVM Desktop entry point.
-- `shared/core`: Domain logic, Blackjack state machine, and utility functions.
-- `sharedUI`: Shared Compose components, theme, and audio services.
-
-## 🧹 Linting
-
-This project uses **ktlint** for code formatting and **detekt** for static analysis.
-
-```bash
-./ktlint              # Check formatting
-./ktlint --format     # Auto-fix formatting issues
-./detekt              # Run static analysis
-./lint.sh             # Run both (for CI)
-jj fix                # Auto-format changed Kotlin files via jj
-```
-
-Configuration files:
-- `.editorconfig` - ktlint style configuration
-- `config/detekt.yml` - detekt rules and thresholds
+- `iosApp`: iOS-specific entry point and Swift integration.
 
 ## 🏗 Building and Running
 
-This project uses **Amper**. You can use the provided `./amper` wrapper to build and run the application.
+This project uses **Amper**. Use the provided `./amper` wrapper for all build and run tasks.
 
 ### Desktop
 ```bash
@@ -59,9 +48,47 @@ This project uses **Amper**. You can use the provided `./amper` wrapper to build
 ./amper run :androidApp
 ```
 
-## 📜 Educational Focus
+### Build & Test Commands
+```bash
+./amper build -p jvm                          # Fast: JVM only
+./amper test -p jvm                           # Fast: JVM tests only
+./amper build -m core -m sharedUI -p jvm      # Specific modules
+./amper build                                 # All platforms (slow)
+```
 
-This project is built with educational principles in mind, focusing on explaining the "Why" behind architectural decisions and platform-specific implementations. Check out the `GEMINI.md` for more context on the development guidelines.
+## 🧹 Development Workflow
+
+### Linting & Formatting
+This project uses **ktlint** for formatting and **detekt** for static analysis.
+
+```bash
+./ktlint --format     # Auto-fix formatting issues
+./lint.sh             # Run ktlint + detekt (used in CI)
+jj fix                # Auto-format changed Kotlin files via jj
+```
+
+### String Resources
+**Never hardcode UI strings.** Use Compose Multiplatform resources:
+1. Add strings to `sharedUI/composeResources/values/strings.xml`.
+2. Build the project to generate the `Res` class.
+3. Import: `import sharedui.generated.resources.my_string_key`.
+
+### Testing
+Tests are located in `test/` directories within each module.
+```bash
+./amper test -p jvm
+```
+We follow a **Spec-Driven Development** approach. Requirements and plans for features are documented in `conductor/tracks/<feature>/spec.md`.
+
+## 🔄 Version Control: Jujutsu (jj)
+
+This project is managed with **Jujutsu (jj)**. While a `.git` folder exists for compatibility, use `jj` commands for development:
+```bash
+jj st                     # Status
+jj diff                   # Current changes
+jj commit -m "Message"    # Finalize commit
+jj log                    # View commit graph
+```
 
 ---
 
