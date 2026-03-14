@@ -182,15 +182,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 )
 
                 Box(modifier = Modifier.weight(1f)) {
-                    if (state.status == GameStatus.BETTING) {
-                        BettingPhaseScreen(
-                            state = state,
-                            component = component,
-                            audioService = audioService,
-                            layoutMode = layoutMode,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    } else if (layoutMode != LayoutMode.PORTRAIT) {
+                    if (layoutMode != LayoutMode.PORTRAIT) {
                         LandscapeLayout(
                             state = state,
                             component = component,
@@ -219,6 +211,14 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         layoutMode = layoutMode,
                         showStatus = showStatus,
                     )
+
+                    if (state.status == GameStatus.BETTING) {
+                        BettingPhaseScreen(
+                            state = state,
+                            component = component,
+                            audioService = audioService,
+                        )
+                    }
 
                     if (showSettings) {
                         SettingsOverlay(

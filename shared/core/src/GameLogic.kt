@@ -151,6 +151,7 @@ sealed class GameAction {
     data class NewGame(
         val initialBalance: Int? = null,
         val rules: GameRules = GameRules(),
+        val handCount: Int = 1,
     ) : GameAction()
 
     data object Surrender : GameAction()

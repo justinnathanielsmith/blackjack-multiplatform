@@ -86,7 +86,7 @@ fun GameActions(
         remember(audioService, component, appSettings) {
             {
                 audioService.playEffect(AudioService.SoundEffect.FLIP)
-                component.onAction(GameAction.NewGame(rules = appSettings.gameRules))
+                component.onAction(GameAction.NewGame(rules = appSettings.gameRules, handCount = appSettings.defaultHandCount))
             }
         }
 

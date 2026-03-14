@@ -52,6 +52,7 @@ import sharedui.generated.resources.settings_payout
 import sharedui.generated.resources.settings_rule_disclaimer
 import sharedui.generated.resources.settings_s17
 import sharedui.generated.resources.settings_surrender
+import sharedui.generated.resources.hand_count_label
 import sharedui.generated.resources.settings_title
 
 @Composable
@@ -97,6 +98,15 @@ fun SettingsOverlay(
                     title = stringResource(Res.string.settings_debug),
                     checked = settings.isDebugMode,
                     onCheckedChange = { newVal -> onUpdateSettings { it.copy(isDebugMode = newVal) } }
+                )
+
+                SettingsDropdown(
+                    title = stringResource(Res.string.hand_count_label),
+                    currentValue = "${settings.defaultHandCount}",
+                    options = listOf("1", "2", "3"),
+                    onOptionSelected = { option ->
+                        onUpdateSettings { it.copy(defaultHandCount = option.toInt()) }
+                    }
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color.White.copy(alpha = 0.1f))

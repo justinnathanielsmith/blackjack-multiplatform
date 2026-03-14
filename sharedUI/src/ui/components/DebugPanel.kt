@@ -59,7 +59,7 @@ fun DebugPanel(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(
-                onClick = { onAction(GameAction.NewGame(rules = settings.gameRules)) },
+                onClick = { onAction(GameAction.NewGame(rules = settings.gameRules, handCount = settings.defaultHandCount)) },
                 modifier = Modifier.height(32.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 shape = RoundedCornerShape(4.dp),
