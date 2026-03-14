@@ -20,9 +20,9 @@ This project uses **JetBrains Amper** instead of Gradle. There is no `gradlew` s
 
 ### Module Structure
 Amper uses a simplified layout different from Gradle:
-- Source code: `<module>/src/` (not `src/main/kotlin/`)
-- Tests: `<module>/test/` (not `src/test/kotlin/`)
-- Android resources: `<module>/res/` (not `src/main/res/`)
+- Source code: `<module>/src/` (Amper flat layout: file path does not need to match package)
+- Tests: `<module>/test/`
+- Android resources: `<module>/res/`
 - Platform-specific code: `<module>/src@android/`, `<module>/src@ios/`, etc.
 
 ### Dependencies in module.yaml
@@ -74,8 +74,8 @@ jj fix                # Auto-format changed Kotlin files
 ```
 
 ### Configuration
-- `.editorconfig` - ktlint rules (function-naming disabled for Compose)
-- `config/detekt.yml` - detekt rules with formatting plugin
+- `.editorconfig` - ktlint rules (`package-name` disabled for flat layout)
+- `config/detekt.yml` - detekt rules (`InvalidPackageDeclaration` disabled)
 - `.jj/repo/config.toml` - jj fix integration
 
 ### Before Committing

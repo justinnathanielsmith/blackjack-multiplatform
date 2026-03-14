@@ -16,6 +16,7 @@ This project uses **Jujutsu (JJ)** for version control instead of Git. Use JJ co
 ### JetBrains Amper Guidelines
 - Configuration is driven by `project.yaml` in the root, and `module.yaml` in sub-modules, rather than `build.gradle.kts`.
 - Standard project layouts differ from Gradle. E.g., Android code goes in `<module-root>/src/` directly rather than `src/main/java/`. Android resources go into `<module-root>/res/`.
+- **Flat Directory Structure**: Amper favors a shallow directory tree. Source files can sit directly in the `src/` root of a module regardless of their declared `package`. This eliminates deep, empty folder nesting.
 - Dependency management uses [Version Catalogs](https://docs.gradle.org/current/userguide/platforms.html) declared in `gradle/libs.versions.toml`. 
 - To declare a dependency down in a `module.yaml`, reference the catalog using the `$libs.` prefix (e.g., `- $libs.kotlinx.coroutines.core`). Do NOT refer to `[bundles]`.
 - For Compose Multiplatform elements, use the `$compose.` prefix (e.g. `- $compose.material3`).
@@ -84,8 +85,8 @@ jj fix                # Auto-format changed Kotlin files via jj
 ```
 
 ### Configuration
-- `.editorconfig` - ktlint style rules (Compose-friendly: function-naming disabled)
-- `config/detekt.yml` - detekt rules with detekt-formatting plugin (ktlint rules)
+- `.editorconfig` - ktlint style rules (Compose-friendly: function-naming disabled, `ktlint_standard_package-name = disabled` for Amper flat layout)
+- `config/detekt.yml` - detekt rules with detekt-formatting plugin (ktlint rules, `InvalidPackageDeclaration` disabled for Amper compatibility)
 - `.jj/repo/config.toml` - jj fix tool configuration
 
 ### Tool Versions
