@@ -287,20 +287,34 @@ private fun PortraitLayout(
     component: BlackjackComponent,
     layoutMode: LayoutMode,
 ) {
+    val hands = state.playerHands
+    val isMultiHand = hands.size > 1
+    val multiHandLayoutMode = if (isMultiHand) LayoutMode.LANDSCAPE_COMPACT else layoutMode
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(if (isMultiHand) 4.dp else 16.dp))
 
         val dealerDisplayScore =
             if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-        HandContainer(title = stringResource(Res.string.dealer), score = dealerDisplayScore, layoutMode = layoutMode) {
-            HandRow(state.dealerHand, isDealer = true, layoutMode = layoutMode)
+        HandContainer(
+            title = stringResource(Res.string.dealer),
+            score = dealerDisplayScore,
+            layoutMode = multiHandLayoutMode,
+            isExtraCompact = isMultiHand,
+        ) {
+            HandRow(
+                state.dealerHand,
+                isDealer = true,
+                layoutMode = multiHandLayoutMode,
+                scale = if (isMultiHand) 0.72f else null,
+            )
         }
 
-        val hands = state.playerHands
-        if (hands.size > 1) {
+        if (isMultiHand) {
+            val playerCardScale = if (hands.size >= 3) 0.58f else 0.68f
             Column(
                 modifier =
                     Modifier
@@ -319,9 +333,10 @@ private fun PortraitLayout(
                         isPending = isPending,
                         result = state.handResult(index),
                         layoutMode = LayoutMode.LANDSCAPE_COMPACT,
+                        isExtraCompact = true,
                         modifier = Modifier.weight(1f),
                     ) {
-                        HandRow(hand, layoutMode = LayoutMode.LANDSCAPE_COMPACT)
+                        HandRow(hand, layoutMode = LayoutMode.LANDSCAPE_COMPACT, scale = playerCardScale)
                     }
                 }
             }
@@ -347,12 +362,12 @@ private fun PortraitLayout(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(if (isMultiHand) 8.dp else 32.dp))
 
         GameActions(
             state = state,
             component = component,
-            layoutMode = layoutMode,
+            layoutMode = multiHandLayoutMode,
         )
     }
 }

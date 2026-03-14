@@ -14,10 +14,15 @@ fun HandRow(
     hand: Hand,
     isDealer: Boolean = false,
     layoutMode: LayoutMode = LayoutMode.PORTRAIT,
+    scale: Float? = null,
 ) {
     val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
-    val cardSpacing = if (isCompact) (-35).dp else (-40).dp
-    val cardScale = if (isCompact) 0.8f else 1f
+    val cardScale = scale ?: if (isCompact) 0.8f else 1f
+    val cardSpacing = when {
+        cardScale < 0.7f -> (-22).dp
+        isCompact -> (-35).dp
+        else -> (-40).dp
+    }
     Row(
         horizontalArrangement = Arrangement.spacedBy(cardSpacing),
         verticalAlignment = Alignment.CenterVertically,

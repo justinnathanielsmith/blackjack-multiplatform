@@ -48,6 +48,7 @@ fun HandContainer(
     isPending: Boolean = false,
     result: HandResult = HandResult.NONE,
     layoutMode: LayoutMode = LayoutMode.PORTRAIT,
+    isExtraCompact: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -69,9 +70,18 @@ fun HandContainer(
         }
 
     val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
+    val isAnyCompact = isCompact || isExtraCompact
     val horizontalPadding = if (isCompact) 8.dp else 16.dp
-    val verticalPadding = if (isCompact) 8.dp else 24.dp
-    val cornerRadius = if (isCompact) 12.dp else 24.dp
+    val verticalPadding = when {
+        isExtraCompact -> 4.dp
+        isCompact -> 8.dp
+        else -> 24.dp
+    }
+    val cornerRadius = when {
+        isExtraCompact -> 8.dp
+        isCompact -> 12.dp
+        else -> 24.dp
+    }
 
     Box(
         modifier =
@@ -89,19 +99,31 @@ fun HandContainer(
                     .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(cornerRadius))
         )
 
-        StatusBadge(isActive = isActive, isPending = isPending, isCompact = isCompact)
+        StatusBadge(isActive = isActive, isPending = isPending, isCompact = isAnyCompact)
 
-        ScoreBadge(score = score, isActive = isActive, isCompact = isCompact)
+        ScoreBadge(score = score, isActive = isActive, isCompact = isAnyCompact)
 
-        val contentPadding = if (isCompact) 16.dp else 20.dp
-        val topPadding = if (isCompact) 24.dp else 28.dp
-        val titleStyle = if (isCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
+        val contentPadding = when {
+            isExtraCompact -> 10.dp
+            isCompact -> 16.dp
+            else -> 20.dp
+        }
+        val topPadding = when {
+            isExtraCompact -> 14.dp
+            isCompact -> 24.dp
+            else -> 28.dp
+        }
+        val bottomPadding = when {
+            isExtraCompact -> 8.dp
+            else -> contentPadding
+        }
+        val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
 
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(start = contentPadding, end = contentPadding, top = topPadding, bottom = contentPadding),
+                    .padding(start = contentPadding, end = contentPadding, top = topPadding, bottom = bottomPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -112,7 +134,7 @@ fun HandContainer(
                 letterSpacing = 3.sp,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(if (isExtraCompact) 4.dp else 16.dp))
 
             Box(
                 modifier = Modifier.fillMaxWidth(),

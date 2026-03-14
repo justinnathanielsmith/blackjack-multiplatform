@@ -99,9 +99,10 @@ fun GameActions(
         label = "GameActionsTransition"
     ) { status ->
         val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
-        val buttonHeight = if (isCompact) 60.dp else 80.dp
-        val spacerHeight = if (isCompact) 8.dp else 16.dp
-        val totalActionsHeight = if (isCompact) 110.dp else 156.dp // (highActionRow + spacer + mainRow)
+        val buttonHeight = if (isCompact) 48.dp else 80.dp
+        val highActionHeight = 36.dp
+        val spacerHeight = if (isCompact) 6.dp else 16.dp
+        val totalActionsHeight = if (isCompact) 90.dp else 156.dp // (highActionRow + spacer + mainRow)
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -113,9 +114,8 @@ fun GameActions(
                 val canDouble = state.canDoubleDown()
 
                 // High-action row (Split/Double) - Fixed height to prevent shift
-                val highActionHeight = if (canSplit || canDouble) 46.dp else 0.dp
                 Box(
-                    modifier = Modifier.fillMaxWidth().height(highActionHeight),
+                    modifier = Modifier.fillMaxWidth().height(if (canSplit || canDouble) highActionHeight else 0.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     if (canSplit || canDouble) {
@@ -141,44 +141,23 @@ fun GameActions(
                     }
                 }
 
-                if (isCompact) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().height(buttonHeight * 2 + 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        CasinoButton(
-                            text = stringResource(Res.string.hit),
-                            onClick = onHit,
-                            modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                            isStrategic = true,
-                        )
-                        CasinoButton(
-                            text = stringResource(Res.string.stand),
-                            onClick = onStand,
-                            modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                            containerColor = GlassDark,
-                            contentColor = Color.White,
-                        )
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        CasinoButton(
-                            text = stringResource(Res.string.hit),
-                            onClick = onHit,
-                            modifier = Modifier.weight(1f),
-                            isStrategic = true,
-                        )
-                        CasinoButton(
-                            text = stringResource(Res.string.stand),
-                            onClick = onStand,
-                            modifier = Modifier.weight(1f),
-                            containerColor = GlassDark,
-                            contentColor = Color.White,
-                        )
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    CasinoButton(
+                        text = stringResource(Res.string.hit),
+                        onClick = onHit,
+                        modifier = Modifier.weight(1f),
+                        isStrategic = true,
+                    )
+                    CasinoButton(
+                        text = stringResource(Res.string.stand),
+                        onClick = onStand,
+                        modifier = Modifier.weight(1f),
+                        containerColor = GlassDark,
+                        contentColor = Color.White,
+                    )
                 }
             } else if (status != GameStatus.INSURANCE_OFFERED) {
                 // Reserve space matching the PLAYING state height
