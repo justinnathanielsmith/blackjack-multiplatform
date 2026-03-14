@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-@Suppress("TooManyFunctions")
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
     initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
@@ -77,7 +76,6 @@ class BlackjackStateMachine(
         _state.value = _state.value.copy(handCount = count)
     }
 
-    @Suppress("CyclomaticComplexMethod")
     private fun handleDeal() {
         val current = _state.value
         if (current.status != GameStatus.BETTING || current.currentBet <= 0) return
@@ -104,18 +102,7 @@ class BlackjackStateMachine(
         val newBalance = current.balance - extraCost
         val bets = List(current.handCount) { current.currentBet }
 
-        // Natural BJ only checked in single-hand mode
-        val initialStatus =
-            if (current.handCount == 1) {
-                when {
-                    hands[0].score == 21 && dealerHandHidden.score == 21 -> GameStatus.PUSH
-                    hands[0].score == 21 -> GameStatus.PLAYER_WON
-                    dealerHandHidden.score == 21 -> GameStatus.DEALER_WON
-                    else -> GameStatus.PLAYING
-                }
-            } else {
-                GameStatus.PLAYING
-            }
+        val initialStatus = determineInitialStatus(hands, dealerHandHidden, current.handCount)
 
         val dealerHand =
             when (initialStatus) {
@@ -149,6 +136,16 @@ class BlackjackStateMachine(
         }
         if (initialStatus == GameStatus.PLAYING && dealerCards[0].rank == Rank.ACE) {
             _state.value = _state.value.copy(status = GameStatus.INSURANCE_OFFERED)
+        }
+    }
+
+    private fun determineInitialStatus(hands: List<Hand>, dealerHand: Hand, handCount: Int): GameStatus {
+        if (handCount != 1) return GameStatus.PLAYING
+        return when {
+            hands[0].score == 21 && dealerHand.score == 21 -> GameStatus.PUSH
+            hands[0].score == 21 -> GameStatus.PLAYER_WON
+            dealerHand.score == 21 -> GameStatus.DEALER_WON
+            else -> GameStatus.PLAYING
         }
     }
 
@@ -257,7 +254,6 @@ class BlackjackStateMachine(
         }
     }
 
-    @Suppress("ReturnCount")
     private fun handleDoubleDown() {
         val state = _state.value
         if (state.status != GameStatus.PLAYING) return
@@ -303,21 +299,11 @@ class BlackjackStateMachine(
             )
     }
 
-    @Suppress("CyclomaticComplexMethod")
     private suspend fun runDealerTurn() {
         revealDealerHoleCard()
         delay(DEALER_TURN_DELAY_MS) // Visual pause for hole card reveal
 
-        // Insurance payout: dealer natural BJ (2-card 21) pays 2:1 + returns stake = 3x
-        val stateAfterReveal = _state.value
-        val dealerHasNaturalBJ =
-            stateAfterReveal.dealerHand.score == 21 && stateAfterReveal.dealerHand.cards.size == 2
-        if (stateAfterReveal.insuranceBet > 0 && dealerHasNaturalBJ) {
-            _state.value =
-                stateAfterReveal.copy(
-                    balance = stateAfterReveal.balance + stateAfterReveal.insuranceBet * 3
-                )
-        }
+        handleInsurancePayout()
 
         var currentDealerHand = _state.value.dealerHand
         var currentDeck = _state.value.deck
@@ -336,16 +322,21 @@ class BlackjackStateMachine(
             delay(DEALER_TURN_DELAY_MS) // Visual pacing for dealer hits
         }
 
-        val dealerScore = _state.value.dealerHand.score
-        val dealerBust = _state.value.dealerHand.isBust
+        finalizeGame()
+    }
+
+    private fun finalizeGame() {
+        val state = _state.value
+        val dealerScore = state.dealerHand.score
+        val dealerBust = state.dealerHand.isBust
 
         var totalPayout = 0
         var anyWin = false
         var allPush = true
 
-        for (i in _state.value.playerHands.indices) {
-            val hand = _state.value.playerHands[i]
-            val bet = _state.value.playerBets[i]
+        for (i in state.playerHands.indices) {
+            val hand = state.playerHands[i]
+            val bet = state.playerBets[i]
             val payout = resolveHand(hand, bet, dealerScore, dealerBust)
             totalPayout += payout
 
@@ -363,9 +354,9 @@ class BlackjackStateMachine(
             }
 
         _state.value =
-            _state.value.copy(
+            state.copy(
                 status = finalStatus,
-                balance = _state.value.balance + totalPayout,
+                balance = state.balance + totalPayout,
             )
 
         when (finalStatus) {
@@ -375,6 +366,18 @@ class BlackjackStateMachine(
                 emitEffect(GameEffect.Vibrate)
             }
             else -> {}
+        }
+    }
+
+    private fun handleInsurancePayout() {
+        val current = _state.value
+        val dealerHasNaturalBJ =
+            current.dealerHand.score == 21 && current.dealerHand.cards.size == 2
+        if (current.insuranceBet > 0 && dealerHasNaturalBJ) {
+            _state.value =
+                current.copy(
+                    balance = current.balance + current.insuranceBet * 3
+                )
         }
     }
 

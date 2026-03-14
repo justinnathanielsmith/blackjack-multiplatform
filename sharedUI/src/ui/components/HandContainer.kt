@@ -35,7 +35,6 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.status_active
 
-@Suppress("CyclomaticComplexMethod")
 @Composable
 fun HandContainer(
     title: String,

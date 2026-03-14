@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
-@Suppress("CyclomaticComplexMethod")
 @Composable
 fun CasinoButton(
     text: String,

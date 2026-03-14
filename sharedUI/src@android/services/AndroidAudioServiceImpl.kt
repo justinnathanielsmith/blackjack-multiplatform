@@ -76,9 +76,7 @@ class AndroidAudioServiceImpl(
         } catch (e: IOException) {
             logger.e(e) { "IO Error loading sound resource: $resource" }
             null
-        } catch (
-            @Suppress("TooGenericExceptionCaught") e: Exception,
-        ) {
+        } catch (e: Exception) {
             logger.e(e) { "Unexpected error loading sound resource: $resource" }
             null
         }
@@ -128,9 +126,7 @@ class AndroidAudioServiceImpl(
                         }
                     }
                 }
-            } catch (
-                @Suppress("TooGenericExceptionCaught") e: Exception,
-            ) {
+            } catch (e: Exception) {
                 logger.e(e) { "Error playing fallback sound: $name" }
                 fallbackPlayers.remove(resource)?.release()
             }
@@ -156,9 +152,7 @@ class AndroidAudioServiceImpl(
         } catch (e: IOException) {
             logger.e(e) { "IO Error initializing fallback player: $name" }
             newPlayer?.release()
-        } catch (
-            @Suppress("TooGenericExceptionCaught") e: Exception,
-        ) {
+        } catch (e: Exception) {
             logger.e(e) { "Unexpected error initializing fallback player: $name" }
             newPlayer?.release()
             fallbackPlayers.remove(resource)?.release()

@@ -63,7 +63,6 @@ import sharedui.generated.resources.hand_number
 
 fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
 
-@Suppress("ReturnCount")
 fun GameState.handResult(index: Int): HandResult {
     if (!status.isTerminal()) return HandResult.NONE
     val hand = playerHands.getOrNull(index) ?: return HandResult.NONE

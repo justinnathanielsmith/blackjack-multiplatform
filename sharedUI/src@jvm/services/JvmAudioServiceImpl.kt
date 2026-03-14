@@ -44,9 +44,7 @@ class JvmAudioServiceImpl(
                 }
             }
             resourceToPath[resource] = tempFile.absolutePath
-        } catch (
-            @Suppress("TooGenericExceptionCaught") e: Exception,
-        ) {
+        } catch (e: Exception) {
             logger.e(e) { "Error preparing sound resource: $resource" }
         }
     }
@@ -59,9 +57,7 @@ class JvmAudioServiceImpl(
             try {
                 // macOS only audio playback fallback natively provided by the OS
                 ProcessBuilder("afplay", path).start()
-            } catch (
-                @Suppress("TooGenericExceptionCaught") e: Exception,
-            ) {
+            } catch (e: Exception) {
                 logger.e(e) { "Error playing sound: $resource" }
             }
         }

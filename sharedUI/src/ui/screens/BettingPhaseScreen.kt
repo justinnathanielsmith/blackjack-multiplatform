@@ -97,7 +97,6 @@ private fun chipTextColor(value: Int) =
         else -> WhiteSoft
     }
 
-@Suppress("LongMethod")
 @Composable
 fun BettingPhaseScreen(
     state: GameState,

@@ -1,0 +1,1 @@
+Context - Compose Rules: We have suppressed LongParameterList and FunctionNaming for @Composable functions. If you encounter a naming issue in a UI component, refer to the detekt.yml before attempting to "fix" it. Do not attempt to refactor UI parameters into data classes unless they exceed 10 items.

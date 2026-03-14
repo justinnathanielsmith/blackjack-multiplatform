@@ -4,19 +4,26 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DETEKT_CLI="$SCRIPT_DIR/tools/detekt-cli-1.23.7/bin/detekt-cli"
-DETEKT_CONFIG="$SCRIPT_DIR/config/detekt.yml"
+DETEKT_CONFIG="$SCRIPT_DIR/config/detekt/detekt.yml"
 FORMATTING_PLUGIN="$SCRIPT_DIR/tools/detekt-formatting-1.23.7.jar"
+COMPOSE_PLUGIN="$SCRIPT_DIR/tools/detekt-compose-0.4.0.jar"
 
 if [[ ! -x "$DETEKT_CLI" ]]; then
     echo "Error: detekt-cli not found at $DETEKT_CLI" >&2
     exit 1
 fi
 
+# PLUGINS="$FORMATTING_PLUGIN"
+# if [[ -f "$COMPOSE_PLUGIN" ]]; then
+#     PLUGINS="$PLUGINS,$COMPOSE_PLUGIN"
+# fi
+PLUGINS="$FORMATTING_PLUGIN"
+
 if [[ ! -f "$FORMATTING_PLUGIN" ]]; then
     echo "Warning: detekt-formatting plugin not found, style checks will be limited" >&2
     PLUGIN_ARG=""
 else
-    PLUGIN_ARG="--plugins $FORMATTING_PLUGIN"
+    PLUGIN_ARG="--plugins $PLUGINS"
 fi
 
 # Default input paths

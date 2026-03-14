@@ -1,0 +1,71 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+complexity:
+  active: true
+  # Compose functions naturally have many parameters; we relax this for @Composable
+  LargeClass:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**']
+  TooManyFunctions:
+    active: true
+    excludes: ['**/ui/**', '**/screens/**', '**/components/**', '**/test/**', '**/androidTest/**']
+    thresholdInClasses: 30
+  LongMethod:
+    active: true
+    ignoreAnnotated:
+      - 'androidx.compose.runtime.Composable'
+  LongParameterList:
+    active: true
+    # 2026 Meta: Compose slots often require 10+ params (modifier, colors, state, etc.)
+    ignoreAnnotated:
+      - 'androidx.compose.runtime.Composable'
+    functionThreshold: 10
+    constructorThreshold: 10
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 15 # Strict for logic, but allows for complex UI state switching
+    ignoreAnnotated:
+      - 'androidx.compose.runtime.Composable'
+
+naming:
+  active: true
+  # Compose functions must start with uppercase, but Detekt expects lowercase by default
+  FunctionNaming:
+    active: true
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    excludeClassPattern: '.*'
+    ignoreAnnotated:
+      - 'androidx.compose.runtime.Composable'
+  TopLevelPropertyNaming:
+    active: true
+    # Allows for 'val _state = ...' pattern common in MVI/MVVM
+    constantPattern: '[A-Z][_a-zA-Z0-9]*|_?[a-z][a-zA-Z0-9]*'
+
+style:
+  active: true
+  # Allow "MagicNumbers" in Compose for things like Dp, Sp, and Color hex codes
+  MagicNumber:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/ui/**', '**/*Screen.kt']
+    ignoreEnums: true
+    ignoreNumbers: ['-1', '0', '1', '2', '3', '0.5', '10', '21', '100']
+    # ignoreAnnotation: 'androidx.compose.runtime.Composable'
+  UnusedPrivateMember:
+    active: true
+    allowedNames: '(_|ignored|expected|serialVersionUID)'
+exceptions:
+  active: true
+  TooGenericExceptionCaught:
+    active: true
+    excludes: ['**/services/**']
+
+performance:
+  active: true
+  # Essential for 2026: Catches heavy operations inside Composable recompositions
+  ForEachOnRange:
+    active: true
+  SpreadOperator:
+    active: true
+
