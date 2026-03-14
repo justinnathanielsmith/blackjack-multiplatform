@@ -139,7 +139,11 @@ class BlackjackStateMachine(
         }
     }
 
-    private fun determineInitialStatus(hands: List<Hand>, dealerHand: Hand, handCount: Int): GameStatus {
+    private fun determineInitialStatus(
+        hands: List<Hand>,
+        dealerHand: Hand,
+        handCount: Int
+    ): GameStatus {
         if (handCount != 1) return GameStatus.PLAYING
         return when {
             hands[0].score == 21 && dealerHand.score == 21 -> GameStatus.PUSH

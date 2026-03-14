@@ -1,8 +1,15 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -22,10 +29,22 @@ import sharedui.generated.resources.status_push
 @Composable
 fun GameStatusMessage(
     status: GameStatus,
-    pulseScale: Float,
     layoutMode: LayoutMode,
 ) {
     val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
+
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.1f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "pulseScale",
+    )
+
     val statusText =
         when (status) {
             GameStatus.BETTING -> stringResource(Res.string.status_betting)

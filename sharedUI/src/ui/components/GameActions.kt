@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +29,10 @@ import io.github.smithjustinn.blackjack.ui.screens.LayoutMode
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.double_down
 import sharedui.generated.resources.hit
+import sharedui.generated.resources.new_game
+import sharedui.generated.resources.split
 import sharedui.generated.resources.stand
 
 @Composable
@@ -37,8 +41,44 @@ fun GameActions(
     component: BlackjackComponent,
     layoutMode: LayoutMode = LayoutMode.PORTRAIT,
 ) {
-    val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
     val audioService = LocalAppGraph.current.audioService
+
+    val onHit =
+        remember(audioService, component) {
+            {
+                audioService.playEffect(AudioService.SoundEffect.DEAL)
+                component.onAction(GameAction.Hit)
+            }
+        }
+    val onStand =
+        remember(audioService, component) {
+            {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onAction(GameAction.Stand)
+            }
+        }
+    val onDoubleDown =
+        remember(audioService, component) {
+            {
+                audioService.playEffect(AudioService.SoundEffect.DEAL)
+                component.onAction(GameAction.DoubleDown)
+            }
+        }
+    val onSplit =
+        remember(audioService, component) {
+            {
+                audioService.playEffect(AudioService.SoundEffect.DEAL)
+                component.onAction(GameAction.Split)
+            }
+        }
+    val onNewGame =
+        remember(audioService, component) {
+            {
+                audioService.playEffect(AudioService.SoundEffect.FLIP)
+                component.onAction(GameAction.NewGame())
+            }
+        }
+
     AnimatedContent(
         targetState = state.status,
         transitionSpec = {
@@ -66,16 +106,18 @@ fun GameActions(
                             horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                         ) {
                             if (canDouble) {
-                                ActionIcon(icon = "x2", label = "Double") {
-                                    audioService.playEffect(AudioService.SoundEffect.DEAL)
-                                    component.onAction(GameAction.DoubleDown)
-                                }
+                                ActionIcon(
+                                    icon = "x2",
+                                    label = stringResource(Res.string.double_down),
+                                    onClick = onDoubleDown,
+                                )
                             }
                             if (canSplit) {
-                                ActionIcon(icon = "⑃", label = "Split") {
-                                    audioService.playEffect(AudioService.SoundEffect.DEAL)
-                                    component.onAction(GameAction.Split)
-                                }
+                                ActionIcon(
+                                    icon = "⑃",
+                                    label = stringResource(Res.string.split),
+                                    onClick = onSplit,
+                                )
                             }
                         }
                     }
@@ -87,19 +129,13 @@ fun GameActions(
                 ) {
                     CasinoButton(
                         text = stringResource(Res.string.hit),
-                        onClick = {
-                            audioService.playEffect(AudioService.SoundEffect.DEAL)
-                            component.onAction(GameAction.Hit)
-                        },
+                        onClick = onHit,
                         modifier = Modifier.weight(1f),
                         isStrategic = true,
                     )
                     CasinoButton(
                         text = stringResource(Res.string.stand),
-                        onClick = {
-                            audioService.playEffect(AudioService.SoundEffect.CLICK)
-                            component.onAction(GameAction.Stand)
-                        },
+                        onClick = onStand,
                         modifier = Modifier.weight(1f),
                         containerColor = GlassDark,
                         contentColor = Color.White,
@@ -112,11 +148,8 @@ fun GameActions(
                     verticalArrangement = Arrangement.Center
                 ) {
                     CasinoButton(
-                        text = "NEW GAME",
-                        onClick = {
-                            audioService.playEffect(AudioService.SoundEffect.FLIP)
-                            component.onAction(GameAction.NewGame())
-                        },
+                        text = stringResource(Res.string.new_game),
+                        onClick = onNewGame,
                         modifier = Modifier.fillMaxWidth().height(80.dp),
                         isStrategic = true,
                     )

@@ -11,3 +11,4 @@ This file tracks the progress of various development streams.
 | `ui-juice` | UI Polish & "Juicy" Animations | ✅ Completed | [Link](./tracks/ui-juice/index.md) |
 | `landscape-layout` | Landscape Mode Optimization | ✅ Completed | [Link](./tracks/landscape-layout/index.md) |
 | `multi-hand` | Multi-Hand Support | ✅ Completed | [Link](./tracks/multi-hand/index.md) |
+| `compose-best-practices` | Compose Best Practices & Performance Hardening | 🟨 In Progress | [Link](./tracks/compose-best-practices/index.md) |

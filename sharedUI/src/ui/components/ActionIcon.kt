@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.sp
 fun ActionIcon(
     icon: String,
     label: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -50,7 +53,8 @@ fun ActionIcon(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-            Modifier
+            modifier
+                .semantics(mergeDescendants = true) { contentDescription = label }
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale

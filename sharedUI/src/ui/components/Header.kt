@@ -23,12 +23,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.balance
 import kotlin.math.abs
 
 @Composable
@@ -55,9 +60,14 @@ fun Header(balance: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column {
+        Column(
+            modifier =
+                Modifier.semantics(mergeDescendants = true) {
+                    contentDescription = "Balance: $${animatedBalance.formatWithCommas()}"
+                },
+        ) {
             Text(
-                text = "BALANCE",
+                text = stringResource(Res.string.balance).uppercase(),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White.copy(alpha = 0.5f),
                 fontWeight = FontWeight.Bold,

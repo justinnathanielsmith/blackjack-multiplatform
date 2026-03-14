@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -29,6 +30,7 @@ enum class Rank(
     ACE(11)
 }
 
+@Immutable
 @Serializable
 data class Card(
     val rank: Rank,
@@ -36,6 +38,7 @@ data class Card(
     val isFaceDown: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class Hand(
     val cards: List<Card> = emptyList()
@@ -78,6 +81,7 @@ enum class GameStatus {
     PUSH
 }
 
+@Immutable
 @Serializable
 data class GameState(
     val deck: List<Card> = emptyList(),

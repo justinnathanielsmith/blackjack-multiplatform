@@ -9,6 +9,7 @@ settings:
     namespace: io.github.smithjustinn.blackjack.core
 
 dependencies:
+  - $libs.compose.runtime
   - $libs.kotlinx.coroutines.core
   - $libs.kotlinx.serialization.json
   - $libs.kotlinx.datetime

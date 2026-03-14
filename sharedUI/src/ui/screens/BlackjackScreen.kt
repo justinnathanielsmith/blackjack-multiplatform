@@ -2,12 +2,7 @@ package io.github.smithjustinn.blackjack.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -24,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
@@ -36,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
@@ -59,7 +54,9 @@ import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.dealer
 import sharedui.generated.resources.hand_number
+import sharedui.generated.resources.you
 
 fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
 
@@ -133,18 +130,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.1f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "pulseScale",
-    )
-
     BlackjackTheme {
         BoxWithConstraints(
             modifier =
@@ -156,7 +141,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             1.0f to FeltDark,
                             radius = 2000f,
                         ),
-                    ).offset(x = shakeOffset.value.dp),
+                    ).graphicsLayer { translationX = shakeOffset.value * density },
         ) {
             val layoutMode = detectLayoutMode()
 
@@ -203,7 +188,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         state = state,
                         component = component,
                         flashAlpha = flashAlpha.value,
-                        pulseScale = pulseScale,
                         layoutMode = layoutMode,
                         showStatus = showStatus,
                     )
@@ -218,7 +202,6 @@ private fun BlackjackGameOverlay(
     state: GameState,
     component: BlackjackComponent,
     flashAlpha: Float,
-    pulseScale: Float,
     layoutMode: LayoutMode,
     showStatus: Boolean,
 ) {
@@ -231,7 +214,7 @@ private fun BlackjackGameOverlay(
             enter = fadeIn() + scaleIn(initialScale = 0.8f),
             exit = fadeOut() + scaleOut(targetScale = 0.8f),
         ) {
-            GameStatusMessage(status = state.status, pulseScale = pulseScale, layoutMode = layoutMode)
+            GameStatusMessage(status = state.status, layoutMode = layoutMode)
         }
 
         if (state.status == GameStatus.INSURANCE_OFFERED) {
@@ -273,7 +256,7 @@ private fun PortraitLayout(
 
         val dealerDisplayScore =
             if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-        HandContainer(title = "Dealer", score = dealerDisplayScore, layoutMode = layoutMode) {
+        HandContainer(title = stringResource(Res.string.dealer), score = dealerDisplayScore, layoutMode = layoutMode) {
             HandRow(state.dealerHand, isDealer = true, layoutMode = layoutMode)
         }
 
@@ -310,7 +293,7 @@ private fun PortraitLayout(
             }
         } else {
             HandContainer(
-                title = "You",
+                title = stringResource(Res.string.you),
                 score = hands[0].score,
                 bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
                 isActive = state.status == GameStatus.PLAYING,
@@ -348,7 +331,11 @@ private fun LandscapeLayout(
         ) {
             val dealerDisplayScore =
                 if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-            HandContainer(title = "Dealer", score = dealerDisplayScore, layoutMode = layoutMode) {
+            HandContainer(
+                title = stringResource(Res.string.dealer),
+                score = dealerDisplayScore,
+                layoutMode = layoutMode
+            ) {
                 HandRow(state.dealerHand, isDealer = true, layoutMode = layoutMode)
             }
 
