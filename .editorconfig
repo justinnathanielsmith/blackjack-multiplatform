@@ -24,6 +24,8 @@ ktlint_standard_trailing-comma-on-declaration-site = disabled
 ktlint_standard_function-expression-body = disabled
 
 # Allow lowercase entry point files (main.kt is conventional)
+# Allow package names to not match directory structure (Amper convention)
+ktlint_standard_package-name = disabled
 ktlint_standard_filename = disabled
 
 [*.md]
