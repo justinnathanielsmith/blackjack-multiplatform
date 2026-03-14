@@ -104,7 +104,6 @@ fun PlayingCard(
         if (faceUp) 0f else 180f
     }
 
-
     val flipElevation by transition.animateDp(
         transitionSpec = {
             spring(stiffness = Spring.StiffnessLow)

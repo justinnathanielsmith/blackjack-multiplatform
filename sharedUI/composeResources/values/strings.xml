@@ -10,4 +10,17 @@
     <string name="audio_plink">plink</string>
     <string name="audio_win">win</string>
     <string name="audio_push">push</string>
+
+    <!-- Game actions -->
+    <string name="hit">Hit</string>
+    <string name="stand">Stand</string>
+    <string name="deal">Deal</string>
+
+    <!-- Game status messages -->
+    <string name="status_idle">Idle</string>
+    <string name="status_playing">Playing</string>
+    <string name="status_dealer_turn">Dealer Turn</string>
+    <string name="status_player_won">You Win!</string>
+    <string name="status_dealer_won">Dealer Wins</string>
+    <string name="status_push">Push</string>
 </resources>

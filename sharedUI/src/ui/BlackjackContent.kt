@@ -50,6 +50,17 @@ import io.github.smithjustinn.blackjack.ui.theme.FeltGreenDark
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreenLight
 import io.github.smithjustinn.blackjack.ui.theme.ModernGold
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.deal
+import sharedui.generated.resources.hit
+import sharedui.generated.resources.stand
+import sharedui.generated.resources.status_dealer_turn
+import sharedui.generated.resources.status_dealer_won
+import sharedui.generated.resources.status_idle
+import sharedui.generated.resources.status_player_won
+import sharedui.generated.resources.status_playing
+import sharedui.generated.resources.status_push
 
 @Composable
 fun BlackjackContent(component: BlackjackComponent) {
@@ -226,8 +237,17 @@ private fun GameStatusMessage(
     pulseScale: Float,
     isCompact: Boolean
 ) {
+    val statusText =
+        when (status) {
+            GameStatus.IDLE -> stringResource(Res.string.status_idle)
+            GameStatus.PLAYING -> stringResource(Res.string.status_playing)
+            GameStatus.DEALER_TURN -> stringResource(Res.string.status_dealer_turn)
+            GameStatus.PLAYER_WON -> stringResource(Res.string.status_player_won)
+            GameStatus.DEALER_WON -> stringResource(Res.string.status_dealer_won)
+            GameStatus.PUSH -> stringResource(Res.string.status_push)
+        }
     Text(
-        text = status.toString().uppercase(),
+        text = statusText,
         style =
             if (isCompact) {
                 MaterialTheme.typography.headlineMedium
@@ -244,8 +264,6 @@ private fun GameStatusMessage(
     )
 }
 
-
-
 @Composable
 fun GameActions(
     state: GameState,
@@ -259,7 +277,7 @@ fun GameActions(
     ) {
         if (state.status == GameStatus.PLAYING) {
             CasinoButton(
-                text = "Hit",
+                text = stringResource(Res.string.hit),
                 onClick = {
                     audioService.playEffect(AudioService.SoundEffect.DEAL)
                     component.onAction(GameAction.Hit)
@@ -267,7 +285,7 @@ fun GameActions(
                 modifier = Modifier.weight(1f)
             )
             CasinoButton(
-                text = "Stand",
+                text = stringResource(Res.string.stand),
                 onClick = {
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onAction(GameAction.Stand)
@@ -276,7 +294,7 @@ fun GameActions(
             )
         } else {
             CasinoButton(
-                text = "New Game",
+                text = stringResource(Res.string.deal),
                 onClick = {
                     audioService.playEffect(AudioService.SoundEffect.FLIP)
                     component.onAction(GameAction.NewGame)
