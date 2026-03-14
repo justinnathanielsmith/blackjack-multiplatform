@@ -34,7 +34,7 @@ class BlackjackStateMachine(
         scope.launch {
             mutex.withLock {
                 when (action) {
-                    is GameAction.NewGame -> handleNewGame()
+                    is GameAction.NewGame -> handleNewGame(action.initialBalance)
                     is GameAction.PlaceBet -> handlePlaceBet(action.amount)
                     is GameAction.ResetBet -> handleResetBet()
                     is GameAction.Deal -> handleDeal()
@@ -84,13 +84,20 @@ class BlackjackStateMachine(
                 dealerHand.score == 21 -> GameStatus.DEALER_WON
                 else -> GameStatus.PLAYING
             }
+        val balanceUpdate =
+            when (initialStatus) {
+                GameStatus.PLAYER_WON -> current.currentBet * 2
+                GameStatus.PUSH -> current.currentBet
+                else -> 0
+            }
+
         _state.value =
             GameState(
                 deck = remainingDeck,
                 playerHand = playerHand,
                 dealerHand = dealerHand,
                 status = initialStatus,
-                balance = current.balance,
+                balance = current.balance + balanceUpdate,
                 currentBet = current.currentBet
             )
         emitEffect(GameEffect.PlayCardSound)
@@ -99,12 +106,12 @@ class BlackjackStateMachine(
         }
     }
 
-    private fun handleNewGame() {
+    private fun handleNewGame(initialBalance: Int? = null) {
         val currentState = _state.value
         _state.value =
             GameState(
                 status = GameStatus.BETTING,
-                balance = currentState.balance,
+                balance = initialBalance ?: currentState.balance,
                 currentBet = 0
             )
     }
@@ -166,9 +173,17 @@ class BlackjackStateMachine(
                         else -> GameStatus.PUSH
                     }
 
+                val balanceUpdate =
+                    when (finalStatus) {
+                        GameStatus.PLAYER_WON -> _state.value.currentBet * 2
+                        GameStatus.PUSH -> _state.value.currentBet
+                        else -> 0
+                    }
+
                 _state.value =
                     _state.value.copy(
-                        status = finalStatus
+                        status = finalStatus,
+                        balance = _state.value.balance + balanceUpdate
                     )
 
                 when (finalStatus) {

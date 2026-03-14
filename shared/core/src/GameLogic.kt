@@ -75,7 +75,9 @@ data class GameState(
 )
 
 sealed class GameAction {
-    data object NewGame : GameAction()
+    data class NewGame(
+        val initialBalance: Int? = null
+    ) : GameAction()
 
     data class PlaceBet(
         val amount: Int

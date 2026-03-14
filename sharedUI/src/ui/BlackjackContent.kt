@@ -53,9 +53,9 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.deal
-import sharedui.generated.resources.status_betting
 import sharedui.generated.resources.hit
 import sharedui.generated.resources.stand
+import sharedui.generated.resources.status_betting
 import sharedui.generated.resources.status_dealer_turn
 import sharedui.generated.resources.status_dealer_won
 import sharedui.generated.resources.status_idle
@@ -307,7 +307,7 @@ fun GameActions(
                 text = stringResource(Res.string.deal),
                 onClick = {
                     audioService.playEffect(AudioService.SoundEffect.FLIP)
-                    component.onAction(GameAction.NewGame)
+                    component.onAction(GameAction.NewGame())
                 },
                 modifier = if (isCompact) Modifier.fillMaxWidth() else Modifier.fillMaxWidth(0.8f)
             )

@@ -14,6 +14,7 @@ compottie = "2.0.0-rc04"
 room = "2.7.0-alpha13"
 sqlite = "2.5.0-alpha13"
 javafx = "23.0.1"
+datastore = "1.1.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
@@ -42,6 +43,7 @@ javafx-graphics = { module = "org.openjfx:javafx-graphics", version.ref = "javaf
 javafx-base = { module = "org.openjfx:javafx-base", version.ref = "javafx" }
 javafx-controls = { module = "org.openjfx:javafx-controls", version.ref = "javafx" }
 javafx-swing = { module = "org.openjfx:javafx-swing", version.ref = "javafx" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 [bundles]
 room = ["room-runtime", "sqlite-bundled"]
