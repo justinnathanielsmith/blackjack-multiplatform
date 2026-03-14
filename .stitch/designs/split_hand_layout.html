@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Mobile Blackjack Split Hand</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f2d00d",
+                        "felt-green": "#1a4a2e",
+                        "felt-dark": "#0d2b1a",
+                        "background-dark": "#0a0a05",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .felt-gradient {
+            background: radial-gradient(circle at center, #1a4a2e 0%, #0d2b1a 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+        .gold-glow {
+            box-shadow: 0 0 20px rgba(242, 208, 13, 0.4);
+        }
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ios-safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-sans text-slate-100 antialiased overflow-hidden">
+<div class="relative flex h-screen w-full flex-col felt-gradient select-none">
+<header class="flex items-center justify-between px-6 pt-12 pb-4 glass-dark border-b-0">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold">Balance</span>
+<div class="flex items-center gap-2">
+<span class="text-primary font-display text-2xl font-bold tracking-tight">$700.00</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="size-10 rounded-full glass-dark flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-white/80">history</span>
+</button>
+<button class="size-10 rounded-full glass-dark flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-white/80 text-xl">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center justify-between py-4 px-4 overflow-hidden">
+<div class="w-full flex flex-col items-center">
+<div class="mb-3 px-3 py-0.5 glass-dark rounded-full">
+<span class="text-[10px] font-bold uppercase tracking-widest text-white/60">Dealer</span>
+</div>
+<div class="flex gap-2 justify-center items-start h-32 relative">
+<div class="w-20 h-28 bg-white rounded-md card-shadow flex flex-col p-1.5 text-red-600 relative">
+<div class="text-lg font-bold leading-none">6</div>
+<span class="material-symbols-outlined text-xs leading-none">diamond</span>
+<div class="absolute inset-0 flex items-center justify-center opacity-20">
+<span class="material-symbols-outlined text-3xl">diamond</span>
+</div>
+</div>
+<div class="w-20 h-28 bg-slate-800 rounded-md card-shadow border-2 border-white/90 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-primary/20 flex items-center justify-center opacity-40" style="background-image: repeating-linear-gradient(45deg, #f2d00d 0, #f2d00d 1px, transparent 0, transparent 50%); background-size: 8px 8px;">
+<span class="material-symbols-outlined text-primary text-3xl">crown</span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full flex flex-col gap-4 flex-1 justify-center max-w-sm">
+<div class="relative flex flex-col items-center p-4 rounded-2xl border-2 border-primary gold-glow bg-primary/10 transition-all">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-background-dark rounded-full text-[10px] font-bold uppercase tracking-tighter z-10">Active</div>
+<div class="flex items-center gap-12 w-full justify-center">
+<div class="flex -space-x-10">
+<div class="w-24 h-34 bg-white rounded-lg card-shadow flex flex-col p-2 text-slate-900 relative">
+<div class="text-xl font-bold leading-none">8</div>
+<span class="material-symbols-outlined text-sm">clover_spark</span>
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<span class="material-symbols-outlined text-4xl">clover_spark</span>
+</div>
+</div>
+<div class="w-24 h-34 bg-white rounded-lg card-shadow flex flex-col p-2 text-slate-900 relative">
+<div class="text-xl font-bold leading-none">10</div>
+<span class="material-symbols-outlined text-sm">playing_cards</span>
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<span class="material-symbols-outlined text-4xl">playing_cards</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="text-primary font-display text-3xl font-bold mb-2">18</div>
+<div class="relative flex flex-col items-center">
+<div class="size-12 rounded-full border-4 border-dashed border-white/30 bg-primary flex items-center justify-center card-shadow">
+<span class="text-background-dark font-bold text-xs">$100</span>
+</div>
+<span class="text-white/40 text-[9px] font-bold uppercase mt-1 tracking-widest">Hand 1</span>
+</div>
+</div>
+</div>
+</div>
+<div class="relative flex flex-col items-center p-4 rounded-2xl border-2 border-white/5 bg-black/20 opacity-60 transition-all grayscale-[30%]">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white/10 text-white/60 rounded-full text-[10px] font-bold uppercase tracking-tighter z-10 border border-white/10 backdrop-blur-md">Pending</div>
+<div class="flex items-center gap-12 w-full justify-center">
+<div class="flex -space-x-10">
+<div class="w-24 h-34 bg-white/90 rounded-lg card-shadow flex flex-col p-2 text-red-600 relative">
+<div class="text-xl font-bold leading-none">8</div>
+<span class="material-symbols-outlined text-sm">favorite</span>
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<span class="material-symbols-outlined text-4xl">favorite</span>
+</div>
+</div>
+<div class="w-24 h-34 bg-white/90 rounded-lg card-shadow flex flex-col p-2 text-slate-900 relative">
+<div class="text-xl font-bold leading-none">5</div>
+<span class="material-symbols-outlined text-sm">clover_spark</span>
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<span class="material-symbols-outlined text-4xl">clover_spark</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="text-white/80 font-display text-3xl font-bold mb-2">13</div>
+<div class="relative flex flex-col items-center">
+<div class="size-12 rounded-full border-4 border-dashed border-white/10 bg-primary/40 flex items-center justify-center card-shadow">
+<span class="text-background-dark/60 font-bold text-xs">$100</span>
+</div>
+<span class="text-white/40 text-[9px] font-bold uppercase mt-1 tracking-widest">Hand 2</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full mt-auto ios-safe-bottom">
+<div class="flex justify-center gap-10 mb-6 opacity-40">
+<div class="flex flex-col items-center gap-1">
+<div class="size-12 rounded-full border border-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">content_copy</span>
+</div>
+<span class="text-[9px] font-bold uppercase tracking-widest text-white/60">Double</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="size-12 rounded-full border border-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">call_split</span>
+</div>
+<span class="text-[9px] font-bold uppercase tracking-widest text-white/60">Split</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 w-full h-20">
+<button class="h-full bg-primary text-background-dark rounded-2xl font-display font-black text-xl uppercase tracking-widest shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined font-bold">add</span>
+                        HIT
+                    </button>
+<button class="h-full glass-dark text-white rounded-2xl font-display font-black text-xl uppercase tracking-widest active:scale-95 transition-transform border border-white/10 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined font-bold">back_hand</span>
+                        STAND
+                    </button>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

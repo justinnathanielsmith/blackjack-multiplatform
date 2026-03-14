@@ -273,17 +273,19 @@ private fun PortraitLayout(
             HandContainer(
                 title = "Hand 1",
                 score = state.playerHand.score,
+                bet = state.currentBet,
                 isActive = primaryActive,
                 isPending = !primaryActive && state.status == GameStatus.PLAYING
             ) {
                 HandRow(state.playerHand)
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             HandContainer(
                 title = "Hand 2",
                 score = splitHand.score,
+                bet = state.splitBet,
                 isActive = splitActive,
                 isPending = !splitActive && state.status == GameStatus.PLAYING
             ) {
@@ -293,6 +295,7 @@ private fun PortraitLayout(
             HandContainer(
                 title = "You",
                 score = state.playerHand.score,
+                bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
                 isActive = state.status == GameStatus.PLAYING
             ) {
                 HandRow(state.playerHand)
@@ -343,6 +346,7 @@ private fun LandscapeLayout(
                     HandContainer(
                         title = "H1",
                         score = state.playerHand.score,
+                        bet = state.currentBet,
                         isActive = primaryActive,
                         isPending = !primaryActive && state.status == GameStatus.PLAYING,
                         modifier = Modifier.weight(1f)
@@ -353,6 +357,7 @@ private fun LandscapeLayout(
                     HandContainer(
                         title = "H2",
                         score = splitHand.score,
+                        bet = state.splitBet,
                         isActive = splitActive,
                         isPending = !splitActive && state.status == GameStatus.PLAYING,
                         modifier = Modifier.weight(1f)
@@ -364,6 +369,7 @@ private fun LandscapeLayout(
                 HandContainer(
                     title = "You",
                     score = state.playerHand.score,
+                    bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
                     isActive = state.status == GameStatus.PLAYING
                 ) {
                     HandRow(state.playerHand)
@@ -416,9 +422,9 @@ private fun GameStatusMessage(
         text = statusText,
         style =
             if (isCompact) {
-                MaterialTheme.typography.headlineMedium
+                MaterialTheme.typography.displaySmall
             } else {
-                MaterialTheme.typography.headlineLarge
+                MaterialTheme.typography.displayMedium
             },
         color = PrimaryGold,
         fontWeight = FontWeight.Black,
@@ -428,6 +434,45 @@ private fun GameStatusMessage(
                 scaleY = if (status == GameStatus.PUSH || status == GameStatus.PLAYER_WON) pulseScale else 1f
             }
     )
+}
+
+@Composable
+private fun BetChip(
+    amount: Int,
+    isActive: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val borderColor = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.2f)
+    val backgroundColor = if (isActive) PrimaryGold else PrimaryGold.copy(alpha = 0.4f)
+    val textColor = if (isActive) BackgroundDark else BackgroundDark.copy(alpha = 0.6f)
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(backgroundColor, RoundedCornerShape(24.dp))
+                .border(2.dp, borderColor, RoundedCornerShape(24.dp)) // Note: Dash effect not directly in border but good enough for now, or use Canvas
+                .padding(4.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(2.dp, BackgroundDark.copy(alpha = 0.1f), RoundedCornerShape(20.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "$${amount}",
+                    color = textColor,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Black
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -585,13 +630,14 @@ private fun HeaderIcon(text: String) {
 private fun HandContainer(
     title: String,
     score: Int,
+    bet: Int? = null,
     isActive: Boolean = false,
     isPending: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val borderColor = if (isActive) PrimaryGold else if (isPending) GlassLight else Color.Transparent
-    val backgroundColor = if (isActive) PrimaryGold.copy(alpha = 0.1f) else if (isPending) Color.Black.copy(alpha = 0.2f) else Color.Transparent
+    val borderColor = if (isActive) PrimaryGold else if (isPending) GlassLight else Color.White.copy(alpha = 0.05f)
+    val backgroundColor = if (isActive) PrimaryGold.copy(alpha = 0.1f) else if (isPending) Color.Black.copy(alpha = 0.2f) else GlassDark.copy(alpha = 0.3f)
 
     Box(
         modifier =
@@ -600,15 +646,15 @@ private fun HandContainer(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(backgroundColor)
-                .border(if (isActive || isPending) 2.dp else 0.dp, borderColor, RoundedCornerShape(24.dp))
-                .padding(16.dp)
+                .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(24.dp))
+                .padding(vertical = 20.dp, horizontal = 16.dp)
     ) {
         if (isActive) {
             Box(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = (-28).dp)
+                        .offset(y = (-32).dp)
                         .background(PrimaryGold, RoundedCornerShape(12.dp))
                         .padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
@@ -616,34 +662,70 @@ private fun HandContainer(
                     text = "ACTIVE",
                     color = BackgroundDark,
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Black
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
+                )
+            }
+        } else if (isPending) {
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .offset(y = (-32).dp)
+                        .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = "PENDING",
+                    color = Color.White.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
                 )
             }
         }
 
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.weight(1f)) {
-                content()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    content()
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(start = 24.dp)
+                ) {
+                    Text(
+                        text = score.toString(),
+                        style = MaterialTheme.typography.displayMedium,
+                        color = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.8f),
+                        fontWeight = FontWeight.Black
+                    )
+                    if (bet != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        BetChip(amount = bet, isActive = isActive)
+                    }
+                }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = score.toString(),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.8f),
-                    fontWeight = FontWeight.Black
-                )
-                Text(
-                    text = title.uppercase(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.4f),
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
-            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = title.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (isActive) PrimaryGold.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.3f),
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.sp
+            )
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -118,8 +119,8 @@ fun PlayingCard(
     Box(
         modifier =
             modifier
-                .width(100.dp)
-                .aspectRatio(2.5f / 3.5f)
+                .width(96.dp)
+                .aspectRatio(24f / 34f)
                 .offset(y = dealOffset.value.dp)
                 .graphicsLayer {
                     scaleX = appearScale.value
@@ -129,7 +130,7 @@ fun PlayingCard(
                 }
     ) {
         Card(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().border(0.5.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = flipElevation)
