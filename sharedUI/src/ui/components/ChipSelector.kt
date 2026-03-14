@@ -14,27 +14,30 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
+import io.github.smithjustinn.blackjack.ui.theme.ChipPurple
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 
-private val CHIP_VALUES = listOf(5, 10, 25, 50, 100)
+private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)
 
 private fun chipColor(value: Int) =
     when (value) {
+        1 -> WhiteSoft
         5 -> PokerRed
         10 -> ChipBlue
         25 -> ChipGreen
         50 -> PrimaryGold
         100 -> PokerBlack
+        500 -> ChipPurple
         else -> PokerBlack
     }
 
 private fun chipTextColor(value: Int) =
     when (value) {
-        50 -> FeltDark
+        1, 50 -> FeltDark
         else -> WhiteSoft
     }
 

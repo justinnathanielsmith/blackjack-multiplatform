@@ -162,7 +162,7 @@ fun HandContainer(
                                 .offset(x = 12.dp, y = 12.dp)
                                 .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                     ) {
-                        BetChip(amount = bet, isActive = isActive)
+                        ChipStack(amount = bet, isActive = isActive)
                     }
                 }
             }

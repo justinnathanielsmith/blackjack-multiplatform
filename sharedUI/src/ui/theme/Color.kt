@@ -22,3 +22,4 @@ val WhiteSoft = Color(0xFFF5F5F5)
 // Casino Chip Colors
 val ChipBlue = Color(0xFF1565C0)
 val ChipGreen = Color(0xFF2E7D32)
+val ChipPurple = Color(0xFF7B1FA2)

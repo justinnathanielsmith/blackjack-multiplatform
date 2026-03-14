@@ -57,19 +57,22 @@ fun BetChip(
         label = "chipScale",
     )
 
+    val chipSize = if (isActive) 56.dp else 48.dp
+
     Box(
         modifier =
             modifier
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                }.size(if (isActive) 56.dp else 48.dp) // Smaller for hand display, larger for active
+                }
+                .size(chipSize)
                 .shadow(
-                    elevation = if (isActive) 12.dp else 4.dp,
+                    elevation = if (isActive) 12.dp else 6.dp,
                     shape = CircleShape,
-                    ambientColor = Color.Black,
-                    spotColor = if (isActive) PrimaryGold else Color.Black,
-                ).clip(CircleShape)
+                    ambientColor = Color.Black.copy(alpha = 0.5f),
+                    spotColor = if (isActive) chipColor.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.3f),
+                )
                 .then(
                     if (onClick != null) {
                         Modifier.clickable(
@@ -88,41 +91,58 @@ fun BetChip(
             val radius = size.minDimension / 2
             val center = Offset(size.width / 2, size.height / 2)
 
-            // Main body
+            // Side depth offset (3D effect)
+            val depthOffset = 3.dp.toPx()
+            
+            // Draw the "side" of the chip for 3D depth
             drawCircle(
-                color = if (isActive) chipColor else chipColor.copy(alpha = 0.8f),
+                color = chipColor.copy(alpha = 0.7f),
+                radius = radius,
+                center = center.copy(y = center.y + depthOffset)
+            )
+
+            // Main top surface
+            drawCircle(
+                color = chipColor,
                 radius = radius,
                 center = center
             )
 
-            // Inner ring
-            drawCircle(
-                color = Color.White.copy(alpha = 0.2f),
-                radius = radius * 0.82f,
-                center = center,
-                style = Stroke(width = 1.5.dp.toPx())
-            )
-
-            // Outer decorative ring (dashed)
+            // Outer rim highlights
             drawCircle(
                 color = Color.White.copy(alpha = 0.3f),
-                radius = radius * 0.9f,
+                radius = radius,
                 center = center,
-                style =
-                    Stroke(
-                        width = 3.dp.toPx(),
-                        pathEffect =
-                            PathEffect.dashPathEffect(
-                                floatArrayOf(10f, 10f),
-                                0f
-                            )
-                    )
+                style = Stroke(width = 1.dp.toPx())
             )
 
-            // Center circle for value
+            // Decorative blocks on the rim (standard casino chip look)
+            val dashLength = (radius * 2 * Math.PI / 12).toFloat()
             drawCircle(
-                color = Color.White.copy(alpha = 0.1f),
-                radius = radius * 0.6f,
+                color = Color.White.copy(alpha = 0.6f),
+                radius = radius * 0.92f,
+                center = center,
+                style = Stroke(
+                    width = 4.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(dashLength / 2, dashLength / 2),
+                        0f
+                    )
+                )
+            )
+
+            // Inner circle highlight
+            drawCircle(
+                color = Color.Black.copy(alpha = 0.1f),
+                radius = radius * 0.75f,
+                center = center,
+                style = Stroke(width = 2.dp.toPx())
+            )
+
+            // Center inlay
+            drawCircle(
+                color = Color.White.copy(alpha = 0.15f),
+                radius = radius * 0.65f,
                 center = center
             )
         }
@@ -131,15 +151,22 @@ fun BetChip(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(2.dp),
+                    .padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
+            val displayAmount = when {
+                amount >= 1000 -> "${amount / 1000}K"
+                else -> amount.toString()
+            }
+            
             Text(
-                text = amount.toString(),
-                color = if (enabled) textColor else textColor.copy(alpha = 0.5f),
-                fontSize = if (isActive) 14.sp else 12.sp,
+                text = displayAmount,
+                color = if (enabled) textColor else textColor.copy(alpha = 0.4f),
+                fontSize = if (isActive) 15.sp else 13.sp,
                 fontWeight = FontWeight.Black,
-                style = MaterialTheme.typography.labelSmall
+                style = MaterialTheme.typography.labelSmall.copy(
+                    letterSpacing = 0.sp
+                )
             )
         }
 
@@ -150,7 +177,7 @@ fun BetChip(
                     Modifier
                         .fillMaxSize()
                         .clip(CircleShape)
-                        .background(Color.Black.copy(alpha = 0.4f))
+                        .background(Color.Black.copy(alpha = 0.5f))
             )
         }
     }
