@@ -108,7 +108,7 @@ fun BlackjackContent(component: BlackjackComponent) {
                     ConfettiEffect()
                 }
                 val dealerScore =
-                    if (state.status == GameStatus.PLAYING && state.dealerHand.cards.isNotEmpty()) {
+                    if (state.status == GameStatus.PLAYING && state.dealerHand.cards.size >= 2) {
                         "?"
                     } else {
                         state.dealerHand.score.toString()
@@ -136,7 +136,7 @@ fun BlackjackContent(component: BlackjackComponent) {
                         fontSize = 18.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    HandRow(state.dealerHand, hideFirstCard = state.status == GameStatus.PLAYING)
+                    HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
 
                     Spacer(modifier = Modifier.weight(1f))
 
@@ -158,7 +158,7 @@ fun BlackjackContent(component: BlackjackComponent) {
                     Spacer(modifier = Modifier.weight(1f))
 
                     // Player Area
-                    HandRow(state.playerHand, hideFirstCard = false)
+                    HandRow(state.playerHand, hideHoleCard = false)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "PLAYER",
@@ -216,14 +216,14 @@ fun BlackjackContent(component: BlackjackComponent) {
 @Composable
 fun HandRow(
     hand: Hand,
-    hideFirstCard: Boolean = false
+    hideHoleCard: Boolean = false
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy((-40).dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         hand.cards.forEachIndexed { index, card ->
-            val isFaceUp = !(hideFirstCard && index == 0)
+            val isFaceUp = !(hideHoleCard && index == 1)
             PlayingCard(
                 card = card,
                 isFaceUp = isFaceUp

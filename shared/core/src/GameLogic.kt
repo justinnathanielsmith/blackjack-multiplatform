@@ -57,6 +57,7 @@ data class Hand(
 enum class GameStatus {
     IDLE,
     PLAYING,
+    DEALER_TURN,
     PLAYER_WON,
     DEALER_WON,
     PUSH
