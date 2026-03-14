@@ -1271,34 +1271,122 @@ class BlackjackStateMachineTest {
         }
 
     @Test
-    fun deal_deducts_extra_bet_for_multi_hand() =
+    fun deal_does_not_deduct_balance_for_multi_hand() =
         runTest {
-            // 3 hands, bet=100: first hand's bet already deducted via PlaceBet.
-            // Extra cost = 100 * 2 = 200 deducted at deal.
+            // 3 hands, bet=100: all 3 hands already paid via PlaceBet → balance=700
             val stateMachine =
                 BlackjackStateMachine(
                     this,
-                    GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100, handCount = 3),
+                    GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3),
                 )
             stateMachine.dispatch(GameAction.Deal)
             advanceUntilIdle()
 
             val state = stateMachine.state.value
-            // balance was 900 (after first hand bet deducted), then 200 more deducted → 700
+            // balance should remain 700 — no additional deduction at deal
             assertEquals(700, state.balance)
         }
 
     @Test
-    fun deal_rejected_if_insufficient_balance() =
+    fun placeBet_rejected_when_total_cost_exceeds_balance() =
         runTest {
-            // 3 hands, bet=100: need 200 extra, but only 50 balance left
-            val initialState =
-                GameState(status = GameStatus.BETTING, balance = 50, currentBet = 100, handCount = 3)
+            val initialState = GameState(status = GameStatus.BETTING, balance = 25, currentBet = 0, handCount = 3)
             val stateMachine = BlackjackStateMachine(this, initialState)
-            stateMachine.dispatch(GameAction.Deal)
+            stateMachine.dispatch(GameAction.PlaceBet(10)) // total cost = 30 > 25
             advanceUntilIdle()
 
             assertEquals(initialState, stateMachine.state.value)
+        }
+
+    @Test
+    fun placeBet_deducts_total_cost_for_all_hands() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, handCount = 3),
+                )
+            stateMachine.dispatch(GameAction.PlaceBet(10))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(970, state.balance)
+            assertEquals(10, state.currentBet)
+        }
+
+    @Test
+    fun resetBet_refunds_total_cost() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3),
+                )
+            stateMachine.dispatch(GameAction.ResetBet)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(1000, state.balance)
+            assertEquals(0, state.currentBet)
+        }
+
+    @Test
+    fun selectHandCount_adjusts_balance_when_bet_placed() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100, handCount = 1),
+                )
+            stateMachine.dispatch(GameAction.SelectHandCount(3))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(700, state.balance)
+            assertEquals(3, state.handCount)
+        }
+
+    @Test
+    fun selectHandCount_refunds_balance_when_reducing_hands() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3),
+                )
+            stateMachine.dispatch(GameAction.SelectHandCount(2))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(800, state.balance)
+            assertEquals(2, state.handCount)
+        }
+
+    @Test
+    fun selectHandCount_rejected_if_insufficient_balance() =
+        runTest {
+            val initialState = GameState(status = GameStatus.BETTING, balance = 50, currentBet = 100, handCount = 1)
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.SelectHandCount(2))
+            advanceUntilIdle()
+
+            assertEquals(initialState, stateMachine.state.value)
+        }
+
+    @Test
+    fun selectHandCount_no_balance_change_when_no_bet() =
+        runTest {
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, handCount = 1),
+                )
+            stateMachine.dispatch(GameAction.SelectHandCount(3))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(1000, state.balance)
+            assertEquals(3, state.handCount)
         }
 
     @Test

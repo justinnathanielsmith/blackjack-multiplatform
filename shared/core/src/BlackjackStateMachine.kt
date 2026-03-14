@@ -61,10 +61,11 @@ class BlackjackStateMachine(
     private fun handlePlaceBet(amount: Int) {
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
-        if (amount <= 0 || amount > current.balance) return
+        val totalCost = amount * current.handCount
+        if (amount <= 0 || totalCost > current.balance) return
         _state.value =
             current.copy(
-                balance = current.balance - amount,
+                balance = current.balance - totalCost,
                 currentBet = current.currentBet + amount
             )
     }
@@ -74,23 +75,28 @@ class BlackjackStateMachine(
         if (current.status != GameStatus.BETTING) return
         _state.value =
             current.copy(
-                balance = current.balance + current.currentBet,
+                balance = current.balance + current.currentBet * current.handCount,
                 currentBet = 0
             )
     }
 
     private fun handleSelectHandCount(count: Int) {
-        if (_state.value.status != GameStatus.BETTING) return
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
         if (count !in 1..3) return
-        _state.value = _state.value.copy(handCount = count)
+        val delta = count - current.handCount
+        if (delta == 0) return
+        val balanceAdjustment = current.currentBet * delta
+        if (balanceAdjustment > current.balance) return
+        _state.value = current.copy(
+            handCount = count,
+            balance = current.balance - balanceAdjustment
+        )
     }
 
     private fun handleDeal() {
         val current = _state.value
         if (current.status != GameStatus.BETTING || current.currentBet <= 0) return
-
-        val extraCost = current.currentBet * (current.handCount - 1)
-        if (current.balance < extraCost) return
 
         val fullDeck = getInitialDeck(current)
 
@@ -104,7 +110,7 @@ class BlackjackStateMachine(
         val dealerHandHidden = Hand(persistentListOf(dealerCards[0], dealerCards[1].copy(isFaceDown = true)))
         val remainingDeck = fullDeck.drop(deckOffset + 2).toPersistentList()
 
-        val newBalance = current.balance - extraCost
+        val newBalance = current.balance
         val bets = List(current.handCount) { current.currentBet }.toPersistentList()
 
         val initialStatus = determineInitialStatus(hands, dealerHandHidden, current.handCount)
@@ -183,11 +189,12 @@ class BlackjackStateMachine(
     ) {
         val currentState = _state.value
         val newBalance = initialBalance ?: currentState.balance
-        val clampedBet = lastBet.coerceIn(0, newBalance)
+        val maxAffordableBet = if (handCount > 0) newBalance / handCount else newBalance
+        val clampedBet = lastBet.coerceIn(0, maxAffordableBet)
         _state.value =
             GameState(
                 status = GameStatus.BETTING,
-                balance = newBalance - clampedBet,
+                balance = newBalance - clampedBet * handCount,
                 currentBet = clampedBet,
                 playerHands = persistentListOf(Hand()),
                 playerBets = persistentListOf(0),
