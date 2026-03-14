@@ -50,7 +50,8 @@ fun CasinoButton(
     val alpha = if (enabled) 1f else 0.5f
 
     val resolvedContainerColor = containerColor ?: if (isStrategic) PrimaryGold else MaterialTheme.colorScheme.secondary
-    val resolvedContentColor = contentColor ?: if (isStrategic) BackgroundDark else MaterialTheme.colorScheme.onSecondary
+    val resolvedContentColor =
+        contentColor ?: if (isStrategic) BackgroundDark else MaterialTheme.colorScheme.onSecondary
 
     Box(
         modifier =
@@ -66,12 +67,12 @@ fun CasinoButton(
                     shape = RoundedCornerShape(16.dp),
                     ambientColor = Color.Black,
                     spotColor = Color.Black
-                )
-                .border(
+                ).border(
                     width = 1.dp,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0.2f), Color.Transparent)
-                    ),
+                    brush =
+                        Brush.verticalGradient(
+                            colors = listOf(Color.White.copy(alpha = 0.2f), Color.Transparent)
+                        ),
                     shape = RoundedCornerShape(16.dp)
                 ).clickable(
                     interactionSource = interactionSource,

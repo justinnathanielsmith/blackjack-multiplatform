@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
 private val CHIP_VALUES = listOf(10, 50, 100)
 
@@ -37,8 +37,9 @@ fun ChipSelector(
                 text = "$$value",
                 onClick = { onBetClick(value) },
                 modifier = Modifier.size(width = 72.dp, height = 72.dp),
+                enabled = enabled,
                 contentColor = PrimaryGold,
-                containerColor = chipColor(value)
+                containerColor = chipColor(value),
             )
         }
     }

@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.ui
+package io.github.smithjustinn.blackjack.ui.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.ChipSelector
@@ -34,23 +35,21 @@ import sharedui.generated.resources.deal
 import sharedui.generated.resources.reset_bet
 import sharedui.generated.resources.status_betting
 
-private fun formatCurrency(amount: Int): String {
-    return "$$amount"
-}
+private fun formatCurrency(amount: Int): String = "$$amount"
 
 @Composable
-fun BettingPhaseContent(
+fun BettingPhaseScreen(
     state: GameState,
     component: BlackjackComponent,
     audioService: AudioService,
     isCompact: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     require(state.status == GameStatus.BETTING)
     Column(
         modifier = modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = stringResource(Res.string.status_betting),
@@ -61,13 +60,13 @@ fun BettingPhaseContent(
                     MaterialTheme.typography.headlineLarge
                 },
             color = PrimaryGold,
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "${stringResource(Res.string.balance)}: ${formatCurrency(state.balance)}",
             style = MaterialTheme.typography.titleLarge,
-            color = PrimaryGold
+            color = PrimaryGold,
         )
         Spacer(modifier = Modifier.height(8.dp))
         AnimatedContent(
@@ -75,12 +74,12 @@ fun BettingPhaseContent(
             transitionSpec = {
                 fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200))
             },
-            label = "betAmount"
+            label = "betAmount",
         ) { bet ->
             Text(
                 text = "${stringResource(Res.string.bet)}: ${formatCurrency(bet)}",
                 style = MaterialTheme.typography.titleLarge,
-                color = PrimaryGold
+                color = PrimaryGold,
             )
         }
         Spacer(modifier = Modifier.height(32.dp))
@@ -89,12 +88,12 @@ fun BettingPhaseContent(
             onBetClick = { amount ->
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onAction(GameAction.PlaceBet(amount))
-            }
+            },
         )
         Spacer(modifier = Modifier.height(24.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
         ) {
             CasinoButton(
                 text = stringResource(Res.string.reset_bet),
@@ -102,7 +101,7 @@ fun BettingPhaseContent(
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onAction(GameAction.ResetBet)
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             CasinoButton(
                 text = stringResource(Res.string.deal),
@@ -111,7 +110,7 @@ fun BettingPhaseContent(
                     component.onAction(GameAction.Deal)
                 },
                 modifier = Modifier.weight(1f),
-                enabled = state.currentBet > 0
+                enabled = state.currentBet > 0,
             )
         }
     }

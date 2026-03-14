@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.ui
+package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -81,7 +81,7 @@ val Rank.symbol: String
 fun PlayingCard(
     card: Card,
     isFaceUp: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val appearScale = remember { Animatable(0f) }
     val dealOffset = remember { Animatable(-200f) }
@@ -99,10 +99,10 @@ fun PlayingCard(
         transitionSpec = {
             spring<Float>(
                 stiffness = Spring.StiffnessLow,
-                dampingRatio = Spring.DampingRatioLowBouncy
+                dampingRatio = Spring.DampingRatioLowBouncy,
             )
         },
-        label = "rotation"
+        label = "rotation",
     ) { faceUp ->
         if (faceUp) 0f else 180f
     }
@@ -111,8 +111,8 @@ fun PlayingCard(
         transitionSpec = {
             spring(stiffness = Spring.StiffnessLow)
         },
-        label = "flipElevation"
-    ) { faceUp ->
+        label = "flipElevation",
+    ) { _ ->
         if (transition.isRunning || transition.targetState != transition.currentState) 12.dp else 6.dp
     }
 
@@ -127,13 +127,13 @@ fun PlayingCard(
                     scaleY = appearScale.value
                     rotationY = rotation
                     cameraDistance = 12f * density
-                }
+                },
     ) {
         Card(
             modifier = Modifier.fillMaxSize().border(0.5.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = flipElevation)
+            elevation = CardDefaults.cardElevation(defaultElevation = flipElevation),
         ) {
             if (rotation <= 90f) {
                 // Face
@@ -145,13 +145,13 @@ fun PlayingCard(
                             color = card.suit.color,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             text = card.suit.symbol,
                             color = card.suit.color,
                             fontSize = 14.sp,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
 
@@ -161,14 +161,14 @@ fun PlayingCard(
                             text = card.suit.symbol,
                             color = card.suit.color.copy(alpha = 0.08f),
                             fontSize = 64.sp,
-                            style = MaterialTheme.typography.displayLarge
+                            style = MaterialTheme.typography.displayLarge,
                         )
                         Text(
                             text = card.rank.symbol,
                             color = card.suit.color,
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp,
-                            style = MaterialTheme.typography.headlineLarge
+                            style = MaterialTheme.typography.headlineLarge,
                         )
                     }
 
@@ -178,20 +178,20 @@ fun PlayingCard(
                             Modifier
                                 .align(Alignment.BottomEnd)
                                 .graphicsLayer { rotationZ = 180f },
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = card.rank.symbol,
                             color = card.suit.color,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             text = card.suit.symbol,
                             color = card.suit.color,
                             fontSize = 14.sp,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
@@ -202,10 +202,9 @@ fun PlayingCard(
                         Modifier
                             .fillMaxSize()
                             .graphicsLayer { rotationY = 180f }
-                            .background(FeltDark) // Premium Felt Dark back
+                            .background(FeltDark),
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize().padding(1.dp)) {
-                        // Pattern background
                         val cellSize = 8.dp.toPx()
                         for (x in 0..(size.width / cellSize).toInt()) {
                             for (y in 0..(size.height / cellSize).toInt()) {
@@ -213,7 +212,9 @@ fun PlayingCard(
                                     drawRect(
                                         color = PrimaryGold.copy(alpha = 0.05f),
                                         topLeft = Offset(x * cellSize, y * cellSize),
-                                        size = androidx.compose.ui.geometry.Size(cellSize, cellSize)
+                                        size =
+                                            androidx.compose.ui.geometry
+                                                .Size(cellSize, cellSize),
                                     )
                                 }
                             }
@@ -223,15 +224,14 @@ fun PlayingCard(
                             color = Color.White.copy(alpha = 0.2f),
                             size = size,
                             cornerRadius = CornerRadius(6.dp.toPx()),
-                            style = Stroke(width = 2.dp.toPx())
+                            style = Stroke(width = 2.dp.toPx()),
                         )
                     }
-                    // Crown / Logo in center
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             text = "👑",
                             fontSize = 40.sp,
-                            modifier = Modifier.graphicsLayer { rotationY = 180f }
+                            modifier = Modifier.graphicsLayer { rotationY = 180f },
                         )
                     }
                 }

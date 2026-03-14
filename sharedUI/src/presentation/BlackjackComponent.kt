@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.ui
+package io.github.smithjustinn.blackjack.presentation
 
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.blackjack.BlackjackStateMachine
