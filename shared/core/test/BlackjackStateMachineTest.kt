@@ -5,6 +5,8 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BlackjackStateMachineTest {
@@ -221,6 +223,89 @@ class BlackjackStateMachineTest {
             val state = stateMachine.state.value
             assertEquals(GameStatus.PUSH, state.status)
             assertEquals(1000, state.balance) // 900 + 100 (bet returned)
+        }
+
+    @Test
+    fun testDeal_dealerSecondCardIsFaceDown_orRevealedOnNaturalBlackjack() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this)
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            advanceUntilIdle()
+            stateMachine.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            when (state.status) {
+                // Dealer natural BJ or push: hole card is revealed
+                GameStatus.PUSH, GameStatus.DEALER_WON ->
+                    assertFalse(state.dealerHand.cards[1].isFaceDown)
+                // Player natural BJ (no dealer BJ) or normal play: hole card stays hidden
+                GameStatus.PLAYING, GameStatus.PLAYER_WON ->
+                    assertTrue(state.dealerHand.cards[1].isFaceDown)
+                else -> {}
+            }
+        }
+
+    @Test
+    fun testStand_revealsHoleCardBeforeDealerDraws() =
+        runTest {
+            // Player: TEN + SIX = 16, Dealer: TEN (face-up) + NINE (face-down) = 19
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 900,
+                        currentBet = 100,
+                        playerHand = Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS))),
+                        dealerHand =
+                            Hand(
+                                listOf(
+                                    Card(Rank.TEN, Suit.CLUBS),
+                                    Card(Rank.NINE, Suit.DIAMONDS, isFaceDown = true)
+                                )
+                            ),
+                        deck = emptyList()
+                    )
+                )
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            state.dealerHand.cards.forEach { card ->
+                assertFalse(card.isFaceDown)
+            }
+        }
+
+    @Test
+    fun testBust_holeCardRemainsHidden() =
+        runTest {
+            // Player: TEN + TEN = 20 then hits a bust-causing card
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 900,
+                        currentBet = 100,
+                        playerHand = Hand(listOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                        dealerHand =
+                            Hand(
+                                listOf(
+                                    Card(Rank.TEN, Suit.CLUBS),
+                                    Card(Rank.NINE, Suit.DIAMONDS, isFaceDown = true)
+                                )
+                            ),
+                        deck = listOf(Card(Rank.FIVE, Suit.SPADES)) // Player draws 5 → 25 bust
+                    )
+                )
+            stateMachine.dispatch(GameAction.Hit)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(GameStatus.DEALER_WON, state.status)
+            // Dealer never reveals when player busts
+            assertTrue(state.dealerHand.cards[1].isFaceDown)
         }
 
     @Test

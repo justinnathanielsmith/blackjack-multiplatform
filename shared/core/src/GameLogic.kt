@@ -32,7 +32,8 @@ enum class Rank(
 @Serializable
 data class Card(
     val rank: Rank,
-    val suit: Suit
+    val suit: Suit,
+    val isFaceDown: Boolean = false
 )
 
 @Serializable
@@ -43,6 +44,18 @@ data class Hand(
         get() {
             var s = cards.sumOf { it.rank.value }
             var aces = cards.count { it.rank == Rank.ACE }
+            while (s > 21 && aces > 0) {
+                s -= 10
+                aces -= 1
+            }
+            return s
+        }
+
+    val visibleScore: Int
+        get() {
+            val faceUpCards = cards.filter { !it.isFaceDown }
+            var s = faceUpCards.sumOf { it.rank.value }
+            var aces = faceUpCards.count { it.rank == Rank.ACE }
             while (s > 21 && aces > 0) {
                 s -= 10
                 aces -= 1

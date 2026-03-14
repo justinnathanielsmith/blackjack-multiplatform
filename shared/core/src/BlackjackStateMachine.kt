@@ -75,14 +75,22 @@ class BlackjackStateMachine(
                     Rank.entries.map { rank -> Card(rank, suit) }
                 }.shuffled()
         val playerHand = Hand(fullDeck.take(2))
-        val dealerHand = Hand(fullDeck.drop(2).take(2))
+        val dealerCards = fullDeck.drop(2).take(2)
+        val dealerHandHidden = Hand(listOf(dealerCards[0], dealerCards[1].copy(isFaceDown = true)))
         val remainingDeck = fullDeck.drop(INITIAL_DEAL_CARDS)
         val initialStatus =
             when {
-                playerHand.score == 21 && dealerHand.score == 21 -> GameStatus.PUSH
+                playerHand.score == 21 && dealerHandHidden.score == 21 -> GameStatus.PUSH
                 playerHand.score == 21 -> GameStatus.PLAYER_WON
-                dealerHand.score == 21 -> GameStatus.DEALER_WON
+                dealerHandHidden.score == 21 -> GameStatus.DEALER_WON
                 else -> GameStatus.PLAYING
+            }
+        // Reveal hole card when dealer's hand is exposed (PUSH or DEALER_WON); keep hidden otherwise
+        val dealerHand =
+            when (initialStatus) {
+                GameStatus.PUSH, GameStatus.DEALER_WON ->
+                    Hand(dealerHandHidden.cards.map { it.copy(isFaceDown = false) })
+                else -> dealerHandHidden
             }
         val balanceUpdate =
             when (initialStatus) {
@@ -137,6 +145,18 @@ class BlackjackStateMachine(
         }
     }
 
+    private fun revealDealerHoleCard() {
+        _state.value =
+            _state.value.copy(
+                dealerHand =
+                    _state.value.dealerHand.copy(
+                        cards =
+                            _state.value.dealerHand.cards
+                                .map { it.copy(isFaceDown = false) }
+                    )
+            )
+    }
+
     private fun handleStand() {
         val currentState = _state.value
         if (currentState.status != GameStatus.PLAYING) return
@@ -144,6 +164,9 @@ class BlackjackStateMachine(
         scope.launch {
             mutex.withLock {
                 _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
+
+                revealDealerHoleCard()
+                delay(DEALER_TURN_DELAY_MS) // Visual pause for hole card reveal
 
                 var currentDealerHand = _state.value.dealerHand
                 var currentDeck = _state.value.deck

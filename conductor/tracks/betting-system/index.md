@@ -7,7 +7,7 @@ Add a betting phase and chip management to the Blackjack game.
 - [**Implementation Plan**](./plan.md): Step-by-step development guide.
 
 ## Status
-- **Phase 1: Domain Models**: 📅 Backlog
-- **Phase 2: State Machine**: 📅 Backlog
-- **Phase 3: UI Implementation**: 📅 Backlog
-- **Phase 4: Verification**: 📅 Backlog
+- **Phase 1: Domain Models**: ✅ Complete
+- **Phase 2: State Machine**: ✅ Complete
+- **Phase 3: UI Implementation**: ✅ Complete
+- **Phase 4: Persistence (DataStore)**: ✅ Complete

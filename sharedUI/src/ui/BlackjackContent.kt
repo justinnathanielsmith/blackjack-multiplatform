@@ -174,7 +174,15 @@ private fun PortraitLayout(
     ) {
         Spacer(modifier = Modifier.height(32.dp))
 
-        HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
+        val dealerDisplayScore =
+            if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
+        Text(
+            text = dealerDisplayScore.toString(),
+            style = MaterialTheme.typography.titleMedium,
+            color = ModernGold,
+            fontWeight = FontWeight.Bold
+        )
+        HandRow(state.dealerHand)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -184,7 +192,7 @@ private fun PortraitLayout(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        HandRow(state.playerHand, hideHoleCard = false)
+        HandRow(state.playerHand)
 
         Spacer(modifier = Modifier.height(48.dp))
 
@@ -214,9 +222,17 @@ private fun LandscapeLayout(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            HandRow(state.dealerHand, hideHoleCard = state.status == GameStatus.PLAYING)
+            val dealerDisplayScore =
+                if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
+            Text(
+                text = dealerDisplayScore.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                color = ModernGold,
+                fontWeight = FontWeight.Bold
+            )
+            HandRow(state.dealerHand)
             Spacer(modifier = Modifier.height(16.dp))
-            HandRow(state.playerHand, hideHoleCard = false)
+            HandRow(state.playerHand)
         }
 
         // Right side: Status and Actions
@@ -316,20 +332,16 @@ fun GameActions(
 }
 
 @Composable
-fun HandRow(
-    hand: Hand,
-    hideHoleCard: Boolean = false
-) {
+fun HandRow(hand: Hand) {
     Row(
         horizontalArrangement = Arrangement.spacedBy((-40).dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        hand.cards.forEachIndexed { index, card ->
-            val isFaceUp = !(hideHoleCard && index == 1)
+        hand.cards.forEach { card ->
             key(card) {
                 PlayingCard(
                     card = card,
-                    isFaceUp = isFaceUp
+                    isFaceUp = !card.isFaceDown
                 )
             }
         }
