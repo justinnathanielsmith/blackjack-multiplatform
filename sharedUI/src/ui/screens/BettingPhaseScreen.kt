@@ -10,6 +10,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -69,6 +74,7 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance
 import sharedui.generated.resources.bet
+import sharedui.generated.resources.bet_total_label
 import sharedui.generated.resources.deal
 import sharedui.generated.resources.hand_count_label
 import sharedui.generated.resources.reset_bet
@@ -113,18 +119,6 @@ fun BettingPhaseScreen(
     require(state.status == GameStatus.BETTING)
     val flyingChips = remember { mutableStateListOf<FlyingChip>() }
     var betDisplayOffset by remember { mutableStateOf(Offset.Zero) }
-    var previousBalance by remember { mutableStateOf(state.balance) }
-
-    val animatedBalance by androidx.compose.animation.core.animateIntAsState(
-        targetValue = state.balance,
-        animationSpec =
-            androidx.compose.animation.core.tween(
-                durationMillis = if (kotlin.math.abs(state.balance - previousBalance) > 200) 600 else 300,
-                easing = androidx.compose.animation.core.FastOutSlowInEasing,
-            ),
-        label = "balanceRoll",
-        finishedListener = { previousBalance = it },
-    )
 
     Box(modifier = modifier.fillMaxSize()) {
         val onChipSelected: (Int, Offset) -> Unit = { amount, offset ->
@@ -149,7 +143,6 @@ fun BettingPhaseScreen(
                 component = component,
                 audioService = audioService,
                 isCompact = isCompact,
-                animatedBalance = animatedBalance,
                 onBetDisplayPositioned = { betDisplayOffset = it },
                 onChipSelected = onChipSelected,
             )
@@ -159,7 +152,6 @@ fun BettingPhaseScreen(
                 component = component,
                 audioService = audioService,
                 isCompact = isCompact,
-                animatedBalance = animatedBalance,
                 onBetDisplayPositioned = { betDisplayOffset = it },
                 onChipSelected = onChipSelected,
             )
@@ -179,9 +171,8 @@ fun BettingPhaseScreen(
 }
 
 @Composable
-private fun InfoCard(
+private fun BetDisplayCard(
     isCompact: Boolean,
-    animatedBalance: Int,
     currentBet: Int,
     onPositioned: (Offset) -> Unit,
 ) {
@@ -195,7 +186,7 @@ private fun InfoCard(
                     width = 1.dp,
                     color = Color.White.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(24.dp),
-                ).padding(if (isCompact) 16.dp else 24.dp)
+                ).padding(if (isCompact) 24.dp else 32.dp)
                 .onGloballyPositioned {
                     val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
                     onPositioned(center)
@@ -203,27 +194,7 @@ private fun InfoCard(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = stringResource(Res.string.balance).uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.White.copy(alpha = 0.6f),
-            letterSpacing = 2.sp,
-        )
-        Text(
-            text = formatCurrency(animatedBalance),
-            style =
-                if (isCompact) {
-                    MaterialTheme.typography.headlineMedium
-                } else {
-                    MaterialTheme.typography.headlineLarge
-                },
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-        )
-
-        Spacer(modifier = Modifier.height(if (isCompact) 8.dp else 16.dp))
-
-        Text(
-            text = stringResource(Res.string.bet).uppercase(),
+            text = stringResource(Res.string.bet_total_label).uppercase(),
             style = MaterialTheme.typography.labelMedium,
             color = PrimaryGold.copy(alpha = 0.8f),
             letterSpacing = 2.sp,
@@ -235,16 +206,25 @@ private fun InfoCard(
             },
             label = "betAmount",
         ) { bet ->
+            val scale by animateFloatAsState(
+                targetValue = if (bet > 0) 1.05f else 1f,
+                animationSpec = spring(dampingRatio = 0.4f, stiffness = 400f),
+                label = "betScale"
+            )
             Text(
                 text = formatCurrency(bet),
                 style =
                     if (isCompact) {
-                        MaterialTheme.typography.displaySmall
-                    } else {
                         MaterialTheme.typography.displayMedium
+                    } else {
+                        MaterialTheme.typography.displayLarge
                     },
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,
+                modifier = Modifier.graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
             )
         }
     }
@@ -256,6 +236,17 @@ private fun BettingActions(
     onReset: () -> Unit,
     onDeal: () -> Unit,
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = if (canDeal) 1.05f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "dealPulse"
+    )
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
@@ -270,7 +261,10 @@ private fun BettingActions(
         CasinoButton(
             text = stringResource(Res.string.deal),
             onClick = onDeal,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).graphicsLayer {
+                scaleX = pulseScale
+                scaleY = pulseScale
+            },
             enabled = canDeal,
             isStrategic = true,
         )
@@ -283,7 +277,6 @@ private fun PortraitBettingLayout(
     component: BlackjackComponent,
     audioService: AudioService,
     isCompact: Boolean,
-    animatedBalance: Int,
     onBetDisplayPositioned: (Offset) -> Unit,
     onChipSelected: (Int, Offset) -> Unit,
 ) {
@@ -299,20 +292,19 @@ private fun PortraitBettingLayout(
             text = stringResource(Res.string.status_betting).uppercase(),
             style =
                 if (isCompact) {
-                    MaterialTheme.typography.headlineSmall
-                } else {
                     MaterialTheme.typography.headlineMedium
+                } else {
+                    MaterialTheme.typography.headlineLarge
                 },
             color = PrimaryGold,
             fontWeight = FontWeight.Black,
             letterSpacing = 4.sp,
         )
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        InfoCard(
+        BetDisplayCard(
             isCompact = isCompact,
-            animatedBalance = animatedBalance,
             currentBet = state.currentBet,
             onPositioned = onBetDisplayPositioned,
         )
@@ -357,7 +349,6 @@ private fun LandscapeBettingLayout(
     component: BlackjackComponent,
     audioService: AudioService,
     isCompact: Boolean,
-    animatedBalance: Int,
     onBetDisplayPositioned: (Offset) -> Unit,
     onChipSelected: (Int, Offset) -> Unit,
 ) {
@@ -377,15 +368,14 @@ private fun LandscapeBettingLayout(
         ) {
             Text(
                 text = stringResource(Res.string.status_betting).uppercase(),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 2.sp,
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            InfoCard(
+            Spacer(modifier = Modifier.height(24.dp))
+            BetDisplayCard(
                 isCompact = true,
-                animatedBalance = animatedBalance,
                 currentBet = state.currentBet,
                 onPositioned = onBetDisplayPositioned,
             )

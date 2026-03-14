@@ -100,9 +100,8 @@ fun GameActions(
     ) { status ->
         val isCompact = layoutMode == LayoutMode.LANDSCAPE_COMPACT
         val buttonHeight = if (isCompact) 48.dp else 80.dp
-        val highActionHeight = 36.dp
         val spacerHeight = if (isCompact) 6.dp else 16.dp
-        val totalActionsHeight = if (isCompact) 90.dp else 156.dp // (highActionRow + spacer + mainRow)
+        val totalActionsHeight = (buttonHeight * 2) + spacerHeight // Reserved space for two rows of buttons
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -115,27 +114,37 @@ fun GameActions(
 
                 // High-action row (Split/Double) - Fixed height to prevent shift
                 Box(
-                    modifier = Modifier.fillMaxWidth().height(if (canSplit || canDouble) highActionHeight else 0.dp),
+                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
                     contentAlignment = Alignment.Center
                 ) {
                     if (canSplit || canDouble) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             if (canDouble) {
-                                ActionIcon(
+                                GameActionButton(
                                     icon = "x2",
                                     label = stringResource(Res.string.double_down),
                                     onClick = onDoubleDown,
+                                    modifier = Modifier.weight(1f).height(buttonHeight),
+                                    isStrategic = true,
                                 )
+                            } else if (canSplit) {
+                                // Provide empty space to keep grid consistent if only split is available
+                                Spacer(modifier = Modifier.weight(1f))
                             }
+                            
                             if (canSplit) {
-                                ActionIcon(
+                                GameActionButton(
                                     icon = "⑃",
                                     label = stringResource(Res.string.split),
                                     onClick = onSplit,
+                                    modifier = Modifier.weight(1f).height(buttonHeight),
                                 )
+                            } else if (canDouble) {
+                                // Provide empty space to keep grid consistent if only double is available
+                                Spacer(modifier = Modifier.weight(1f))
                             }
                         }
                     }
@@ -145,18 +154,18 @@ fun GameActions(
                     modifier = Modifier.fillMaxWidth().height(buttonHeight),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    CasinoButton(
-                        text = stringResource(Res.string.hit),
+                    GameActionButton(
+                        icon = "👇",
+                        label = stringResource(Res.string.hit),
                         onClick = onHit,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).height(buttonHeight),
                         isStrategic = true,
                     )
-                    CasinoButton(
-                        text = stringResource(Res.string.stand),
+                    GameActionButton(
+                        icon = "✋",
+                        label = stringResource(Res.string.stand),
                         onClick = onStand,
-                        modifier = Modifier.weight(1f),
-                        containerColor = GlassDark,
-                        contentColor = Color.White,
+                        modifier = Modifier.weight(1f).height(buttonHeight),
                     )
                 }
             } else if (status != GameStatus.INSURANCE_OFFERED) {
