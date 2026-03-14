@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.deal
+import sharedui.generated.resources.status_betting
 import sharedui.generated.resources.hit
 import sharedui.generated.resources.stand
 import sharedui.generated.resources.status_dealer_turn
@@ -132,7 +133,15 @@ fun BlackjackContent(component: BlackjackComponent) {
                     ConfettiEffect()
                 }
 
-                if (useCompactUI) {
+                if (state.status == GameStatus.BETTING) {
+                    BettingPhaseContent(
+                        state = state,
+                        component = component,
+                        audioService = audioService,
+                        isCompact = useCompactUI,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else if (useCompactUI) {
                     LandscapeLayout(
                         state = state,
                         audioService = audioService,
@@ -169,7 +178,7 @@ private fun PortraitLayout(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (state.status != GameStatus.PLAYING) {
+        if (state.status != GameStatus.PLAYING && state.status != GameStatus.BETTING) {
             GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = false)
         }
 
@@ -216,7 +225,7 @@ private fun LandscapeLayout(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (state.status != GameStatus.PLAYING) {
+            if (state.status != GameStatus.PLAYING && state.status != GameStatus.BETTING) {
                 GameStatusMessage(status = state.status, pulseScale = pulseScale, isCompact = true)
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -239,6 +248,7 @@ private fun GameStatusMessage(
 ) {
     val statusText =
         when (status) {
+            GameStatus.BETTING -> stringResource(Res.string.status_betting)
             GameStatus.IDLE -> stringResource(Res.string.status_idle)
             GameStatus.PLAYING -> stringResource(Res.string.status_playing)
             GameStatus.DEALER_TURN -> stringResource(Res.string.status_dealer_turn)

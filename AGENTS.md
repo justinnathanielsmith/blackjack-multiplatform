@@ -13,6 +13,15 @@ This project uses **JetBrains Amper** instead of Gradle. There is no `gradlew` s
 ./amper show modules       # List all modules
 ```
 
+### Fast feedback (minimal build/test)
+Only build and test what you need. Avoid full multi-platform build/test during development.
+```bash
+./amper build -p jvm       # Build JVM only (fast)
+./amper test -p jvm       # Run JVM tests only (fast)
+./amper build -m core -m sharedUI -p jvm   # Build only specific modules for JVM
+./amper test -m core -m sharedUI -p jvm   # Test only specific modules on JVM
+```
+
 ### Configuration Files
 - `project.yaml` - Root project configuration
 - `module.yaml` - Per-module configuration (replaces build.gradle.kts)
@@ -58,6 +67,12 @@ Always write tests first based on the spec, then implement to make tests pass.
 - **Effects**: Side effects (audio, haptics) emitted via `SharedFlow`
 - **Decompose**: Component lifecycle management
 - **Composition Locals**: Dependency injection for services
+
+## Compose string resources (sharedUI)
+- **Use `stringResource(Res.string.xxx)`** — never hardcode UI strings.
+- Add entries to `sharedUI/composeResources/values/strings.xml`.
+- **Build the project** so the Compose resources plugin can generate the `Res` class and string accessors from the XML.
+- **Add explicit imports** for each new string so the compiler can resolve them, e.g. `import sharedui.generated.resources.status_betting`. Use the same pattern as existing strings (`deal`, `hit`, `status_idle`, etc.).
 
 ## Linting
 

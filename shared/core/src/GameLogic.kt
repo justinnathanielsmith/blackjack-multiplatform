@@ -55,6 +55,7 @@ data class Hand(
 
 @Serializable
 enum class GameStatus {
+    BETTING,
     IDLE,
     PLAYING,
     DEALER_TURN,
@@ -68,11 +69,21 @@ data class GameState(
     val deck: List<Card> = emptyList(),
     val playerHand: Hand = Hand(),
     val dealerHand: Hand = Hand(),
-    val status: GameStatus = GameStatus.IDLE
+    val status: GameStatus = GameStatus.IDLE,
+    val balance: Int = 1000,
+    val currentBet: Int = 0
 )
 
 sealed class GameAction {
     data object NewGame : GameAction()
+
+    data class PlaceBet(
+        val amount: Int
+    ) : GameAction()
+
+    data object ResetBet : GameAction()
+
+    data object Deal : GameAction()
 
     data object Hit : GameAction()
 

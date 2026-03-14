@@ -9,10 +9,116 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class BlackjackStateMachineTest {
     @Test
+    fun testPlaceBet_decreasesBalanceAndIncreasesCurrentBet() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(900, state.balance)
+            assertEquals(100, state.currentBet)
+            assertEquals(GameStatus.BETTING, state.status)
+        }
+
+    @Test
+    fun testPlaceBet_multipleChipsAccumulate() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            stateMachine.dispatch(GameAction.PlaceBet(50))
+            advanceUntilIdle()
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(850, state.balance)
+            assertEquals(150, state.currentBet)
+        }
+
+    @Test
+    fun testPlaceBet_rejectedWhenAmountExceedsBalance() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 100, currentBet = 0))
+            stateMachine.dispatch(GameAction.PlaceBet(200))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(100, state.balance)
+            assertEquals(0, state.currentBet)
+        }
+
+    @Test
+    fun testPlaceBet_rejectedWhenAmountZeroOrNegative() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            stateMachine.dispatch(GameAction.PlaceBet(0))
+            advanceUntilIdle()
+            assertEquals(1000, stateMachine.state.value.balance)
+            assertEquals(0, stateMachine.state.value.currentBet)
+
+            stateMachine.dispatch(GameAction.PlaceBet(-50))
+            advanceUntilIdle()
+            assertEquals(1000, stateMachine.state.value.balance)
+            assertEquals(0, stateMachine.state.value.currentBet)
+        }
+
+    @Test
+    fun testPlaceBet_ignoredWhenNotInBettingPhase() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.PLAYING, balance = 1000, currentBet = 100))
+            stateMachine.dispatch(GameAction.PlaceBet(50))
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(1000, state.balance)
+            assertEquals(100, state.currentBet)
+        }
+
+    @Test
+    fun testResetBet_restoresBalanceAndClearsCurrentBet() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100))
+            stateMachine.dispatch(GameAction.ResetBet)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(1000, state.balance)
+            assertEquals(0, state.currentBet)
+            assertEquals(GameStatus.BETTING, state.status)
+        }
+
+    @Test
+    fun testResetBet_ignoredWhenNotInBettingPhase() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.PLAYING, balance = 900, currentBet = 100))
+            stateMachine.dispatch(GameAction.ResetBet)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(900, state.balance)
+            assertEquals(100, state.currentBet)
+        }
+
+    @Test
+    fun testDeal_ignoredWhenNoBet() =
+        runTest {
+            val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            stateMachine.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(GameStatus.BETTING, state.status)
+            assertEquals(0, state.playerHand.cards.size)
+            assertEquals(0, state.dealerHand.cards.size)
+        }
+
+    @Test
     fun testInitialDeal() =
         runTest {
             val stateMachine = BlackjackStateMachine(this)
-            stateMachine.dispatch(GameAction.NewGame)
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            advanceUntilIdle()
+            stateMachine.dispatch(GameAction.Deal)
             advanceUntilIdle()
 
             val state = stateMachine.state.value
@@ -25,7 +131,9 @@ class BlackjackStateMachineTest {
     fun testPlayerHit() =
         runTest {
             val stateMachine = BlackjackStateMachine(this)
-            stateMachine.dispatch(GameAction.NewGame)
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            advanceUntilIdle()
+            stateMachine.dispatch(GameAction.Deal)
             advanceUntilIdle()
 
             // Skip test if initial deal resulted in blackjack (game already over)
@@ -43,7 +151,9 @@ class BlackjackStateMachineTest {
     fun testBust() =
         runTest {
             val stateMachine = BlackjackStateMachine(this)
-            stateMachine.dispatch(GameAction.NewGame)
+            stateMachine.dispatch(GameAction.PlaceBet(100))
+            advanceUntilIdle()
+            stateMachine.dispatch(GameAction.Deal)
             advanceUntilIdle()
 
             // Hit until bust

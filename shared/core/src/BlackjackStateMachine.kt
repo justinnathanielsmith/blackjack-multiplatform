@@ -14,7 +14,7 @@ import kotlinx.coroutines.sync.withLock
 
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
-    initialState: GameState = GameState()
+    initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
 ) {
     companion object {
         private const val INITIAL_DEAL_CARDS = 4
@@ -35,6 +35,9 @@ class BlackjackStateMachine(
             mutex.withLock {
                 when (action) {
                     is GameAction.NewGame -> handleNewGame()
+                    is GameAction.PlaceBet -> handlePlaceBet(action.amount)
+                    is GameAction.ResetBet -> handleResetBet()
+                    is GameAction.Deal -> handleDeal()
                     is GameAction.Hit -> handleHit()
                     is GameAction.Stand -> handleStand()
                 }
@@ -42,17 +45,38 @@ class BlackjackStateMachine(
         }
     }
 
-    private fun handleNewGame() {
+    private fun handlePlaceBet(amount: Int) {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
+        if (amount <= 0 || amount > current.balance) return
+        _state.value =
+            current.copy(
+                balance = current.balance - amount,
+                currentBet = current.currentBet + amount
+            )
+    }
+
+    private fun handleResetBet() {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
+        _state.value =
+            current.copy(
+                balance = current.balance + current.currentBet,
+                currentBet = 0
+            )
+    }
+
+    private fun handleDeal() {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING || current.currentBet <= 0) return
         val fullDeck =
             Suit.entries
                 .flatMap { suit ->
                     Rank.entries.map { rank -> Card(rank, suit) }
                 }.shuffled()
-
         val playerHand = Hand(fullDeck.take(2))
         val dealerHand = Hand(fullDeck.drop(2).take(2))
         val remainingDeck = fullDeck.drop(INITIAL_DEAL_CARDS)
-
         val initialStatus =
             when {
                 playerHand.score == 21 && dealerHand.score == 21 -> GameStatus.PUSH
@@ -60,18 +84,29 @@ class BlackjackStateMachine(
                 dealerHand.score == 21 -> GameStatus.DEALER_WON
                 else -> GameStatus.PLAYING
             }
-
         _state.value =
             GameState(
                 deck = remainingDeck,
                 playerHand = playerHand,
                 dealerHand = dealerHand,
-                status = initialStatus
+                status = initialStatus,
+                balance = current.balance,
+                currentBet = current.currentBet
             )
         emitEffect(GameEffect.PlayCardSound)
         if (initialStatus == GameStatus.PLAYER_WON) {
             emitEffect(GameEffect.PlayWinSound)
         }
+    }
+
+    private fun handleNewGame() {
+        val currentState = _state.value
+        _state.value =
+            GameState(
+                status = GameStatus.BETTING,
+                balance = currentState.balance,
+                currentBet = 0
+            )
     }
 
     private fun handleHit() {
