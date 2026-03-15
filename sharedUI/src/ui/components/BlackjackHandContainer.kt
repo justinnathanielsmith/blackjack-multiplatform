@@ -1,19 +1,20 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -91,14 +92,47 @@ fun BlackjackHandContainer(
                 .padding(horizontal = horizontalPadding, vertical = outerVerticalPadding),
     ) {
         // Visual Background + Border
+        val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
+        val glowAlpha by infiniteTransition.animateFloat(
+            initialValue = 0.4f,
+            targetValue = 1.0f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "glowAlpha"
+        )
+        val glowElevation by infiniteTransition.animateFloat(
+            initialValue = 4f,
+            targetValue = 12f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "glowElevation"
+        )
+
         Box(
             modifier =
                 Modifier
                     .matchParentSize()
                     .padding(vertical = 6.dp) // Offset to allow badges to overlap vertically
+                    .then(
+                        if (isActive) {
+                            Modifier.shadow(
+                                elevation = glowElevation.dp,
+                                shape = cornerRadius,
+                                clip = false,
+                                ambientColor = PrimaryGold.copy(alpha = glowAlpha),
+                                spotColor = PrimaryGold.copy(alpha = glowAlpha)
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
                     .clip(cornerRadius)
                     .background(backgroundColor)
-                    .border(if (isActive) 2.dp else 1.dp, borderColor, cornerRadius)
+                    .border(if (isActive) 3.dp else 1.dp, borderColor, cornerRadius)
         )
 
         // Status Badge (Active/Waiting)
