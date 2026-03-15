@@ -183,21 +183,21 @@ fun BlackjackHandContainer(
             contentAlignment = Alignment.Center,
         ) {
             content()
+        }
 
-            // Result Overlay (WIN/LOSS/PUSH)
-            HandOutcomeBadge(result = result)
+        // Result Overlay (WIN/LOSS/PUSH)
+        HandOutcomeBadge(result = result)
 
-            // Bet Chip Stack
-            if (bet != null) {
-                Box(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .offset(y = 10.dp)
-                            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                ) {
-                    ChipStack(amount = bet, isActive = isActive)
-                }
+        // Bet Chip Stack
+        if (bet != null) {
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .offset(y = 12.dp) // Anchored to bottom of container
+                        .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+            ) {
+                ChipStack(amount = bet, isActive = isActive)
             }
         }
     }
