@@ -64,6 +64,7 @@ import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
+import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
@@ -102,6 +103,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val appSettings by component.appSettings.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     var showStrategy by remember { mutableStateOf(false) }
+    var showRules by remember { mutableStateOf(false) }
     val audioService = LocalAppGraph.current.audioService
     val hapticsService = LocalAppGraph.current.hapticsService
     val shakeOffset = remember { Animatable(0f) }
@@ -207,7 +209,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     Header(
                         balance = state.balance,
                         onSettingsClick = { showSettings = true },
-                        onStrategyClick = { showStrategy = true }
+                        onStrategyClick = { showStrategy = true },
+                        onRulesClick = { showRules = true }
                     )
 
                     Box(
@@ -272,6 +275,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         ) {
                             StrategyGuideOverlay(
                                 onDismiss = { showStrategy = false }
+                            )
+                        }
+
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = showRules,
+                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                        ) {
+                            RulesOverlay(
+                                onDismiss = { showRules = false }
                             )
                         }
                     }

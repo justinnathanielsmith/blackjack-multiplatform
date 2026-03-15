@@ -42,7 +42,8 @@ import kotlin.math.abs
 fun Header(
     balance: Int,
     onSettingsClick: () -> Unit = {},
-    onStrategyClick: () -> Unit = {}
+    onStrategyClick: () -> Unit = {},
+    onRulesClick: () -> Unit = {}
 ) {
     var previousBalance by remember { mutableStateOf(balance) }
 
@@ -92,6 +93,7 @@ fun Header(
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            HeaderIcon("rules", onClick = onRulesClick)
             HeaderIcon("strategy", onClick = onStrategyClick)
             HeaderIcon("history")
             HeaderIcon("settings", onClick = onSettingsClick)
@@ -118,6 +120,7 @@ private fun HeaderIcon(
             text = when (text) {
                 "settings" -> "⚙️"
                 "strategy" -> "💡"
+                "rules" -> "📜"
                 else -> "🕒"
             },
             fontSize = 18.sp,

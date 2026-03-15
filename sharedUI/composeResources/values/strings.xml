@@ -70,4 +70,19 @@
     <string name="strategy_action_double">D</string>
     <string name="strategy_action_split">P</string>
     <string name="strategy_dealer_header">Dealer Upcard</string>
+    
+    <!-- Rules Overlay -->
+    <string name="rules_title">Game Rules</string>
+    <string name="rules_core_title">Core Rules</string>
+    <string name="rules_core_content">Reach 21 without busting. Beat the dealer\'s total. Aces are 1 or 11. Blackjack (Ace + 10-value) pays 3:2.</string>
+    <string name="rules_actions_title">Player Actions</string>
+    <string name="rules_actions_hit">Hit: Take another card.</string>
+    <string name="rules_actions_stand">Stand: Keep your current total.</string>
+    <string name="rules_actions_double">Double Down: Double bet, take one more card, then stand.</string>
+    <string name="rules_actions_split">Split: Split pairs into two hands with an equal bet.</string>
+    <string name="rules_variations_title">Variations</string>
+    <string name="rules_variations_content">Dealer stands on Soft 17. 6 decks in shoe. Double after split allowed. Late surrender available.</string>
+    <string name="rules_side_bets_title">Side Bets</string>
+    <string name="rules_side_bets_pairs">Perfect Pairs: Payout on your first two cards being a pair.</string>
+    <string name="rules_side_bets_21_3">21+3: Payout on 3-card poker hands using your two cards and dealer upcard.</string>
 </resources>
