@@ -85,7 +85,11 @@ fun GameActionButton(
         contentColor ?: if (isStrategic) BackgroundDark else Color.White
 
     val baseColor = resolvedContainerColor
-    val shadowColor = if (enabled) Color.Black.copy(alpha = 0.5f) else Color.Transparent
+    val shadowColor = if (enabled) {
+        if (isStrategic) baseColor.copy(alpha = 0.8f) else Color.Black.copy(alpha = 0.5f)
+    } else {
+        Color.Transparent
+    }
 
     Box(
         modifier =
@@ -97,7 +101,7 @@ fun GameActionButton(
                 }.then(
                     if (enabled) {
                         Modifier.shadow(
-                            elevation = if (isPressed) 1.dp else 4.dp,
+                            elevation = if (isPressed) 1.dp else if (isStrategic) 8.dp else 4.dp,
                             shape = CircleShape,
                             ambientColor = shadowColor,
                             spotColor = shadowColor
@@ -111,11 +115,20 @@ fun GameActionButton(
                         Brush.verticalGradient(
                             colors =
                                 listOf(
-                                    baseColor,
+                                    if (isStrategic) {
+                                        Color(
+                                            (baseColor.red + 0.15f).coerceIn(0f, 1f),
+                                            (baseColor.green + 0.15f).coerceIn(0f, 1f),
+                                            (baseColor.blue + 0.1f).coerceIn(0f, 1f),
+                                            baseColor.alpha
+                                        )
+                                    } else {
+                                        baseColor
+                                    },
                                     Color(
-                                        (baseColor.red * 0.85f).coerceIn(0f, 1f),
-                                        (baseColor.green * 0.85f).coerceIn(0f, 1f),
-                                        (baseColor.blue * 0.85f).coerceIn(0f, 1f),
+                                        (baseColor.red * if (isStrategic) 0.6f else 0.85f).coerceIn(0f, 1f),
+                                        (baseColor.green * if (isStrategic) 0.6f else 0.85f).coerceIn(0f, 1f),
+                                        (baseColor.blue * if (isStrategic) 0.2f else 0.85f).coerceIn(0f, 1f),
                                         baseColor.alpha
                                     )
                                 )
