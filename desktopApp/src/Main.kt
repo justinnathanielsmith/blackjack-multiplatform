@@ -1,7 +1,9 @@
 package io.github.smithjustinn.blackjack
 
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import io.github.smithjustinn.blackjack.presentation.DefaultRootComponent
@@ -24,6 +26,7 @@ fun main() =
                 exitApplication()
             },
             title = "Blackjack",
+            state = rememberWindowState(width = 400.dp, height = 800.dp)
         ) {
             RootScreen(root, appGraph)
         }

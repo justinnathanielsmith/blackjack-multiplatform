@@ -43,7 +43,8 @@ fun PlayerHandContainer(
     cards: List<Card>,
     bet: Int? = null,
     result: HandResult = HandResult.NONE,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scale: Float = 1.0f
 ) {
     val isActive = status == HandStatus.ACTIVE
     val isWaiting = status == HandStatus.WAITING
@@ -51,43 +52,46 @@ fun PlayerHandContainer(
 
     val alpha by animateFloatAsState(if (isWaiting) 0.6f else 1.0f)
     val saturation = if (isWaiting) 0.5f else 1.0f
-    
+
     val borderColor by animateColorAsState(
         if (isActive) PrimaryGold else Color.White.copy(alpha = 0.1f)
     )
 
+    val verticalPadding = (12 * scale).dp
+    val horizontalPadding = (8 * scale).dp
+    val innerPadding = (16 * scale).dp
+
     Box(
-        modifier = modifier
-            .alpha(alpha)
-            .graphicsLayer {
-                // Approximate desaturation using alpha or custom color filter if needed, 
-                // but alpha + darker bg usually works well in this style.
-            }
-            .padding(vertical = 12.dp, horizontal = 8.dp)
+        modifier =
+            modifier
+                .alpha(alpha)
+                .padding(vertical = verticalPadding, horizontal = horizontalPadding)
     ) {
         // Main Container
         Box(
-            modifier = Modifier
-                .matchParentSize()
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.Black.copy(alpha = 0.3f))
-                .border(
-                    width = if (isActive) 2.dp else 1.dp,
-                    color = borderColor,
-                    shape = RoundedCornerShape(16.dp)
-                )
+            modifier =
+                Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .border(
+                        width = if (isActive) 2.dp else 1.dp,
+                        color = borderColor,
+                        shape = RoundedCornerShape(16.dp)
+                    )
         )
 
         Column(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Hand Row with overlapping cards
             HandRow(
                 hand = Hand(cards.toPersistentList()),
-                isCompact = true,
-                scale = 0.85f
+                isCompact = scale < 0.9f,
+                scale = scale * 0.85f
             )
         }
 
@@ -95,15 +99,21 @@ fun PlayerHandContainer(
         HandScoreBubble(
             score = handTotal,
             isActive = isActive,
-            isBusted = isBusted
+            isBusted = isBusted,
+            scale = scale
         )
 
         // Bet Chip Stack (Bottom Right)
         if (bet != null) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 8.dp, y = 8.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = (8 * scale).dp, y = (8 * scale).dp)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
             ) {
                 ChipStack(amount = bet, isActive = isActive)
             }
@@ -118,23 +128,29 @@ fun PlayerHandContainer(
 private fun BoxScope.HandScoreBubble(
     score: Int,
     isActive: Boolean,
-    isBusted: Boolean
+    isBusted: Boolean,
+    scale: Float = 1.0f
 ) {
-    val backgroundColor = when {
-        isBusted -> Color(0xFFCC2222)
-        isActive -> PrimaryGold
-        else -> Color(0xFF2A2A2A)
-    }
+    val backgroundColor =
+        when {
+            isBusted -> Color(0xFFCC2222)
+            isActive -> PrimaryGold
+            else -> Color(0xFF2A2A2A)
+        }
 
     val textColor = if (isActive || isBusted) BackgroundDark else Color.White
 
     Box(
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .offset(x = 6.dp, y = (-10).dp)
-            .background(backgroundColor, CircleShape)
-            .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+        modifier =
+            Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = (6 * scale).dp, y = (-10 * scale).dp)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }.background(backgroundColor, CircleShape)
+                .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(

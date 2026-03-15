@@ -67,9 +67,9 @@ import io.github.smithjustinn.blackjack.ui.components.HandContainer
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.HandStatus
-import io.github.smithjustinn.blackjack.ui.components.PlayerHandContainer
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
+import io.github.smithjustinn.blackjack.ui.components.PlayerHandContainer
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
@@ -88,8 +88,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.dealer
-import sharedui.generated.resources.hand_number
-import sharedui.generated.resources.you
 import kotlin.random.Random
 
 fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
@@ -461,91 +459,89 @@ private fun PortraitLayout(
     nearMissHandIndex: Int? = null,
 ) {
     val hands = state.playerHands
-    val isMultiHand = remember(hands.size) { hands.size > 1 }
+    val handCount = hands.size
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val dealerDisplayScore =
             remember(state.status, state.dealerHand) {
                 if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
             }
+
+        // Dealer Hand - Fixed size at the top
         HandContainer(
             title = stringResource(Res.string.dealer),
             score = dealerDisplayScore,
-            isCompact = isMultiHand,
-            isExtraCompact = isMultiHand,
+            isCompact = handCount > 1,
+            isExtraCompact = handCount > 2,
         ) {
             HandRow(
                 state.dealerHand,
                 isDealer = true,
-                isCompact = isMultiHand,
+                isCompact = handCount > 1,
                 isSlowReveal = state.dealerDrawIsCritical,
-                scale = if (isMultiHand) 0.82f else null,
+                scale = if (handCount > 1) 0.82f else 1f,
             )
         }
 
-        if (isMultiHand) {
-            val playerCardScale = remember(hands.size) { if (hands.size >= 3) 0.68f else 0.80f }
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                hands.forEachIndexed { index, hand ->
-                    val isActive =
-                        remember(index, state.activeHandIndex, state.status) {
-                            index == state.activeHandIndex && state.status == GameStatus.PLAYING
+        // Player Hands - Dynamic space between dealer and actions
+        Column(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            val playerCardScale =
+                when (handCount) {
+                    1 -> 0.95f
+                    2 -> 0.80f
+                    else -> 0.68f
+                }
+
+            hands.forEachIndexed { index, hand ->
+                val isActive =
+                    remember(index, state.activeHandIndex, state.status) {
+                        index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                    }
+                val bet =
+                    if (handCount == 1) {
+                        remember(state.status, state.currentBet) {
+                            if (state.status != GameStatus.IDLE) state.currentBet else null
                         }
-                    val isPending =
-                        remember(index, state.activeHandIndex, state.status) {
-                            index > state.activeHandIndex && state.status == GameStatus.PLAYING
-                        }
-                    val status = when {
+                    } else {
+                        state.playerBets.getOrNull(index)
+                    }
+
+                val status =
+                    when {
                         hand.isBust -> HandStatus.BUSTED
                         isActive -> HandStatus.ACTIVE
                         else -> HandStatus.WAITING
                     }
-                    PlayerHandContainer(
-                        handTotal = hand.score,
-                        status = status,
-                        cards = hand.cards,
-                        bet = state.playerBets.getOrNull(index),
-                        result = state.handResult(index),
-                        modifier = Modifier.weight(1f),
-                    )
-                }
+
+                PlayerHandContainer(
+                    handTotal = hand.score,
+                    status = status,
+                    cards = hand.cards,
+                    bet = bet,
+                    result = state.handResult(index),
+                    modifier = Modifier.weight(1f),
+                    scale = playerCardScale
+                )
             }
-        } else {
-            Spacer(modifier = Modifier.weight(1f))
-            val isActive = remember(state.status) { state.status == GameStatus.PLAYING }
-            val bet =
-                remember(state.status, state.currentBet) {
-                    if (state.status != GameStatus.IDLE) state.currentBet else null
-                }
-            val status = when {
-                hands[0].isBust -> HandStatus.BUSTED
-                isActive -> HandStatus.ACTIVE
-                else -> HandStatus.WAITING
-            }
-            PlayerHandContainer(
-                handTotal = hands[0].score,
-                status = status,
-                cards = hands[0].cards,
-                bet = bet,
-                result = state.handResult(index = 0)
-            )
         }
 
-        Spacer(modifier = Modifier.height(if (isMultiHand) 8.dp else 12.dp))
+        Spacer(modifier = Modifier.height(if (handCount > 1) 8.dp else 12.dp))
 
+        // Action Bar - Fixed size at the bottom
         GameActions(
             state = state,
             component = component,
-            isCompact = isMultiHand,
+            isCompact = handCount > 1,
         )
     }
 }
