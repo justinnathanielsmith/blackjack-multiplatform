@@ -16,6 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -130,7 +132,11 @@ fun BlackjackHandContainer(
                     )
                     .clip(cornerRadius)
                     .background(backgroundColor)
-                    .border(if (isActive) 3.dp else 1.dp, borderColor, cornerRadius)
+                    .border(
+                        if (isActive) (2.5.dp + (0.5.dp * glowAlpha)) else 1.dp,
+                        if (isActive) borderColor.copy(alpha = 0.6f + (0.4f * glowAlpha)) else borderColor,
+                        cornerRadius
+                    )
         )
 
         // Status Badge (Active/Waiting)
@@ -166,6 +172,12 @@ fun BlackjackHandContainer(
                 else -> Dimensions.Hand.MinHeightDefault
             }
 
+        val badgeState = when {
+            title == stringResource(Res.string.dealer) -> ScoreBadgeState.DEALER
+            isActive -> ScoreBadgeState.ACTIVE
+            else -> ScoreBadgeState.WAITING
+        }
+
         Box(
             modifier =
                 Modifier
@@ -179,20 +191,28 @@ fun BlackjackHandContainer(
                     ),
             contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = Alignment.BottomEnd) {
-                content()
-
-                val badgeState = when {
-                    title == stringResource(Res.string.dealer) -> ScoreBadgeState.DEALER
-                    isActive -> ScoreBadgeState.ACTIVE
-                    else -> ScoreBadgeState.WAITING
+            Box(contentAlignment = if (badgeState == ScoreBadgeState.DEALER) Alignment.TopEnd else Alignment.BottomEnd) {
+                Box(
+                    modifier = Modifier.graphicsLayer {
+                        if (isPending) {
+                            alpha = 0.5f
+                        }
+                    }
+                ) {
+                    content()
                 }
-                
+
                 ScoreBadge(
                     score = score,
                     state = badgeState,
                     modifier = Modifier
-                        .offset(x = 12.dp, y = 14.dp)
+                        .then(
+                            if (badgeState == ScoreBadgeState.DEALER) {
+                                Modifier.offset(x = 8.dp, y = (-10).dp)
+                            } else {
+                                Modifier.offset(x = 12.dp, y = 14.dp)
+                            }
+                        )
                         .zIndex(2f)
                         .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
                 )
