@@ -108,6 +108,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val shakeOffset = remember { Animatable(0f) }
     val flashAlpha = remember { Animatable(0f) }
 
+    val isTerminal = remember(state.status) { state.status.isTerminal() }
+    val isMultiHand = remember(state.playerHands.size) { state.playerHands.size > 1 }
+
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.PLAYER_WON) {
             flashAlpha.animateTo(0.15f, tween(100))
@@ -115,8 +118,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
-    LaunchedEffect(state.status) {
-        if (state.status.isTerminal()) {
+    LaunchedEffect(isTerminal) {
+        if (isTerminal) {
             val bet = state.currentBet
             val rules = appSettings.gameRules
             val handCount = appSettings.defaultHandCount
@@ -356,7 +359,7 @@ private fun PortraitLayout(
     component: BlackjackComponent,
 ) {
     val hands = state.playerHands
-    val isMultiHand = hands.size > 1
+    val isMultiHand = remember(hands.size) { hands.size > 1 }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -364,8 +367,9 @@ private fun PortraitLayout(
     ) {
         Spacer(modifier = Modifier.height(if (isMultiHand) 4.dp else 16.dp))
 
-        val dealerDisplayScore =
+        val dealerDisplayScore = remember(state.status, state.dealerHand) {
             if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
+        }
         HandContainer(
             title = stringResource(Res.string.dealer),
             score = dealerDisplayScore,
@@ -381,7 +385,7 @@ private fun PortraitLayout(
         }
 
         if (isMultiHand) {
-            val playerCardScale = if (hands.size >= 3) 0.68f else 0.80f
+            val playerCardScale = remember(hands.size) { if (hands.size >= 3) 0.68f else 0.80f }
             Column(
                 modifier =
                     Modifier
@@ -390,8 +394,12 @@ private fun PortraitLayout(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 hands.forEachIndexed { index, hand ->
-                    val isActive = index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                    val isPending = index > state.activeHandIndex && state.status == GameStatus.PLAYING
+                    val isActive = remember(index, state.activeHandIndex, state.status) {
+                        index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                    }
+                    val isPending = remember(index, state.activeHandIndex, state.status) {
+                        index > state.activeHandIndex && state.status == GameStatus.PLAYING
+                    }
                     HandContainer(
                         title = stringResource(Res.string.hand_number, index + 1),
                         score = hand.score,
@@ -409,11 +417,15 @@ private fun PortraitLayout(
             }
         } else {
             Spacer(modifier = Modifier.weight(1f))
+            val isActive = remember(state.status) { state.status == GameStatus.PLAYING }
+            val bet = remember(state.status, state.currentBet) {
+                if (state.status != GameStatus.IDLE) state.currentBet else null
+            }
             HandContainer(
                 title = stringResource(Res.string.you),
                 score = hands[0].score,
-                bet = if (state.status != GameStatus.IDLE) state.currentBet else null,
-                isActive = state.status == GameStatus.PLAYING,
+                bet = bet,
+                isActive = isActive,
             ) {
                 HandRow(hands[0])
             }

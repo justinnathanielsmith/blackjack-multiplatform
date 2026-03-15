@@ -30,7 +30,8 @@ class DealTest {
     @Test
     fun initialDeal_deals2CardsToPlayerAnd2ToDealer() =
         runTest {
-            // Controlled deck: player NINE+TWO=11 (no BJ), dealer TEN+SEVEN=17 (no BJ)
+            // New round-robin order: P1, D1, P2, D2
+            // player NINE+TWO=11 (no BJ), dealer TEN+SEVEN=17 (no BJ)
             val sm =
                 BlackjackStateMachine(
                     this,
@@ -38,7 +39,7 @@ class DealTest {
                         status = GameStatus.BETTING,
                         balance = 900,
                         currentBet = 100,
-                        deck = deckOf(Rank.NINE, Rank.TWO, Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.NINE, Rank.TEN, Rank.TWO, Rank.SEVEN),
                     ),
                 )
             sm.dispatch(GameAction.Deal)
@@ -54,7 +55,7 @@ class DealTest {
     @Test
     fun deal_dealerHoleCardIsFaceDown_whenPlaying() =
         runTest {
-            // player NINE+TWO=11, dealer TEN+SEVEN=17: game proceeds normally, hole card hidden
+            // Interleaved: P1(NINE), D1(TEN), P2(TWO), D2(SEVEN): hole card hidden
             val sm =
                 BlackjackStateMachine(
                     this,
@@ -62,7 +63,7 @@ class DealTest {
                         status = GameStatus.BETTING,
                         balance = 900,
                         currentBet = 100,
-                        deck = deckOf(Rank.NINE, Rank.TWO, Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.NINE, Rank.TEN, Rank.TWO, Rank.SEVEN),
                     ),
                 )
             sm.dispatch(GameAction.Deal)
@@ -76,7 +77,7 @@ class DealTest {
     @Test
     fun deal_dealerHoleCardRevealed_onDealerBlackjack() =
         runTest {
-            // player NINE+TWO=11, dealer ACE+KING=BJ: dealer wins immediately, hole card revealed
+            // Interleaved: P1(NINE), D1(ACE), P2(TWO), D2(KING): dealer wins immediately, hole card revealed
             val sm =
                 BlackjackStateMachine(
                     this,
@@ -84,14 +85,14 @@ class DealTest {
                         status = GameStatus.BETTING,
                         balance = 900,
                         currentBet = 100,
-                        deck = deckOf(Rank.NINE, Rank.TWO, Rank.ACE, Rank.KING),
+                        deck = deckOf(Rank.NINE, Rank.ACE, Rank.TWO, Rank.KING),
                     ),
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
 
             val state = sm.state.value
-            // Dealer BJ → DEALER_WON (or INSURANCE_OFFERED if ace is up, followed by resolution)
+            // Dealer BJ → DEALER_WON
             assertFalse(state.dealerHand.cards[1].isFaceDown)
         }
 
@@ -106,10 +107,10 @@ class DealTest {
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
                     deck =
                         persistentListOf(
-                            Card(Rank.TEN, Suit.SPADES),
-                            Card(Rank.TEN, Suit.SPADES),
-                            Card(Rank.SEVEN, Suit.HEARTS),
-                            Card(Rank.EIGHT, Suit.DIAMONDS),
+                            Card(Rank.TEN, Suit.SPADES),   // P1
+                            Card(Rank.SEVEN, Suit.HEARTS), // D1
+                            Card(Rank.TEN, Suit.SPADES),   // P2
+                            Card(Rank.EIGHT, Suit.DIAMONDS), // D2
                         ),
                 )
             val sm = BlackjackStateMachine(this, initialState)

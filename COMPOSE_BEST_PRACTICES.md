@@ -590,7 +590,72 @@ fun BettingUI() {
 
 ---
 
-## 7. Further Reading
+## 8. StateFlow & State Management
+
+### ✅ Use `derivedStateOf` and `remember(key)` for Derived State
+
+**Rule:** Use `remember(key)` or `derivedStateOf` when you have a piece of state that is derived from other state. This ensures the derivation only runs when necessary and can help skip recomposition.
+
+```kotlin
+// ❌ Avoid: Recalculated on every recomposition of the parent
+val isTerminal = state.status.isTerminal() 
+
+// ✅ Preferred: Only recalculates when state.status changes
+val isTerminal = remember(state.status) { state.status.isTerminal() }
+```
+
+**Why:** Prevents unnecessary work during recomposition. While simple checks are cheap, complex derivations can add up. More importantly, using `remember` with keys helps sub-composables skip recomposition if the derived value hasn't changed.
+
+---
+
+### ✅ Pass Specific State Properties to Sub-Composables
+
+**Rule:** Avoid passing large state objects (like `GameState`) to small sub-composables. Pass only the specific properties they need.
+
+```kotlin
+// ❌ Avoid: Recomposes whenever ANY part of GameState changes
+@Composable
+fun DealerHand(state: GameState) {
+    HandRow(state.dealerHand)
+}
+
+// ✅ Preferred: Only recomposes when dealerHand changes
+@Composable
+fun DealerHand(dealerHand: Hand) {
+    HandRow(dealerHand)
+}
+```
+
+**Why:** Reduces the recomposition scope. Even with `@Immutable` objects, if the object reference changes (via `.copy()`), any Composable taking it as a parameter will potentially recompose. Passing only required primitives or smaller stable objects minimizes this.
+
+---
+
+### ✅ Smooth Game Transitions with Coroutines
+
+**Rule:** Use `suspend` functions and `delay()` in your `StateMachine` or logic layer to handle multi-step visual transitions (like dealing cards one-by-one or dealer hits).
+
+```kotlin
+private suspend fun handleDeal() {
+    // 1. Set a "transitioning" status to block UI interactions
+    _state.value = _state.value.copy(status = GameStatus.DEALING)
+    
+    // 2. Perform incremental updates with delays
+    repeat(2) {
+        delay(400L)
+        // ... update state with new card
+        emitEffect(GameEffect.PlayCardSound)
+    }
+    
+    // 3. Set final status
+    _state.value = _state.value.copy(status = GameStatus.PLAYING)
+}
+```
+
+**Why:** This approach keeps the UI purely reactive (the "source of truth" remains the state) while providing a polished, animated experience without complex UI-side animation logic.
+
+---
+
+## 9. Further Reading
 
 - [Compose Performance — Official Docs](https://developer.android.com/develop/ui/compose/performance)
 - [Compose State Stability](https://developer.android.com/develop/ui/compose/performance/stability)

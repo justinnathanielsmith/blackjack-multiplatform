@@ -108,6 +108,7 @@ data class GameRules(
 @Serializable
 enum class GameStatus {
     BETTING,
+    DEALING,
     IDLE,
     PLAYING,
     INSURANCE_OFFERED,

@@ -27,6 +27,7 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.status_betting
+import sharedui.generated.resources.status_dealing
 import sharedui.generated.resources.status_dealer_turn
 import sharedui.generated.resources.status_dealer_won
 import sharedui.generated.resources.status_idle
@@ -55,6 +56,7 @@ fun GameStatusMessage(
         when (status) {
             GameStatus.BETTING -> stringResource(Res.string.status_betting)
             GameStatus.IDLE -> stringResource(Res.string.status_idle)
+            GameStatus.DEALING -> stringResource(Res.string.status_dealing)
             GameStatus.PLAYING -> stringResource(Res.string.status_playing)
             GameStatus.DEALER_TURN -> stringResource(Res.string.status_dealer_turn)
             GameStatus.PLAYER_WON -> stringResource(Res.string.status_player_won)

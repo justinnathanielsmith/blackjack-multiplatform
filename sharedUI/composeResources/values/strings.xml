@@ -35,6 +35,7 @@
     <!-- Game status messages -->
     <string name="status_idle">Idle</string>
     <string name="status_playing">Playing</string>
+    <string name="status_dealing">Dealing...</string>
     <string name="status_dealer_turn">Dealer Turn</string>
     <string name="status_player_won">You Win!</string>
     <string name="status_dealer_won">Dealer Wins</string>
@@ -70,7 +71,7 @@
     <string name="strategy_action_double">D</string>
     <string name="strategy_action_split">P</string>
     <string name="strategy_dealer_header">Dealer Upcard</string>
-    
+
     <!-- Rules Overlay -->
     <string name="rules_title">Game Rules</string>
     <string name="rules_core_title">Core Rules</string>

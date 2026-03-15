@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import kotlin.math.PI
 
 @Composable
 fun BetChip(
@@ -115,7 +116,7 @@ fun BetChip(
             )
 
             // Decorative blocks on the rim (standard casino chip look)
-            val dashLength = (radius * 2 * Math.PI / 12).toFloat()
+            val dashLength = (radius * 2 * PI / 12).toFloat()
             drawCircle(
                 color = Color.White.copy(alpha = 0.6f),
                 radius = radius * 0.92f,
