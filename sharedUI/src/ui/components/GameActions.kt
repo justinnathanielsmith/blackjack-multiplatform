@@ -36,6 +36,11 @@ import sharedui.generated.resources.ic_double
 import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_split
 import sharedui.generated.resources.ic_stand
+import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
+import sharedui.generated.resources.action_hit
+import sharedui.generated.resources.action_stand
+import sharedui.generated.resources.action_double
+import sharedui.generated.resources.action_split
 
 @Composable
 fun GameActions(
@@ -115,19 +120,23 @@ fun GameActions(
                         enabled = canDouble,
                         modifier = Modifier.weight(1f).aspectRatio(1f),
                         isStrategic = true,
+                        label = stringResource(Res.string.action_double),
                     )
                     GameActionButton(
                         icon = Res.drawable.ic_split,
                         onClick = onSplit,
                         enabled = canSplit,
                         modifier = Modifier.weight(1f).aspectRatio(1f),
+                        label = stringResource(Res.string.action_split),
                     )
                     GameActionButton(
                         icon = Res.drawable.ic_hit,
                         onClick = onHit,
                         enabled = true,
                         modifier = Modifier.weight(1f).aspectRatio(1f),
-                        isStrategic = true,
+                        containerColor = ChipGreen,
+                        contentColor = Color.White,
+                        label = stringResource(Res.string.action_hit),
                     )
                     GameActionButton(
                         icon = Res.drawable.ic_stand,
@@ -136,6 +145,7 @@ fun GameActions(
                         modifier = Modifier.weight(1f).aspectRatio(1f),
                         containerColor = TacticalRed,
                         contentColor = Color.White,
+                        label = stringResource(Res.string.action_stand),
                     )
                 }
             }

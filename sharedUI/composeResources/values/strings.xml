@@ -14,10 +14,14 @@
 
     <!-- Game actions -->
     <string name="hit">Hit</string>
+    <string name="action_hit">Hit</string>
     <string name="stand">Stand</string>
+    <string name="action_stand">Stand</string>
     <string name="deal">Deal</string>
     <string name="split">Split</string>
+    <string name="action_split">Split</string>
     <string name="double_down">Double</string>
+    <string name="action_double">Double</string>
     <string name="new_game">New Game</string>
     <string name="dealer">Dealer</string>
     <string name="you">You</string>

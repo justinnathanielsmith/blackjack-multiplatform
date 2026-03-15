@@ -14,3 +14,4 @@ This file tracks the progress of various development streams.
 | `compose-best-practices` | Compose Best Practices & Performance Hardening | 🟨 In Progress | [Link](./tracks/compose-best-practices/index.md) |
 | `strategy-guide` | Blackjack Strategy Guide | 🟨 In Progress | [Link](./tracks/strategy-guide/index.md) |
 | `side-bets` | Side Bets (21+3, Perfect Pairs) | ✅ Completed | [Link](./tracks/side-bets/index.md) |
+| `ui-ux-modernization` | UI/UX Modernization & Refinement | 🟨 In Progress | [Link](./tracks/ui-ux-modernization/index.md) |

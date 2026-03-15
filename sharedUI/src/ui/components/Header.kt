@@ -200,7 +200,7 @@ internal fun AutoDealIcon(
     )
 
     val borderColor = if (enabled) PrimaryGold.copy(alpha = borderAlpha) else GlassLight
-    val backgroundColor = if (enabled) PrimaryGold.copy(alpha = 0.15f) else GlassDark
+    val backgroundColor = GlassDark
 
     Box(
         modifier =

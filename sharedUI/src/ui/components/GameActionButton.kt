@@ -50,6 +50,7 @@ fun GameActionButton(
     isStrategic: Boolean = false,
     containerColor: Color? = null,
     contentColor: Color? = null,
+    label: String? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -168,15 +169,27 @@ fun GameActionButton(
 
         val finalColor = if (enabled) resolvedContentColor else disabledContentColor
 
-        Box(
-            contentAlignment = Alignment.Center
+        androidx.compose.foundation.layout.Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
         ) {
             Icon(
                 painter = painterResource(icon),
                 contentDescription = null,
                 tint = finalColor,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(if (label != null) 24.dp else 32.dp)
             )
+            if (label != null) {
+                Text(
+                    text = label.uppercase(),
+                    color = finalColor,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 8.sp,
+                    letterSpacing = 1.sp,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
         }
     }
 }

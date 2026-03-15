@@ -380,16 +380,21 @@ fun PlayingCard(
                                 }
 
                                 onDrawBehind {
-                                    drawPath(
-                                        path = checkerPath,
-                                        color = PrimaryGold.copy(alpha = 0.05f)
-                                    )
-
+                                    // Outer frame
                                     drawRoundRect(
-                                        color = Color.White.copy(alpha = 0.2f),
+                                        color = PrimaryGold.copy(alpha = 0.15f),
                                         size = size,
                                         cornerRadius = CornerRadius(6.dp.toPx()),
                                         style = Stroke(width = 2.dp.toPx()),
+                                    )
+
+                                    // Inner frame
+                                    drawRoundRect(
+                                        color = PrimaryGold.copy(alpha = 0.08f),
+                                        size = size.copy(width = size.width - 8.dp.toPx(), height = size.height - 8.dp.toPx()),
+                                        topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
+                                        cornerRadius = CornerRadius(4.dp.toPx()),
+                                        style = Stroke(width = 1.dp.toPx()),
                                     )
                                 }
                             },

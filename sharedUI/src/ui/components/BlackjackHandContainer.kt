@@ -155,7 +155,7 @@ fun BlackjackHandContainer(
             state = badgeState,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .offset(x = 12.dp, y = (-6).dp)
+                .padding(top = 12.dp, end = 12.dp)
                 .zIndex(2f)
                 .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
         )
@@ -206,7 +206,7 @@ fun BlackjackHandContainer(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = 12.dp) // Anchored to bottom of container
+                        .offset(y = (-12).dp) // Tucked inside the container
                         .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
             ) {
                 ChipStack(amount = bet, isActive = isActive)
@@ -225,7 +225,7 @@ private fun BoxScope.TitleBadge(
     Box(
         modifier =
             Modifier
-                .align(Alignment.TopStart)
+                .align(Alignment.TopCenter)
                 .offset(y = (-6).dp)
                 .zIndex(1f)
                 .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
