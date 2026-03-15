@@ -41,7 +41,6 @@ enum class HandStatus {
 private val ContainerShape = RoundedCornerShape(24.dp)
 private val CompactContainerShape = RoundedCornerShape(12.dp)
 private val ExtraCompactContainerShape = RoundedCornerShape(8.dp)
-private val BadgeShape = RoundedCornerShape(12.dp)
 
 /**
  * The unified, premium hand container for both Dealer and Player hands.
@@ -146,7 +145,20 @@ fun BlackjackHandContainer(
         }
 
         // Score Badge: The "Breaking Out" style
-        ScoreBadge(score = score, isActive = isActive, isCompact = isAnyCompact)
+        val badgeState = when {
+            title == stringResource(Res.string.dealer) -> ScoreBadgeState.DEALER
+            isActive -> ScoreBadgeState.ACTIVE
+            else -> ScoreBadgeState.WAITING
+        }
+        ScoreBadge(
+            score = score,
+            state = badgeState,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 12.dp, y = (-6).dp)
+                .zIndex(2f)
+                .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
+        )
 
         val contentPadding =
             when {
@@ -270,41 +282,6 @@ private fun BoxScope.StatusBadge(
     }
 }
 
-@Composable
-private fun BoxScope.ScoreBadge(
-    score: Int,
-    isActive: Boolean,
-    isCompact: Boolean,
-) {
-    Box(
-        modifier =
-            Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 12.dp, y = (-6).dp)
-                .zIndex(2f)
-                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), BadgeShape)
-                .border(
-                    1.dp,
-                    if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
-                    BadgeShape
-                ).padding(horizontal = 12.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        AnimatedContent(
-            targetState = score,
-            transitionSpec = { fadeIn() togetherWith fadeOut() },
-            label = "scoreRoll"
-        ) { targetScore ->
-            Text(
-                text = targetScore.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                color = if (isActive) BackgroundDark else Color.White,
-                fontWeight = FontWeight.Black,
-            )
-        }
-    }
-}
 
 @Composable
 internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
