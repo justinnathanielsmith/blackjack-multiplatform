@@ -13,7 +13,13 @@ class MultiHandTest {
 
     @Test
     fun testInitialDeal_threeHands() = runTest {
-        val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+        val deck = persistentListOf(
+            Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS), // P1: 20
+            Card(Rank.NINE, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS), // P2: 18
+            Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS), // P3: 16
+            Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS) // Dealer: 17
+        )
+        val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, deck = deck))
         stateMachine.dispatch(GameAction.SelectHandCount(3))
         advanceUntilIdle()
         stateMachine.dispatch(GameAction.PlaceBet(100))
