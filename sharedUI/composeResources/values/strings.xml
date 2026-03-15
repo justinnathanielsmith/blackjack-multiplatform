@@ -59,4 +59,15 @@
     <string name="close">Close</string>
 
     <string name="surrender">Surrender</string>
+
+    <!-- Strategy Guide -->
+    <string name="strategy_guide_title">Basic Strategy</string>
+    <string name="strategy_tab_hard">Hard</string>
+    <string name="strategy_tab_soft">Soft</string>
+    <string name="strategy_tab_pairs">Pairs</string>
+    <string name="strategy_action_hit">H</string>
+    <string name="strategy_action_stand">S</string>
+    <string name="strategy_action_double">D</string>
+    <string name="strategy_action_split">P</string>
+    <string name="strategy_dealer_header">Dealer Upcard</string>
 </resources>

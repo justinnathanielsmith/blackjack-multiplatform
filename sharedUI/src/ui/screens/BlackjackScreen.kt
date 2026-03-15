@@ -56,6 +56,7 @@ import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
+import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -89,6 +90,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val state by component.state.collectAsState()
     val appSettings by component.appSettings.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
+    var showStrategy by remember { mutableStateOf(false) }
     val audioService = LocalAppGraph.current.audioService
     val hapticsService = LocalAppGraph.current.hapticsService
     val shakeOffset = remember { Animatable(0f) }
@@ -193,7 +195,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     }
                     Header(
                         balance = state.balance,
-                        onSettingsClick = { showSettings = true }
+                        onSettingsClick = { showSettings = true },
+                        onStrategyClick = { showStrategy = true }
                     )
 
                     Box(
@@ -243,6 +246,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 settings = appSettings,
                                 onUpdateSettings = component::updateSettings,
                                 onDismiss = { showSettings = false }
+                            )
+                        }
+
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = showStrategy,
+                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                        ) {
+                            StrategyGuideOverlay(
+                                onDismiss = { showStrategy = false }
                             )
                         }
                     }
