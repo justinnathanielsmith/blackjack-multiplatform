@@ -12,34 +12,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
-import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
-import io.github.smithjustinn.blackjack.ui.theme.ChipPurple
-import io.github.smithjustinn.blackjack.ui.theme.FeltDark
-import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
-import io.github.smithjustinn.blackjack.ui.theme.PokerRed
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
+import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 
 private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)
 
-private fun chipColor(value: Int) =
-    when (value) {
-        1 -> WhiteSoft
-        5 -> PokerRed
-        10 -> ChipBlue
-        25 -> ChipGreen
-        50 -> PrimaryGold
-        100 -> PokerBlack
-        500 -> ChipPurple
-        else -> PokerBlack
-    }
 
-private fun chipTextColor(value: Int) =
-    when (value) {
-        1, 50 -> FeltDark
-        else -> WhiteSoft
-    }
 
 @Composable
 fun ChipSelector(
@@ -57,8 +35,8 @@ fun ChipSelector(
             val enabled = balance >= value
             BetChip(
                 amount = value,
-                chipColor = chipColor(value),
-                textColor = chipTextColor(value),
+                chipColor = ChipUtils.chipColor(value),
+                textColor = ChipUtils.chipTextColor(value),
                 onClick = {
                     val position = chipPositions[value] ?: Offset.Zero
                     onBetClick(value, position)

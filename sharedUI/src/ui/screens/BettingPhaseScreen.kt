@@ -55,13 +55,9 @@ import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.BetChip
 import io.github.smithjustinn.blackjack.ui.components.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.ChipSelector
-import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
-import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
-import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
-import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
-import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -83,21 +79,7 @@ data class FlyingChip(
     val textColor: Color
 )
 
-private fun chipColor(value: Int) =
-    when (value) {
-        5 -> PokerRed
-        10 -> ChipBlue
-        25 -> ChipGreen
-        50 -> PrimaryGold
-        100 -> PokerBlack
-        else -> PokerBlack
-    }
 
-private fun chipTextColor(value: Int) =
-    when (value) {
-        50 -> FeltDark
-        else -> WhiteSoft
-    }
 
 @Composable
 fun BettingPhaseScreen(
@@ -119,8 +101,8 @@ fun BettingPhaseScreen(
                         id = (0..Long.MAX_VALUE).random(),
                         startOffset = offset,
                         amount = amount,
-                        color = chipColor(amount),
-                        textColor = chipTextColor(amount),
+                        color = ChipUtils.chipColor(amount),
+                        textColor = ChipUtils.chipTextColor(amount),
                     ),
                 )
             }
