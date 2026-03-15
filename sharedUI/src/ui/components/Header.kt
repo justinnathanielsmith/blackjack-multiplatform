@@ -90,7 +90,7 @@ fun Header(
             Modifier
                 .fillMaxWidth()
                 .background(GlassDark)
-                .padding(horizontal = 16.dp, vertical = 6.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -103,14 +103,14 @@ fun Header(
         ) {
             Text(
                 text = stringResource(Res.string.balance).uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.5f),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White.copy(alpha = 0.6f),
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp,
             )
             Text(
                 text = "$$formattedBalance",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,
             )

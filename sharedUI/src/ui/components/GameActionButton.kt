@@ -8,9 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -145,16 +143,16 @@ fun GameActionButton(
 
         val finalColor = if (enabled) resolvedContentColor else disabledContentColor
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = icon,
                 color = finalColor,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                softWrap = false
+                softWrap = false,
+                modifier = Modifier.align(Alignment.CenterStart).padding(start = 4.dp)
             )
             Text(
                 text = label.uppercase(),
@@ -164,7 +162,8 @@ fun GameActionButton(
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 1.sp,
                 maxLines = 1,
-                softWrap = false
+                softWrap = false,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }
