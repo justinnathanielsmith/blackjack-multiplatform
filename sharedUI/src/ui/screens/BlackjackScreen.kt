@@ -122,6 +122,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
     // List of active chip eruption instances
     val chipEruptions = remember { mutableStateListOf<ChipEruptionInstance>() }
     val chipLosses = remember { mutableStateListOf<Int>() }
+    
+    LaunchedEffect(appSettings.isSoundMuted) {
+        audioService.isMuted = appSettings.isSoundMuted
+    }
 
     val isTerminal = remember(state.status) { state.status.isTerminal() }
     val isMultiHand = remember(state.playerHands.size) { state.playerHands.size > 1 }
@@ -169,8 +173,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
             handleGameEffect(
                 effect = effect,
                 hapticsService = hapticsService,
-                audioService = audioService,
-                isSoundMuted = appSettings.isSoundMuted
+                audioService = audioService
             )
             if (effect is GameEffect.NearMissHighlight) {
                 launch {
@@ -204,7 +207,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
     }
 
     LaunchedEffect(state.status) {
-        if (appSettings.isSoundMuted) return@LaunchedEffect
         when (state.status) {
             GameStatus.PLAYER_WON -> {
                 audioService.playEffect(AudioService.SoundEffect.WIN)

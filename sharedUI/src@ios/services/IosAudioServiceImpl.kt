@@ -32,7 +32,7 @@ class IosAudioServiceImpl(
     private val soundPools = mutableMapOf<StringResource, MutableList<AVAudioPlayer>>()
     private val audioDataMap = mutableMapOf<StringResource, NSData>()
 
-    private var isSoundEnabled = true
+    override var isMuted: Boolean = false
     private var isSessionActive = false
     private var soundVolume = 1.0f
 
@@ -126,7 +126,7 @@ class IosAudioServiceImpl(
     }
 
     override fun playEffect(effect: AudioService.SoundEffect) {
-        if (!isSoundEnabled) return
+        if (isMuted) return
 
         val resource = effect.toResource()
         scope.launch {

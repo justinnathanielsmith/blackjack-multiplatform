@@ -9,6 +9,7 @@ import kotlin.test.assertEquals
 class GameEffectHandlerTest {
     private val noopAudio =
         object : AudioService {
+            override var isMuted: Boolean = false
             override fun playEffect(effect: AudioService.SoundEffect) {}
 
             override fun release() {}
@@ -32,7 +33,6 @@ class GameEffectHandlerTest {
             effect = GameEffect.Vibrate,
             hapticsService = hapticsService,
             audioService = noopAudio,
-            isSoundMuted = false,
         )
 
         assertEquals(1, calls)
@@ -56,7 +56,6 @@ class GameEffectHandlerTest {
             effect = GameEffect.PlayWinSound,
             hapticsService = hapticsService,
             audioService = noopAudio,
-            isSoundMuted = false,
         )
 
         assertEquals(0, calls)

@@ -42,7 +42,7 @@ class AndroidAudioServiceImpl(
     private val resourceToName = ConcurrentHashMap<StringResource, String>()
     private val loadedSounds = ConcurrentHashMap.newKeySet<Int>()
     private val fallbackPlayers = ConcurrentHashMap<StringResource, MediaPlayer>()
-    private var isSoundEnabled = true
+    override var isMuted: Boolean = false
     private var soundVolume = 1.0f
 
     init {
@@ -82,7 +82,7 @@ class AndroidAudioServiceImpl(
         }
 
     private fun playSound(resource: StringResource) {
-        if (!isSoundEnabled) return
+        if (isMuted) return
 
         val soundId = soundMap[resource]
         if (soundId != null && loadedSounds.contains(soundId)) {

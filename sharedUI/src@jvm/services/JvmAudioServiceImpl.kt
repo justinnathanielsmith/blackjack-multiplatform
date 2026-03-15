@@ -18,7 +18,7 @@ class JvmAudioServiceImpl(
     private val logger: Logger,
 ) : AudioService {
     private val scope = CoroutineScope(Dispatchers.IO)
-    private var isSoundEnabled = true
+    override var isMuted: Boolean = false
     private val tempAudioDir = File(System.getProperty("java.io.tmpdir"), "blackjack_audio").apply { mkdirs() }
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
 
@@ -50,7 +50,7 @@ class JvmAudioServiceImpl(
     }
 
     private fun playSound(resource: StringResource) {
-        if (!isSoundEnabled) return
+        if (isMuted) return
         val path = resourceToPath[resource] ?: return
 
         scope.launch {

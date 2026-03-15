@@ -16,6 +16,8 @@ import sharedui.generated.resources.audio_tension
 import sharedui.generated.resources.audio_win
 
 interface AudioService {
+    var isMuted: Boolean
+
     fun playEffect(effect: SoundEffect)
 
     fun release()
