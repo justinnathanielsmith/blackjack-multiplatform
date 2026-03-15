@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,18 @@ fun Header(
     onRulesClick: () -> Unit = {}
 ) {
     var previousBalance by remember { mutableStateOf(balance) }
+    val jiggleX = remember { Animatable(0f) }
+
+    LaunchedEffect(balance) {
+        if (balance > previousBalance) {
+            jiggleX.snapTo(0f)
+            jiggleX.animateTo(-6f, tween(40))
+            jiggleX.animateTo(6f, tween(60))
+            jiggleX.animateTo(-4f, tween(50))
+            jiggleX.animateTo(4f, tween(50))
+            jiggleX.animateTo(0f, tween(40, easing = FastOutSlowInEasing))
+        }
+    }
 
     val animatedBalance by animateIntAsState(
         targetValue = balance,
@@ -82,9 +96,11 @@ fun Header(
     ) {
         Column(
             modifier =
-                Modifier.semantics(mergeDescendants = true) {
-                    contentDescription = "Balance: $$formattedBalance"
-                },
+                Modifier
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = "Balance: $$formattedBalance"
+                    }
+                    .graphicsLayer { translationX = jiggleX.value },
         ) {
             Text(
                 text = stringResource(Res.string.balance).uppercase(),

@@ -1,6 +1,11 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -19,7 +24,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -36,6 +43,7 @@ fun CasinoButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isStrategic: Boolean = false,
+    showShine: Boolean = false,
     containerColor: Color? = null,
     contentColor: Color? = null,
     contentPadding: androidx.compose.foundation.layout.PaddingValues =
@@ -54,6 +62,17 @@ fun CasinoButton(
                 spring(dampingRatio = 0.4f, stiffness = 400f)
             },
         label = "buttonScale",
+    )
+
+    val shineTransition = rememberInfiniteTransition(label = "buttonShine")
+    val shineProgress by shineTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shineProgress"
     )
 
     val resolvedContainerColor = containerColor ?: if (isStrategic) PrimaryGold else MaterialTheme.colorScheme.secondary
@@ -136,7 +155,23 @@ fun CasinoButton(
                             shape = RoundedCornerShape(16.dp)
                         )
                     }
-                ).clickable(
+                ).drawBehind {
+                    if (showShine && enabled) {
+                        val shineX = -size.width + shineProgress * 3f * size.width
+                        val bandWidth = size.width * 0.4f
+                        drawRect(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.White.copy(alpha = 0.3f),
+                                    Color.Transparent
+                                ),
+                                start = Offset(shineX, 0f),
+                                end = Offset(shineX + bandWidth, size.height)
+                            )
+                        )
+                    }
+                }.clickable(
                     interactionSource = interactionSource,
                     indication = null,
                     enabled = enabled,
