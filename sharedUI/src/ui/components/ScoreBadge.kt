@@ -56,7 +56,7 @@ fun ScoreBadge(
         modifier = modifier
             .background(backgroundColor, BadgeShape)
             .border(1.dp, borderColor, BadgeShape)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(
@@ -66,7 +66,7 @@ fun ScoreBadge(
         ) { targetScore ->
             Text(
                 text = targetScore.toString(),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 color = textColor,
                 fontWeight = FontWeight.Black,
             )

@@ -144,22 +144,6 @@ fun BlackjackHandContainer(
             TitleBadge(title = title, isActive = isActive, isCompact = isAnyCompact, titleStyle = titleStyle)
         }
 
-        // Score Badge: The "Breaking Out" style
-        val badgeState = when {
-            title == stringResource(Res.string.dealer) -> ScoreBadgeState.DEALER
-            isActive -> ScoreBadgeState.ACTIVE
-            else -> ScoreBadgeState.WAITING
-        }
-        ScoreBadge(
-            score = score,
-            state = badgeState,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 12.dp, end = 12.dp)
-                .zIndex(2f)
-                .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
-        )
-
         val contentPadding =
             when {
                 isExtraCompact -> 10.dp
@@ -173,6 +157,7 @@ fun BlackjackHandContainer(
                 else -> 24.dp
             }
         val bottomPadding = if (isExtraCompact) 8.dp else contentPadding
+        val betPadding = if (bet != null) 42.dp else 0.dp
 
         val minContentHeight =
             when {
@@ -190,11 +175,28 @@ fun BlackjackHandContainer(
                         start = contentPadding,
                         end = contentPadding,
                         top = topPadding,
-                        bottom = bottomPadding + 6.dp
+                        bottom = bottomPadding + betPadding
                     ),
             contentAlignment = Alignment.Center,
         ) {
-            content()
+            Box(contentAlignment = Alignment.BottomEnd) {
+                content()
+
+                val badgeState = when {
+                    title == stringResource(Res.string.dealer) -> ScoreBadgeState.DEALER
+                    isActive -> ScoreBadgeState.ACTIVE
+                    else -> ScoreBadgeState.WAITING
+                }
+                
+                ScoreBadge(
+                    score = score,
+                    state = badgeState,
+                    modifier = Modifier
+                        .offset(x = 12.dp, y = 14.dp)
+                        .zIndex(2f)
+                        .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
+                )
+            }
         }
 
         // Result Overlay (WIN/LOSS/PUSH)
@@ -206,7 +208,7 @@ fun BlackjackHandContainer(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = (-12).dp) // Tucked inside the container
+                        .padding(bottom = 12.dp) // Slot at the bottom
                         .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
             ) {
                 ChipStack(amount = bet, isActive = isActive)
