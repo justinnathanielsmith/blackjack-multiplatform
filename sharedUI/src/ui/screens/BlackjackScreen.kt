@@ -258,7 +258,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             Modifier
                                 .fillMaxWidth()
                                 .onGloballyPositioned {
-                                    headerBalanceOffset = it.positionInRoot() + Offset(80.dp.value, 40.dp.value) // Approximate balance position
+                                    headerBalanceOffset = it.positionInRoot() + Offset(80.dp.value, 40.dp.value)
                                 }
                     ) {
                         Header(

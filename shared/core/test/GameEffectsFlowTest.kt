@@ -46,7 +46,9 @@ class GameEffectsFlowTest {
 
             sm.effects.test {
                 sm.dispatch(GameAction.Stand)
-                assertEquals(GameEffect.PlayWinSound, awaitItem())
+                // ChipEruption is emitted before PlayWinSound
+                val emitted = buildList { repeat(2) { add(awaitItem()) } }
+                assertTrue(GameEffect.PlayWinSound in emitted)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -67,8 +69,8 @@ class GameEffectsFlowTest {
 
             sm.effects.test {
                 sm.dispatch(GameAction.Hit)
-                // Emissions: PlayCardSound, HeavyCardThud (TEN drawn), PlayLoseSound, Vibrate
-                val emitted = buildList { repeat(4) { add(awaitItem()) } }
+                // Emissions: PlayCardSound, HeavyCardThud (TEN drawn), ChipLoss, PlayLoseSound, Vibrate
+                val emitted = buildList { repeat(5) { add(awaitItem()) } }
                 assertTrue(GameEffect.PlayCardSound in emitted)
                 assertTrue(GameEffect.HeavyCardThud in emitted)
                 assertTrue(GameEffect.PlayLoseSound in emitted)
@@ -167,6 +169,31 @@ class GameEffectsFlowTest {
         }
 
     @Test
+    fun playerBustEmitsChipAnimationAndVibrateAndLoseSound() =
+        runTest {
+            // Player TEN+TEN=20, draws TEN → 30 (guaranteed bust)
+            val sm =
+                BlackjackStateMachine(
+                    this,
+                    playingState(
+                        playerHand = hand(Rank.TEN, Rank.TEN),
+                        dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.TEN),
+                    ),
+                )
+
+            sm.effects.test {
+                sm.dispatch(GameAction.Hit)
+                // Emissions include ChipLoss, PlayLoseSound, Vibrate on bust
+                val emitted = buildList { repeat(5) { add(awaitItem()) } }
+                assertTrue(emitted.any { it is GameEffect.ChipLoss })
+                assertTrue(GameEffect.PlayLoseSound in emitted)
+                assertTrue(GameEffect.Vibrate in emitted)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun dealerWinEmitsPlayLoseSoundAndVibrate() =
         runTest {
             // Player TEN+SIX=16 stands, dealer TEN+NINE=19 wins
@@ -181,7 +208,8 @@ class GameEffectsFlowTest {
 
             sm.effects.test {
                 sm.dispatch(GameAction.Stand)
-                val emitted = buildList { repeat(2) { add(awaitItem()) } }
+                // ChipLoss is also emitted: ChipLoss, PlayLoseSound, Vibrate
+                val emitted = buildList { repeat(3) { add(awaitItem()) } }
                 assertTrue(GameEffect.PlayLoseSound in emitted)
                 assertTrue(GameEffect.Vibrate in emitted)
                 cancelAndIgnoreRemainingEvents()
