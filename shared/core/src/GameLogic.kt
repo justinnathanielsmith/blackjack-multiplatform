@@ -207,6 +207,10 @@ sealed class GameAction {
         val count: Int
     ) : GameAction()
 
+    data class UpdateRules(
+        val rules: GameRules
+    ) : GameAction()
+
     data class PlaceSideBet(
         val type: SideBetType,
         val amount: Int

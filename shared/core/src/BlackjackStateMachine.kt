@@ -55,6 +55,7 @@ class BlackjackStateMachine(
                     is GameAction.TakeInsurance -> handleTakeInsurance()
                     is GameAction.DeclineInsurance -> handleDeclineInsurance()
                     is GameAction.Split -> handleSplit()
+                    is GameAction.UpdateRules -> handleUpdateRules(action.rules)
                     else -> dispatchBettingPhaseAction(action)
                 }
             }
@@ -107,6 +108,12 @@ class BlackjackStateMachine(
                 handCount = count,
                 balance = current.balance - balanceAdjustment
             )
+    }
+
+    private fun handleUpdateRules(rules: GameRules) {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
+        _state.value = current.copy(rules = rules)
     }
 
     private suspend fun handleDeal() {

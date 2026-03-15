@@ -334,4 +334,15 @@ class BettingPhaseTest {
             // 6 decks = 312 cards; dealt 4 = 308 remaining
             assertEquals(308, sm.state.value.deck.size)
         }
+
+    @Test
+    fun updateRules_updatesGameRules() =
+        runTest {
+            val sm = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING))
+            val newRules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE)
+            sm.dispatch(GameAction.UpdateRules(newRules))
+            advanceUntilIdle()
+
+            assertEquals(newRules, sm.state.value.rules)
+        }
 }

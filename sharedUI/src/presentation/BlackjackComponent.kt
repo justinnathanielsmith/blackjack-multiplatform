@@ -52,8 +52,16 @@ class DefaultBlackjackComponent(
             )
 
             launch {
-                settingsRepository.settingsFlow.collect {
-                    _appSettings.value = it
+                settingsRepository.settingsFlow.collect { newSettings ->
+                    val oldSettings = _appSettings.value
+                    _appSettings.value = newSettings
+
+                    if (newSettings.defaultHandCount != oldSettings.defaultHandCount) {
+                        stateMachine.dispatch(GameAction.SelectHandCount(newSettings.defaultHandCount))
+                    }
+                    if (newSettings.gameRules != oldSettings.gameRules) {
+                        stateMachine.dispatch(GameAction.UpdateRules(newSettings.gameRules))
+                    }
                 }
             }
 
