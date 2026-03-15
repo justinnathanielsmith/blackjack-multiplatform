@@ -45,7 +45,9 @@ data class Card(
 @Immutable
 @Serializable
 data class Hand(
-    val cards: PersistentList<Card> = persistentListOf()
+    val cards: PersistentList<Card> = persistentListOf(),
+    val wasSplit: Boolean = false,
+    val isFromSplitAce: Boolean = false
 ) {
     val score: Int
         get() {
@@ -157,13 +159,13 @@ data class GameState(
     fun canDoubleDown(): Boolean =
         activeHand.cards.size == 2 &&
             balance >= activeBet &&
-            (playerHands.size <= handCount || rules.allowDoubleAfterSplit)
+            (!activeHand.wasSplit || rules.allowDoubleAfterSplit)
 
     fun canSplit(): Boolean =
         playerHands.size < MAX_HANDS &&
             activeHand.cards.size == 2 &&
             activeHand.cards[0].rank == activeHand.cards[1].rank &&
-            balance >= currentBet
+            balance >= activeBet
 }
 
 sealed class GameAction {

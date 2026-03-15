@@ -239,12 +239,7 @@ class BlackjackStateMachine(
         if (state.status != GameStatus.PLAYING) return
 
         // Block hits on split aces
-        val isAceSplit =
-            state.playerHands.size > 1 &&
-                state.activeHand.cards
-                    .firstOrNull()
-                    ?.rank == Rank.ACE
-        if (isAceSplit && state.activeHand.cards.size >= 2) return
+        if (state.activeHand.isFromSplitAce && state.activeHand.cards.size >= 2) return
 
         val newCard = state.deck.first()
         val remainingDeck = state.deck.drop(1).toPersistentList()
@@ -296,32 +291,30 @@ class BlackjackStateMachine(
         val updatedHands =
             state.playerHands
                 .toPersistentList()
-                .set(state.activeHandIndex, newPrimaryHand)
-                .add(state.activeHandIndex + 1, newSplitHand)
+                .set(state.activeHandIndex, newPrimaryHand.copy(wasSplit = true, isFromSplitAce = isAceSplit))
+                .add(state.activeHandIndex + 1, newSplitHand.copy(wasSplit = true, isFromSplitAce = isAceSplit))
         val updatedBets =
             state.playerBets
                 .toPersistentList()
-                .add(state.activeHandIndex + 1, state.currentBet)
+                .add(state.activeHandIndex + 1, state.activeBet)
 
         val newState =
             state.copy(
                 deck = state.deck.drop(2).toPersistentList(),
                 playerHands = updatedHands,
                 playerBets = updatedBets,
-                balance = state.balance - state.currentBet,
+                balance = state.balance - state.activeBet,
             )
         _state.value = newState
         emitEffect(GameEffect.PlayCardSound)
         emitEffect(GameEffect.PlayCardSound)
 
         if (isAceSplit) {
-            // Ace split: both ace hands receive exactly one card and can't be hit → dealer turn
-            scope.launch {
-                mutex.withLock {
-                    _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
-                    runDealerTurn()
-                }
-            }
+            // Ace split: both hands are finished. Advance or end turn.
+            // We are still at activeHandIndex, but we've added a hand at index + 1.
+            // We should skip BOTH hands if they are split Aces.
+            val finalState = newState.copy(activeHandIndex = newState.activeHandIndex + 1)
+            advanceOrEndTurn(finalState)
         }
     }
 
@@ -422,7 +415,7 @@ class BlackjackStateMachine(
         for (i in state.playerHands.indices) {
             val hand = state.playerHands[i]
             val bet = state.playerBets[i]
-            val payout = resolveHand(hand, bet, dealerScore, dealerBust)
+            val payout = resolveHand(hand, bet, dealerScore, dealerBust, state.rules)
             totalPayout += payout
 
             val handWins = !hand.isBust && (dealerBust || hand.score > dealerScore)
@@ -471,14 +464,21 @@ class BlackjackStateMachine(
         bet: Int,
         dealerScore: Int,
         dealerBust: Boolean,
-    ): Int =
-        when {
-            hand.isBust -> 0
-            dealerBust -> bet * 2
-            hand.score > dealerScore -> bet * 2
+        rules: GameRules,
+    ): Int {
+        if (hand.isBust) return 0
+
+        val isNaturalBJ = hand.cards.size == 2 && hand.score == 21 && !hand.wasSplit
+
+        return when {
+            isNaturalBJ && dealerScore != 21 -> {
+                bet + (bet * rules.blackjackPayout.numerator) / rules.blackjackPayout.denominator
+            }
+            dealerBust || hand.score > dealerScore -> bet * 2
             hand.score == dealerScore -> bet
             else -> 0
         }
+    }
 
     private fun handleTakeInsurance() {
         val state = _state.value

@@ -1132,8 +1132,8 @@ class BlackjackStateMachineTest {
                     currentBet = 100,
                     playerHands =
                         persistentListOf(
-                            Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS))),
-                            Hand(persistentListOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS))),
+                            Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS)), wasSplit = true, isFromSplitAce = true),
+                            Hand(persistentListOf(Card(Rank.ACE, Suit.CLUBS), Card(Rank.THREE, Suit.DIAMONDS)), wasSplit = true, isFromSplitAce = true),
                         ),
                     playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
@@ -2036,8 +2036,8 @@ class BlackjackStateMachineTest {
                         currentBet = 100,
                         playerHands =
                             persistentListOf(
-                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
-                                Hand(persistentListOf(Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS)), wasSplit = true),
+                                Hand(persistentListOf(Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS)), wasSplit = true),
                             ),
                         playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
@@ -2045,5 +2045,92 @@ class BlackjackStateMachineTest {
                     ),
                 )
             assertFalse(stateMachine.state.value.canDoubleDown())
+        }
+    
+    @Test
+    fun test_natural_blackjack_payout_3_to_2_multi_hand() =
+        runTest {
+            // Hand 0: Natural Blackjack (wins vs dealer 18) -> Should pay 3:2
+            // Hand 1: Win with 20 (wins vs dealer 18) -> Should pay 1:1
+            // balance=800, currentBet=100, playerBets=[100,100]
+            // Hand 0 payout: 100 * 2.5 = 250 (100 bet + 150 win)
+            // Hand 1 payout: 100 * 2 = 200 (100 bet + 100 win)
+            // Total balance = 800 + 250 + 200 = 1250
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 800,
+                    currentBet = 100,
+                    playerHands =
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS))),
+                            Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.TEN, Suit.DIAMONDS))),
+                        ),
+                    playerBets = persistentListOf(100, 100),
+                    activeHandIndex = 1,
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
+                    deck = persistentListOf(),
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            assertEquals(1250, state.balance)
+        }
+
+    @Test
+    fun test_ace_split_turn_progression() = 
+        runTest {
+            // Test splitting Aces when there are 3 hands. 
+            // Hand 0 splits Aces -> gets 1 card each -> Hand 2 should then become active.
+            val initialState =
+                GameState(
+                    status = GameStatus.PLAYING,
+                    balance = 700,
+                    currentBet = 100,
+                    playerHands =
+                        persistentListOf(
+                            Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.ACE, Suit.HEARTS))),
+                            Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.TEN, Suit.DIAMONDS))),
+                        ),
+                    playerBets = persistentListOf(100, 100),
+                    activeHandIndex = 0,
+                    dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))),
+                    deck = persistentListOf(Card(Rank.FIVE, Suit.SPADES), Card(Rank.THREE, Suit.CLUBS)),
+                )
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Split)
+            advanceUntilIdle()
+
+            val state = stateMachine.state.value
+            // Hands should be: [Ace, 5], [Ace, 3], [Ten, Ten]
+            assertEquals(3, state.playerHands.size)
+            assertEquals(Rank.FIVE, state.playerHands[0].cards[1].rank)
+            assertEquals(Rank.THREE, state.playerHands[1].cards[1].rank)
+            // Turn should have advanced to the original Hand 1 (now Hand 2)
+            assertEquals(2, state.activeHandIndex)
+            assertEquals(GameStatus.PLAYING, state.status)
+        }
+
+    @Test
+    fun test_double_after_split_respects_rules() =
+        runTest {
+            // Hand was split, rule allowDoubleAfterSplit = true
+            val state1 = GameState(
+                status = GameStatus.PLAYING,
+                balance = 1000,
+                currentBet = 100,
+                playerHands = persistentListOf(
+                    Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.FIVE, Suit.HEARTS)), wasSplit = true)
+                ),
+                playerBets = persistentListOf(100),
+                rules = GameRules(allowDoubleAfterSplit = true)
+            )
+            assertTrue(state1.canDoubleDown(), "Should allow double after split when rules permit")
+
+            // Hand was split, rule allowDoubleAfterSplit = false
+            val state2 = state1.copy(rules = GameRules(allowDoubleAfterSplit = false))
+            assertFalse(state2.canDoubleDown(), "Should NOT allow double after split when rules forbid")
         }
 }
