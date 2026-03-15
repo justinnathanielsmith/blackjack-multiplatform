@@ -163,7 +163,7 @@ fun BlackjackHandContainer(
                 else -> 24.dp
             }
         val bottomPadding = if (isExtraCompact) 8.dp else contentPadding
-        val betPadding = if (bet != null) 42.dp else 0.dp
+        val betPadding = 0.dp
 
         val minContentHeight =
             when {
@@ -225,13 +225,33 @@ fun BlackjackHandContainer(
         // Bet Chip Stack
         if (bet != null) {
             Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 12.dp) // Slot at the bottom
-                        .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .offset(x = 12.dp, y = 14.dp)
+                    .zIndex(2f)
             ) {
-                ChipStack(amount = bet, isActive = isActive)
+                Column(
+                    modifier = Modifier
+                        .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                        .background(Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "BET",
+                        color = Color.White.copy(alpha = 0.5f),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Box(modifier = Modifier.padding(top = 16.dp)) {
+                        ChipStack(amount = bet, isActive = isActive)
+                    }
+                }
             }
         }
     }
