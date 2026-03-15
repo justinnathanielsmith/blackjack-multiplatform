@@ -31,6 +31,33 @@ class AndroidHapticsServiceImpl(
         }
     }
 
+    @RequiresPermission(Manifest.permission.VIBRATE)
+    override fun heavyThud() {
+        val v = vibrator ?: return
+        if (!v.hasVibrator()) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK))
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(80L, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            v.vibrate(80L)
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.VIBRATE)
+    override fun pulse() {
+        val v = vibrator ?: return
+        if (!v.hasVibrator()) return
+        val timings = longArrayOf(0, 60, 80, 60)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createWaveform(timings, intArrayOf(0, 200, 0, 200), -1))
+        } else {
+            @Suppress("DEPRECATION")
+            v.vibrate(timings, -1)
+        }
+    }
+
     companion object {
         private const val DURATION_MS = 35L
     }

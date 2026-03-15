@@ -67,10 +67,101 @@ class GameEffectsFlowTest {
 
             sm.effects.test {
                 sm.dispatch(GameAction.Hit)
-                // First 3 emissions from handleHit: PlayCardSound, PlayLoseSound, Vibrate
-                assertEquals(GameEffect.PlayCardSound, awaitItem())
-                assertEquals(GameEffect.PlayLoseSound, awaitItem())
-                assertEquals(GameEffect.Vibrate, awaitItem())
+                // Emissions: PlayCardSound, HeavyCardThud (TEN drawn), PlayLoseSound, Vibrate
+                val emitted = buildList { repeat(4) { add(awaitItem()) } }
+                assertTrue(GameEffect.PlayCardSound in emitted)
+                assertTrue(GameEffect.HeavyCardThud in emitted)
+                assertTrue(GameEffect.PlayLoseSound in emitted)
+                assertTrue(GameEffect.Vibrate in emitted)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun hitFaceCardEmitsHeavyCardThud() =
+        runTest {
+            // Player EIGHT+THREE=11, draws KING → 21
+            val sm =
+                BlackjackStateMachine(
+                    this,
+                    playingState(
+                        playerHand = hand(Rank.EIGHT, Rank.THREE),
+                        dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.KING),
+                    ),
+                )
+
+            sm.effects.test {
+                sm.dispatch(GameAction.Hit)
+                val emitted = buildList { repeat(3) { add(awaitItem()) } }
+                assertTrue(GameEffect.HeavyCardThud in emitted)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun hitLowCardDoesNotEmitHeavyCardThud() =
+        runTest {
+            // Player EIGHT+THREE=11, draws FOUR → 15
+            val sm =
+                BlackjackStateMachine(
+                    this,
+                    playingState(
+                        playerHand = hand(Rank.EIGHT, Rank.THREE),
+                        dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.FOUR),
+                    ),
+                )
+
+            sm.effects.test {
+                sm.dispatch(GameAction.Hit)
+                val emitted = buildList { repeat(1) { add(awaitItem()) } }
+                assertTrue(GameEffect.HeavyCardThud !in emitted)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun hitToExactly21EmitsPulse21() =
+        runTest {
+            // Player EIGHT+THREE=11, draws KING → 21
+            val sm =
+                BlackjackStateMachine(
+                    this,
+                    playingState(
+                        playerHand = hand(Rank.EIGHT, Rank.THREE),
+                        dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.KING),
+                    ),
+                )
+
+            sm.effects.test {
+                sm.dispatch(GameAction.Hit)
+                val emitted = buildList { repeat(3) { add(awaitItem()) } }
+                assertTrue(GameEffect.Pulse21 in emitted)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun hitKingToReach21EmitsBothHeavyCardThudAndPulse21() =
+        runTest {
+            // Player EIGHT+THREE=11, draws KING → 21
+            val sm =
+                BlackjackStateMachine(
+                    this,
+                    playingState(
+                        playerHand = hand(Rank.EIGHT, Rank.THREE),
+                        dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.KING),
+                    ),
+                )
+
+            sm.effects.test {
+                sm.dispatch(GameAction.Hit)
+                val emitted = buildList { repeat(3) { add(awaitItem()) } }
+                assertTrue(GameEffect.HeavyCardThud in emitted)
+                assertTrue(GameEffect.Pulse21 in emitted)
                 cancelAndIgnoreRemainingEvents()
             }
         }

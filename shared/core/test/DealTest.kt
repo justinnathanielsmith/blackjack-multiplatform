@@ -107,9 +107,9 @@ class DealTest {
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
                     deck =
                         persistentListOf(
-                            Card(Rank.TEN, Suit.SPADES),   // P1
+                            Card(Rank.TEN, Suit.SPADES), // P1
                             Card(Rank.SEVEN, Suit.HEARTS), // D1
-                            Card(Rank.TEN, Suit.SPADES),   // P2
+                            Card(Rank.TEN, Suit.SPADES), // P2
                             Card(Rank.EIGHT, Suit.DIAMONDS), // D2
                         ),
                 )

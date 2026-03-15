@@ -223,4 +223,12 @@ sealed class GameEffect {
     data object Vibrate : GameEffect()
 
     data object DealerCriticalDraw : GameEffect()
+
+    data class NearMissHighlight(
+        val handIndex: Int
+    ) : GameEffect()
+
+    data object HeavyCardThud : GameEffect()
+
+    data object Pulse21 : GameEffect()
 }

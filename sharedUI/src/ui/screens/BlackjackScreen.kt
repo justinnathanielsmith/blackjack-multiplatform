@@ -66,6 +66,7 @@ import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
+import io.github.smithjustinn.blackjack.ui.effects.CoinEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -107,6 +108,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val hapticsService = LocalAppGraph.current.hapticsService
     val shakeOffset = remember { Animatable(0f) }
     val flashAlpha = remember { Animatable(0f) }
+    var nearMissHandIndex by remember { mutableStateOf<Int?>(null) }
 
     val isTerminal = remember(state.status) { state.status.isTerminal() }
     val isMultiHand = remember(state.playerHands.size) { state.playerHands.size > 1 }
@@ -142,6 +144,13 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 audioService = audioService,
                 isSoundMuted = appSettings.isSoundMuted
             )
+            if (effect is GameEffect.NearMissHighlight) {
+                launch {
+                    nearMissHandIndex = effect.handIndex
+                    delay(1500L)
+                    nearMissHandIndex = null
+                }
+            }
         }
     }
 
@@ -224,6 +233,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         PortraitLayout(
                             state = state,
                             component = component,
+                            nearMissHandIndex = nearMissHandIndex,
                         )
                     }
                 }
@@ -337,6 +347,7 @@ private fun BlackjackGameOverlay(
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
             )
+            CoinEruptionEffect(coinCount = if (isBlackjack) 15 else 10)
         }
 
         val flashAlpha = flashAlphaProvider()
@@ -357,6 +368,7 @@ private fun BlackjackGameOverlay(
 private fun PortraitLayout(
     state: GameState,
     component: BlackjackComponent,
+    nearMissHandIndex: Int? = null,
 ) {
     val hands = state.playerHands
     val isMultiHand = remember(hands.size) { hands.size > 1 }
@@ -367,9 +379,10 @@ private fun PortraitLayout(
     ) {
         Spacer(modifier = Modifier.height(if (isMultiHand) 4.dp else 16.dp))
 
-        val dealerDisplayScore = remember(state.status, state.dealerHand) {
-            if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-        }
+        val dealerDisplayScore =
+            remember(state.status, state.dealerHand) {
+                if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
+            }
         HandContainer(
             title = stringResource(Res.string.dealer),
             score = dealerDisplayScore,
@@ -395,12 +408,14 @@ private fun PortraitLayout(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 hands.forEachIndexed { index, hand ->
-                    val isActive = remember(index, state.activeHandIndex, state.status) {
-                        index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                    }
-                    val isPending = remember(index, state.activeHandIndex, state.status) {
-                        index > state.activeHandIndex && state.status == GameStatus.PLAYING
-                    }
+                    val isActive =
+                        remember(index, state.activeHandIndex, state.status) {
+                            index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                        }
+                    val isPending =
+                        remember(index, state.activeHandIndex, state.status) {
+                            index > state.activeHandIndex && state.status == GameStatus.PLAYING
+                        }
                     HandContainer(
                         title = stringResource(Res.string.hand_number, index + 1),
                         score = hand.score,
@@ -412,23 +427,29 @@ private fun PortraitLayout(
                         isExtraCompact = true,
                         modifier = Modifier.weight(1f),
                     ) {
-                        HandRow(hand, isCompact = true, scale = playerCardScale)
+                        HandRow(
+                            hand,
+                            isCompact = true,
+                            scale = playerCardScale,
+                            isNearMiss = nearMissHandIndex == index
+                        )
                     }
                 }
             }
         } else {
             Spacer(modifier = Modifier.weight(1f))
             val isActive = remember(state.status) { state.status == GameStatus.PLAYING }
-            val bet = remember(state.status, state.currentBet) {
-                if (state.status != GameStatus.IDLE) state.currentBet else null
-            }
+            val bet =
+                remember(state.status, state.currentBet) {
+                    if (state.status != GameStatus.IDLE) state.currentBet else null
+                }
             HandContainer(
                 title = stringResource(Res.string.you),
                 score = hands[0].score,
                 bet = bet,
                 isActive = isActive,
             ) {
-                HandRow(hands[0])
+                HandRow(hands[0], isNearMiss = nearMissHandIndex == 0)
             }
         }
 

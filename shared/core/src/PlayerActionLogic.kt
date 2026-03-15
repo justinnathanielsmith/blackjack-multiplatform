@@ -28,9 +28,16 @@ object PlayerActionLogic {
         val updatedHands = state.playerHands.toPersistentList().set(state.activeHandIndex, newHand)
         val updatedState = state.copy(deck = remainingDeck, playerHands = updatedHands)
 
+        val effects =
+            buildList {
+                add(GameEffect.PlayCardSound)
+                if (newCard.rank.value >= 10) add(GameEffect.HeavyCardThud)
+                if (newHand.score == 21) add(GameEffect.Pulse21)
+                if (newHand.score == 11) add(GameEffect.NearMissHighlight(state.activeHandIndex))
+            }
         return PlayerActionOutcome(
             state = updatedState,
-            effects = listOf(GameEffect.PlayCardSound),
+            effects = effects,
             shouldAdvanceTurn = newHand.isBust
         )
     }
@@ -63,10 +70,14 @@ object PlayerActionLogic {
             )
 
         val effects =
-            if (newHand.isBust) {
-                listOf(GameEffect.PlayCardSound, GameEffect.PlayLoseSound, GameEffect.Vibrate)
-            } else {
-                listOf(GameEffect.PlayCardSound)
+            buildList {
+                add(GameEffect.PlayCardSound)
+                if (drawnCard.rank.value >= 10) add(GameEffect.HeavyCardThud)
+                if (newHand.score == 21) add(GameEffect.Pulse21)
+                if (newHand.isBust) {
+                    add(GameEffect.PlayLoseSound)
+                    add(GameEffect.Vibrate)
+                }
             }
 
         return PlayerActionOutcome(
@@ -94,8 +105,7 @@ object PlayerActionLogic {
                 .set(
                     state.activeHandIndex,
                     newPrimaryHand.copy(wasSplit = true, isFromSplitAce = isAceSplit)
-                )
-                .add(
+                ).add(
                     state.activeHandIndex + 1,
                     newSplitHand.copy(wasSplit = true, isFromSplitAce = isAceSplit)
                 )

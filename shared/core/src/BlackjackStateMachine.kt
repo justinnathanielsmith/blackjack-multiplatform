@@ -115,12 +115,13 @@ class BlackjackStateMachine(
         var dealerHand = Hand()
         val bets = List(current.handCount) { current.currentBet }.toPersistentList()
 
-        _state.value = _state.value.copy(
-            playerHands = playerHands,
-            dealerHand = dealerHand,
-            playerBets = bets,
-            deck = deck
-        )
+        _state.value =
+            _state.value.copy(
+                playerHands = playerHands,
+                dealerHand = dealerHand,
+                playerBets = bets,
+                deck = deck
+            )
 
         // Round-robin deal: 2 cards each
         for (round in 0..1) {
@@ -130,10 +131,11 @@ class BlackjackStateMachine(
                 val card = deck[0]
                 deck = deck.removeAt(0)
                 playerHands = playerHands.set(i, Hand(playerHands[i].cards.add(card)))
-                _state.value = _state.value.copy(
-                    playerHands = playerHands,
-                    deck = deck
-                )
+                _state.value =
+                    _state.value.copy(
+                        playerHands = playerHands,
+                        deck = deck
+                    )
                 emitEffect(GameEffect.PlayCardSound)
             }
 
@@ -143,45 +145,50 @@ class BlackjackStateMachine(
             deck = deck.removeAt(0)
             val dealerCard = if (round == 1) card.copy(isFaceDown = true) else card
             dealerHand = Hand(dealerHand.cards.add(dealerCard))
-            _state.value = _state.value.copy(
-                dealerHand = dealerHand,
-                deck = deck
-            )
+            _state.value =
+                _state.value.copy(
+                    dealerHand = dealerHand,
+                    deck = deck
+                )
             emitEffect(GameEffect.PlayCardSound)
         }
 
         delay(DEAL_CARD_DELAY_MS)
 
         // Evaluate Side Bets
-        val sideBetUpdate = SideBetLogic.resolveSideBets(
-            sideBets = current.sideBets,
-            playerHand = playerHands[0],
-            dealerUpcard = dealerHand.cards[0]
-        )
+        val sideBetUpdate =
+            SideBetLogic.resolveSideBets(
+                sideBets = current.sideBets,
+                playerHand = playerHands[0],
+                dealerUpcard = dealerHand.cards[0]
+            )
 
         // Determine Initial Status (Blackjack etc.)
         val dealerHandRevealed = Hand(dealerHand.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
         val initialStatus = determineInitialStatus(playerHands, dealerHandRevealed, current.handCount)
 
-        val finalDealerHand = when (initialStatus) {
-            GameStatus.PUSH, GameStatus.DEALER_WON -> dealerHandRevealed
-            else -> dealerHand
-        }
+        val finalDealerHand =
+            when (initialStatus) {
+                GameStatus.PUSH, GameStatus.DEALER_WON -> dealerHandRevealed
+                else -> dealerHand
+            }
 
-        val balanceUpdate = when (initialStatus) {
-            GameStatus.PLAYER_WON ->
-                (current.currentBet * current.rules.blackjackPayout.numerator) /
+        val balanceUpdate =
+            when (initialStatus) {
+                GameStatus.PLAYER_WON ->
+                    (current.currentBet * current.rules.blackjackPayout.numerator) /
                         current.rules.blackjackPayout.denominator + current.currentBet
-            GameStatus.PUSH -> current.currentBet
-            else -> 0
-        }
+                GameStatus.PUSH -> current.currentBet
+                else -> 0
+            }
 
-        _state.value = _state.value.copy(
-            status = initialStatus,
-            dealerHand = finalDealerHand,
-            balance = current.balance + balanceUpdate + sideBetUpdate.payoutTotal,
-            sideBetResults = sideBetUpdate.results
-        )
+        _state.value =
+            _state.value.copy(
+                status = initialStatus,
+                dealerHand = finalDealerHand,
+                balance = current.balance + balanceUpdate + sideBetUpdate.payoutTotal,
+                sideBetResults = sideBetUpdate.results
+            )
 
         if (initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0) {
             emitEffect(GameEffect.PlayWinSound)
@@ -352,11 +359,12 @@ class BlackjackStateMachine(
             currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards.add(newCard))
             currentDeck = currentDeck.drop(1).toPersistentList()
 
-            _state.value = _state.value.copy(
-                deck = currentDeck,
-                dealerHand = currentDealerHand,
-                dealerDrawIsCritical = isCritical,
-            )
+            _state.value =
+                _state.value.copy(
+                    deck = currentDeck,
+                    dealerHand = currentDealerHand,
+                    dealerDrawIsCritical = isCritical,
+                )
             emitEffect(GameEffect.PlayCardSound)
             delay(DEALER_TURN_DELAY_MS)
 
@@ -460,11 +468,12 @@ class BlackjackStateMachine(
         val insuranceBet = state.currentBet / 2
         if (insuranceBet > state.balance) return
 
-        _state.value = state.copy(
-            balance = state.balance - insuranceBet,
-            insuranceBet = insuranceBet,
-            status = GameStatus.PLAYING,
-        )
+        _state.value =
+            state.copy(
+                balance = state.balance - insuranceBet,
+                insuranceBet = insuranceBet,
+                status = GameStatus.PLAYING,
+            )
 
         if (_state.value.dealerHand.score == 21) {
             runDealerTurn()
@@ -474,10 +483,11 @@ class BlackjackStateMachine(
     private suspend fun handleDeclineInsurance() {
         val state = _state.value
         if (state.status != GameStatus.INSURANCE_OFFERED) return
-        _state.value = state.copy(
-            insuranceBet = 0,
-            status = GameStatus.PLAYING,
-        )
+        _state.value =
+            state.copy(
+                insuranceBet = 0,
+                status = GameStatus.PLAYING,
+            )
 
         if (_state.value.dealerHand.score == 21) {
             runDealerTurn()

@@ -16,5 +16,8 @@ fun handleGameEffect(
         GameEffect.PlayWinSound -> if (!isSoundMuted) audioService.playEffect(AudioService.SoundEffect.WIN)
         GameEffect.PlayLoseSound -> if (!isSoundMuted) audioService.playEffect(AudioService.SoundEffect.LOSE)
         GameEffect.DealerCriticalDraw -> if (!isSoundMuted) audioService.playEffect(AudioService.SoundEffect.TENSION)
+        is GameEffect.NearMissHighlight -> { /* visual only — handled in BlackjackScreen */ }
+        GameEffect.HeavyCardThud -> hapticsService.heavyThud()
+        GameEffect.Pulse21 -> hapticsService.pulse()
     }
 }

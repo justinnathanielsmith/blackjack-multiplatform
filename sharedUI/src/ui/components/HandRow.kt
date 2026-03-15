@@ -15,6 +15,7 @@ fun HandRow(
     isCompact: Boolean = false,
     isSlowReveal: Boolean = false,
     scale: Float? = null,
+    isNearMiss: Boolean = false,
 ) {
     val cardScale = scale ?: if (isCompact) 0.8f else 1f
     val cardSpacing = (-40f * cardScale).dp
@@ -32,6 +33,7 @@ fun HandRow(
                     animationDelay = index * 100,
                     animationDurationMs = if (isSlowReveal && isDealer) 900 else 300,
                     scale = cardScale,
+                    isNearMiss = isNearMiss,
                 )
             }
         }

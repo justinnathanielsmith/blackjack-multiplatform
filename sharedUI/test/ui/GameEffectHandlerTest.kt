@@ -22,6 +22,10 @@ class GameEffectHandlerTest {
                 override fun vibrate() {
                     calls += 1
                 }
+
+                override fun heavyThud() = Unit
+
+                override fun pulse() = Unit
             }
 
         handleGameEffect(
@@ -42,6 +46,10 @@ class GameEffectHandlerTest {
                 override fun vibrate() {
                     calls += 1
                 }
+
+                override fun heavyThud() = Unit
+
+                override fun pulse() = Unit
             }
 
         handleGameEffect(

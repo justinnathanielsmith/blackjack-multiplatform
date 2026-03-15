@@ -87,8 +87,20 @@ fun PlayingCard(
     animationDelay: Int = 0,
     animationDurationMs: Int = 300,
     scale: Float = 1f,
+    isNearMiss: Boolean = false,
 ) {
     val offsetY = remember { Animatable(if (isDealer) -300f else 300f) }
+    val nearMissAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(isNearMiss) {
+        if (isNearMiss) {
+            nearMissAlpha.animateTo(1f, tween(durationMillis = 300))
+            delay(600L)
+            nearMissAlpha.animateTo(0f, tween(durationMillis = 600))
+        } else {
+            nearMissAlpha.snapTo(0f)
+        }
+    }
 
     LaunchedEffect(card) {
         delay(animationDelay.toLong())
@@ -122,7 +134,19 @@ fun PlayingCard(
                 },
     ) {
         Card(
-            modifier = Modifier.fillMaxSize().border(0.5.dp, Color.Black.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .border(
+                        width = if (nearMissAlpha.value > 0f) 2.dp else 0.5.dp,
+                        color =
+                            if (nearMissAlpha.value > 0f) {
+                                PrimaryGold.copy(alpha = nearMissAlpha.value)
+                            } else {
+                                Color.Black.copy(alpha = 0.1f)
+                            },
+                        shape = RoundedCornerShape(8.dp)
+                    ),
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),

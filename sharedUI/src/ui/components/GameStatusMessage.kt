@@ -27,9 +27,9 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.status_betting
-import sharedui.generated.resources.status_dealing
 import sharedui.generated.resources.status_dealer_turn
 import sharedui.generated.resources.status_dealer_won
+import sharedui.generated.resources.status_dealing
 import sharedui.generated.resources.status_idle
 import sharedui.generated.resources.status_player_won
 import sharedui.generated.resources.status_playing
