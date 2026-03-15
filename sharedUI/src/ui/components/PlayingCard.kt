@@ -42,6 +42,8 @@ import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
+import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import kotlinx.coroutines.delay
 
 val Suit.color: Color
@@ -113,7 +115,7 @@ fun PlayingCard(
     val transition = updateTransition(targetState = isFaceUp, label = "cardFlip")
     val rotation by transition.animateFloat(
         transitionSpec = {
-            tween(durationMillis = 400, easing = FastOutSlowInEasing)
+            tween(durationMillis = AnimationConstants.CardFlipDuration, easing = FastOutSlowInEasing)
         },
         label = "rotation",
     ) { faceUp ->
@@ -125,8 +127,8 @@ fun PlayingCard(
     Box(
         modifier =
             modifier
-                .width((120 * scale).dp)
-                .aspectRatio(24f / 34f)
+                .width(Dimensions.Card.StandardWidth * scale)
+                .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
                     translationY = offsetY.value
                     rotationY = rotation

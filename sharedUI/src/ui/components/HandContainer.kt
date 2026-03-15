@@ -1,6 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -12,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
@@ -75,8 +78,8 @@ fun HandContainer(
     val horizontalPadding = if (isCompact) 8.dp else 16.dp
     val verticalPadding =
         when {
-            isExtraCompact -> 4.dp
-            isCompact -> 8.dp
+            isExtraCompact -> 12.dp
+            isCompact -> 16.dp
             else -> 16.dp
         }
     val cornerRadius =
@@ -90,13 +93,15 @@ fun HandContainer(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+                .animateContentSize()
+                .padding(horizontal = horizontalPadding, vertical = 6.dp), // reduced outer vertical padding, added to inner
     ) {
         // Visual Background
         Box(
             modifier =
                 Modifier
                     .matchParentSize()
+                    .padding(vertical = 6.dp) // Offset background to keep badges within Box bounds
                     .clip(RoundedCornerShape(cornerRadius))
                     .background(backgroundColor)
                     .border(if (isActive) 2.dp else 1.dp, borderColor, RoundedCornerShape(cornerRadius))
@@ -114,9 +119,9 @@ fun HandContainer(
             }
         val topPadding =
             when {
-                isExtraCompact -> 14.dp
+                isExtraCompact -> 18.dp
                 isCompact -> 24.dp
-                else -> 20.dp
+                else -> 24.dp
             }
         val bottomPadding =
             when {
@@ -127,11 +132,19 @@ fun HandContainer(
 
         TitleBadge(title = title, isActive = isActive, isCompact = isAnyCompact, titleStyle = titleStyle)
 
+        val minContentHeight =
+            when {
+                isExtraCompact -> Dimensions.Hand.MinHeightExtraCompact
+                isCompact -> Dimensions.Hand.MinHeightCompact
+                else -> Dimensions.Hand.MinHeightDefault
+            }
+
         Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(start = contentPadding, end = contentPadding, top = topPadding, bottom = bottomPadding),
+                    .defaultMinSize(minHeight = minContentHeight)
+                    .padding(start = contentPadding, end = contentPadding, top = topPadding, bottom = bottomPadding + 6.dp),
             contentAlignment = Alignment.Center,
         ) {
             content()

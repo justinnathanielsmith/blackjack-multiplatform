@@ -29,7 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -46,8 +49,6 @@ import kotlin.math.abs
 @Composable
 fun Header(
     balance: Int,
-    isAutoDealEnabled: Boolean = false,
-    onToggleAutoDeal: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onStrategyClick: () -> Unit = {},
     onRulesClick: () -> Unit = {}
@@ -100,7 +101,6 @@ fun Header(
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            AutoDealIcon(enabled = isAutoDealEnabled, onClick = onToggleAutoDeal)
             HeaderIcon("rules", onClick = onRulesClick)
             HeaderIcon("strategy", onClick = onStrategyClick)
             HeaderIcon("settings", onClick = onSettingsClick)
@@ -109,19 +109,39 @@ fun Header(
 }
 
 @Composable
-private fun AutoDealIcon(
-    enabled: Boolean,
-    onClick: () -> Unit = {},
-) {
+internal fun AutoDealIcon(enabled: Boolean, onClick: () -> Unit = {}) {
     val infiniteTransition = rememberInfiniteTransition(label = "autoDealPulse")
+
+    // Sonar ring progress: 0f → 1f, Restart so rings always expand outward
+    val ringProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "ringProgress",
+    )
+
+    // Breathing scale: 1.0 → 1.1 → 1.0
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = if (enabled) 1.1f else 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "breathScale",
+    )
+
+    // Border alpha: wider range than before (0.3 → 1.0)
     val borderAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = if (enabled) 1f else 0.5f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(900, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
+        initialValue = 0.3f,
+        targetValue = if (enabled) 1.0f else 0.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
         label = "autoBorderAlpha",
     )
 
@@ -129,13 +149,29 @@ private fun AutoDealIcon(
     val backgroundColor = if (enabled) PrimaryGold.copy(alpha = 0.15f) else GlassDark
 
     Box(
-        modifier =
-            Modifier
-                .size(40.dp)
-                .background(backgroundColor, RoundedCornerShape(20.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(20.dp))
-                .clip(RoundedCornerShape(20.dp))
-                .clickable { onClick() },
+        modifier = Modifier
+            .size(40.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .drawBehind {
+                if (enabled) {
+                    val baseRadius = size.minDimension / 2f
+                    repeat(3) { i ->
+                        val phase = (ringProgress + i / 3f) % 1f
+                        val ringAlpha = (1f - phase) * 0.5f
+                        val radius = baseRadius * (1f + phase * 1.5f)
+                        drawCircle(
+                            color = PrimaryGold,
+                            radius = radius,
+                            alpha = ringAlpha,
+                            style = Stroke(width = 2.dp.toPx()),
+                        )
+                    }
+                }
+            }
+            .background(backgroundColor, RoundedCornerShape(20.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(20.dp))
+            .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Text(text = "⚡", fontSize = 18.sp)

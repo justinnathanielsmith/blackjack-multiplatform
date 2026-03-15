@@ -1,12 +1,17 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Hand
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
+import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 
 @Composable
 fun HandRow(
@@ -18,11 +23,13 @@ fun HandRow(
     isNearMiss: Boolean = false,
 ) {
     val cardScale = scale ?: if (isCompact) 0.8f else 1f
-    val cardSpacing = (-40f * cardScale).dp
-    Row(
-        modifier = androidx.compose.ui.Modifier,
-        horizontalArrangement = Arrangement.spacedBy(cardSpacing),
-        verticalAlignment = Alignment.CenterVertically,
+    val cardWidth = Dimensions.Card.StandardWidth * cardScale
+    val overlapOffset = Dimensions.Card.OverlapOffsetRaw.dp * cardScale
+
+    androidx.compose.foundation.layout.Row(
+        modifier = Modifier.animateContentSize(),
+        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(overlapOffset),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         hand.cards.forEachIndexed { index, card ->
             key(card) {
@@ -30,10 +37,14 @@ fun HandRow(
                     card = card,
                     isFaceUp = !card.isFaceDown,
                     isDealer = isDealer,
-                    animationDelay = index * 100,
-                    animationDurationMs = if (isSlowReveal && isDealer) 900 else 300,
+                    animationDelay = index * AnimationConstants.CardDealDelay,
+                    animationDurationMs = if (isSlowReveal && isDealer) {
+                        AnimationConstants.CardRevealDurationSlow
+                    } else {
+                        AnimationConstants.CardRevealDurationDefault
+                    },
                     scale = cardScale,
-                    isNearMiss = isNearMiss,
+                    isNearMiss = isNearMiss
                 )
             }
         }

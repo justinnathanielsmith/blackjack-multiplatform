@@ -18,13 +18,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
+import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,6 +66,7 @@ import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandContainer
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
+import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
@@ -258,7 +258,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .windowInsetsPadding(WindowInsets.safeDrawing),
+                            .windowInsetsPadding(safeDrawingInsets()),
                 ) {
                     if (appSettings.isDebugMode) {
                         DebugPanel(
@@ -278,10 +278,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     ) {
                         Header(
                             balance = state.balance,
-                            isAutoDealEnabled = appSettings.isAutoDealEnabled,
-                            onToggleAutoDeal = {
-                                component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) }
-                            },
                             onSettingsClick = { showSettings = true },
                             onStrategyClick = { showStrategy = true },
                             onRulesClick = { showRules = true }
@@ -299,6 +295,18 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             component = component,
                             nearMissHandIndex = nearMissHandIndex,
                         )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(16.dp)
+                        ) {
+                            AutoDealIcon(
+                                enabled = appSettings.isAutoDealEnabled,
+                                onClick = {
+                                    component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) }
+                                },
+                            )
+                        }
                     }
                 }
 
@@ -556,7 +564,7 @@ private fun SideBetResultOverlay(
         modifier =
             modifier
                 .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .windowInsetsPadding(safeDrawingInsets())
                 .padding(16.dp),
         contentAlignment = Alignment.TopCenter
     ) {

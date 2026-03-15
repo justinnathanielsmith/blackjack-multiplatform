@@ -117,20 +117,22 @@ fun BetChip(
 
             // Decorative blocks on the rim (standard casino chip look)
             val dashLength = (radius * 2 * PI / 12).toFloat()
-            drawCircle(
-                color = Color.White.copy(alpha = 0.6f),
-                radius = radius * 0.92f,
-                center = center,
-                style =
-                    Stroke(
-                        width = 4.dp.toPx(),
-                        pathEffect =
-                            PathEffect.dashPathEffect(
-                                floatArrayOf(dashLength / 2, dashLength / 2),
-                                0f
-                            )
-                    )
-            )
+            if (dashLength > 0f) {
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.6f),
+                    radius = radius * 0.92f,
+                    center = center,
+                    style =
+                        Stroke(
+                            width = 4.dp.toPx(),
+                            pathEffect =
+                                PathEffect.dashPathEffect(
+                                    floatArrayOf(dashLength / 2, dashLength / 2),
+                                    0f
+                                )
+                        )
+                )
+            }
 
             // Inner circle highlight
             drawCircle(
