@@ -1,13 +1,9 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Hand
 import kotlinx.collections.immutable.toPersistentList
@@ -19,6 +15,7 @@ fun PlayerHand(
     cards: List<Card>,
     bet: Int? = null,
     result: HandResult = HandResult.NONE,
+    title: String? = null,
     isCompact: Boolean = false,
     isExtraCompact: Boolean = false,
     modifier: Modifier = Modifier,
@@ -32,6 +29,7 @@ fun PlayerHand(
 
     BlackjackHandContainer(
         score = handTotal,
+        title = title,
         isActive = isActive,
         isPending = isWaiting,
         bet = bet,
@@ -42,15 +40,10 @@ fun PlayerHand(
             .then(scaleModifier)
             .alpha(alpha)
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HandRow(
-                hand = Hand(cards.toPersistentList()),
-                isCompact = isCompact || isExtraCompact || scale < 0.9f,
-                scale = scale * 0.85f
-            )
-        }
+        HandRow(
+            hand = Hand(cards.toPersistentList()),
+            isCompact = isCompact || isExtraCompact,
+            scale = scale
+        )
     }
 }

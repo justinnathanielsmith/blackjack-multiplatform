@@ -60,11 +60,10 @@ import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
-import io.github.smithjustinn.blackjack.ui.components.BlackjackHandContainer
+import io.github.smithjustinn.blackjack.ui.components.DealerHand
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandResult
-import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.HandStatus
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
@@ -86,6 +85,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.dealer
+import sharedui.generated.resources.hand_number
 import kotlin.random.Random
 
 fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
@@ -460,20 +460,14 @@ private fun PortraitLayout(
             }
 
         // Dealer Hand - Fixed size at the top
-        BlackjackHandContainer(
-            title = stringResource(Res.string.dealer),
+        DealerHand(
+            hand = state.dealerHand,
             score = dealerDisplayScore,
+            title = stringResource(Res.string.dealer),
             isCompact = handCount > 1,
             isExtraCompact = handCount > 2,
-        ) {
-            HandRow(
-                state.dealerHand,
-                isDealer = true,
-                isCompact = handCount > 1,
-                isSlowReveal = state.dealerDrawIsCritical,
-                scale = if (handCount > 1) 0.82f else 1f,
-            )
-        }
+            isSlowReveal = state.dealerDrawIsCritical,
+        )
 
         // Player Hands - Dynamic space between dealer and actions
         DynamicPlayerHandsLayout(
@@ -578,6 +572,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                         cards = hand.cards,
                         bet = bet,
                         result = state.handResult(index),
+                        title = stringResource(Res.string.hand_number, index + 1),
                         modifier = Modifier.fillMaxHeight(),
                         scale = playerCardScale,
                         isCompact = true,

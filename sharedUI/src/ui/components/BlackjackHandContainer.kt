@@ -11,12 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +43,57 @@ private val ContainerShape = RoundedCornerShape(24.dp)
 private val CompactContainerShape = RoundedCornerShape(12.dp)
 private val ExtraCompactContainerShape = RoundedCornerShape(8.dp)
 
+@Composable
+private fun ActiveGlowLayer(
+    cornerRadius: RoundedCornerShape,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowAlpha"
+    )
+    val glowElevation by infiniteTransition.animateFloat(
+        initialValue = 4f,
+        targetValue = 12f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowElevation"
+    )
+
+    Box(
+        modifier = modifier
+            .graphicsLayer {
+                shadowElevation = glowElevation.dp.toPx()
+                shape = cornerRadius
+                clip = false
+                ambientShadowColor = PrimaryGold.copy(alpha = glowAlpha)
+                spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
+            }
+            .drawBehind {
+                drawRoundRect(
+                    color = backgroundColor,
+                    cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
+                )
+                val currentBorderWidth = (2.5.dp + (0.5.dp * glowAlpha)).toPx()
+                val currentBorderColor = PrimaryGold.copy(alpha = 0.6f + (0.4f * glowAlpha))
+                drawRoundRect(
+                    color = currentBorderColor,
+                    cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
+                    style = Stroke(width = currentBorderWidth)
+                )
+            }
+    )
+}
+
 /**
  * The unified, premium hand container for both Dealer and Player hands.
  * Features a "breaking out" score badge, status indicators, and result overlays.
@@ -67,7 +114,6 @@ fun BlackjackHandContainer(
     val isAnyCompact = isCompact || isExtraCompact
     val borderColor =
         when {
-            isActive -> PrimaryGold
             isPending -> GlassLight
             else -> Color.White.copy(alpha = 0.05f)
         }
@@ -85,90 +131,59 @@ fun BlackjackHandContainer(
         }
 
     val horizontalPadding = if (isCompact) 8.dp else 16.dp
-    val outerVerticalPadding = 6.dp
 
     Box(
         modifier =
             modifier
                 .fillMaxWidth()
                 .animateContentSize()
-                .padding(horizontal = horizontalPadding, vertical = outerVerticalPadding),
+                .padding(horizontal = horizontalPadding, vertical = 6.dp),
     ) {
         // Visual Background + Border
-        val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
-        val glowAlpha by infiniteTransition.animateFloat(
-            initialValue = 0.4f,
-            targetValue = 1.0f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "glowAlpha"
-        )
-        val glowElevation by infiniteTransition.animateFloat(
-            initialValue = 4f,
-            targetValue = 12f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "glowElevation"
-        )
-
-        Box(
-            modifier =
-                Modifier
+        if (isActive) {
+            ActiveGlowLayer(
+                cornerRadius = cornerRadius,
+                backgroundColor = backgroundColor,
+                modifier = Modifier.matchParentSize().padding(vertical = 6.dp),
+            )
+        } else {
+            Box(
+                modifier = Modifier
                     .matchParentSize()
                     .padding(vertical = 6.dp)
-                    .graphicsLayer {
-                        if (isActive) {
-                            shadowElevation = glowElevation.dp.toPx()
-                            shape = cornerRadius
-                            clip = false
-                            ambientShadowColor = PrimaryGold.copy(alpha = glowAlpha)
-                            spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
-                        }
-                    }
                     .drawBehind {
                         drawRoundRect(
                             color = backgroundColor,
                             cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
                         )
-                        val currentBorderWidth = if (isActive) (2.5.dp + (0.5.dp * glowAlpha)).toPx() else 1.dp.toPx()
-                        val currentBorderColor = if (isActive) borderColor.copy(alpha = 0.6f + (0.4f * glowAlpha)) else borderColor
                         drawRoundRect(
-                            color = currentBorderColor,
+                            color = borderColor,
                             cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
-                            style = Stroke(width = currentBorderWidth)
+                            style = Stroke(width = 1.dp.toPx())
                         )
                     }
-        )
-
-        // Status Badge (Active/Waiting)
-        if (isActive || isPending) {
-            StatusBadge(isActive = isActive, isPending = isPending, isCompact = isAnyCompact)
+            )
         }
 
-        // Title Badge (Dealer, Player 1, etc.)
+        // Title Badge (Dealer, Player 1, etc.) — TopStart, inside container
         if (title != null) {
             val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
             TitleBadge(title = title, isActive = isActive, isCompact = isAnyCompact, titleStyle = titleStyle)
         }
 
-        val contentPadding =
-            when {
-                isExtraCompact -> 10.dp
-                isCompact -> 16.dp
-                else -> 16.dp
-            }
+        // Status Badge (Active/Waiting) — TopEnd, inside container
+        if (isActive || isPending) {
+            StatusBadge(isActive = isActive, isPending = isPending, isCompact = isAnyCompact)
+        }
+
+        val contentPadding = if (isExtraCompact) 10.dp else 16.dp
         val topPadding =
             when {
-                isExtraCompact -> 18.dp
-                isCompact -> 24.dp
-                else -> 24.dp
+                isExtraCompact -> 22.dp
+                isCompact -> 28.dp
+                else -> 32.dp
             }
         val bottomPadding = if (isExtraCompact) 8.dp else contentPadding
-        val betPadding = 0.dp
 
         val minContentHeight =
             when {
@@ -192,7 +207,7 @@ fun BlackjackHandContainer(
                         start = contentPadding,
                         end = contentPadding,
                         top = topPadding,
-                        bottom = bottomPadding + betPadding
+                        bottom = bottomPadding
                     ),
             contentAlignment = Alignment.Center,
         ) {
@@ -272,8 +287,8 @@ private fun BoxScope.TitleBadge(
     Box(
         modifier =
             Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = (-6).dp)
+                .align(Alignment.TopStart)
+                .offset(x = 12.dp, y = 8.dp)
                 .zIndex(1f)
                 .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                 .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
@@ -312,8 +327,8 @@ private fun BoxScope.StatusBadge(
     Box(
         modifier =
             Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = (-6).dp)
+                .align(Alignment.TopEnd)
+                .offset(x = (-12).dp, y = 8.dp)
                 .zIndex(1f)
                 .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                 .background(badgeColor, RoundedCornerShape(12.dp))
