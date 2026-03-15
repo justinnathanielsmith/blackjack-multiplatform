@@ -126,7 +126,8 @@ class DealerBehaviorTest {
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.TWO), // A+2 = soft 13, after hit A+2+4 = soft 17
-                        deck = deckOf(Rank.FOUR, Rank.FIVE, Rank.SIX), // A+2+4=soft17 → hits; +5=22→12(hard) → hits; +6=18 → stands
+                        // A+2+4=soft17 → hits; +5=22→12(hard) → hits; +6=18 → stands
+                        deck = deckOf(Rank.FOUR, Rank.FIVE, Rank.SIX),
                         rules = rules,
                     ),
                 )

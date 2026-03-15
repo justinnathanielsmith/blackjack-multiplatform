@@ -129,7 +129,8 @@ data class SideBetResult(
     val type: SideBetType,
     val payoutMultiplier: Int,
     val payoutAmount: Int,
-    val outcomeName: String // e.g., "Flush", "Perfect Pair"
+    // e.g., "Flush", "Perfect Pair"
+    val outcomeName: String
 )
 
 @Immutable

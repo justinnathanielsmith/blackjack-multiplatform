@@ -22,7 +22,8 @@ sealed class StrategyTab {
 @Immutable
 data class StrategyCell(
     val playerValue: String,
-    val actions: Map<Int, StrategyAction> // dealer upcard (2..11) to action
+    // dealer upcard (2..11) to action
+    val actions: Map<Int, StrategyAction>
 )
 
 object StrategyProvider {
