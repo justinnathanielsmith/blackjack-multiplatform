@@ -27,13 +27,22 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
 @Composable
 fun GameActionButton(
-    icon: String,
+    icon: DrawableResource,
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -45,7 +54,7 @@ fun GameActionButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val scale by animateFloatAsState(
+    val baseScale by animateFloatAsState(
         targetValue = if (isPressed) 0.93f else 1f,
         animationSpec =
             if (isPressed) {
@@ -55,6 +64,20 @@ fun GameActionButton(
             },
         label = "actionButtonScale",
     )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "breathing")
+    val breathingScale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = if (isStrategic && enabled && !isPressed) 1.05f else 1.0f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "breathScale",
+    )
+
+    val scale = baseScale * breathingScale
 
     val resolvedContainerColor = containerColor ?: if (isStrategic) PrimaryGold else GlassDark
     val resolvedContentColor =
@@ -147,13 +170,14 @@ fun GameActionButton(
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = icon,
-                color = finalColor,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                softWrap = false,
-                modifier = Modifier.align(Alignment.CenterStart).padding(start = 4.dp)
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = finalColor,
+                modifier = Modifier
+                    .size(20.dp)
+                    .align(Alignment.CenterStart)
+                    .padding(start = 4.dp)
             )
             Text(
                 text = label.uppercase(),

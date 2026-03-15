@@ -35,6 +35,10 @@ import sharedui.generated.resources.double_down
 import sharedui.generated.resources.hit
 import sharedui.generated.resources.split
 import sharedui.generated.resources.stand
+import sharedui.generated.resources.ic_double
+import sharedui.generated.resources.ic_hit
+import sharedui.generated.resources.ic_split
+import sharedui.generated.resources.ic_stand
 
 @Composable
 fun GameActions(
@@ -110,7 +114,7 @@ fun GameActions(
                 ) {
                     if (canDouble) {
                         GameActionButton(
-                            icon = "x2",
+                            icon = Res.drawable.ic_double,
                             label = stringResource(Res.string.double_down),
                             onClick = onDoubleDown,
                             modifier = Modifier.weight(1f),
@@ -119,21 +123,21 @@ fun GameActions(
                     }
                     if (canSplit) {
                         GameActionButton(
-                            icon = "⑃",
+                            icon = Res.drawable.ic_split,
                             label = stringResource(Res.string.split),
                             onClick = onSplit,
                             modifier = Modifier.weight(1f),
                         )
                     }
                     GameActionButton(
-                        icon = "👇",
+                        icon = Res.drawable.ic_hit,
                         label = stringResource(Res.string.hit),
                         onClick = onHit,
                         modifier = Modifier.weight(1f),
                         isStrategic = true,
                     )
                     GameActionButton(
-                        icon = "✋",
+                        icon = Res.drawable.ic_stand,
                         label = stringResource(Res.string.stand),
                         onClick = onStand,
                         modifier = Modifier.weight(1f),
