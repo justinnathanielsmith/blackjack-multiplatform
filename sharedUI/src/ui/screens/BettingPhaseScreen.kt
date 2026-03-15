@@ -200,7 +200,10 @@ fun BettingPhaseScreen(
             ChipSelector(
                 balance = state.balance,
                 selectedAmount = selectedAmount,
-                onChipSelected = { selectedAmount = it },
+                onChipSelected = { 
+                    selectedAmount = it
+                    audioService.playEffect(AudioService.SoundEffect.PLINK)
+                },
             )
 
             BettingActions(

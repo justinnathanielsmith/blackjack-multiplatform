@@ -20,5 +20,6 @@ fun handleGameEffect(
         GameEffect.Pulse21 -> hapticsService.pulse()
         is GameEffect.ChipEruption -> { /* visual only — handled in BlackjackScreen */ }
         is GameEffect.ChipLoss -> { /* visual only — handled in BlackjackScreen */ }
+        GameEffect.PlayPlinkSound -> audioService.playEffect(AudioService.SoundEffect.PLINK)
     }
 }

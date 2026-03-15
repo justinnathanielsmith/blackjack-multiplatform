@@ -246,4 +246,6 @@ sealed class GameEffect {
     data class ChipLoss(
         val amount: Int
     ) : GameEffect()
+
+    data object PlayPlinkSound : GameEffect()
 }
