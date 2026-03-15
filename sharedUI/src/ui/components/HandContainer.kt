@@ -12,10 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,44 +125,62 @@ fun HandContainer(
             }
         val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
 
-        Column(
+        TitleBadge(title = title, isActive = isActive, isCompact = isAnyCompact, titleStyle = titleStyle)
+
+        Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .padding(start = contentPadding, end = contentPadding, top = topPadding, bottom = bottomPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = title.uppercase(),
-                style = titleStyle,
-                color = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.5f),
-                fontWeight = FontWeight.Black,
-                letterSpacing = 3.sp,
-            )
+            content()
 
-            Spacer(modifier = Modifier.height(if (isExtraCompact) 4.dp else 16.dp))
+            HandOutcomeBadge(result = result)
 
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                content()
-
-                HandOutcomeBadge(result = result)
-
-                if (bet != null) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .align(Alignment.BottomEnd)
-                                .offset(x = 12.dp, y = 12.dp)
-                                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                    ) {
-                        ChipStack(amount = bet, isActive = isActive)
-                    }
+            if (bet != null) {
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 12.dp, y = 12.dp)
+                            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                ) {
+                    ChipStack(amount = bet, isActive = isActive)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun BoxScope.TitleBadge(
+    title: String,
+    isActive: Boolean,
+    isCompact: Boolean,
+    titleStyle: TextStyle,
+) {
+    Box(
+        modifier =
+            Modifier
+                .align(Alignment.TopStart)
+                .offset(y = (-12).dp)
+                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
+                .border(
+                    1.dp,
+                    if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
+                    RoundedCornerShape(12.dp),
+                ).padding(horizontal = 10.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = title.uppercase(),
+            style = titleStyle,
+            color = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.7f),
+            fontWeight = FontWeight.Black,
+            letterSpacing = 2.sp,
+        )
     }
 }
 

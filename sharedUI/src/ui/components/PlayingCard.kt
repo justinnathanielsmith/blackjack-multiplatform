@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -113,11 +112,9 @@ fun PlayingCard(
     Box(
         modifier =
             modifier
-                .width(96.dp)
+                .width((120 * scale).dp)
                 .aspectRatio(24f / 34f)
                 .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
                     translationY = offsetY.value
                     rotationY = rotation
                     cameraDistance = 12f * density

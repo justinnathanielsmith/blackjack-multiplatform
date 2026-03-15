@@ -325,12 +325,12 @@ private fun PortraitLayout(
                 state.dealerHand,
                 isDealer = true,
                 isCompact = isMultiHand,
-                scale = if (isMultiHand) 0.72f else null,
+                scale = if (isMultiHand) 0.82f else null,
             )
         }
 
         if (isMultiHand) {
-            val playerCardScale = if (hands.size >= 3) 0.58f else 0.68f
+            val playerCardScale = if (hands.size >= 3) 0.68f else 0.80f
             Column(
                 modifier =
                     Modifier
