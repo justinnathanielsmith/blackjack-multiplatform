@@ -144,8 +144,8 @@ fun BlackjackHandContainer(
             if (bet != null) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .offset(x = 12.dp, y = 12.dp)
+                        .align(Alignment.BottomCenter)
+                        .offset(y = 10.dp)
                         .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                 ) {
                     ChipStack(amount = bet, isActive = isActive)
