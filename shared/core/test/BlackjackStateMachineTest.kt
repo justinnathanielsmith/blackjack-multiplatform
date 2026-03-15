@@ -1658,7 +1658,7 @@ class BlackjackStateMachineTest {
     @Test
     fun double_down_updates_active_bet_only() =
         runTest {
-            // 3 hands; activeHandIndex=1; doubling should only affect playerBets[1]
+            // 3 initial hands (handCount=3); activeHandIndex=1; doubling should only affect playerBets[1]
             val stateMachine =
                 BlackjackStateMachine(
                     this,
@@ -1666,6 +1666,7 @@ class BlackjackStateMachineTest {
                         status = GameStatus.PLAYING,
                         balance = 800,
                         currentBet = 100,
+                        handCount = 3,
                         playerHands =
                             persistentListOf(
                                 Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS))),
@@ -1688,6 +1689,38 @@ class BlackjackStateMachineTest {
             assertEquals(100, state.playerBets[0]) // unchanged
             assertEquals(200, state.playerBets[1]) // doubled
             assertEquals(100, state.playerBets[2]) // unchanged
+        }
+
+    @Test
+    fun double_down_allowed_on_non_first_hand_in_multihand_game() =
+        runTest {
+            // Multi-hand deal (handCount=3), no splits — double should be allowed on hand index 2
+            // even when allowDoubleAfterSplit=false
+            val stateMachine =
+                BlackjackStateMachine(
+                    this,
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 800,
+                        currentBet = 100,
+                        handCount = 3,
+                        playerHands =
+                            persistentListOf(
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.NINE, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.EIGHT, Suit.HEARTS))),
+                                Hand(persistentListOf(Card(Rank.FIVE, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))),
+                            ),
+                        playerBets = persistentListOf(100, 100, 100),
+                        activeHandIndex = 2,
+                        dealerHand =
+                            Hand(
+                                persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS))
+                            ),
+                        deck = persistentListOf(Card(Rank.TWO, Suit.SPADES)),
+                        rules = GameRules(allowDoubleAfterSplit = false),
+                    ),
+                )
+            assertTrue(stateMachine.state.value.canDoubleDown())
         }
 
     @Test

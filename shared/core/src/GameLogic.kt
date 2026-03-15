@@ -138,7 +138,7 @@ data class GameState(
     fun canDoubleDown(): Boolean =
         activeHand.cards.size == 2 &&
             balance >= activeBet &&
-            (activeHandIndex == 0 || rules.allowDoubleAfterSplit)
+            (playerHands.size <= handCount || rules.allowDoubleAfterSplit)
 
     fun canSplit(): Boolean =
         playerHands.size < MAX_HANDS &&
