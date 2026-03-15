@@ -62,13 +62,13 @@ import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
-import io.github.smithjustinn.blackjack.ui.components.HandContainer
+import io.github.smithjustinn.blackjack.ui.components.BlackjackHandContainer
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.HandStatus
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
-import io.github.smithjustinn.blackjack.ui.components.PlayerHandContainer
+import io.github.smithjustinn.blackjack.ui.components.PlayerHand
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
@@ -463,7 +463,7 @@ private fun PortraitLayout(
             }
 
         // Dealer Hand - Fixed size at the top
-        HandContainer(
+        BlackjackHandContainer(
             title = stringResource(Res.string.dealer),
             score = dealerDisplayScore,
             isCompact = handCount > 1,
@@ -515,14 +515,16 @@ private fun PortraitLayout(
                         else -> HandStatus.WAITING
                     }
 
-                PlayerHandContainer(
+                PlayerHand(
                     handTotal = hand.score,
                     status = status,
                     cards = hand.cards,
                     bet = bet,
                     result = state.handResult(index),
                     modifier = Modifier.weight(1f),
-                    scale = playerCardScale
+                    scale = playerCardScale,
+                    isCompact = handCount > 1,
+                    isExtraCompact = handCount > 2
                 )
             }
         }
