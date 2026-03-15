@@ -10,8 +10,8 @@ import io.github.smithjustinn.blackjack.data.AppSettings
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.services.BalanceService
 import io.github.smithjustinn.blackjack.utils.componentScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 @Stable
 interface BlackjackComponent {
     val state: StateFlow<GameState>
-    val effects: SharedFlow<GameEffect>
+    val effects: Flow<GameEffect>
     val appSettings: StateFlow<AppSettings>
 
     fun onAction(action: GameAction)
@@ -36,10 +36,10 @@ class DefaultBlackjackComponent(
     private val settingsRepository: SettingsRepository,
 ) : BlackjackComponent,
     ComponentContext by componentContext {
-    private val stateMachine = BlackjackStateMachine(componentScope)
+    private val stateMachine = BlackjackStateMachine(componentScope, isTest = false)
 
     override val state: StateFlow<GameState> = stateMachine.state
-    override val effects: SharedFlow<GameEffect> = stateMachine.effects
+    override val effects: Flow<GameEffect> = stateMachine.effects
 
     private val _appSettings = MutableStateFlow(AppSettings())
     override val appSettings: StateFlow<AppSettings> = _appSettings.asStateFlow()

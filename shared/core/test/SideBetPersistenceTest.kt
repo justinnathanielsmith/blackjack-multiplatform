@@ -5,6 +5,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class SideBetPersistenceTest {
     @Test
     fun testNewGameRemembersSideBets() =
@@ -15,7 +16,7 @@ class SideBetPersistenceTest {
                     SideBetType.TWENTY_ONE_PLUS_THREE to 25
                 )
 
-            val stateMachine = BlackjackStateMachine(this)
+            val stateMachine = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)))
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 1000,
@@ -41,7 +42,7 @@ class SideBetPersistenceTest {
                     SideBetType.TWENTY_ONE_PLUS_THREE to 100
                 )
 
-            val stateMachine = BlackjackStateMachine(this)
+            val stateMachine = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)))
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 150,

@@ -69,8 +69,11 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_multiplier
+import sharedui.generated.resources.bet_spot_tap_to_bet
 import sharedui.generated.resources.deal
 import sharedui.generated.resources.reset_bet
+import sharedui.generated.resources.side_bet_perfect_pairs_label
+import sharedui.generated.resources.side_bet_twenty_one_plus_three_label
 import sharedui.generated.resources.status_betting
 
 private fun formatCurrency(amount: Int): String = "$$amount"
@@ -296,7 +299,7 @@ private fun BetSpot(
                 ChipStack(amount = currentBet, isActive = true)
             } else {
                 Text(
-                    text = "TAP TO BET",
+                    text = stringResource(Res.string.bet_spot_tap_to_bet),
                     color = PrimaryGold.copy(alpha = 0.4f),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
@@ -328,8 +331,8 @@ private fun SideBetSlot(
 ) {
     val label =
         when (type) {
-            SideBetType.PERFECT_PAIRS -> "PP"
-            SideBetType.TWENTY_ONE_PLUS_THREE -> "21+3"
+            SideBetType.PERFECT_PAIRS -> stringResource(Res.string.side_bet_perfect_pairs_label)
+            SideBetType.TWENTY_ONE_PLUS_THREE -> stringResource(Res.string.side_bet_twenty_one_plus_three_label)
         }
 
     val infiniteTransition = rememberInfiniteTransition(label = "sideBetGlow")

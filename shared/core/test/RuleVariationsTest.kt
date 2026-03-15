@@ -16,7 +16,7 @@ class RuleVariationsTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.SIX), // soft 17
@@ -38,7 +38,7 @@ class RuleVariationsTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.SIX), // soft 17
@@ -60,7 +60,7 @@ class RuleVariationsTest {
             // balance=900 (bet already deducted), deal player BJ (ACE+TEN) vs dealer 17
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -87,7 +87,7 @@ class RuleVariationsTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -114,7 +114,7 @@ class RuleVariationsTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         balance = 900,
                         playerHand = hand(Rank.TEN, Rank.SIX),

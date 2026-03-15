@@ -172,6 +172,19 @@ data class GameState(
             balance >= activeBet
 }
 
+enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
+
+fun determineHandOutcome(hand: Hand, dealerScore: Int, dealerBust: Boolean): HandOutcome {
+    if (hand.isBust) return HandOutcome.LOSS
+    val isNaturalBJ = hand.cards.size == 2 && hand.score == 21 && !hand.wasSplit
+    return when {
+        isNaturalBJ && dealerScore != 21 -> HandOutcome.NATURAL_WIN
+        dealerBust || hand.score > dealerScore -> HandOutcome.WIN
+        hand.score == dealerScore -> HandOutcome.PUSH
+        else -> HandOutcome.LOSS
+    }
+}
+
 sealed class GameAction {
     data class NewGame(
         val initialBalance: Int? = null,

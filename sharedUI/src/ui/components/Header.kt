@@ -46,6 +46,10 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance
+import sharedui.generated.resources.btn_auto_deal_description
+import sharedui.generated.resources.btn_rules_description
+import sharedui.generated.resources.btn_settings_description
+import sharedui.generated.resources.btn_strategy_description
 import kotlin.math.abs
 
 @Composable
@@ -119,9 +123,9 @@ fun Header(
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
-            HeaderIcon("rules", onClick = onRulesClick)
-            HeaderIcon("strategy", onClick = onStrategyClick)
-            HeaderIcon("settings", onClick = onSettingsClick)
+            HeaderIcon("rules", contentDescription = stringResource(Res.string.btn_rules_description), onClick = onRulesClick)
+            HeaderIcon("strategy", contentDescription = stringResource(Res.string.btn_strategy_description), onClick = onStrategyClick)
+            HeaderIcon("settings", contentDescription = stringResource(Res.string.btn_settings_description), onClick = onSettingsClick)
         }
     }
 }
@@ -131,6 +135,7 @@ internal fun AutoDealIcon(
     enabled: Boolean,
     onClick: () -> Unit = {}
 ) {
+    val autoDealDescription = stringResource(Res.string.btn_auto_deal_description)
     val infiniteTransition = rememberInfiniteTransition(label = "autoDealPulse")
 
     // Breathing scale: 1.0 → 1.1 → 1.0
@@ -207,6 +212,7 @@ internal fun AutoDealIcon(
         modifier =
             Modifier
                 .size(32.dp)
+                .semantics { contentDescription = autoDealDescription }
                 .drawBehind {
                     if (enabled) {
                         drawCircle(
@@ -235,12 +241,14 @@ internal fun AutoDealIcon(
 @Composable
 private fun HeaderIcon(
     text: String,
+    contentDescription: String,
     onClick: () -> Unit = {}
 ) {
     Box(
         modifier =
             Modifier
                 .size(32.dp)
+                .semantics { this.contentDescription = contentDescription }
                 .background(GlassDark, RoundedCornerShape(16.dp))
                 .border(1.dp, PrimaryGold.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))

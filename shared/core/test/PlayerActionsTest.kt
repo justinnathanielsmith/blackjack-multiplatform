@@ -19,7 +19,7 @@ class PlayerActionsTest {
             // Player EIGHT+THREE=11, deck has FIVE → 16 (no bust, game continues)
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -44,7 +44,7 @@ class PlayerActionsTest {
             // Player TEN+EIGHT=18, deck has TEN → 28 (guaranteed bust)
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.EIGHT),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -67,7 +67,7 @@ class PlayerActionsTest {
             // Player TEN+KING=20, dealer TEN+SEVEN=17
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.KING),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN),
@@ -87,7 +87,7 @@ class PlayerActionsTest {
             // Player TEN+NINE=19, dealer TEN+NINE=19
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.NINE),
                         dealerHand = hand(Rank.TEN, Rank.NINE),
@@ -107,7 +107,7 @@ class PlayerActionsTest {
             // Player TEN+SIX=16, dealer TEN+NINE=19
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.SIX),
                         dealerHand = hand(Rank.TEN, Rank.NINE),
@@ -127,7 +127,7 @@ class PlayerActionsTest {
             // Player TEN+SIX=16, dealer TEN (face-up) + NINE (face-down) = 19
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.SIX),
                         dealerHand = dealerHand(Rank.TEN, Rank.NINE),
@@ -147,7 +147,7 @@ class PlayerActionsTest {
             // Player TEN+TEN=20, draws FIVE → 25 bust; hole card should be revealed
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.TEN, Rank.NINE),
@@ -177,7 +177,7 @@ class PlayerActionsTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FOUR),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Hit)
             advanceUntilIdle()
 
@@ -199,7 +199,7 @@ class PlayerActionsTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FOUR),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Hit)
             advanceUntilIdle()
 
@@ -219,7 +219,7 @@ class PlayerActionsTest {
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -239,7 +239,7 @@ class PlayerActionsTest {
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -262,7 +262,7 @@ class PlayerActionsTest {
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -282,7 +282,7 @@ class PlayerActionsTest {
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -307,7 +307,7 @@ class PlayerActionsTest {
                     dealerHand = hand(Rank.SEVEN, Rank.SEVEN),
                     deck = deckOf(Rank.TEN),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Hit)
             advanceUntilIdle()
 

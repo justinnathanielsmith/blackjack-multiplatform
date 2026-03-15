@@ -78,6 +78,17 @@
     <string name="strategy_action_split">P</string>
     <string name="strategy_dealer_header">Dealer Upcard</string>
 
+    <!-- Side bet labels -->
+    <string name="side_bet_perfect_pairs_label">PP</string>
+    <string name="side_bet_twenty_one_plus_three_label">21+3</string>
+    <string name="bet_spot_tap_to_bet">TAP TO BET</string>
+
+    <!-- Accessibility descriptions -->
+    <string name="btn_settings_description">Settings</string>
+    <string name="btn_strategy_description">Strategy Guide</string>
+    <string name="btn_rules_description">Game Rules</string>
+    <string name="btn_auto_deal_description">Auto Deal</string>
+
     <!-- Rules Overlay -->
     <string name="rules_title">Game Rules</string>
     <string name="rules_core_title">Core Rules</string>

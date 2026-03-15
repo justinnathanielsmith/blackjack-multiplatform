@@ -56,6 +56,8 @@ import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.HandOutcome
+import io.github.smithjustinn.blackjack.determineHandOutcome
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
@@ -93,13 +95,10 @@ fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DE
 fun GameState.handResult(index: Int): HandResult {
     if (!status.isTerminal()) return HandResult.NONE
     val hand = playerHands.getOrNull(index) ?: return HandResult.NONE
-    val dealerScore = dealerHand.score
-    val dealerBust = dealerHand.isBust
-    return when {
-        hand.isBust -> HandResult.LOSS
-        dealerBust || hand.score > dealerScore -> HandResult.WIN
-        hand.score == dealerScore -> HandResult.PUSH
-        else -> HandResult.LOSS
+    return when (determineHandOutcome(hand, dealerHand.score, dealerHand.isBust)) {
+        HandOutcome.WIN, HandOutcome.NATURAL_WIN -> HandResult.WIN
+        HandOutcome.PUSH -> HandResult.PUSH
+        HandOutcome.LOSS -> HandResult.LOSS
     }
 }
 

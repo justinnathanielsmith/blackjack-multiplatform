@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.smithjustinn.blackjack
 
 import kotlinx.collections.immutable.PersistentMap
@@ -5,72 +7,95 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
-    initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+    initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0),
+    private val isTest: Boolean = true
 ) {
     companion object {
         private const val DEALER_STAND_THRESHOLD = 17
-        private const val DEALER_TURN_DELAY_MS = 600L
-        private const val DEAL_CARD_DELAY_MS = 400L
-        private const val DEALER_CRITICAL_PRE_DELAY_MS = 900L
     }
+
+    private val dealerTurnDelayMs: Long get() = if (isTest) 0L else 600L
+    private val dealCardDelayMs: Long get() = if (isTest) 0L else 400L
+    private val dealerCriticalPreDelayMs: Long get() = if (isTest) 0L else 900L
 
     private val _state = MutableStateFlow(initialState)
     val state: StateFlow<GameState> = _state.asStateFlow()
 
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
-    val effects: SharedFlow<GameEffect> = _effects.asSharedFlow()
+    private val _isShutdown = MutableStateFlow(false)
+    val effects: Flow<GameEffect> = _isShutdown
+        .takeWhile { !it }
+        .flatMapLatest { _effects.asSharedFlow() }
 
-    private val mutex = Mutex()
+    private val actionChannel = Channel<GameAction>(Channel.UNLIMITED)
 
-    fun dispatch(action: GameAction) {
-        scope.launch {
-            mutex.withLock {
-                when (action) {
-                    is GameAction.NewGame ->
-                        handleNewGame(
-                            action.initialBalance,
-                            action.rules,
-                            action.handCount,
-                            action.lastBet,
-                            action.lastSideBets
-                        )
-                    is GameAction.Surrender -> handleSurrender()
-                    is GameAction.Deal -> handleDeal()
-                    is GameAction.Hit -> handleHit()
-                    is GameAction.Stand -> handleStand()
-                    is GameAction.DoubleDown -> handleDoubleDown()
-                    is GameAction.TakeInsurance -> handleTakeInsurance()
-                    is GameAction.DeclineInsurance -> handleDeclineInsurance()
-                    is GameAction.Split -> handleSplit()
-                    is GameAction.UpdateRules -> handleUpdateRules(action.rules)
-                    else -> dispatchBettingPhaseAction(action)
+    init {
+        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+            println("SM init block launched on ${Thread.currentThread().name}")
+            try {
+                for (action in actionChannel) {
+                    println("SM received action: $action")
+                    when (action) {
+                        is GameAction.NewGame -> handleNewGame(action.initialBalance, action.rules, action.handCount, action.lastBet, action.lastSideBets)
+                        is GameAction.Surrender -> handleSurrender()
+                        is GameAction.Deal -> {
+                            println("SM handling Deal action")
+                            handleDeal()
+                        }
+                        is GameAction.Hit -> handleHit()
+                        is GameAction.Stand -> handleStand()
+                        is GameAction.DoubleDown -> handleDoubleDown()
+                        is GameAction.TakeInsurance -> handleTakeInsurance()
+                        is GameAction.DeclineInsurance -> handleDeclineInsurance()
+                        is GameAction.Split -> {
+                            println("SM handling Split action")
+                            handleSplit()
+                        }
+                        is GameAction.UpdateRules -> handleUpdateRules(action.rules)
+                        is GameAction.PlaceBet -> handlePlaceBet(action.amount)
+                        is GameAction.ResetBet -> handleResetBet()
+                        is GameAction.SelectHandCount -> handleSelectHandCount(action.count)
+                        is GameAction.PlaceSideBet -> handlePlaceSideBet(action.type, action.amount)
+                        is GameAction.ResetSideBets -> handleResetSideBets()
+                    }
+                    println("SM action loop finished current item: $action")
                 }
+            } catch (e: Exception) {
+                println("SM init block caught exception: $e")
+                e.printStackTrace()
+            } finally {
+                println("SM init block finally")
+                _isShutdown.value = true
             }
         }
     }
 
-    private fun dispatchBettingPhaseAction(action: GameAction) {
-        when (action) {
-            is GameAction.PlaceBet -> handlePlaceBet(action.amount)
-            is GameAction.ResetBet -> handleResetBet()
-            is GameAction.SelectHandCount -> handleSelectHandCount(action.count)
-            is GameAction.PlaceSideBet -> handlePlaceSideBet(action.type, action.amount)
-            is GameAction.ResetSideBets -> handleResetSideBets()
-            else -> {}
-        }
+    fun dispatch(action: GameAction) {
+        actionChannel.trySend(action).getOrThrow()
+    }
+
+    fun shutdown() {
+        actionChannel.close()
     }
 
     private fun handlePlaceBet(amount: Int) {
@@ -117,11 +142,15 @@ class BlackjackStateMachine(
     }
 
     private suspend fun handleDeal() {
+        println("handleDeal started")
         val current = _state.value
-        if (current.status != GameStatus.BETTING || current.currentBet <= 0) return
+        if (current.status != GameStatus.BETTING || current.currentBet <= 0) {
+            println("handleDeal aborted - status:${current.status}, bet:${current.currentBet}")
+            return
+        }
         _state.value = current.copy(status = GameStatus.DEALING)
         val (playerHands, dealerHand) = dealCardsWithAnimation(current)
-        delay(DEAL_CARD_DELAY_MS)
+        delay(dealCardDelayMs)
         applyInitialOutcome(current, playerHands, dealerHand)
     }
 
@@ -136,14 +165,14 @@ class BlackjackStateMachine(
             _state.value.copy(playerHands = playerHands, dealerHand = dealerHand, playerBets = bets, deck = deck)
         for (round in 0..1) {
             for (i in 0 until current.handCount) {
-                delay(DEAL_CARD_DELAY_MS)
+                delay(dealCardDelayMs)
                 val card = deck[0]
                 deck = deck.removeAt(0)
                 playerHands = playerHands.set(i, Hand(playerHands[i].cards.add(card)))
                 _state.value = _state.value.copy(playerHands = playerHands, deck = deck)
                 emitEffect(GameEffect.PlayCardSound)
             }
-            delay(DEAL_CARD_DELAY_MS)
+            delay(dealCardDelayMs)
             val card = deck[0]
             deck = deck.removeAt(0)
             val dealerCard = if (round == 1) card.copy(isFaceDown = true) else card
@@ -165,12 +194,21 @@ class BlackjackStateMachine(
                 playerHand = playerHands[0],
                 dealerUpcard = dealerHand.cards[0],
             )
+        // Offer insurance before revealing the hole card. Only applies to single-hand when
+        // dealer shows an Ace and the player doesn't already have a natural blackjack.
+        val playerHasBJ = current.handCount == 1 && playerHands[0].score == 21 && playerHands[0].cards.size == 2
+        val shouldOfferInsurance = current.handCount == 1 && !playerHasBJ && dealerHand.cards[0].rank == Rank.ACE
         val dealerHandRevealed = Hand(dealerHand.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
-        val initialStatus = determineInitialStatus(playerHands, dealerHandRevealed, current.handCount)
+        val initialStatus =
+            if (shouldOfferInsurance) {
+                GameStatus.INSURANCE_OFFERED
+            } else {
+                determineInitialStatus(playerHands, dealerHandRevealed, current.handCount)
+            }
         val finalDealerHand =
             when (initialStatus) {
                 GameStatus.PUSH, GameStatus.DEALER_WON -> dealerHandRevealed
-                else -> dealerHand
+                else -> dealerHand // Keep hole card hidden for PLAYING and INSURANCE_OFFERED
             }
         val balanceUpdate =
             when (initialStatus) {
@@ -196,9 +234,6 @@ class BlackjackStateMachine(
         } else if (initialStatus == GameStatus.DEALER_WON) {
             emitEffect(GameEffect.PlayLoseSound)
             emitEffect(GameEffect.ChipLoss(current.currentBet))
-        }
-        if (initialStatus == GameStatus.PLAYING && dealerHand.cards[0].rank == Rank.ACE) {
-            _state.value = _state.value.copy(status = GameStatus.INSURANCE_OFFERED)
         }
     }
 
@@ -243,6 +278,7 @@ class BlackjackStateMachine(
         lastBet: Int = 0,
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) {
+        println("handleNewGame called with lastBet=$lastBet, lastSideBets=$lastSideBets")
         val currentState = _state.value
         val newBalance = initialBalance ?: currentState.balance
         val maxAffordableMainBet = if (handCount > 0) newBalance / handCount else newBalance
@@ -250,6 +286,7 @@ class BlackjackStateMachine(
 
         var remainingBalance = newBalance - clampedBet * handCount
         val totalSideBetCost = lastSideBets.values.sum()
+
 
         val finalSideBets: PersistentMap<SideBetType, Int>
         val postSideBetBalance: Int
@@ -355,11 +392,14 @@ class BlackjackStateMachine(
     }
 
     private suspend fun runDealerTurn() {
+        println("DEALER_TURN: start")
         if (_state.value.status != GameStatus.DEALER_TURN) {
             _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
         }
         revealDealerHoleCard()
-        delay(DEALER_TURN_DELAY_MS) // Visual pause for hole card reveal
+        println("DEALER_TURN: before first delay")
+        delay(dealerTurnDelayMs) // Visual pause for hole card reveal
+        println("DEALER_TURN: after first delay")
 
         handleInsurancePayout()
 
@@ -373,7 +413,9 @@ class BlackjackStateMachine(
             if (isCritical) {
                 _state.value = _state.value.copy(dealerDrawIsCritical = true)
                 emitEffect(GameEffect.DealerCriticalDraw)
-                delay(DEALER_CRITICAL_PRE_DELAY_MS)
+                println("DEALER_TURN: before critical delay")
+                delay(dealerCriticalPreDelayMs)
+                println("DEALER_TURN: after critical delay")
             }
 
             val newCard = currentDeck.firstOrNull() ?: break
@@ -387,14 +429,18 @@ class BlackjackStateMachine(
                     dealerDrawIsCritical = isCritical,
                 )
             emitEffect(GameEffect.PlayCardSound)
-            delay(DEALER_TURN_DELAY_MS)
+            println("DEALER_TURN: before card delay")
+            delay(dealerTurnDelayMs)
+            println("DEALER_TURN: after card delay")
 
             if (isCritical) {
                 _state.value = _state.value.copy(dealerDrawIsCritical = false)
             }
         }
 
+        println("DEALER_TURN: finalizing game")
         finalizeGame()
+        println("DEALER_TURN: end")
     }
 
     private fun shouldDealerDraw(
@@ -474,20 +520,13 @@ class BlackjackStateMachine(
         dealerScore: Int,
         dealerBust: Boolean,
         rules: GameRules,
-    ): Int {
-        if (hand.isBust) return 0
-
-        val isNaturalBJ = hand.cards.size == 2 && hand.score == 21 && !hand.wasSplit
-
-        return when {
-            isNaturalBJ && dealerScore != 21 -> {
-                bet + (bet * rules.blackjackPayout.numerator) / rules.blackjackPayout.denominator
-            }
-            dealerBust || hand.score > dealerScore -> bet * 2
-            hand.score == dealerScore -> bet
-            else -> 0
+    ): Int =
+        when (determineHandOutcome(hand, dealerScore, dealerBust)) {
+            HandOutcome.NATURAL_WIN -> bet + (bet * rules.blackjackPayout.numerator) / rules.blackjackPayout.denominator
+            HandOutcome.WIN -> bet * 2
+            HandOutcome.PUSH -> bet
+            HandOutcome.LOSS -> 0
         }
-    }
 
     private suspend fun handleTakeInsurance() {
         val state = _state.value

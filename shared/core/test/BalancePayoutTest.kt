@@ -19,7 +19,7 @@ class BalancePayoutTest {
             // balance=1000, bet=100 → payout = 100 + 150 = 250 → balance=1250
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
@@ -50,7 +50,7 @@ class BalancePayoutTest {
             // balance=1000, bet=100 → payout = 100 + 120 = 220 → balance=1220
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
@@ -94,7 +94,7 @@ class BalancePayoutTest {
                     dealerHand = hand(Rank.TEN, Rank.EIGHT),
                     deck = persistentListOf(),
                 )
-            val sm = BlackjackStateMachine(this, initialState)
+            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -109,7 +109,7 @@ class BalancePayoutTest {
             // balance=800, bet=100 → surrender → balance = 800 + 50
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
@@ -133,7 +133,7 @@ class BalancePayoutTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
@@ -160,7 +160,7 @@ class BalancePayoutTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
@@ -187,7 +187,7 @@ class BalancePayoutTest {
             // Hand0 TEN+TEN=20 wins vs dealer 18; Hand1 TEN+TEN+SIX=26 busts → balance += 200
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
@@ -215,7 +215,7 @@ class BalancePayoutTest {
             // Hand0 wins, Hand1 busts
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
@@ -243,7 +243,7 @@ class BalancePayoutTest {
             // Both hands lose to dealer 20
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
@@ -271,7 +271,7 @@ class BalancePayoutTest {
             // Both hands push dealer at 19; balance = 800 + 100 + 100
             val sm =
                 BlackjackStateMachine(
-                    this,
+                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
