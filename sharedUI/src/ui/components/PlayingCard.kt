@@ -164,25 +164,12 @@ fun PlayingCard(
                             .graphicsLayer { rotationY = 180f },
                 ) {
                     // Top Left Corner
-                    Column(
-                        modifier = Modifier.align(Alignment.TopStart),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(1.dp)
-                    ) {
-                        Text(
-                            text = card.rank.symbol,
-                            color = card.suit.color,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Text(
-                            text = card.suit.symbol,
-                            color = card.suit.color,
-                            fontSize = 16.sp,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    }
+                    CardCorner(
+                        rank = card.rank.symbol,
+                        suit = card.suit.symbol,
+                        color = card.suit.color,
+                        modifier = Modifier.align(Alignment.TopStart)
+                    )
 
                     // Center Graphic - Box with buffer padding
                     Box(
@@ -210,27 +197,14 @@ fun PlayingCard(
                     }
 
                     // Bottom Right Corner - Inverted and mirrored
-                    Column(
+                    CardCorner(
+                        rank = card.rank.symbol,
+                        suit = card.suit.symbol,
+                        color = card.suit.color,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .rotate(180f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(1.dp)
-                    ) {
-                        Text(
-                            text = card.rank.symbol,
-                            color = card.suit.color,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Text(
-                            text = card.suit.symbol,
-                            color = card.suit.color,
-                            fontSize = 16.sp,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    }
+                            .rotate(180f)
+                    )
                 }
             } else {
                 // Back
@@ -283,5 +257,41 @@ fun PlayingCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CardCorner(
+    rank: String,
+    suit: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(1.dp)
+    ) {
+        // Fixed width ensures '10' vs 'J' doesn't cause suit jumping/collisions
+        Box(
+            modifier = Modifier.width(28.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = rank,
+                color = color,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+            )
+        }
+        Text(
+            text = suit,
+            color = color,
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+        )
     }
 }
