@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -123,9 +124,19 @@ fun BlackjackScreen(component: BlackjackComponent) {
         audioService.isMuted = appSettings.isSoundMuted
     }
 
-    val isTerminal = remember(state.status) { state.status.isTerminal() }
-    val isMultiHand = remember(state.playerHands.size) { state.playerHands.size > 1 }
+    val isTerminal by remember(state.status) { derivedStateOf { state.status.isTerminal() } }
+    val isMultiHand by remember(state.playerHands.size) { derivedStateOf { state.playerHands.size > 1 } }
     var autoDealPending by remember { mutableStateOf(false) }
+
+    val onAutoDealToggle = remember(component) {
+        { component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) } }
+    }
+    val onSettingsClick = remember { { showSettings = true } }
+    val onStrategyClick = remember { { showStrategy = true } }
+    val onRulesClick = remember { { showRules = true } }
+    val onDismissSettings = remember { { showSettings = false } }
+    val onDismissRules = remember { { showRules = false } }
+    val onDismissStrategy = remember { { showStrategy = false } }
 
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.PLAYER_WON) {
@@ -266,12 +277,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         Header(
                             balance = state.balance,
                             isAutoDealEnabled = appSettings.isAutoDealEnabled,
-                            onAutoDealToggle = {
-                                component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) }
-                            },
-                            onSettingsClick = { showSettings = true },
-                            onStrategyClick = { showStrategy = true },
-                            onRulesClick = { showRules = true }
+                            onAutoDealToggle = onAutoDealToggle,
+                            onSettingsClick = onSettingsClick,
+                            onStrategyClick = onStrategyClick,
+                            onRulesClick = onRulesClick
                         )
                     }
 
@@ -292,15 +301,19 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 // Overlay layer (full-bleed within the game bounds)
                 Box(modifier = Modifier.fillMaxSize()) {
                     // Game Status Overlay (On top of hands)
-                    val showStatus =
-                        state.status != GameStatus.PLAYING &&
-                            state.status != GameStatus.BETTING &&
-                            state.status != GameStatus.INSURANCE_OFFERED &&
-                            state.status != GameStatus.IDLE
+                    val showStatus by remember(state.status) {
+                        derivedStateOf {
+                            state.status != GameStatus.PLAYING &&
+                                state.status != GameStatus.BETTING &&
+                                state.status != GameStatus.INSURANCE_OFFERED &&
+                                state.status != GameStatus.IDLE
+                        }
+                    }
 
                     // Game Overlays & Status
                     BlackjackGameOverlay(
-                        state = state,
+                        status = state.status,
+                        playerHands = state.playerHands,
                         component = component,
                         flashAlphaProvider = { flashAlpha.value },
                         showStatus = showStatus,
@@ -330,7 +343,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             settings = appSettings,
                             onUpdateSettings = component::updateSettings,
                             onResetBalance = component::resetBalance,
-                            onDismiss = { showSettings = false }
+                            onDismiss = onDismissSettings
                         )
                     }
 
@@ -341,7 +354,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
                     ) {
                         RulesOverlay(
-                            onDismiss = { showRules = false }
+                            onDismiss = onDismissRules
                         )
                     }
 
@@ -366,7 +379,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
             ) {
                 StrategyGuideOverlay(
-                    onDismiss = { showStrategy = false }
+                    onDismiss = onDismissStrategy
                 )
             }
         }
@@ -375,12 +388,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
 @Composable
 private fun BlackjackGameOverlay(
-    state: GameState,
+    status: GameStatus,
+    playerHands: List<io.github.smithjustinn.blackjack.Hand>,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
     showStatus: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
+    val onDeclineInsurance = remember(component) { { component.onAction(GameAction.DeclineInsurance) } }
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -390,18 +407,20 @@ private fun BlackjackGameOverlay(
             enter = fadeIn() + scaleIn(initialScale = 0.8f),
             exit = fadeOut() + scaleOut(targetScale = 0.8f),
         ) {
-            GameStatusMessage(status = state.status)
+            GameStatusMessage(status = status)
         }
 
-        if (state.status == GameStatus.INSURANCE_OFFERED) {
+        if (status == GameStatus.INSURANCE_OFFERED) {
             InsuranceOverlay(
-                onInsure = { component.onAction(GameAction.TakeInsurance) },
-                onDecline = { component.onAction(GameAction.DeclineInsurance) },
+                onInsure = onTakeInsurance,
+                onDecline = onDeclineInsurance,
             )
         }
 
-        if (state.status == GameStatus.PLAYER_WON) {
-            val isBlackjack = state.playerHands.any { it.cards.size == 2 && it.score == 21 }
+        if (status == GameStatus.PLAYER_WON) {
+            val isBlackjack by remember(playerHands) {
+                derivedStateOf { playerHands.any { it.cards.size == 2 && it.score == 21 } }
+            }
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
             )

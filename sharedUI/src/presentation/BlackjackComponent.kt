@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.presentation
 
+import androidx.compose.runtime.Stable
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.blackjack.BlackjackStateMachine
 import io.github.smithjustinn.blackjack.GameAction
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+@Stable
 interface BlackjackComponent {
     val state: StateFlow<GameState>
     val effects: SharedFlow<GameEffect>

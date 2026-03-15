@@ -102,7 +102,8 @@ fun BettingPhaseScreen(
                 .background(Color.Black.copy(alpha = 0.55f))
                 .windowInsetsPadding(safeDrawingInsets())
     ) {
-        val placeBetOnArea: (GameAction, Offset, Int) -> Unit = { action, offset, amount ->
+    val placeBetOnArea: (GameAction, Offset, Int) -> Unit = remember(audioService, component) {
+        { action, offset, amount ->
             audioService.playEffect(AudioService.SoundEffect.CLICK)
             component.onAction(action)
             if (offset != Offset.Zero) {
@@ -122,6 +123,29 @@ fun BettingPhaseScreen(
                 )
             }
         }
+    }
+
+    val onResetBet = remember(audioService, component) {
+        {
+            audioService.playEffect(AudioService.SoundEffect.CLICK)
+            component.onAction(GameAction.ResetBet)
+            component.onAction(GameAction.ResetSideBets)
+        }
+    }
+
+    val onDeal = remember(audioService, component) {
+        {
+            audioService.playEffect(AudioService.SoundEffect.FLIP)
+            component.onAction(GameAction.Deal)
+        }
+    }
+
+    val onChipSelected = remember(audioService) {
+        { amount: Int ->
+            selectedAmount = amount
+            audioService.playEffect(AudioService.SoundEffect.PLINK)
+        }
+    }
 
         Column(
             modifier =
@@ -200,23 +224,13 @@ fun BettingPhaseScreen(
             ChipSelector(
                 balance = state.balance,
                 selectedAmount = selectedAmount,
-                onChipSelected = {
-                    selectedAmount = it
-                    audioService.playEffect(AudioService.SoundEffect.PLINK)
-                },
+                onChipSelected = onChipSelected,
             )
 
             BettingActions(
                 canDeal = state.currentBet > 0,
-                onReset = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onAction(GameAction.ResetBet)
-                    component.onAction(GameAction.ResetSideBets)
-                },
-                onDeal = {
-                    audioService.playEffect(AudioService.SoundEffect.FLIP)
-                    component.onAction(GameAction.Deal)
-                },
+                onReset = onResetBet,
+                onDeal = onDeal,
             )
         }
 

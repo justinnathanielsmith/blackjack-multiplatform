@@ -23,6 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.drawscope.Stroke
 import io.github.smithjustinn.blackjack.ui.theme.*
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.*
@@ -116,27 +119,29 @@ fun BlackjackHandContainer(
             modifier =
                 Modifier
                     .matchParentSize()
-                    .padding(vertical = 6.dp) // Offset to allow badges to overlap vertically
-                    .then(
+                    .padding(vertical = 6.dp)
+                    .graphicsLayer {
                         if (isActive) {
-                            Modifier.shadow(
-                                elevation = glowElevation.dp,
-                                shape = cornerRadius,
-                                clip = false,
-                                ambientColor = PrimaryGold.copy(alpha = glowAlpha),
-                                spotColor = PrimaryGold.copy(alpha = glowAlpha)
-                            )
-                        } else {
-                            Modifier
+                            shadowElevation = glowElevation.dp.toPx()
+                            shape = cornerRadius
+                            clip = false
+                            ambientShadowColor = PrimaryGold.copy(alpha = glowAlpha)
+                            spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
                         }
-                    )
-                    .clip(cornerRadius)
-                    .background(backgroundColor)
-                    .border(
-                        if (isActive) (2.5.dp + (0.5.dp * glowAlpha)) else 1.dp,
-                        if (isActive) borderColor.copy(alpha = 0.6f + (0.4f * glowAlpha)) else borderColor,
-                        cornerRadius
-                    )
+                    }
+                    .drawBehind {
+                        drawRoundRect(
+                            color = backgroundColor,
+                            cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
+                        )
+                        val currentBorderWidth = if (isActive) (2.5.dp + (0.5.dp * glowAlpha)).toPx() else 1.dp.toPx()
+                        val currentBorderColor = if (isActive) borderColor.copy(alpha = 0.6f + (0.4f * glowAlpha)) else borderColor
+                        drawRoundRect(
+                            color = currentBorderColor,
+                            cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
+                            style = Stroke(width = currentBorderWidth)
+                        )
+                    }
         )
 
         // Status Badge (Active/Waiting)
