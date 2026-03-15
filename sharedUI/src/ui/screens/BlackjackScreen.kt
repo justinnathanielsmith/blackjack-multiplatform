@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,13 +59,13 @@ import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
 import io.github.smithjustinn.blackjack.ui.components.DebugPanel
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandContainer
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
-import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
@@ -76,6 +75,7 @@ import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
+import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
@@ -122,7 +122,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     // List of active chip eruption instances
     val chipEruptions = remember { mutableStateListOf<ChipEruptionInstance>() }
     val chipLosses = remember { mutableStateListOf<Int>() }
-    
+
     LaunchedEffect(appSettings.isSoundMuted) {
         audioService.isMuted = appSettings.isSoundMuted
     }
@@ -296,9 +296,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             nearMissHandIndex = nearMissHandIndex,
                         )
                         Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp)
+                            modifier =
+                                Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(16.dp)
                         ) {
                             AutoDealIcon(
                                 enabled = appSettings.isAutoDealEnabled,

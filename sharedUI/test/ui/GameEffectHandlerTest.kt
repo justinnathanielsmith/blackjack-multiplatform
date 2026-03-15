@@ -10,6 +10,7 @@ class GameEffectHandlerTest {
     private val noopAudio =
         object : AudioService {
             override var isMuted: Boolean = false
+
             override fun playEffect(effect: AudioService.SoundEffect) {}
 
             override fun release() {}

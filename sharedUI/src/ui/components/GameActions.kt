@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
@@ -27,6 +27,8 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.double_down
@@ -85,13 +87,13 @@ fun GameActions(
         },
         label = "GameActionsTransition"
     ) { status ->
-        val buttonHeight = if (isCompact) 48.dp else 60.dp
-        val spacerHeight = if (isCompact) 4.dp else 8.dp
-        val totalActionsHeight = (buttonHeight * 2) + spacerHeight // Reserved space for two rows of buttons
+        val buttonHeight =
+            if (isCompact) Dimensions.ActionBar.ButtonHeightCompact else Dimensions.ActionBar.ButtonHeightNormal
+        val totalActionsHeight = buttonHeight
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(spacerHeight),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AnimatedVisibility(
@@ -102,63 +104,42 @@ fun GameActions(
                 val canSplit = state.canSplit()
                 val canDouble = state.canDoubleDown()
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(spacerHeight),
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // High-action row (Split/Double) - Fixed height to prevent shift
-                    Box(
-                        modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (canSplit || canDouble) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                if (canDouble) {
-                                    GameActionButton(
-                                        icon = "x2",
-                                        label = stringResource(Res.string.double_down),
-                                        onClick = onDoubleDown,
-                                        modifier = Modifier.weight(1f).height(buttonHeight),
-                                        isStrategic = true,
-                                    )
-                                } else if (canSplit) {
-                                    Spacer(modifier = Modifier.weight(1f))
-                                }
-
-                                if (canSplit) {
-                                    GameActionButton(
-                                        icon = "⑃",
-                                        label = stringResource(Res.string.split),
-                                        onClick = onSplit,
-                                        modifier = Modifier.weight(1f).height(buttonHeight),
-                                    )
-                                } else if (canDouble) {
-                                    Spacer(modifier = Modifier.weight(1f))
-                                }
-                            }
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
+                    if (canDouble) {
                         GameActionButton(
-                            icon = "👇",
-                            label = stringResource(Res.string.hit),
-                            onClick = onHit,
-                            modifier = Modifier.weight(1f).height(buttonHeight),
+                            icon = "x2",
+                            label = stringResource(Res.string.double_down),
+                            onClick = onDoubleDown,
+                            modifier = Modifier.weight(1f),
                             isStrategic = true,
                         )
+                    }
+                    if (canSplit) {
                         GameActionButton(
-                            icon = "✋",
-                            label = stringResource(Res.string.stand),
-                            onClick = onStand,
-                            modifier = Modifier.weight(1f).height(buttonHeight),
+                            icon = "⑃",
+                            label = stringResource(Res.string.split),
+                            onClick = onSplit,
+                            modifier = Modifier.weight(1f),
                         )
                     }
+                    GameActionButton(
+                        icon = "👇",
+                        label = stringResource(Res.string.hit),
+                        onClick = onHit,
+                        modifier = Modifier.weight(1f),
+                        isStrategic = true,
+                    )
+                    GameActionButton(
+                        icon = "✋",
+                        label = stringResource(Res.string.stand),
+                        onClick = onStand,
+                        modifier = Modifier.weight(1f),
+                        containerColor = TacticalRed,
+                        contentColor = Color.White,
+                    )
                 }
             }
 

@@ -1,13 +1,10 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
@@ -28,7 +25,9 @@ fun HandRow(
 
     androidx.compose.foundation.layout.Row(
         modifier = Modifier.animateContentSize(),
-        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(overlapOffset),
+        horizontalArrangement =
+            androidx.compose.foundation.layout.Arrangement
+                .spacedBy(overlapOffset),
         verticalAlignment = Alignment.CenterVertically
     ) {
         hand.cards.forEachIndexed { index, card ->
@@ -38,11 +37,12 @@ fun HandRow(
                     isFaceUp = !card.isFaceDown,
                     isDealer = isDealer,
                     animationDelay = index * AnimationConstants.CardDealDelay,
-                    animationDurationMs = if (isSlowReveal && isDealer) {
-                        AnimationConstants.CardRevealDurationSlow
-                    } else {
-                        AnimationConstants.CardRevealDurationDefault
-                    },
+                    animationDurationMs =
+                        if (isSlowReveal && isDealer) {
+                            AnimationConstants.CardRevealDurationSlow
+                        } else {
+                            AnimationConstants.CardRevealDurationDefault
+                        },
                     scale = cardScale,
                     isNearMiss = isNearMiss
                 )

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.StrategyAction
 import io.github.smithjustinn.blackjack.StrategyProvider
 import io.github.smithjustinn.blackjack.StrategyTab
+import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.ChipPurple

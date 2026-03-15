@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
+import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
-import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import kotlinx.coroutines.delay
 
 val Suit.color: Color

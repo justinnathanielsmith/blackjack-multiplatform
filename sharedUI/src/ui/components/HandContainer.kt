@@ -31,8 +31,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -144,7 +144,13 @@ fun HandContainer(
                 Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = minContentHeight)
-                    .padding(start = contentPadding, end = contentPadding, top = topPadding, bottom = bottomPadding + 6.dp),
+                    .padding(
+                        start = contentPadding,
+                        end = contentPadding,
+                        top = topPadding,
+                        bottom =
+                            bottomPadding + 6.dp
+                    ),
             contentAlignment = Alignment.Center,
         ) {
             content()
