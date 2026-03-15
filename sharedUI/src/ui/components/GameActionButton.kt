@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -77,7 +78,7 @@ fun GameActionButton(
         label = "breathScale",
     )
 
-    val scale = baseScale * breathingScale
+    val scale = baseScale * if (isStrategic && enabled) breathingScale else 1.0f
 
     val resolvedContainerColor = containerColor ?: if (isStrategic) PrimaryGold else GlassDark
     val resolvedContentColor =
@@ -89,6 +90,7 @@ fun GameActionButton(
     Box(
         modifier =
             modifier
+                .alpha(if (enabled) 1f else 0.5f)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale

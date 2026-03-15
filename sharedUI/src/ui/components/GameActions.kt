@@ -112,27 +112,26 @@ fun GameActions(
                     modifier = Modifier.fillMaxWidth().height(buttonHeight),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    if (canDouble) {
-                        GameActionButton(
-                            icon = Res.drawable.ic_double,
-                            label = stringResource(Res.string.double_down),
-                            onClick = onDoubleDown,
-                            modifier = Modifier.weight(1f),
-                            isStrategic = true,
-                        )
-                    }
-                    if (canSplit) {
-                        GameActionButton(
-                            icon = Res.drawable.ic_split,
-                            label = stringResource(Res.string.split),
-                            onClick = onSplit,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
+                    GameActionButton(
+                        icon = Res.drawable.ic_double,
+                        label = stringResource(Res.string.double_down),
+                        onClick = onDoubleDown,
+                        enabled = canDouble,
+                        modifier = Modifier.weight(1f),
+                        isStrategic = true,
+                    )
+                    GameActionButton(
+                        icon = Res.drawable.ic_split,
+                        label = stringResource(Res.string.split),
+                        onClick = onSplit,
+                        enabled = canSplit,
+                        modifier = Modifier.weight(1f),
+                    )
                     GameActionButton(
                         icon = Res.drawable.ic_hit,
                         label = stringResource(Res.string.hit),
                         onClick = onHit,
+                        enabled = true,
                         modifier = Modifier.weight(1f),
                         isStrategic = true,
                     )
@@ -140,6 +139,7 @@ fun GameActions(
                         icon = Res.drawable.ic_stand,
                         label = stringResource(Res.string.stand),
                         onClick = onStand,
+                        enabled = true,
                         modifier = Modifier.weight(1f),
                         containerColor = TacticalRed,
                         contentColor = Color.White,

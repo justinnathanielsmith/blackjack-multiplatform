@@ -15,8 +15,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -464,92 +466,10 @@ private fun PortraitLayout(
         }
 
         // Player Hands - Dynamic space between dealer and actions
-        Column(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            val playerCardScale =
-                when (handCount) {
-                    1 -> 0.95f
-                    2 -> 0.80f
-                    else -> 0.68f
-                }
-
-            hands.forEachIndexed { index, hand ->
-                val isActive =
-                    remember(index, state.activeHandIndex, state.status) {
-                        index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                    }
-                val bet =
-                    if (handCount == 1) {
-                        remember(state.status, state.currentBet) {
-                            if (state.status != GameStatus.IDLE) state.currentBet else null
-                        }
-                    } else {
-                        state.playerBets.getOrNull(index)
-                    }
-
-                val status =
-                    when {
-                        hand.isBust -> HandStatus.BUSTED
-                        isActive -> HandStatus.ACTIVE
-                        else -> HandStatus.WAITING
-                    }
-
-                Box(modifier = Modifier.weight(1f)) {
-                    PlayerHand(
-                        handTotal = hand.score,
-                        status = status,
-                        cards = hand.cards,
-                        bet = bet,
-                        result = state.handResult(index),
-                        modifier = Modifier.fillMaxHeight(),
-                        scale = playerCardScale,
-                        isCompact = handCount > 1,
-                        isExtraCompact = handCount > 2
-                    )
-
-                    if (index == 0) {
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = state.status == GameStatus.PLAYING && state.sideBetResults.isNotEmpty(),
-                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(200)),
-                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(150)),
-                            modifier =
-                                Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .zIndex(4f)
-                                    .padding(bottom = 8.dp),
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                state.sideBetResults.forEach { (_, result) ->
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                                                .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                                    ) {
-                                        Text(
-                                            text = "${result.outcomeName}: +$${result.payoutAmount}",
-                                            color = PrimaryGold,
-                                            style = MaterialTheme.typography.labelLarge,
-                                            fontWeight = FontWeight.Black,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        DynamicPlayerHandsLayout(
+            state = state,
+            component = component
+        )
 
         Spacer(modifier = Modifier.height(if (handCount > 1) 8.dp else 12.dp))
 
@@ -567,3 +487,134 @@ data class ChipEruptionInstance(
     val amount: Int,
     val startOffset: Offset?
 )
+
+@Composable
+private fun ColumnScope.DynamicPlayerHandsLayout(
+    state: GameState,
+    component: BlackjackComponent,
+) {
+    val hands = state.playerHands
+    val handCount = hands.size
+
+    if (handCount == 1) {
+        // Single hand: Centered vertically and scaled up
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            val hand = hands[0]
+            val isActive = remember(state.activeHandIndex, state.status) {
+                state.activeHandIndex == 0 && state.status == GameStatus.PLAYING
+            }
+            val bet = remember(state.status, state.currentBet) {
+                if (state.status != GameStatus.IDLE) state.currentBet else null
+            }
+
+            val status = when {
+                hand.isBust -> HandStatus.BUSTED
+                isActive -> HandStatus.ACTIVE
+                else -> HandStatus.WAITING
+            }
+
+            PlayerHand(
+                handTotal = hand.score,
+                status = status,
+                cards = hand.cards,
+                bet = bet,
+                result = state.handResult(0),
+                modifier = Modifier, // no fillMaxHeight, allowing natural centering
+                scale = 1.0f,
+                isCompact = false,
+                isExtraCompact = false
+            )
+
+            SideBetResultsOverlay(state = state)
+        }
+    } else {
+        // Multi-hand: Distribute visually with weight modifiers
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            val playerCardScale = if (handCount == 2) 0.80f else 0.68f
+
+            hands.forEachIndexed { index, hand ->
+                val isActive = remember(index, state.activeHandIndex, state.status) {
+                    index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                }
+                val bet = state.playerBets.getOrNull(index)
+
+                val status = when {
+                    hand.isBust -> HandStatus.BUSTED
+                    isActive -> HandStatus.ACTIVE
+                    else -> HandStatus.WAITING
+                }
+
+                // Currently active hand gets slightly more vertical space
+                val layoutWeight = if (isActive) 1.25f else 1.0f
+
+                Box(
+                    modifier = Modifier.weight(layoutWeight),
+                    contentAlignment = Alignment.Center
+                ) {
+                    PlayerHand(
+                        handTotal = hand.score,
+                        status = status,
+                        cards = hand.cards,
+                        bet = bet,
+                        result = state.handResult(index),
+                        modifier = Modifier.fillMaxHeight(),
+                        scale = playerCardScale,
+                        isCompact = true,
+                        isExtraCompact = handCount > 2
+                    )
+
+                    if (index == 0) {
+                        SideBetResultsOverlay(state = state)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.SideBetResultsOverlay(state: GameState) {
+    androidx.compose.animation.AnimatedVisibility(
+        visible = state.status == GameStatus.PLAYING && state.sideBetResults.isNotEmpty(),
+        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(200)),
+        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(150)),
+        modifier =
+            Modifier
+                .align(Alignment.BottomCenter)
+                .zIndex(4f)
+                .padding(bottom = 8.dp),
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            state.sideBetResults.forEach { (_, result) ->
+                Box(
+                    modifier =
+                        Modifier
+                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                            .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    Text(
+                        text = "${result.outcomeName}: +$${result.payoutAmount}",
+                        color = PrimaryGold,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Black,
+                    )
+                }
+            }
+        }
+    }
+}
