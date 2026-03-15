@@ -159,50 +159,13 @@ fun PlayingCard(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .padding(6.dp)
+                            .padding(8.dp)
                             .graphicsLayer { rotationY = 180f },
                 ) {
                     // Top Left
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = card.rank.symbol,
-                            color = card.suit.color,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Text(
-                            text = card.suit.symbol,
-                            color = card.suit.color,
-                            fontSize = 14.sp,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-
-                    // Center
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = card.suit.symbol,
-                            color = card.suit.color.copy(alpha = 0.08f),
-                            fontSize = 64.sp,
-                            style = MaterialTheme.typography.displayLarge,
-                        )
-                        Text(
-                            text = card.rank.symbol,
-                            color = card.suit.color,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 32.sp,
-                            style = MaterialTheme.typography.headlineLarge,
-                        )
-                    }
-
-                    // Bottom Right
                     Column(
-                        modifier =
-                            Modifier
-                                .align(Alignment.BottomEnd)
-                                .graphicsLayer { rotationZ = 180f },
                         horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
                     ) {
                         Text(
                             text = card.rank.symbol,
@@ -214,8 +177,55 @@ fun PlayingCard(
                         Text(
                             text = card.suit.symbol,
                             color = card.suit.color,
-                            fontSize = 14.sp,
-                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+
+                    // Center - Structured to prevent "mashing"
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = card.suit.symbol,
+                                color = card.suit.color.copy(alpha = 0.08f),
+                                fontSize = 72.sp,
+                                style = MaterialTheme.typography.displayLarge,
+                            )
+                            Text(
+                                text = card.rank.symbol,
+                                color = card.suit.color,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 42.sp,
+                                style = MaterialTheme.typography.headlineLarge,
+                            )
+                        }
+                    }
+
+                    // Bottom Right - Inverted corner
+                    Column(
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomEnd)
+                                .graphicsLayer { rotationZ = 180f },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = card.rank.symbol,
+                            color = card.suit.color,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            text = card.suit.symbol,
+                            color = card.suit.color,
+                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                     }
                 }
