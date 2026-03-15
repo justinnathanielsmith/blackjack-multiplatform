@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -54,15 +53,13 @@ import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.SideBetResult
-import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
+import io.github.smithjustinn.blackjack.ui.components.BlackjackHandContainer
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
-import io.github.smithjustinn.blackjack.ui.components.BlackjackHandContainer
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
 import io.github.smithjustinn.blackjack.ui.components.HandStatus
@@ -521,10 +518,11 @@ private fun PortraitLayout(
                             visible = state.status == GameStatus.PLAYING && state.sideBetResults.isNotEmpty(),
                             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(200)),
                             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(150)),
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .zIndex(4f)
-                                .padding(bottom = 8.dp),
+                            modifier =
+                                Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .zIndex(4f)
+                                    .padding(bottom = 8.dp),
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -532,10 +530,11 @@ private fun PortraitLayout(
                             ) {
                                 state.sideBetResults.forEach { (_, result) ->
                                     Box(
-                                        modifier = Modifier
-                                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                                            .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                                        modifier =
+                                            Modifier
+                                                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                                .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
+                                                .padding(horizontal = 16.dp, vertical = 8.dp),
                                     ) {
                                         Text(
                                             text = "${result.outcomeName}: +$${result.payoutAmount}",
@@ -562,7 +561,6 @@ private fun PortraitLayout(
         )
     }
 }
-
 
 data class ChipEruptionInstance(
     val id: Long,

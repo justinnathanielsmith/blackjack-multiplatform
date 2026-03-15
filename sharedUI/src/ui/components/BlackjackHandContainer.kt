@@ -25,11 +25,16 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.*
 
 enum class HandResult {
-    NONE, WIN, LOSS, PUSH
+    NONE,
+    WIN,
+    LOSS,
+    PUSH
 }
 
 enum class HandStatus {
-    ACTIVE, WAITING, BUSTED
+    ACTIVE,
+    WAITING,
+    BUSTED
 }
 
 private val ContainerShape = RoundedCornerShape(24.dp)
@@ -55,40 +60,45 @@ fun BlackjackHandContainer(
     content: @Composable BoxScope.() -> Unit,
 ) {
     val isAnyCompact = isCompact || isExtraCompact
-    val borderColor = when {
-        isActive -> PrimaryGold
-        isPending -> GlassLight
-        else -> Color.White.copy(alpha = 0.05f)
-    }
-    val backgroundColor = when {
-        isActive -> PrimaryGold.copy(alpha = 0.1f)
-        isPending -> Color.Black.copy(alpha = 0.2f)
-        else -> GlassDark.copy(alpha = 0.3f)
-    }
+    val borderColor =
+        when {
+            isActive -> PrimaryGold
+            isPending -> GlassLight
+            else -> Color.White.copy(alpha = 0.05f)
+        }
+    val backgroundColor =
+        when {
+            isActive -> PrimaryGold.copy(alpha = 0.1f)
+            isPending -> Color.Black.copy(alpha = 0.2f)
+            else -> GlassDark.copy(alpha = 0.3f)
+        }
 
-    val cornerRadius = when {
-        isExtraCompact -> ExtraCompactContainerShape
-        isCompact -> CompactContainerShape
-        else -> ContainerShape
-    }
+    val cornerRadius =
+        when {
+            isExtraCompact -> ExtraCompactContainerShape
+            isCompact -> CompactContainerShape
+            else -> ContainerShape
+        }
 
     val horizontalPadding = if (isCompact) 8.dp else 16.dp
     val outerVerticalPadding = 6.dp
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .animateContentSize()
-            .padding(horizontal = horizontalPadding, vertical = outerVerticalPadding),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .animateContentSize()
+                .padding(horizontal = horizontalPadding, vertical = outerVerticalPadding),
     ) {
         // Visual Background + Border
         Box(
-            modifier = Modifier
-                .matchParentSize()
-                .padding(vertical = 6.dp) // Offset to allow badges to overlap vertically
-                .clip(cornerRadius)
-                .background(backgroundColor)
-                .border(if (isActive) 2.dp else 1.dp, borderColor, cornerRadius)
+            modifier =
+                Modifier
+                    .matchParentSize()
+                    .padding(vertical = 6.dp) // Offset to allow badges to overlap vertically
+                    .clip(cornerRadius)
+                    .background(backgroundColor)
+                    .border(if (isActive) 2.dp else 1.dp, borderColor, cornerRadius)
         )
 
         // Status Badge (Active/Waiting)
@@ -105,34 +115,38 @@ fun BlackjackHandContainer(
         // Score Badge: The "Breaking Out" style
         ScoreBadge(score = score, isActive = isActive, isCompact = isAnyCompact)
 
-        val contentPadding = when {
-            isExtraCompact -> 10.dp
-            isCompact -> 16.dp
-            else -> 16.dp
-        }
-        val topPadding = when {
-            isExtraCompact -> 18.dp
-            isCompact -> 24.dp
-            else -> 24.dp
-        }
+        val contentPadding =
+            when {
+                isExtraCompact -> 10.dp
+                isCompact -> 16.dp
+                else -> 16.dp
+            }
+        val topPadding =
+            when {
+                isExtraCompact -> 18.dp
+                isCompact -> 24.dp
+                else -> 24.dp
+            }
         val bottomPadding = if (isExtraCompact) 8.dp else contentPadding
 
-        val minContentHeight = when {
-            isExtraCompact -> Dimensions.Hand.MinHeightExtraCompact
-            isCompact -> Dimensions.Hand.MinHeightCompact
-            else -> Dimensions.Hand.MinHeightDefault
-        }
+        val minContentHeight =
+            when {
+                isExtraCompact -> Dimensions.Hand.MinHeightExtraCompact
+                isCompact -> Dimensions.Hand.MinHeightCompact
+                else -> Dimensions.Hand.MinHeightDefault
+            }
 
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = minContentHeight)
-                .padding(
-                    start = contentPadding,
-                    end = contentPadding,
-                    top = topPadding,
-                    bottom = bottomPadding + 6.dp
-                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = minContentHeight)
+                    .padding(
+                        start = contentPadding,
+                        end = contentPadding,
+                        top = topPadding,
+                        bottom = bottomPadding + 6.dp
+                    ),
             contentAlignment = Alignment.Center,
         ) {
             content()
@@ -143,10 +157,11 @@ fun BlackjackHandContainer(
             // Bet Chip Stack
             if (bet != null) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .offset(y = 10.dp)
-                        .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .offset(y = 10.dp)
+                            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                 ) {
                     ChipStack(amount = bet, isActive = isActive)
                 }
@@ -163,17 +178,18 @@ private fun BoxScope.TitleBadge(
     titleStyle: TextStyle,
 ) {
     Box(
-        modifier = Modifier
-            .align(Alignment.TopStart)
-            .offset(y = (-6).dp)
-            .zIndex(1f)
-            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-            .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
-            .border(
-                1.dp,
-                if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
-                RoundedCornerShape(12.dp),
-            ).padding(horizontal = 10.dp, vertical = 4.dp),
+        modifier =
+            Modifier
+                .align(Alignment.TopStart)
+                .offset(y = (-6).dp)
+                .zIndex(1f)
+                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
+                .border(
+                    1.dp,
+                    if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
+                    RoundedCornerShape(12.dp),
+                ).padding(horizontal = 10.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -194,20 +210,22 @@ private fun BoxScope.StatusBadge(
 ) {
     val badgeColor = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.2f)
     val badgeTextColor = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.8f)
-    val badgeText = if (isActive) {
-        stringResource(Res.string.status_active)
-    } else {
-        stringResource(Res.string.status_waiting)
-    }
+    val badgeText =
+        if (isActive) {
+            stringResource(Res.string.status_active)
+        } else {
+            stringResource(Res.string.status_waiting)
+        }
 
     Box(
-        modifier = Modifier
-            .align(Alignment.TopCenter)
-            .offset(y = (-6).dp)
-            .zIndex(1f)
-            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-            .background(badgeColor, RoundedCornerShape(12.dp))
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+        modifier =
+            Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-6).dp)
+                .zIndex(1f)
+                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                .background(badgeColor, RoundedCornerShape(12.dp))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(
             text = badgeText.uppercase(),
@@ -226,17 +244,18 @@ private fun BoxScope.ScoreBadge(
     isCompact: Boolean,
 ) {
     Box(
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .offset(x = 8.dp, y = (-6).dp)
-            .zIndex(2f)
-            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-            .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), BadgeShape)
-            .border(
-                1.dp,
-                if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
-                BadgeShape
-            ).padding(horizontal = 10.dp, vertical = 6.dp),
+        modifier =
+            Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 8.dp, y = (-6).dp)
+                .zIndex(2f)
+                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), BadgeShape)
+                .border(
+                    1.dp,
+                    if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
+                    BadgeShape
+                ).padding(horizontal = 10.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(
@@ -256,19 +275,21 @@ private fun BoxScope.ScoreBadge(
 
 @Composable
 internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
-    val color = when (result) {
-        HandResult.WIN -> Color(0xFFFFD700) // gold
-        HandResult.LOSS -> Color(0xFFCC2222) // red
-        HandResult.PUSH -> Color(0xFF888888) // gray
-        HandResult.NONE -> Color.Transparent
-    }
+    val color =
+        when (result) {
+            HandResult.WIN -> Color(0xFFFFD700) // gold
+            HandResult.LOSS -> Color(0xFFCC2222) // red
+            HandResult.PUSH -> Color(0xFF888888) // gray
+            HandResult.NONE -> Color.Transparent
+        }
 
-    val text = when (result) {
-        HandResult.WIN -> stringResource(Res.string.result_win)
-        HandResult.LOSS -> stringResource(Res.string.result_loss)
-        HandResult.PUSH -> stringResource(Res.string.result_push)
-        HandResult.NONE -> ""
-    }
+    val text =
+        when (result) {
+            HandResult.WIN -> stringResource(Res.string.result_win)
+            HandResult.LOSS -> stringResource(Res.string.result_loss)
+            HandResult.PUSH -> stringResource(Res.string.result_push)
+            HandResult.NONE -> ""
+        }
 
     AnimatedVisibility(
         visible = result != HandResult.NONE,
@@ -277,10 +298,11 @@ internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
         modifier = Modifier.align(Alignment.Center).zIndex(3f),
     ) {
         Box(
-            modifier = Modifier
-                .background(color, RoundedCornerShape(8.dp))
-                .border(2.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier =
+                Modifier
+                    .background(color, RoundedCornerShape(8.dp))
+                    .border(2.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
             Text(
                 text = text.uppercase(),

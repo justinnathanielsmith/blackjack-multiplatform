@@ -9,10 +9,13 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -21,19 +24,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.draw.rotate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
@@ -80,6 +84,161 @@ val Rank.symbol: String
             Rank.KING -> "K"
             Rank.ACE -> "A"
         }
+
+data class PipPosition(
+    val xFraction: Float,
+    val yFraction: Float,
+    val rotated: Boolean,
+)
+
+private val pipLayouts: Map<Rank, List<PipPosition>> =
+    mapOf(
+        Rank.TWO to
+            listOf(
+                PipPosition(0.5f, 0.25f, false),
+                PipPosition(0.5f, 0.75f, true),
+            ),
+        Rank.THREE to
+            listOf(
+                PipPosition(0.5f, 0.18f, false),
+                PipPosition(0.5f, 0.50f, false),
+                PipPosition(0.5f, 0.82f, true),
+            ),
+        Rank.FOUR to
+            listOf(
+                PipPosition(0.25f, 0.25f, false),
+                PipPosition(0.75f, 0.25f, false),
+                PipPosition(0.25f, 0.75f, true),
+                PipPosition(0.75f, 0.75f, true),
+            ),
+        Rank.FIVE to
+            listOf(
+                PipPosition(0.25f, 0.25f, false),
+                PipPosition(0.75f, 0.25f, false),
+                PipPosition(0.5f, 0.50f, false),
+                PipPosition(0.25f, 0.75f, true),
+                PipPosition(0.75f, 0.75f, true),
+            ),
+        Rank.SIX to
+            listOf(
+                PipPosition(0.25f, 0.20f, false),
+                PipPosition(0.75f, 0.20f, false),
+                PipPosition(0.25f, 0.50f, false),
+                PipPosition(0.75f, 0.50f, false),
+                PipPosition(0.25f, 0.80f, true),
+                PipPosition(0.75f, 0.80f, true),
+            ),
+        Rank.SEVEN to
+            listOf(
+                PipPosition(0.25f, 0.20f, false),
+                PipPosition(0.75f, 0.20f, false),
+                PipPosition(0.25f, 0.50f, false),
+                PipPosition(0.75f, 0.50f, false),
+                PipPosition(0.25f, 0.80f, true),
+                PipPosition(0.75f, 0.80f, true),
+                PipPosition(0.5f, 0.33f, false),
+            ),
+        Rank.EIGHT to
+            listOf(
+                PipPosition(0.25f, 0.20f, false),
+                PipPosition(0.75f, 0.20f, false),
+                PipPosition(0.25f, 0.50f, false),
+                PipPosition(0.75f, 0.50f, false),
+                PipPosition(0.25f, 0.80f, true),
+                PipPosition(0.75f, 0.80f, true),
+                PipPosition(0.5f, 0.33f, false),
+                PipPosition(0.5f, 0.67f, true),
+            ),
+        Rank.NINE to
+            listOf(
+                PipPosition(0.25f, 0.15f, false),
+                PipPosition(0.75f, 0.15f, false),
+                PipPosition(0.25f, 0.38f, false),
+                PipPosition(0.75f, 0.38f, false),
+                PipPosition(0.5f, 0.50f, false),
+                PipPosition(0.25f, 0.62f, true),
+                PipPosition(0.75f, 0.62f, true),
+                PipPosition(0.25f, 0.85f, true),
+                PipPosition(0.75f, 0.85f, true),
+            ),
+        Rank.TEN to
+            listOf(
+                PipPosition(0.25f, 0.12f, false),
+                PipPosition(0.75f, 0.12f, false),
+                PipPosition(0.5f, 0.26f, false),
+                PipPosition(0.25f, 0.38f, false),
+                PipPosition(0.75f, 0.38f, false),
+                PipPosition(0.25f, 0.62f, true),
+                PipPosition(0.75f, 0.62f, true),
+                PipPosition(0.5f, 0.74f, true),
+                PipPosition(0.25f, 0.88f, true),
+                PipPosition(0.75f, 0.88f, true),
+            ),
+    )
+
+@Composable
+fun CardFace(
+    rank: Rank,
+    suit: Suit,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        when {
+            rank == Rank.ACE -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = suit.symbol,
+                        color = suit.color,
+                        fontSize = 36.sp,
+                    )
+                }
+            }
+            rank == Rank.JACK || rank == Rank.QUEEN || rank == Rank.KING -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = suit.symbol,
+                        color = suit.color,
+                        fontSize = 52.sp,
+                    )
+                }
+            }
+            else -> PipGrid(rank, suit, maxWidth, maxHeight)
+        }
+    }
+}
+
+@Composable
+private fun PipGrid(
+    rank: Rank,
+    suit: Suit,
+    areaWidth: Dp,
+    areaHeight: Dp
+) {
+    val positions = pipLayouts[rank] ?: return
+    val pipSize = areaWidth * 0.18f
+    val fontSize = maxOf(areaWidth.value * 0.16f, 10f).sp
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        for (pip in positions) {
+            val xOffset = areaWidth * pip.xFraction - pipSize / 2
+            val yOffset = areaHeight * pip.yFraction - pipSize / 2
+            Box(
+                modifier =
+                    Modifier
+                        .size(pipSize)
+                        .offset(x = xOffset, y = yOffset)
+                        .then(if (pip.rotated) Modifier.rotate(180f) else Modifier),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = suit.symbol,
+                    color = suit.color,
+                    fontSize = fontSize,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun PlayingCard(
@@ -129,7 +288,7 @@ fun PlayingCard(
         modifier =
             modifier
                 .width(Dimensions.Card.StandardWidth * scale)
-                .aspectRatio(0.7f)
+                .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
                     translationY = offsetY.value
                     rotationY = rotation
@@ -171,39 +330,26 @@ fun PlayingCard(
                         modifier = Modifier.align(Alignment.TopStart)
                     )
 
-                    // Center Graphic - Box with buffer padding
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 24.dp, vertical = 32.dp)
-                            .align(Alignment.Center),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = card.suit.symbol,
-                                color = card.suit.color.copy(alpha = 0.08f),
-                                fontSize = 72.sp,
-                                style = MaterialTheme.typography.displayLarge,
-                            )
-                            Text(
-                                text = card.rank.symbol,
-                                color = card.suit.color,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 42.sp,
-                                style = MaterialTheme.typography.headlineLarge,
-                            )
-                        }
-                    }
+                    // Center pip grid / face graphic
+                    CardFace(
+                        rank = card.rank,
+                        suit = card.suit,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 24.dp, vertical = 32.dp)
+                                .align(Alignment.Center),
+                    )
 
                     // Bottom Right Corner - Inverted and mirrored
                     CardCorner(
                         rank = card.rank.symbol,
                         suit = card.suit.symbol,
                         color = card.suit.color,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .rotate(180f)
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomEnd)
+                                .rotate(180f)
                     )
                 }
             } else {
@@ -270,7 +416,9 @@ private fun CardCorner(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(1.dp)
+        verticalArrangement =
+            androidx.compose.foundation.layout.Arrangement
+                .spacedBy(1.dp)
     ) {
         // Fixed width ensures '10' vs 'J' doesn't cause suit jumping/collisions
         Box(

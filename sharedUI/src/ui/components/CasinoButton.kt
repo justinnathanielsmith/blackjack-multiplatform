@@ -68,10 +68,11 @@ fun CasinoButton(
     val shineProgress by shineTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1800, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
         label = "shineProgress"
     )
 
@@ -160,15 +161,17 @@ fun CasinoButton(
                         val shineX = -size.width + shineProgress * 3f * size.width
                         val bandWidth = size.width * 0.4f
                         drawRect(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.White.copy(alpha = 0.3f),
-                                    Color.Transparent
-                                ),
-                                start = Offset(shineX, 0f),
-                                end = Offset(shineX + bandWidth, size.height)
-                            )
+                            brush =
+                                Brush.linearGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            Color.White.copy(alpha = 0.3f),
+                                            Color.Transparent
+                                        ),
+                                    start = Offset(shineX, 0f),
+                                    end = Offset(shineX + bandWidth, size.height)
+                                )
                         )
                     }
                 }.clickable(

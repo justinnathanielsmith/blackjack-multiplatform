@@ -16,7 +16,7 @@ object Dimensions {
 
     object Card {
         val StandardWidth = 120.dp
-        val AspectRatio = 24f / 34f
+        val AspectRatio = 2.5f / 3.5f
         val OverlapOffsetRaw = -40f // Negative value for overlapping cards in dp
     }
 }

@@ -45,11 +45,11 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.close
 import sharedui.generated.resources.hand_count_label
 import sharedui.generated.resources.settings_das
-import sharedui.generated.resources.settings_reset_balance
 import sharedui.generated.resources.settings_decks
 import sharedui.generated.resources.settings_game_rules
 import sharedui.generated.resources.settings_mute
 import sharedui.generated.resources.settings_payout
+import sharedui.generated.resources.settings_reset_balance
 import sharedui.generated.resources.settings_rule_disclaimer
 import sharedui.generated.resources.settings_s17
 import sharedui.generated.resources.settings_surrender
@@ -98,12 +98,19 @@ fun SettingsOverlay(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    onClick = onResetBalance, 
+                    onClick = onResetBalance,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000), contentColor = Color.White),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF8B0000),
+                            contentColor = Color.White
+                        ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(stringResource(Res.string.settings_reset_balance).uppercase(), style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        stringResource(Res.string.settings_reset_balance).uppercase(),
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
 
                 SettingsDropdown(

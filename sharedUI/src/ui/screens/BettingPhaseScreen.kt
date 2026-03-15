@@ -200,7 +200,7 @@ fun BettingPhaseScreen(
             ChipSelector(
                 balance = state.balance,
                 selectedAmount = selectedAmount,
-                onChipSelected = { 
+                onChipSelected = {
                     selectedAmount = it
                     audioService.playEffect(AudioService.SoundEffect.PLINK)
                 },
@@ -244,10 +244,11 @@ private fun BetSpot(
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = 0.5f,
         targetValue = if (currentBet > 0) 1.0f else 0.5f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "betSpotGlowAlpha"
     )
 
@@ -257,25 +258,24 @@ private fun BetSpot(
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Box(
-            modifier = Modifier
-                .size(112.dp)
-                .shadow(
-                    elevation = if (currentBet > 0) (8 * glowAlpha).dp else 0.dp,
-                    shape = CircleShape,
-                    spotColor = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0f)
-                )
-                .clip(CircleShape)
-                .background(FeltGreen)
-                .border(
-                    width = 2.dp,
-                    color = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0.5f),
-                    shape = CircleShape
-                )
-                .clickable { onClick() }
-                .onGloballyPositioned {
-                    val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                    onPositioned(center)
-                },
+            modifier =
+                Modifier
+                    .size(112.dp)
+                    .shadow(
+                        elevation = if (currentBet > 0) (8 * glowAlpha).dp else 0.dp,
+                        shape = CircleShape,
+                        spotColor = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0f)
+                    ).clip(CircleShape)
+                    .background(FeltGreen)
+                    .border(
+                        width = 2.dp,
+                        color = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0.5f),
+                        shape = CircleShape
+                    ).clickable { onClick() }
+                    .onGloballyPositioned {
+                        val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                        onPositioned(center)
+                    },
             contentAlignment = Alignment.Center
         ) {
             if (currentBet > 0) {
@@ -296,9 +296,10 @@ private fun BetSpot(
                 style = MaterialTheme.typography.labelSmall,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .background(PrimaryGold.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                modifier =
+                    Modifier
+                        .background(PrimaryGold.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
             )
         }
     }

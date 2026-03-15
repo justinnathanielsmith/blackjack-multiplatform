@@ -99,8 +99,7 @@ fun Header(
                 Modifier
                     .semantics(mergeDescendants = true) {
                         contentDescription = "Balance: $$formattedBalance"
-                    }
-                    .graphicsLayer { translationX = jiggleX.value },
+                    }.graphicsLayer { translationX = jiggleX.value },
         ) {
             Text(
                 text = stringResource(Res.string.balance).uppercase(),

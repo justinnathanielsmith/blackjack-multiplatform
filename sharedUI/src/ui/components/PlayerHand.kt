@@ -25,7 +25,7 @@ fun PlayerHand(
 ) {
     val isActive = status == HandStatus.ACTIVE
     val isWaiting = status == HandStatus.WAITING
-    
+
     val alpha = if (isWaiting) 0.6f else 1.0f
 
     BlackjackHandContainer(
