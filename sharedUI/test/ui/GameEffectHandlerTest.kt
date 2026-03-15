@@ -1,33 +1,30 @@
 package io.github.smithjustinn.blackjack.ui.effects
 
 import io.github.smithjustinn.blackjack.GameEffect
+import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GameEffectHandlerTest {
-    private val audioService =
-        object : io.github.smithjustinn.blackjack.services.AudioService {
-            override fun playEffect(effect: io.github.smithjustinn.blackjack.services.AudioService.SoundEffect) {}
 
-            override fun release() {}
-        }
+    private val noopAudio = object : AudioService {
+        override fun playEffect(effect: AudioService.SoundEffect) {}
+        override fun release() {}
+    }
 
     @Test
     fun vibrateEffectTriggersHaptics() {
         var calls = 0
-        val hapticsService =
-            object : HapticsService {
-                override fun vibrate() {
-                    calls += 1
-                }
-            }
+        val hapticsService = object : HapticsService {
+            override fun vibrate() { calls += 1 }
+        }
 
         handleGameEffect(
             effect = GameEffect.Vibrate,
             hapticsService = hapticsService,
-            audioService = audioService,
-            isSoundMuted = false
+            audioService = noopAudio,
+            isSoundMuted = false,
         )
 
         assertEquals(1, calls)
@@ -36,18 +33,15 @@ class GameEffectHandlerTest {
     @Test
     fun nonVibrateEffectDoesNotTriggerHaptics() {
         var calls = 0
-        val hapticsService =
-            object : HapticsService {
-                override fun vibrate() {
-                    calls += 1
-                }
-            }
+        val hapticsService = object : HapticsService {
+            override fun vibrate() { calls += 1 }
+        }
 
         handleGameEffect(
             effect = GameEffect.PlayWinSound,
             hapticsService = hapticsService,
-            audioService = audioService,
-            isSoundMuted = false
+            audioService = noopAudio,
+            isSoundMuted = false,
         )
 
         assertEquals(0, calls)

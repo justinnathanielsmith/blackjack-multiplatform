@@ -1,6 +1,5 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -8,105 +7,32 @@ import kotlin.test.assertTrue
 
 class ScoringTest {
 
-    @Test
-    fun testHandScore_noAces() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SEVEN, Suit.SPADES)
-        ))
-        assertEquals(17, hand.score)
-        assertFalse(hand.isSoft)
+    private fun assertScore(expected: Int, isSoft: Boolean, vararg ranks: Rank) {
+        val h = hand(*ranks)
+        assertEquals(expected, h.score)
+        assertEquals(isSoft, h.isSoft)
     }
 
     @Test
-    fun testHandScore_singleAce_hard() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.ACE, Suit.CLUBS)
-        ))
-        assertEquals(18, hand.score)
-        assertFalse(hand.isSoft)
+    fun aceValuations() {
+        assertScore(17, isSoft = false, Rank.TEN, Rank.SEVEN)                    // no aces
+        assertScore(18, isSoft = false, Rank.TEN, Rank.SEVEN, Rank.ACE)          // hard 18
+        assertScore(18, isSoft = true, Rank.ACE, Rank.SEVEN)                     // soft 18
+        assertScore(12, isSoft = true, Rank.ACE, Rank.ACE)                       // two aces
+        assertScore(12, isSoft = false, Rank.ACE, Rank.ACE, Rank.TEN)            // two aces + ten
+        assertScore(21, isSoft = false, Rank.TEN, Rank.KING, Rank.ACE)           // ace prevents bust
+        assertScore(22, isSoft = false, Rank.TEN, Rank.KING, Rank.TWO)           // bust
+        assertScore(19, isSoft = true, Rank.ACE, Rank.ACE, Rank.ACE, Rank.SIX)  // three aces + six
+        assertScore(13, isSoft = false, Rank.ACE, Rank.ACE, Rank.ACE, Rank.TEN) // three aces + ten
     }
 
     @Test
-    fun testHandScore_singleAce_soft() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.ACE, Suit.CLUBS),
-            Card(Rank.SEVEN, Suit.SPADES)
-        ))
-        assertEquals(18, hand.score)
-        assertTrue(hand.isSoft)
+    fun isBust_trueWhenScoreOver21() {
+        assertTrue(hand(Rank.TEN, Rank.KING, Rank.TWO).isBust)
     }
 
     @Test
-    fun testHandScore_multipleAces_soft() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.ACE, Suit.CLUBS),
-            Card(Rank.ACE, Suit.HEARTS)
-        ))
-        assertEquals(12, hand.score)
-        assertTrue(hand.isSoft)
-    }
-
-    @Test
-    fun testHandScore_multipleAces_hard() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.ACE, Suit.CLUBS),
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.TEN, Suit.SPADES)
-        ))
-        assertEquals(12, hand.score)
-        assertFalse(hand.isSoft)
-    }
-
-    @Test
-    fun testHandScore_multipleAces_complex_soft() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.ACE, Suit.CLUBS),
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SIX, Suit.DIAMONDS)
-        ))
-        // 11 + 1 + 1 + 6 = 19
-        assertEquals(19, hand.score)
-        assertTrue(hand.isSoft)
-    }
-
-    @Test
-    fun testHandScore_multipleAces_complex_hard() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.ACE, Suit.CLUBS),
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.TEN, Suit.DIAMONDS)
-        ))
-        // 1 + 1 + 1 + 10 = 13
-        assertEquals(13, hand.score)
-        assertFalse(hand.isSoft)
-    }
-
-    @Test
-    fun testHandScore_bust() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.TEN, Suit.CLUBS),
-            Card(Rank.KING, Suit.HEARTS),
-            Card(Rank.TWO, Suit.SPADES)
-        ))
-        assertEquals(22, hand.score)
-        assertTrue(hand.isBust)
-    }
-
-    @Test
-    fun testHandScore_aceCanPreventBust() {
-        val hand = Hand(persistentListOf(
-            Card(Rank.TEN, Suit.CLUBS),
-            Card(Rank.KING, Suit.HEARTS),
-            Card(Rank.ACE, Suit.SPADES)
-        ))
-        // 10 + 10 + 1 = 21
-        assertEquals(21, hand.score)
-        assertFalse(hand.isBust)
-        assertFalse(hand.isSoft)
+    fun isBust_falseWhenScoreEqualOrBelow21() {
+        assertFalse(hand(Rank.TEN, Rank.KING, Rank.ACE).isBust)
     }
 }

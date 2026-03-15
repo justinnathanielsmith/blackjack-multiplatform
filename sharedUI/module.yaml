@@ -32,3 +32,4 @@ dependencies:
 
 test-dependencies:
   - $kotlin.test
+  - $libs.turbine

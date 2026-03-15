@@ -21,3 +21,4 @@ dependencies:
 test-dependencies:
   - $libs.kotlinx.coroutines.test
   - org.jetbrains.kotlin:kotlin-test:2.1.10
+  - $libs.turbine

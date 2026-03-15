@@ -238,18 +238,18 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             component = component,
                             flashAlphaProvider = { flashAlpha.value },
                             showStatus = showStatus,
-                            modifier = Modifier.zIndex(1f),
+                            modifier = Modifier.zIndex(5f),
                         )
 
                         SideBetResultOverlay(
                             results = state.sideBetResults,
                             status = state.status,
-                            modifier = Modifier.zIndex(1f),
+                            modifier = Modifier.zIndex(5f),
                         )
 
                         androidx.compose.animation.AnimatedVisibility(
                             visible = state.status == GameStatus.BETTING,
-                            modifier = Modifier.zIndex(1f),
+                            modifier = Modifier.zIndex(5f),
                             enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
                             exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
                         ) {
@@ -262,7 +262,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
                         androidx.compose.animation.AnimatedVisibility(
                             visible = showSettings,
-                            modifier = Modifier.zIndex(2f),
+                            modifier = Modifier.zIndex(10f),
                             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
                             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
                         ) {
@@ -275,7 +275,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
                         androidx.compose.animation.AnimatedVisibility(
                             visible = showStrategy,
-                            modifier = Modifier.zIndex(2f),
+                            modifier = Modifier.zIndex(10f),
                             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
                             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
                         ) {
@@ -286,7 +286,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
                         androidx.compose.animation.AnimatedVisibility(
                             visible = showRules,
-                            modifier = Modifier.zIndex(2f),
+                            modifier = Modifier.zIndex(10f),
                             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
                             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
                         ) {

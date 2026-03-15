@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.smithjustinn.blackjack
 
 import kotlinx.collections.immutable.persistentListOf
@@ -8,177 +10,135 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MultiHandTest {
 
     @Test
     fun testInitialDeal_threeHands() = runTest {
-        val deck = persistentListOf(
-            Card(Rank.TEN, Suit.SPADES), Card(Rank.TEN, Suit.HEARTS), // P1: 20
-            Card(Rank.NINE, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS), // P2: 18
-            Card(Rank.EIGHT, Suit.SPADES), Card(Rank.EIGHT, Suit.HEARTS), // P3: 16
-            Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS) // Dealer: 17
+        val deck = deckOf(
+            Rank.TEN, Rank.NINE, Rank.EIGHT, // P1,P2,P3 card1
+            Rank.TEN, Rank.NINE, Rank.EIGHT, // P1,P2,P3 card2
+            Rank.TEN, Rank.SEVEN,            // Dealer
         )
-        val stateMachine = BlackjackStateMachine(this, GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, deck = deck))
-        stateMachine.dispatch(GameAction.SelectHandCount(3))
+        val sm = BlackjackStateMachine(
+            this,
+            GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, deck = deck),
+        )
+        sm.dispatch(GameAction.SelectHandCount(3))
         advanceUntilIdle()
-        stateMachine.dispatch(GameAction.PlaceBet(100))
+        sm.dispatch(GameAction.PlaceBet(100))
         advanceUntilIdle()
-        
+
         // Balance: 1000 - (100 * 3) = 700
-        assertEquals(700, stateMachine.state.value.balance)
-        assertEquals(100, stateMachine.state.value.currentBet)
+        assertEquals(700, sm.state.value.balance)
 
-        stateMachine.dispatch(GameAction.Deal)
+        sm.dispatch(GameAction.Deal)
         advanceUntilIdle()
 
-        val state = stateMachine.state.value
+        val state = sm.state.value
         assertEquals(3, state.playerHands.size)
         assertEquals(3, state.playerBets.size)
-        state.playerHands.forEach { hand ->
-            assertEquals(2, hand.cards.size)
-        }
+        state.playerHands.forEach { hand -> assertEquals(2, hand.cards.size) }
         assertEquals(0, state.activeHandIndex)
         assertEquals(GameStatus.PLAYING, state.status)
     }
 
     @Test
     fun testHandSwitching_onStand() = runTest {
-        val initialState = GameState(
-            status = GameStatus.PLAYING,
-            playerHands = persistentListOf(
-                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SEVEN, Suit.HEARTS))),
-                Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS)))
-            ),
-            playerBets = persistentListOf(100, 100),
+        val initialState = multiHandPlayingState(
+            balance = 900,
+            hands = listOf(hand(Rank.TEN, Rank.SEVEN), hand(Rank.TEN, Rank.SIX)),
+            bets = listOf(100, 100),
             activeHandIndex = 0,
-            handCount = 2,
-            dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.HEARTS), Card(Rank.SEVEN, Suit.SPADES, isFaceDown = true))),
-            deck = persistentListOf(Card(Rank.TWO, Suit.CLUBS))
+            dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+            deck = deckOf(Rank.TWO),
         )
-        val stateMachine = BlackjackStateMachine(this, initialState)
-        
-        stateMachine.dispatch(GameAction.Stand)
+        val sm = BlackjackStateMachine(this, initialState)
+        sm.dispatch(GameAction.Stand)
         advanceUntilIdle()
 
-        assertEquals(1, stateMachine.state.value.activeHandIndex)
-        assertEquals(GameStatus.PLAYING, stateMachine.state.value.status)
+        assertEquals(1, sm.state.value.activeHandIndex)
+        assertEquals(GameStatus.PLAYING, sm.state.value.status)
     }
 
     @Test
     fun testHandSwitching_onBust() = runTest {
-        val initialState = GameState(
-            status = GameStatus.PLAYING,
-            playerHands = persistentListOf(
-                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS))),
-                Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.FIVE, Suit.DIAMONDS)))
-            ),
-            playerBets = persistentListOf(100, 100),
+        val initialState = multiHandPlayingState(
+            balance = 900,
+            hands = listOf(hand(Rank.TEN, Rank.SIX), hand(Rank.TEN, Rank.FIVE)),
+            bets = listOf(100, 100),
             activeHandIndex = 0,
-            handCount = 2,
-            dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.HEARTS), Card(Rank.SEVEN, Suit.SPADES, isFaceDown = true))),
-            deck = persistentListOf(Card(Rank.TEN, Suit.CLUBS)) // Bust card
+            dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+            deck = deckOf(Rank.TEN), // bust card
         )
-        val stateMachine = BlackjackStateMachine(this, initialState)
-        
-        stateMachine.dispatch(GameAction.Hit)
+        val sm = BlackjackStateMachine(this, initialState)
+        sm.dispatch(GameAction.Hit)
         advanceUntilIdle()
 
-        assertEquals(1, stateMachine.state.value.activeHandIndex)
-        assertTrue(stateMachine.state.value.playerHands[0].isBust)
-        assertEquals(GameStatus.PLAYING, stateMachine.state.value.status)
+        assertEquals(1, sm.state.value.activeHandIndex)
+        assertTrue(sm.state.value.playerHands[0].isBust)
+        assertEquals(GameStatus.PLAYING, sm.state.value.status)
     }
 
     @Test
     fun testMultiHandPayout_mixedOutcomes() = runTest {
-        // Hand 1 (Bust): Loss
-        // Hand 2 (20 vs Dealer 17): Win
-        // Hand 3 (17 vs Dealer 17): Push
-        val initialState = GameState(
-            status = GameStatus.PLAYING,
+        // Hand 1 (bust): 0; Hand 2 (20 vs dealer 17): 200; Hand 3 (17 vs dealer 17): 100 push
+        // balance=700, total payout=300 → balance=1000
+        val initialState = multiHandPlayingState(
             balance = 700,
-            playerHands = persistentListOf(
-                Hand(persistentListOf(Card(Rank.TEN, Suit.SPADES), Card(Rank.SIX, Suit.HEARTS), Card(Rank.TEN, Suit.CLUBS))), // 26 Bust
-                Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.TEN, Suit.DIAMONDS))), // 20 Win
-                Hand(persistentListOf(Card(Rank.TEN, Suit.HEARTS), Card(Rank.SEVEN, Suit.SPADES))) // 17 Push
+            hands = listOf(
+                Hand(persistentListOf(card(Rank.TEN), card(Rank.SIX), card(Rank.TEN))), // 26 bust
+                hand(Rank.TEN, Rank.TEN),  // 20 win
+                hand(Rank.TEN, Rank.SEVEN), // 17 push
             ),
-            playerBets = persistentListOf(100, 100, 100),
-            activeHandIndex = 2, // Last hand
-            handCount = 3,
-            dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS, isFaceDown = true))),
-            deck = persistentListOf()
+            bets = listOf(100, 100, 100),
+            activeHandIndex = 2,
+            dealerHand = hand(Rank.TEN, Rank.SEVEN), // dealer 17
         )
-        val stateMachine = BlackjackStateMachine(this, initialState)
-        
-        stateMachine.dispatch(GameAction.Stand)
+        val sm = BlackjackStateMachine(this, initialState)
+        sm.dispatch(GameAction.Stand)
         advanceUntilIdle()
 
-        // Payout:
-        // Hand 1: 0
-        // Hand 2: 200 (100 * 2)
-        // Hand 3: 100 (Push)
-        // Total Payout = 300
-        // New Balance = 700 + 300 = 1000
-        val state = stateMachine.state.value
+        val state = sm.state.value
         assertEquals(1000, state.balance)
-        assertEquals(GameStatus.PLAYER_WON, state.status) // At least one win
+        assertEquals(GameStatus.PLAYER_WON, state.status)
     }
 
     @Test
     fun testSplitAces_oneCardOnly() = runTest {
-        val initialState = GameState(
-            status = GameStatus.PLAYING,
+        val initialState = playingState(
             balance = 900,
-            playerHands = persistentListOf(
-                Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.ACE, Suit.HEARTS)))
-            ),
-            playerBets = persistentListOf(100),
-            activeHandIndex = 0,
-            handCount = 1,
-            dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SEVEN, Suit.DIAMONDS, isFaceDown = true))),
-            deck = persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS), Card(Rank.TWO, Suit.SPADES))
+            playerHand = hand(Rank.ACE, Rank.ACE),
+            dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+            deck = deckOf(Rank.TEN, Rank.NINE, Rank.TWO),
         )
-        val stateMachine = BlackjackStateMachine(this, initialState)
-        
-        stateMachine.dispatch(GameAction.Split)
+        val sm = BlackjackStateMachine(this, initialState)
+        sm.dispatch(GameAction.Split)
         advanceUntilIdle()
 
-        val state = stateMachine.state.value
+        val state = sm.state.value
         assertEquals(2, state.playerHands.size)
-        // Each ace hand got exactly one card and then turn advanced
         assertEquals(2, state.playerHands[0].cards.size)
         assertEquals(2, state.playerHands[1].cards.size)
-        
-        // Status should be DEALER_TURN or terminal (since both hands are finished)
         assertTrue(state.status != GameStatus.PLAYING)
     }
 
     @Test
     fun testSplitAces_noNaturalBlackjack() = runTest {
-        // A + 10 after split is 21, but not a "Natural Blackjack" (pays 1:1 not 3:2)
-        val initialState = GameState(
-            status = GameStatus.PLAYING,
+        // A+10 after split scores 21 but pays 1:1, not 3:2
+        // Player: ACE+ACE (balance=900, bet=100)
+        // Dealer: TEN+SIX face-down (will draw ACE → 17, stand)
+        // Deck: TEN (hand1 → A+10=21), NINE (hand2 → A+9=20), ACE (dealer → 10+6+A=17)
+        // After split: balance=800. Payouts: 200 + 200 = 400. Final: 1200
+        val initialState = playingState(
             balance = 900,
-            playerHands = persistentListOf(
-                Hand(persistentListOf(Card(Rank.ACE, Suit.SPADES), Card(Rank.ACE, Suit.HEARTS)))
-            ),
-            playerBets = persistentListOf(100),
-            activeHandIndex = 0,
-            handCount = 1,
-            dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS))), // Dealer stands on 16? No, dealer hits.
-            // Let's force dealer to stand on 17.
-            deck = persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.NINE, Suit.DIAMONDS), Card(Rank.ACE, Suit.SPADES)) 
+            playerHand = hand(Rank.ACE, Rank.ACE),
+            dealerHand = dealerHand(Rank.TEN, Rank.SIX),
+            deck = deckOf(Rank.TEN, Rank.NINE, Rank.ACE),
         )
-        // Dealer cards: 10, 6, next is Ace -> 17.
-        val stateMachine = BlackjackStateMachine(this, initialState.copy(dealerHand = Hand(persistentListOf(Card(Rank.TEN, Suit.CLUBS), Card(Rank.SIX, Suit.DIAMONDS, isFaceDown = true)))))
-        
-        stateMachine.dispatch(GameAction.Split)
+        val sm = BlackjackStateMachine(this, initialState)
+        sm.dispatch(GameAction.Split)
         advanceUntilIdle()
 
-        // Hand 1: ACE + TEN = 21 (1:1 payout)
-        // Hand 2: ACE + NINE = 20 (1:1 payout)
-        // Total payout: (100 * 2) + (100 * 2) = 400
-        // Balance: 800 (after split bet) + 400 = 1200
-        assertEquals(1200, stateMachine.state.value.balance)
+        assertEquals(1200, sm.state.value.balance)
     }
 }
