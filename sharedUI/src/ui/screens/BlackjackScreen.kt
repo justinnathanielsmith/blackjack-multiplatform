@@ -249,15 +249,13 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     .background(backgroundBrush)
                     .graphicsLayer { translationX = shakeOffset.value * density },
         ) {
-            val isPortrait = maxHeight > maxWidth
-            val gameModifier =
-                if (isPortrait) {
-                    Modifier.fillMaxSize()
-                } else {
-                    val gameWidth = minOf(maxWidth, maxHeight * (9f / 16f))
-                    val gameHeight = gameWidth * (16f / 9f)
-                    Modifier.size(gameWidth, gameHeight).align(Alignment.Center)
-                }
+            // Enforce a portrait-like aspect ratio (9:16) if the window is too wide (letterboxing)
+            val gameModifier = if (maxHeight > maxWidth) {
+                Modifier.fillMaxSize()
+            } else {
+                val gameWidth = maxHeight * (9f / 16f)
+                Modifier.size(gameWidth, maxHeight).align(Alignment.Center)
+            }
 
             Box(modifier = gameModifier) {
                 Column(
@@ -290,7 +288,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 .weight(1f)
                                 .fillMaxSize(),
                     ) {
-                        PortraitLayout(
+                        BlackjackLayout(
                             state = state,
                             component = component,
                             nearMissHandIndex = nearMissHandIndex,
@@ -442,7 +440,7 @@ private fun BlackjackGameOverlay(
 }
 
 @Composable
-private fun PortraitLayout(
+private fun BlackjackLayout(
     state: GameState,
     component: BlackjackComponent,
     nearMissHandIndex: Int? = null,

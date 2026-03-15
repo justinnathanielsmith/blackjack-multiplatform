@@ -454,7 +454,7 @@ Add strings to `sharedUI/composeResources/values/strings.xml`:
 
 ## Step 12: UI — Multi-Hand Play Display (`BlackjackScreen.kt`)
 
-Update `PortraitLayout` and `LandscapeLayout` to render all hands from `playerHands`:
+Update `BlackjackLayout` to render all hands from `playerHands`:
 
 ```kotlin
 // Replace the splitHand != null branch with a loop:

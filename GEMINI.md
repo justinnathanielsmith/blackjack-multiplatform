@@ -79,11 +79,6 @@ GameState(
 ### GameStatus flow
 `BETTING → IDLE/PLAYING → (INSURANCE_OFFERED) → DEALER_TURN → PLAYER_WON/DEALER_WON/PUSH`
 
-## UI Layout Modes
-`BlackjackScreen` detects 3 modes via `LayoutMode` enum:
-- `PORTRAIT` — `maxHeight > maxWidth`
-- `LANDSCAPE_COMPACT` — aspect ratio ≤ 1.8 (phones)
-- `LANDSCAPE_WIDE` — aspect ratio > 1.8 (desktop)
 
 ## UI Development Protocol
 
