@@ -77,6 +77,7 @@ object PlayerActionLogic {
                 if (newHand.isBust) {
                     add(GameEffect.PlayLoseSound)
                     add(GameEffect.Vibrate)
+                    add(GameEffect.ChipLoss(state.activeBet * 2))
                 }
             }
 

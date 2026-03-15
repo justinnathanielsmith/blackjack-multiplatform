@@ -19,5 +19,7 @@ fun handleGameEffect(
         is GameEffect.NearMissHighlight -> { /* visual only — handled in BlackjackScreen */ }
         GameEffect.HeavyCardThud -> hapticsService.heavyThud()
         GameEffect.Pulse21 -> hapticsService.pulse()
+        is GameEffect.ChipEruption -> { /* visual only — handled in BlackjackScreen */ }
+        is GameEffect.ChipLoss -> { /* visual only — handled in BlackjackScreen */ }
     }
 }

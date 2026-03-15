@@ -149,6 +149,7 @@ data class GameState(
     val insuranceBet: Int = 0,
     val sideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val sideBetResults: PersistentMap<SideBetType, SideBetResult> = persistentMapOf(),
+    val lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val rules: GameRules = GameRules(),
     val dealerDrawIsCritical: Boolean = false,
 ) {
@@ -177,6 +178,7 @@ sealed class GameAction {
         val rules: GameRules = GameRules(),
         val handCount: Int = 1,
         val lastBet: Int = 0,
+        val lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) : GameAction()
 
     data object Surrender : GameAction()
@@ -231,4 +233,13 @@ sealed class GameEffect {
     data object HeavyCardThud : GameEffect()
 
     data object Pulse21 : GameEffect()
+
+    data class ChipEruption(
+        val amount: Int,
+        val sideBetType: SideBetType? = null
+    ) : GameEffect()
+
+    data class ChipLoss(
+        val amount: Int
+    ) : GameEffect()
 }

@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -323,6 +324,18 @@ private fun SideBetSlot(
             SideBetType.TWENTY_ONE_PLUS_THREE -> "21+3"
         }
 
+    val infiniteTransition = rememberInfiniteTransition(label = "sideBetGlow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = if (amount > 0) 0.8f else 0.3f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+        label = "glowAlpha"
+    )
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -334,8 +347,15 @@ private fun SideBetSlot(
                     .size(64.dp)
                     .clip(CircleShape)
                     .background(Color.White.copy(alpha = 0.05f))
-                    .border(2.dp, PrimaryGold.copy(alpha = 0.3f), CircleShape)
-                    .clickable { onClick() },
+                    .border(
+                        width = if (amount > 0) 2.dp else 1.dp,
+                        color = PrimaryGold.copy(alpha = if (amount > 0) glowAlpha else 0.3f),
+                        shape = CircleShape
+                    ).shadow(
+                        elevation = if (amount > 0) (8 * glowAlpha).dp else 0.dp,
+                        shape = CircleShape,
+                        spotColor = PrimaryGold.copy(alpha = if (amount > 0) glowAlpha else 0f)
+                    ).clickable { onClick() },
             contentAlignment = Alignment.Center
         ) {
             if (amount > 0) {

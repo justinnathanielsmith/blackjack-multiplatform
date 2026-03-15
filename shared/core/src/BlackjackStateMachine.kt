@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
@@ -43,7 +44,8 @@ class BlackjackStateMachine(
                             action.initialBalance,
                             action.rules,
                             action.handCount,
-                            action.lastBet
+                            action.lastBet,
+                            action.lastSideBets
                         )
                     is GameAction.Surrender -> handleSurrender()
                     is GameAction.PlaceBet -> handlePlaceBet(action.amount)
@@ -190,8 +192,21 @@ class BlackjackStateMachine(
                 sideBetResults = sideBetUpdate.results
             )
 
+        if (balanceUpdate > 0) {
+            emitEffect(GameEffect.ChipEruption(balanceUpdate))
+        }
+
+        sideBetUpdate.results.forEach { (type, result) ->
+            if (result.payoutAmount > 0) {
+                emitEffect(GameEffect.ChipEruption(result.payoutAmount, type))
+            }
+        }
+
         if (initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0) {
             emitEffect(GameEffect.PlayWinSound)
+        } else if (initialStatus == GameStatus.DEALER_WON) {
+            emitEffect(GameEffect.PlayLoseSound)
+            emitEffect(GameEffect.ChipLoss(current.currentBet))
         }
 
         if (initialStatus == GameStatus.PLAYING && dealerHand.cards[0].rank == Rank.ACE) {
@@ -238,16 +253,34 @@ class BlackjackStateMachine(
         rules: GameRules = GameRules(),
         handCount: Int = 1,
         lastBet: Int = 0,
+        lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) {
         val currentState = _state.value
         val newBalance = initialBalance ?: currentState.balance
-        val maxAffordableBet = if (handCount > 0) newBalance / handCount else newBalance
-        val clampedBet = lastBet.coerceIn(0, maxAffordableBet)
+        val maxAffordableMainBet = if (handCount > 0) newBalance / handCount else newBalance
+        val clampedBet = lastBet.coerceIn(0, maxAffordableMainBet)
+
+        var remainingBalance = newBalance - clampedBet * handCount
+        val totalSideBetCost = lastSideBets.values.sum()
+
+        val finalSideBets: PersistentMap<SideBetType, Int>
+        val postSideBetBalance: Int
+
+        if (totalSideBetCost <= remainingBalance) {
+            finalSideBets = lastSideBets
+            postSideBetBalance = remainingBalance - totalSideBetCost
+        } else {
+            finalSideBets = persistentMapOf()
+            postSideBetBalance = remainingBalance
+        }
+
         _state.value =
             GameState(
                 status = GameStatus.BETTING,
-                balance = newBalance - clampedBet * handCount,
+                balance = postSideBetBalance,
                 currentBet = clampedBet,
+                sideBets = finalSideBets,
+                lastSideBets = lastSideBets,
                 playerHands = persistentListOf(Hand()),
                 playerBets = persistentListOf(0),
                 activeHandIndex = 0,
@@ -418,6 +451,15 @@ class BlackjackStateMachine(
                 status = finalStatus,
                 balance = state.balance + totalPayout,
             )
+
+        if (totalPayout > 0) {
+            emitEffect(GameEffect.ChipEruption(totalPayout))
+        }
+
+        val totalBet = state.playerBets.sum()
+        if (totalPayout < totalBet) {
+            emitEffect(GameEffect.ChipLoss(totalBet - totalPayout))
+        }
 
         when (finalStatus) {
             GameStatus.PLAYER_WON -> emitEffect(GameEffect.PlayWinSound)

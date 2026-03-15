@@ -34,15 +34,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -66,7 +72,8 @@ import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
-import io.github.smithjustinn.blackjack.ui.effects.CoinEruptionEffect
+import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
+import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -81,6 +88,7 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.dealer
 import sharedui.generated.resources.hand_number
 import sharedui.generated.resources.you
+import kotlin.random.Random
 
 fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
 
@@ -109,6 +117,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val shakeOffset = remember { Animatable(0f) }
     val flashAlpha = remember { Animatable(0f) }
     var nearMissHandIndex by remember { mutableStateOf<Int?>(null) }
+    val sideBetResultOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
+    var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
+    // List of active chip eruption instances
+    val chipEruptions = remember { mutableStateListOf<ChipEruptionInstance>() }
+    val chipLosses = remember { mutableStateListOf<Int>() }
 
     val isTerminal = remember(state.status) { state.status.isTerminal() }
     val isMultiHand = remember(state.playerHands.size) { state.playerHands.size > 1 }
@@ -123,6 +136,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     LaunchedEffect(isTerminal) {
         if (isTerminal) {
             val bet = state.currentBet
+            val sideBets = state.sideBets
             val rules = appSettings.gameRules
             val handCount = appSettings.defaultHandCount
             delay(2000L)
@@ -131,6 +145,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     rules = rules,
                     handCount = handCount,
                     lastBet = bet,
+                    lastSideBets = sideBets,
                 )
             )
         }
@@ -149,6 +164,27 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     nearMissHandIndex = effect.handIndex
                     delay(1500L)
                     nearMissHandIndex = null
+                }
+            }
+            if (effect is GameEffect.ChipEruption) {
+                launch {
+                    val startOffset = effect.sideBetType?.let { sideBetResultOffsets[it] }
+                    val instance =
+                        ChipEruptionInstance(
+                            id = Random.nextLong(),
+                            amount = effect.amount,
+                            startOffset = startOffset
+                        )
+                    chipEruptions.add(instance)
+                    delay(3000L) // Duration of effect
+                    chipEruptions.remove(instance)
+                }
+            }
+            if (effect is GameEffect.ChipLoss) {
+                launch {
+                    chipLosses.add(effect.amount)
+                    delay(3000L) // Duration of effect
+                    chipLosses.remove(effect.amount)
                 }
             }
         }
@@ -217,12 +253,21 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             onResetBalance = component::resetBalance
                         )
                     }
-                    Header(
-                        balance = state.balance,
-                        onSettingsClick = { showSettings = true },
-                        onStrategyClick = { showStrategy = true },
-                        onRulesClick = { showRules = true }
-                    )
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned {
+                                    headerBalanceOffset = it.positionInRoot() + Offset(80.dp.value, 40.dp.value) // Approximate balance position
+                                }
+                    ) {
+                        Header(
+                            balance = state.balance,
+                            onSettingsClick = { showSettings = true },
+                            onStrategyClick = { showStrategy = true },
+                            onRulesClick = { showRules = true }
+                        )
+                    }
 
                     Box(
                         modifier =
@@ -259,6 +304,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     SideBetResultOverlay(
                         results = state.sideBetResults,
                         status = state.status,
+                        onResultPositioned = { type, offset ->
+                            sideBetResultOffsets[type] = offset
+                        },
                         modifier = Modifier.zIndex(5f),
                     )
 
@@ -297,6 +345,18 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         RulesOverlay(
                             onDismiss = { showRules = false }
                         )
+                    }
+
+                    chipEruptions.forEach { instance ->
+                        key(instance.id) {
+                            ChipEruptionEffect(
+                                amount = instance.amount,
+                                startOffset = instance.startOffset
+                            )
+                        }
+                    }
+                    chipLosses.forEach { amount ->
+                        ChipLossEffect(amount = amount)
                     }
                 }
             }
@@ -347,8 +407,8 @@ private fun BlackjackGameOverlay(
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
             )
-            CoinEruptionEffect(coinCount = if (isBlackjack) 15 else 10)
         }
+        // ChipEruption is handled via chipEruptions state list triggered by GameEffect
 
         val flashAlpha = flashAlphaProvider()
         if (flashAlpha > 0f) {
@@ -467,6 +527,7 @@ private fun PortraitLayout(
 private fun SideBetResultOverlay(
     results: PersistentMap<SideBetType, SideBetResult>,
     status: GameStatus,
+    onResultPositioned: (SideBetType, Offset) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     // Only show results during the playing phase (immediately after deal)
@@ -485,11 +546,18 @@ private fun SideBetResultOverlay(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.offset(y = 120.dp) // Below dealer hand
         ) {
-            results.values.forEach { result ->
+            results.forEach { (type, result) ->
                 AnimatedVisibility(
                     visible = true,
                     enter = fadeIn() + slideInVertically(initialOffsetY = { -20 }),
-                    exit = fadeOut()
+                    exit = fadeOut(),
+                    modifier =
+                        Modifier.onGloballyPositioned {
+                            onResultPositioned(
+                                type,
+                                it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                            )
+                        }
                 ) {
                     Box(
                         modifier =
@@ -510,3 +578,9 @@ private fun SideBetResultOverlay(
         }
     }
 }
+
+data class ChipEruptionInstance(
+    val id: Long,
+    val amount: Int,
+    val startOffset: Offset?
+)
