@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -81,7 +81,6 @@ import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -116,7 +115,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val shakeOffset = remember { Animatable(0f) }
     val flashAlpha = remember { Animatable(0f) }
     var nearMissHandIndex by remember { mutableStateOf<Int?>(null) }
-    val sideBetResultOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
     var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
     // List of active chip eruption instances
     val chipEruptions = remember { mutableStateListOf<ChipEruptionInstance>() }
@@ -183,12 +181,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
             }
             if (effect is GameEffect.ChipEruption) {
                 launch {
-                    val startOffset = effect.sideBetType?.let { sideBetResultOffsets[it] }
                     val instance =
                         ChipEruptionInstance(
                             id = Random.nextLong(),
                             amount = effect.amount,
-                            startOffset = startOffset
+                            startOffset = null
                         )
                     chipEruptions.add(instance)
                     delay(3000L) // Duration of effect
@@ -317,15 +314,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         component = component,
                         flashAlphaProvider = { flashAlpha.value },
                         showStatus = showStatus,
-                        modifier = Modifier.zIndex(5f),
-                    )
-
-                    SideBetResultOverlay(
-                        results = state.sideBetResults,
-                        status = state.status,
-                        onResultPositioned = { type, offset ->
-                            sideBetResultOffsets[type] = offset
-                        },
                         modifier = Modifier.zIndex(5f),
                     )
 
@@ -515,17 +503,52 @@ private fun PortraitLayout(
                         else -> HandStatus.WAITING
                     }
 
-                PlayerHand(
-                    handTotal = hand.score,
-                    status = status,
-                    cards = hand.cards,
-                    bet = bet,
-                    result = state.handResult(index),
-                    modifier = Modifier.weight(1f),
-                    scale = playerCardScale,
-                    isCompact = handCount > 1,
-                    isExtraCompact = handCount > 2
-                )
+                Box(modifier = Modifier.weight(1f)) {
+                    PlayerHand(
+                        handTotal = hand.score,
+                        status = status,
+                        cards = hand.cards,
+                        bet = bet,
+                        result = state.handResult(index),
+                        modifier = Modifier.fillMaxHeight(),
+                        scale = playerCardScale,
+                        isCompact = handCount > 1,
+                        isExtraCompact = handCount > 2
+                    )
+
+                    if (index == 0) {
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = state.status == GameStatus.PLAYING && state.sideBetResults.isNotEmpty(),
+                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(200)),
+                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(150)),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .zIndex(4f)
+                                .padding(bottom = 8.dp),
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                state.sideBetResults.forEach { (_, result) ->
+                                    Box(
+                                        modifier = Modifier
+                                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                            .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
+                                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    ) {
+                                        Text(
+                                            text = "${result.outcomeName}: +$${result.payoutAmount}",
+                                            color = PrimaryGold,
+                                            style = MaterialTheme.typography.labelLarge,
+                                            fontWeight = FontWeight.Black,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -540,61 +563,6 @@ private fun PortraitLayout(
     }
 }
 
-@Composable
-private fun SideBetResultOverlay(
-    results: PersistentMap<SideBetType, SideBetResult>,
-    status: GameStatus,
-    onResultPositioned: (SideBetType, Offset) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier,
-) {
-    // Only show results during the playing phase (immediately after deal)
-    if (results.isEmpty() || status != GameStatus.PLAYING) return
-
-    Box(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .windowInsetsPadding(safeDrawingInsets())
-                .padding(16.dp),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.offset(y = 120.dp) // Below dealer hand
-        ) {
-            results.forEach { (type, result) ->
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn() + slideInVertically(initialOffsetY = { -20 }),
-                    exit = fadeOut(),
-                    modifier =
-                        Modifier.onGloballyPositioned {
-                            onResultPositioned(
-                                type,
-                                it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                            )
-                        }
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                                .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = "${result.outcomeName}: +$${result.payoutAmount}",
-                            color = PrimaryGold,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Black
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 data class ChipEruptionInstance(
     val id: Long,
