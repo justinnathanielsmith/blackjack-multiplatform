@@ -12,3 +12,5 @@ This file tracks the progress of various development streams.
 | `landscape-layout` | Landscape Mode Optimization | ✅ Completed | [Link](./tracks/landscape-layout/index.md) |
 | `multi-hand` | Multi-Hand Support | ✅ Completed | [Link](./tracks/multi-hand/index.md) |
 | `compose-best-practices` | Compose Best Practices & Performance Hardening | 🟨 In Progress | [Link](./tracks/compose-best-practices/index.md) |
+| `strategy-guide` | Blackjack Strategy Guide | 🟨 In Progress | [Link](./tracks/strategy-guide/index.md) |
+| `side-bets` | Side Bets (21+3, Perfect Pairs) | ✅ Completed | [Link](./tracks/side-bets/index.md) |

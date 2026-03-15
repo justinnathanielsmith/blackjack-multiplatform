@@ -2,7 +2,9 @@ package io.github.smithjustinn.blackjack
 
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -113,6 +115,21 @@ enum class GameStatus {
     PUSH
 }
 
+@Serializable
+enum class SideBetType {
+    TWENTY_ONE_PLUS_THREE,
+    PERFECT_PAIRS
+}
+
+@Immutable
+@Serializable
+data class SideBetResult(
+    val type: SideBetType,
+    val payoutMultiplier: Int,
+    val payoutAmount: Int,
+    val outcomeName: String // e.g., "Flush", "Perfect Pair"
+)
+
 @Immutable
 @Serializable
 data class GameState(
@@ -126,6 +143,8 @@ data class GameState(
     val balance: Int = 1000,
     val currentBet: Int = 0,
     val insuranceBet: Int = 0,
+    val sideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
+    val sideBetResults: PersistentMap<SideBetType, SideBetResult> = persistentMapOf(),
     val rules: GameRules = GameRules(),
 ) {
     companion object {
@@ -180,6 +199,13 @@ sealed class GameAction {
     data class SelectHandCount(
         val count: Int
     ) : GameAction()
+
+    data class PlaceSideBet(
+        val type: SideBetType,
+        val amount: Int
+    ) : GameAction()
+
+    data object ResetSideBets : GameAction()
 }
 
 sealed class GameEffect {
@@ -190,4 +216,71 @@ sealed class GameEffect {
     data object PlayLoseSound : GameEffect()
 
     data object Vibrate : GameEffect()
+}
+
+object SideBetLogic {
+    fun evaluatePerfectPairs(hand: Hand): SideBetResult? {
+        if (hand.cards.size < 2) return null
+        val c1 = hand.cards[0]
+        val c2 = hand.cards[1]
+
+        return when {
+            c1.rank == c2.rank && c1.suit == c2.suit -> 
+                SideBetResult(SideBetType.PERFECT_PAIRS, 25, 0, "Perfect Pair")
+            c1.rank == c2.rank && isSameColor(c1.suit, c2.suit) -> 
+                SideBetResult(SideBetType.PERFECT_PAIRS, 12, 0, "Colored Pair")
+            c1.rank == c2.rank -> 
+                SideBetResult(SideBetType.PERFECT_PAIRS, 5, 0, "Mixed Pair")
+            else -> null
+        }
+    }
+
+    fun evaluateTwentyOnePlusThree(playerHand: Hand, dealerUpcard: Card): SideBetResult? {
+        if (playerHand.cards.size < 2) return null
+        val cards = listOf(playerHand.cards[0], playerHand.cards[1], dealerUpcard)
+        
+        return when {
+            isSuitedTriple(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 100, 0, "Suited Triple")
+            isStraightFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 40, 0, "Straight Flush")
+            isThreeOfAKind(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 30, 0, "Three of a Kind")
+            isStraight(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 10, 0, "Straight")
+            isFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 5, 0, "Flush")
+            else -> null
+        }
+    }
+
+    private fun isSameColor(s1: Suit, s2: Suit): Boolean {
+        val red = setOf(Suit.HEARTS, Suit.DIAMONDS)
+        val black = setOf(Suit.CLUBS, Suit.SPADES)
+        return (s1 in red && s2 in red) || (s1 in black && s2 in black)
+    }
+
+    private fun isSuitedTriple(cards: List<Card>): Boolean {
+        return cards.all { it.rank == cards[0].rank && it.suit == cards[0].suit }
+    }
+
+    private fun isFlush(cards: List<Card>): Boolean {
+        return cards.all { it.suit == cards[0].suit }
+    }
+
+    private fun isThreeOfAKind(cards: List<Card>): Boolean {
+        return cards.all { it.rank == cards[0].rank }
+    }
+
+    private fun isStraight(cards: List<Card>): Boolean {
+        val sortedRanks = cards.map { it.rank.ordinal }.sorted()
+        // Standard straight
+        if (sortedRanks[1] == sortedRanks[0] + 1 && sortedRanks[2] == sortedRanks[1] + 1) return true
+        
+        // Ace-Low straight (A, 2, 3) 
+        // Rank ordinal: ACE is last (12). TWO is 0. THREE is 1.
+        // So (0, 1, 12)
+        if (sortedRanks == listOf(0, 1, 12)) return true
+        
+        return false
+    }
+
+    private fun isStraightFlush(cards: List<Card>): Boolean {
+        return isFlush(cards) && isStraight(cards)
+    }
 }

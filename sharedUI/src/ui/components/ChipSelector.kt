@@ -12,17 +12,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 
 private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)
 
-
-
 @Composable
 fun ChipSelector(
     balance: Int,
-    onBetClick: (Int, Offset) -> Unit,
+    selectedAmount: Int,
+    onChipSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val chipPositions = remember { mutableStateMapOf<Int, Offset>() }
@@ -37,9 +35,9 @@ fun ChipSelector(
                 amount = value,
                 chipColor = ChipUtils.chipColor(value),
                 textColor = ChipUtils.chipTextColor(value),
+                isActive = (value == selectedAmount),
                 onClick = {
-                    val position = chipPositions[value] ?: Offset.Zero
-                    onBetClick(value, position)
+                    onChipSelected(value)
                 },
                 enabled = enabled,
                 modifier =

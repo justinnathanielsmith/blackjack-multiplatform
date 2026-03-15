@@ -16,6 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,15 +54,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
+import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.BetChip
 import io.github.smithjustinn.blackjack.ui.components.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.ChipSelector
+import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.components.ChipUtils
-import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -79,8 +83,6 @@ data class FlyingChip(
     val textColor: Color
 )
 
-
-
 @Composable
 fun BettingPhaseScreen(
     state: GameState,
@@ -90,16 +92,23 @@ fun BettingPhaseScreen(
 ) {
     val flyingChips = remember { mutableStateListOf<FlyingChip>() }
     var betDisplayOffset by remember { mutableStateOf(Offset.Zero) }
+    var selectedAmount by remember { mutableStateOf(10) }
+    val sideBetOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
 
     Box(modifier = modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f))) {
-        val onChipSelected: (Int, Offset) -> Unit = { amount, offset ->
+        val placeBetOnArea: (GameAction, Offset, Int) -> Unit = { action, offset, amount ->
             audioService.playEffect(AudioService.SoundEffect.CLICK)
-            component.onAction(GameAction.PlaceBet(amount))
+            component.onAction(action)
             if (offset != Offset.Zero) {
                 flyingChips.add(
                     FlyingChip(
                         id = (0..Long.MAX_VALUE).random(),
-                        startOffset = offset,
+                        startOffset =
+                            Offset(
+                                x = offset.x + (-10..10).random(),
+                                y = offset.y + (-10..10).random()
+                            ),
+                        // Slight jitter for multiple chips
                         amount = amount,
                         color = ChipUtils.chipColor(amount),
                         textColor = ChipUtils.chipTextColor(amount),
@@ -128,15 +137,64 @@ fun BettingPhaseScreen(
                 letterSpacing = 4.sp,
             )
 
-            BetDisplayCard(
-                currentBet = state.currentBet,
-                handCount = state.handCount,
-                onPositioned = { betDisplayOffset = it },
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SideBetSlot(
+                    type = SideBetType.PERFECT_PAIRS,
+                    amount = state.sideBets[SideBetType.PERFECT_PAIRS] ?: 0,
+                    onClick = {
+                        placeBetOnArea(
+                            GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, selectedAmount),
+                            sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero,
+                            selectedAmount
+                        )
+                    },
+                    modifier =
+                        Modifier.onGloballyPositioned {
+                            sideBetOffsets[SideBetType.PERFECT_PAIRS] =
+                                it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                        }
+                )
+
+                BetDisplayCard(
+                    currentBet = state.currentBet,
+                    handCount = state.handCount,
+                    onPositioned = { betDisplayOffset = it },
+                    onClick = {
+                        placeBetOnArea(
+                            GameAction.PlaceBet(selectedAmount),
+                            betDisplayOffset,
+                            selectedAmount
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+
+                SideBetSlot(
+                    type = SideBetType.TWENTY_ONE_PLUS_THREE,
+                    amount = state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: 0,
+                    onClick = {
+                        placeBetOnArea(
+                            GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, selectedAmount),
+                            sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero,
+                            selectedAmount
+                        )
+                    },
+                    modifier =
+                        Modifier.onGloballyPositioned {
+                            sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] =
+                                it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                        }
+                )
+            }
 
             ChipSelector(
                 balance = state.balance,
-                onBetClick = onChipSelected,
+                selectedAmount = selectedAmount,
+                onChipSelected = { selectedAmount = it },
             )
 
             BettingActions(
@@ -144,6 +202,7 @@ fun BettingPhaseScreen(
                 onReset = {
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onAction(GameAction.ResetBet)
+                    component.onAction(GameAction.ResetSideBets)
                 },
                 onDeal = {
                     audioService.playEffect(AudioService.SoundEffect.FLIP)
@@ -169,19 +228,21 @@ private fun BetDisplayCard(
     currentBet: Int,
     handCount: Int,
     onPositioned: (Offset) -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val totalBet = currentBet * handCount
     Column(
         modifier =
-            Modifier
-                .fillMaxWidth()
+            modifier
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White.copy(alpha = 0.05f))
                 .border(
                     width = 1.dp,
                     color = Color.White.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(16.dp),
-                ).padding(horizontal = 20.dp, vertical = 14.dp)
+                ).clickable { onClick() }
+                .padding(horizontal = 20.dp, vertical = 14.dp)
                 .onGloballyPositioned {
                     val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
                     onPositioned(center)
@@ -234,6 +295,52 @@ private fun BetDisplayCard(
                         scaleY = scale
                     }
             )
+        }
+    }
+}
+
+@Composable
+private fun SideBetSlot(
+    type: SideBetType,
+    amount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val label =
+        when (type) {
+            SideBetType.PERFECT_PAIRS -> "PP"
+            SideBetType.TWENTY_ONE_PLUS_THREE -> "21+3"
+        }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .border(2.dp, PrimaryGold.copy(alpha = 0.3f), CircleShape)
+                    .clickable { onClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            if (amount > 0) {
+                BetChip(
+                    amount = amount,
+                    chipColor = ChipUtils.chipColor(amount),
+                    textColor = ChipUtils.chipTextColor(amount),
+                )
+            } else {
+                Text(
+                    text = label,
+                    color = PrimaryGold.copy(alpha = 0.5f),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

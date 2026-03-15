@@ -1,7 +1,10 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -53,6 +56,8 @@ class BlackjackStateMachine(
                     is GameAction.DeclineInsurance -> handleDeclineInsurance()
                     is GameAction.Split -> handleSplit()
                     is GameAction.SelectHandCount -> handleSelectHandCount(action.count)
+                    is GameAction.PlaceSideBet -> handlePlaceSideBet(action.type, action.amount)
+                    is GameAction.ResetSideBets -> handleResetSideBets()
                 }
             }
         }
@@ -146,8 +151,17 @@ class BlackjackStateMachine(
                 currentBet = current.currentBet,
                 rules = current.rules,
             )
+
+        // Side Bet Evaluation
+        val sideBetUpdate = resolveSideBets(hands[0], dealerHandHidden.cards[0])
+        _state.value =
+            _state.value.copy(
+                balance = _state.value.balance + sideBetUpdate.payoutTotal,
+                sideBetResults = sideBetUpdate.results,
+            )
+
         emitEffect(GameEffect.PlayCardSound)
-        if (initialStatus == GameStatus.PLAYER_WON) {
+        if (initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0) {
             emitEffect(GameEffect.PlayWinSound)
         }
         if (initialStatus == GameStatus.PLAYING && dealerCards[0].rank == Rank.ACE) {
@@ -486,6 +500,67 @@ class BlackjackStateMachine(
                 insuranceBet = 0,
                 status = GameStatus.PLAYING,
             )
+    }
+
+    private fun handlePlaceSideBet(
+        type: SideBetType,
+        amount: Int
+    ) {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
+        if (amount <= 0 || amount > current.balance) return
+        val newSideBets = current.sideBets.put(type, (current.sideBets[type] ?: 0) + amount)
+
+        _state.value =
+            current.copy(
+                balance = current.balance - amount,
+                sideBets = newSideBets
+            )
+    }
+
+    private fun handleResetSideBets() {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
+        val totalRefund = current.sideBets.values.sum()
+        _state.value =
+            current.copy(
+                balance = current.balance + totalRefund,
+                sideBets = persistentMapOf()
+            )
+    }
+
+    private data class SideBetUpdate(
+        val payoutTotal: Int,
+        val results: PersistentMap<SideBetType, SideBetResult>
+    )
+
+    private fun resolveSideBets(
+        playerHand: Hand,
+        dealerUpcard: Card
+    ): SideBetUpdate {
+        val current = _state.value
+        var totalPayout = 0
+        val results = mutableMapOf<SideBetType, SideBetResult>()
+
+        current.sideBets.forEach { (type, amount) ->
+            val result =
+                when (type) {
+                    SideBetType.PERFECT_PAIRS -> SideBetLogic.evaluatePerfectPairs(playerHand)
+                    SideBetType.TWENTY_ONE_PLUS_THREE ->
+                        SideBetLogic.evaluateTwentyOnePlusThree(
+                            playerHand,
+                            dealerUpcard
+                        )
+                }
+
+            if (result != null) {
+                val payout = amount * result.payoutMultiplier
+                totalPayout += payout
+                results[type] = result.copy(payoutAmount = payout)
+            }
+        }
+
+        return SideBetUpdate(totalPayout, results.toPersistentMap())
     }
 
     private fun emitEffect(effect: GameEffect) {
