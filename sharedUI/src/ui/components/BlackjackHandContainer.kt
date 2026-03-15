@@ -280,7 +280,7 @@ private fun BoxScope.ScoreBadge(
         modifier =
             Modifier
                 .align(Alignment.TopEnd)
-                .offset(x = 8.dp, y = (-6).dp)
+                .offset(x = 12.dp, y = (-6).dp)
                 .zIndex(2f)
                 .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                 .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), BadgeShape)
@@ -288,7 +288,7 @@ private fun BoxScope.ScoreBadge(
                     1.dp,
                     if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
                     BadgeShape
-                ).padding(horizontal = 10.dp, vertical = 6.dp),
+                ).padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(
