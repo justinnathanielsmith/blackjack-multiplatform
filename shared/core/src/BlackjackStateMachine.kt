@@ -1,10 +1,8 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -155,7 +153,12 @@ class BlackjackStateMachine(
             )
 
         // Side Bet Evaluation
-        val sideBetUpdate = resolveSideBets(hands[0], dealerHandHidden.cards[0])
+        val sideBetUpdate =
+            SideBetLogic.resolveSideBets(
+                sideBets = _state.value.sideBets,
+                playerHand = hands[0],
+                dealerUpcard = dealerHandHidden.cards[0]
+            )
         _state.value =
             _state.value.copy(
                 balance = _state.value.balance + sideBetUpdate.payoutTotal,
@@ -237,26 +240,12 @@ class BlackjackStateMachine(
     }
 
     private fun handleHit() {
-        val state = _state.value
-        if (state.status != GameStatus.PLAYING) return
-
-        // Block hits on split aces
-        if (state.activeHand.isFromSplitAce && state.activeHand.cards.size >= 2) return
-
-        val newCard = state.deck.first()
-        val remainingDeck = state.deck.drop(1).toPersistentList()
-        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(newCard))
-        val updatedHands =
-            state.playerHands.toPersistentList().set(state.activeHandIndex, newHand)
-
-        if (newHand.isBust) {
-            val newState = state.copy(deck = remainingDeck, playerHands = updatedHands)
-            _state.value = newState
-            emitEffect(GameEffect.PlayCardSound)
-            advanceOrEndTurn(newState)
-        } else {
-            _state.value = state.copy(deck = remainingDeck, playerHands = updatedHands)
-            emitEffect(GameEffect.PlayCardSound)
+        val outcome = PlayerActionLogic.hit(_state.value)
+        if (outcome == PlayerActionOutcome.noop(_state.value)) return
+        _state.value = outcome.state
+        outcome.effects.forEach(::emitEffect)
+        if (outcome.shouldAdvanceTurn) {
+            advanceOrEndTurn(outcome.state)
         }
     }
 
@@ -274,83 +263,33 @@ class BlackjackStateMachine(
     }
 
     private fun handleStand() {
-        val state = _state.value
-        if (state.status != GameStatus.PLAYING) return
-        advanceOrEndTurn(state)
+        val outcome = PlayerActionLogic.stand(_state.value)
+        if (outcome == PlayerActionOutcome.noop(_state.value)) return
+        _state.value = outcome.state
+        outcome.effects.forEach(::emitEffect)
+        if (outcome.shouldAdvanceTurn) {
+            advanceOrEndTurn(outcome.state)
+        }
     }
 
     private fun handleSplit() {
-        val state = _state.value
-        if (state.status != GameStatus.PLAYING || !state.canSplit()) return
-        if (state.deck.size < 2) return
-
-        val card1 = state.activeHand.cards[0]
-        val card2 = state.activeHand.cards[1]
-        val newPrimaryHand = Hand(persistentListOf(card1, state.deck[0]))
-        val newSplitHand = Hand(persistentListOf(card2, state.deck[1]))
-        val isAceSplit = card1.rank == Rank.ACE
-
-        val updatedHands =
-            state.playerHands
-                .toPersistentList()
-                .set(state.activeHandIndex, newPrimaryHand.copy(wasSplit = true, isFromSplitAce = isAceSplit))
-                .add(state.activeHandIndex + 1, newSplitHand.copy(wasSplit = true, isFromSplitAce = isAceSplit))
-        val updatedBets =
-            state.playerBets
-                .toPersistentList()
-                .add(state.activeHandIndex + 1, state.activeBet)
-
-        val newState =
-            state.copy(
-                deck = state.deck.drop(2).toPersistentList(),
-                playerHands = updatedHands,
-                playerBets = updatedBets,
-                balance = state.balance - state.activeBet,
-            )
-        _state.value = newState
-        emitEffect(GameEffect.PlayCardSound)
-        emitEffect(GameEffect.PlayCardSound)
-
-        if (isAceSplit) {
-            // Ace split: both hands are finished. Advance or end turn.
-            // We are still at activeHandIndex, but we've added a hand at index + 1.
-            // We should skip BOTH hands if they are split Aces.
-            val finalState = newState.copy(activeHandIndex = newState.activeHandIndex + 1)
-            advanceOrEndTurn(finalState)
+        val outcome = PlayerActionLogic.split(_state.value)
+        if (outcome == PlayerActionOutcome.noop(_state.value)) return
+        _state.value = outcome.state
+        outcome.effects.forEach(::emitEffect)
+        if (outcome.shouldAdvanceTurn) {
+            advanceOrEndTurn(outcome.state)
         }
     }
 
     private fun handleDoubleDown() {
-        val state = _state.value
-        if (state.status != GameStatus.PLAYING) return
-        if (!state.canDoubleDown()) return
-
-        val drawnCard = state.deck.first()
-        val remainingDeck = state.deck.drop(1).toPersistentList()
-        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(drawnCard))
-        val updatedHands =
-            state.playerHands.toPersistentList().set(state.activeHandIndex, newHand)
-
-        // Double the bet for this hand; deduct the extra (original activeBet) from balance
-        val newBets =
-            state.playerBets.toPersistentList().set(state.activeHandIndex, state.activeBet * 2)
-        val newBalance = state.balance - state.activeBet
-
-        val newState =
-            state.copy(
-                deck = remainingDeck,
-                playerHands = updatedHands,
-                playerBets = newBets,
-                balance = newBalance,
-            )
-        _state.value = newState
-        emitEffect(GameEffect.PlayCardSound)
-
-        if (newHand.isBust) {
-            emitEffect(GameEffect.PlayLoseSound)
-            emitEffect(GameEffect.Vibrate)
+        val outcome = PlayerActionLogic.doubleDown(_state.value)
+        if (outcome == PlayerActionOutcome.noop(_state.value)) return
+        _state.value = outcome.state
+        outcome.effects.forEach(::emitEffect)
+        if (outcome.shouldAdvanceTurn) {
+            advanceOrEndTurn(outcome.state)
         }
-        advanceOrEndTurn(newState)
     }
 
     private fun revealDealerHoleCard() {
@@ -529,40 +468,6 @@ class BlackjackStateMachine(
                 balance = current.balance + totalRefund,
                 sideBets = persistentMapOf()
             )
-    }
-
-    private data class SideBetUpdate(
-        val payoutTotal: Int,
-        val results: PersistentMap<SideBetType, SideBetResult>
-    )
-
-    private fun resolveSideBets(
-        playerHand: Hand,
-        dealerUpcard: Card
-    ): SideBetUpdate {
-        val current = _state.value
-        var totalPayout = 0
-        val results = mutableMapOf<SideBetType, SideBetResult>()
-
-        current.sideBets.forEach { (type, amount) ->
-            val result =
-                when (type) {
-                    SideBetType.PERFECT_PAIRS -> SideBetLogic.evaluatePerfectPairs(playerHand)
-                    SideBetType.TWENTY_ONE_PLUS_THREE ->
-                        SideBetLogic.evaluateTwentyOnePlusThree(
-                            playerHand,
-                            dealerUpcard
-                        )
-                }
-
-            if (result != null) {
-                val payout = amount * result.payoutMultiplier
-                totalPayout += payout
-                results[type] = result.copy(payoutAmount = payout)
-            }
-        }
-
-        return SideBetUpdate(totalPayout, results.toPersistentMap())
     }
 
     private fun emitEffect(effect: GameEffect) {
