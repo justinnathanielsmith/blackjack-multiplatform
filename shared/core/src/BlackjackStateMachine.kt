@@ -148,6 +148,8 @@ class BlackjackStateMachine(
                 dealerHand = dealerHand,
                 status = initialStatus,
                 balance = newBalance + balanceUpdate,
+                sideBets = current.sideBets,
+                sideBetResults = current.sideBetResults,
                 currentBet = current.currentBet,
                 rules = current.rules,
             )

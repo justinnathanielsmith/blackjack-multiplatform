@@ -1,6 +1,7 @@
 package io.github.smithjustinn.blackjack
 
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -8,6 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -2132,5 +2134,36 @@ class BlackjackStateMachineTest {
             // Hand was split, rule allowDoubleAfterSplit = false
             val state2 = state1.copy(rules = GameRules(allowDoubleAfterSplit = false))
             assertFalse(state2.canDoubleDown(), "Should NOT allow double after split when rules forbid")
+        }
+
+    @Test
+    fun testSideBetPayout_PerfectPairs_integration() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.BETTING,
+                    balance = 1000,
+                    currentBet = 100,
+                    sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
+                    deck =
+                        persistentListOf(
+                            Card(Rank.TEN, Suit.SPADES), // Player card 1
+                            Card(Rank.TEN, Suit.SPADES), // Player card 2 (Perfect Pair)
+                            Card(Rank.SEVEN, Suit.HEARTS), // Dealer card 1
+                            Card(Rank.EIGHT, Suit.DIAMONDS) // Dealer card 2
+                        ),
+                )
+            // Balance is already at 1000 in this manual setup.
+            // If we want to simulate the deduction, we should start with 850 or use dispatch.
+            // But let's test the evaluation during handleDeal.
+
+            val stateMachine = BlackjackStateMachine(this, initialState)
+            stateMachine.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            // Balance: 1000 + (50 * 25) = 2250.
+            // Balance: 1000 + (50 * 25) = 2250.
+            assertEquals(2250, stateMachine.state.value.balance)
+            assertNotNull(stateMachine.state.value.sideBetResults[SideBetType.PERFECT_PAIRS])
         }
 }

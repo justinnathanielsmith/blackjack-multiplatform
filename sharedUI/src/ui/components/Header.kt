@@ -95,8 +95,7 @@ fun Header(
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             HeaderIcon("rules", onClick = onRulesClick)
             HeaderIcon("strategy", onClick = onStrategyClick)
-            HeaderIcon("history")
-            HeaderIcon("settings", onClick = onSettingsClick)
+HeaderIcon("settings", onClick = onSettingsClick)
         }
     }
 }

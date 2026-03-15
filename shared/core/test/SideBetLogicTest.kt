@@ -114,4 +114,36 @@ class SideBetLogicTest {
         assertEquals(10, result.payoutMultiplier)
         assertEquals("Straight", result.outcomeName)
     }
+
+    @Test
+    fun test21Plus3_Straight_Regular() {
+        val playerHand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.FOUR, Suit.SPADES),
+                    Card(Rank.FIVE, Suit.HEARTS)
+                )
+            )
+        val dealerUpcard = Card(Rank.SIX, Suit.CLUBS)
+        val result = SideBetLogic.evaluateTwentyOnePlusThree(playerHand, dealerUpcard)
+        assertNotNull(result)
+        assertEquals(10, result.payoutMultiplier)
+        assertEquals("Straight", result.outcomeName)
+    }
+
+    @Test
+    fun test21Plus3_ThreeOfAKind() {
+        val playerHand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.QUEEN, Suit.SPADES),
+                    Card(Rank.QUEEN, Suit.HEARTS)
+                )
+            )
+        val dealerUpcard = Card(Rank.QUEEN, Suit.CLUBS)
+        val result = SideBetLogic.evaluateTwentyOnePlusThree(playerHand, dealerUpcard)
+        assertNotNull(result)
+        assertEquals(30, result.payoutMultiplier)
+        assertEquals("Three of a Kind", result.outcomeName)
+    }
 }

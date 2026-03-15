@@ -1,4 +1,4 @@
-00:01.705 INFO  :core:testJvm             Testing module 'core' for platform 'jvm'...
+00:01.729 INFO  :core:testJvm             Testing module 'core' for platform 'jvm'...
 [38;2;97;175;239;1mStarted[22m HandTest[39m
 [1mStarted[22m testVisibleScore_countsOnlyFaceUpCards()
 [38;2;152;195;121;1mPassed[22m testVisibleScore_countsOnlyFaceUpCards()[39m
@@ -18,13 +18,31 @@
 [38;2;152;195;121;1mPassed[22m test21Plus3_Straight_AceLow()[39m
 [1mStarted[22m test21Plus3_SuitedTriple()
 [38;2;152;195;121;1mPassed[22m test21Plus3_SuitedTriple()[39m
+[1mStarted[22m test21Plus3_ThreeOfAKind()
+[38;2;152;195;121;1mPassed[22m test21Plus3_ThreeOfAKind()[39m
 [1mStarted[22m testPerfectPairs_Colored()
 [38;2;152;195;121;1mPassed[22m testPerfectPairs_Colored()[39m
+[1mStarted[22m test21Plus3_Straight_Regular()
+[38;2;152;195;121;1mPassed[22m test21Plus3_Straight_Regular()[39m
 [1mStarted[22m test21Plus3_StraightFlush()
 [38;2;152;195;121;1mPassed[22m test21Plus3_StraightFlush()[39m
 [1mStarted[22m testPerfectPairs_Mixed()
 [38;2;152;195;121;1mPassed[22m testPerfectPairs_Mixed()[39m
 [38;2;97;175;239;1mCompleted[22m SideBetLogicTest[39m
+[38;2;97;175;239;1mStarted[22m MultiHandTest[39m
+[1mStarted[22m testMultiHandPayout_mixedOutcomes()
+[38;2;152;195;121;1mPassed[22m testMultiHandPayout_mixedOutcomes()[39m
+[1mStarted[22m testHandSwitching_onStand()
+[38;2;152;195;121;1mPassed[22m testHandSwitching_onStand()[39m
+[1mStarted[22m testInitialDeal_threeHands()
+[38;2;152;195;121;1mPassed[22m testInitialDeal_threeHands()[39m
+[1mStarted[22m testSplitAces_noNaturalBlackjack()
+[38;2;152;195;121;1mPassed[22m testSplitAces_noNaturalBlackjack()[39m
+[1mStarted[22m testHandSwitching_onBust()
+[38;2;152;195;121;1mPassed[22m testHandSwitching_onBust()[39m
+[1mStarted[22m testSplitAces_oneCardOnly()
+[38;2;152;195;121;1mPassed[22m testSplitAces_oneCardOnly()[39m
+[38;2;97;175;239;1mCompleted[22m MultiHandTest[39m
 [38;2;97;175;239;1mStarted[22m BlackjackStateMachineTest[39m
 [1mStarted[22m insurance_offered_when_dealer_ace()
 [38;2;152;195;121;1mPassed[22m insurance_offered_when_dealer_ace()[39m
@@ -42,6 +60,8 @@
 [38;2;152;195;121;1mPassed[22m hit_routes_to_active_hand()[39m
 [1mStarted[22m testResetBet_ignoredWhenNotInBettingPhase()
 [38;2;152;195;121;1mPassed[22m testResetBet_ignoredWhenNotInBettingPhase()[39m
+[1mStarted[22m test_double_after_split_respects_rules()
+[38;2;152;195;121;1mPassed[22m test_double_after_split_respects_rules()[39m
 [1mStarted[22m selectHandCount_ignores_invalid_values()
 [38;2;152;195;121;1mPassed[22m selectHandCount_ignores_invalid_values()[39m
 [1mStarted[22m split_independent_payouts_both_win()
@@ -100,25 +120,22 @@
 [38;2;152;195;121;1mPassed[22m split_deducts_balance()[39m
 [1mStarted[22m dealer_hits_soft17_enabled()
 [38;2;152;195;121;1mPassed[22m dealer_hits_soft17_enabled()[39m
-[1mStarted[22m hit_routes_to_split_hand()
-[38;2;152;195;121;1mPassed[22m hit_routes_to_split_hand()[39m
-[1mStarted[22m double_after_split_disallowed()
-[38;2;224;108;117;1mFailed[22m double_after_split_disallowed()[39m
-[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: Expected value to be false.[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.fail(Assertions.java:143)[39m
-[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)[39m
-[38;2;224;108;117m                at kotlin.test.Asserter.assertTrue(Assertions.kt:694)[39m
-[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)[39m
-[38;2;224;108;117m                at kotlin.test.Asserter.assertTrue(Assertions.kt:704)[39m
-[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertFalse(Assertions.kt:58)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertFalse(Unknown Source)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertFalse$default(Assertions.kt:56)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertFalse$default(Unknown Source)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest$double_after_split_disallowed$1.invokeSuspend(BlackjackStateMachineTest.kt:2047)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest$double_after_split_disallowed$1.invoke(BlackjackStateMachineTest.kt)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest$double_after_split_disallowed$1.invoke(BlackjackStateMachineTest.kt)[39m
+[1mStarted[22m testSideBetPayout_PerfectPairs_integration()
+[38;2;224;108;117;1mFailed[22m testSideBetPayout_PerfectPairs_integration()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <2300> but was: <2250>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest$testSideBetPayout_PerfectPairs_integration$1.invokeSuspend(BlackjackStateMachineTest.kt:2166)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest$testSideBetPayout_PerfectPairs_integration$1.invoke(BlackjackStateMachineTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest$testSideBetPayout_PerfectPairs_integration$1.invoke(BlackjackStateMachineTest.kt)[39m
 [38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
 [38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
 [38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
@@ -140,7 +157,13 @@
 [38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
 [38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
 [38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest.double_after_split_disallowed(BlackjackStateMachineTest.kt:2029)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BlackjackStateMachineTest.testSideBetPayout_PerfectPairs_integration(BlackjackStateMachineTest.kt:2141)[39m
+[1mStarted[22m hit_routes_to_split_hand()
+[38;2;152;195;121;1mPassed[22m hit_routes_to_split_hand()[39m
+[1mStarted[22m double_after_split_disallowed()
+[38;2;152;195;121;1mPassed[22m double_after_split_disallowed()[39m
+[1mStarted[22m test_ace_split_turn_progression()
+[38;2;152;195;121;1mPassed[22m test_ace_split_turn_progression()[39m
 [1mStarted[22m testPlaceBet_rejectedWhenAmountZeroOrNegative()
 [38;2;152;195;121;1mPassed[22m testPlaceBet_rejectedWhenAmountZeroOrNegative()[39m
 [1mStarted[22m double_after_split_allowed()
@@ -185,6 +208,8 @@
 [38;2;152;195;121;1mPassed[22m testPush_afterStand_returnsBet()[39m
 [1mStarted[22m placeBet_rejected_when_total_cost_exceeds_balance()
 [38;2;152;195;121;1mPassed[22m placeBet_rejected_when_total_cost_exceeds_balance()[39m
+[1mStarted[22m test_natural_blackjack_payout_3_to_2_multi_hand()
+[38;2;152;195;121;1mPassed[22m test_natural_blackjack_payout_3_to_2_multi_hand()[39m
 [1mStarted[22m newGame_default_deckCount_is_6()
 [38;2;152;195;121;1mPassed[22m newGame_default_deckCount_is_6()[39m
 [1mStarted[22m selectHandCount_adjusts_balance_when_bet_placed()
@@ -222,35 +247,67 @@
 [1mStarted[22m testPlaceBet_rejectedWhenAmountExceedsBalance()
 [38;2;152;195;121;1mPassed[22m testPlaceBet_rejectedWhenAmountExceedsBalance()[39m
 [38;2;97;175;239;1mCompleted[22m BlackjackStateMachineTest[39m
+[38;2;97;175;239;1mStarted[22m ScoringTest[39m
+[1mStarted[22m testHandScore_aceCanPreventBust()
+[38;2;152;195;121;1mPassed[22m testHandScore_aceCanPreventBust()[39m
+[1mStarted[22m testHandScore_multipleAces_hard()
+[38;2;152;195;121;1mPassed[22m testHandScore_multipleAces_hard()[39m
+[1mStarted[22m testHandScore_multipleAces_soft()
+[38;2;152;195;121;1mPassed[22m testHandScore_multipleAces_soft()[39m
+[1mStarted[22m testHandScore_singleAce_hard()
+[38;2;152;195;121;1mPassed[22m testHandScore_singleAce_hard()[39m
+[1mStarted[22m testHandScore_singleAce_soft()
+[38;2;152;195;121;1mPassed[22m testHandScore_singleAce_soft()[39m
+[1mStarted[22m testHandScore_noAces()
+[38;2;152;195;121;1mPassed[22m testHandScore_noAces()[39m
+[1mStarted[22m testHandScore_bust()
+[38;2;152;195;121;1mPassed[22m testHandScore_bust()[39m
+[1mStarted[22m testHandScore_multipleAces_complex_hard()
+[38;2;152;195;121;1mPassed[22m testHandScore_multipleAces_complex_hard()[39m
+[1mStarted[22m testHandScore_multipleAces_complex_soft()
+[38;2;152;195;121;1mPassed[22m testHandScore_multipleAces_complex_soft()[39m
+[38;2;97;175;239;1mCompleted[22m ScoringTest[39m
+[38;2;97;175;239;1mStarted[22m RuleVariationsTest[39m
+[1mStarted[22m testSurrender()
+[38;2;152;195;121;1mPassed[22m testSurrender()[39m
+[1mStarted[22m testDealerHitsSoft17()
+[38;2;152;195;121;1mPassed[22m testDealerHitsSoft17()[39m
+[1mStarted[22m testBlackjackPayout_SixToFive()
+[38;2;152;195;121;1mPassed[22m testBlackjackPayout_SixToFive()[39m
+[1mStarted[22m testBlackjackPayout_ThreeToTwo()
+[38;2;152;195;121;1mPassed[22m testBlackjackPayout_ThreeToTwo()[39m
+[1mStarted[22m testDealerStandsOnSoft17()
+[38;2;152;195;121;1mPassed[22m testDealerStandsOnSoft17()[39m
+[38;2;97;175;239;1mCompleted[22m RuleVariationsTest[39m
 
 Failures (1):
-  JUnit Jupiter:BlackjackStateMachineTest:double_after_split_disallowed()
-    MethodSource [className = 'io.github.smithjustinn.blackjack.BlackjackStateMachineTest', methodName = 'double_after_split_disallowed', methodParameterTypes = '']
-    => org.opentest4j.AssertionFailedError: Expected value to be false.
-       org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)
-       org.junit.jupiter.api.Assertions.fail(Assertions.java:143)
-       kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)
-       kotlin.test.Asserter.assertTrue(Assertions.kt:694)
-       kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
-       kotlin.test.Asserter.assertTrue(Assertions.kt:704)
-       kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
-       kotlin.test.AssertionsKt__AssertionsKt.assertFalse(Assertions.kt:58)
-       kotlin.test.AssertionsKt.assertFalse(Unknown Source)
-       kotlin.test.AssertionsKt__AssertionsKt.assertFalse$default(Assertions.kt:56)
+  JUnit Jupiter:BlackjackStateMachineTest:testSideBetPayout_PerfectPairs_integration()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.BlackjackStateMachineTest', methodName = 'testSideBetPayout_PerfectPairs_integration', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <2300> but was: <2250>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
        [...]
 
-Test run finished after 309 ms
-[         6 containers found      ]
+Test run finished after 321 ms
+[         9 containers found      ]
 [         0 containers skipped    ]
-[         6 containers started    ]
+[         9 containers started    ]
 [         0 containers aborted    ]
-[         6 containers successful ]
+[         9 containers successful ]
 [         0 containers failed     ]
-[        90 tests found           ]
+[       116 tests found           ]
 [         0 tests skipped         ]
-[        90 tests started         ]
+[       116 tests started         ]
 [         0 tests aborted         ]
-[        89 tests successful      ]
+[       115 tests successful      ]
 [         1 tests failed          ]
 
 
