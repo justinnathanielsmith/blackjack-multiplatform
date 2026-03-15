@@ -1,7 +1,12 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,6 +46,8 @@ import kotlin.math.abs
 @Composable
 fun Header(
     balance: Int,
+    isAutoDealEnabled: Boolean = false,
+    onToggleAutoDeal: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onStrategyClick: () -> Unit = {},
     onRulesClick: () -> Unit = {}
@@ -93,10 +100,45 @@ fun Header(
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            AutoDealIcon(enabled = isAutoDealEnabled, onClick = onToggleAutoDeal)
             HeaderIcon("rules", onClick = onRulesClick)
             HeaderIcon("strategy", onClick = onStrategyClick)
             HeaderIcon("settings", onClick = onSettingsClick)
         }
+    }
+}
+
+@Composable
+private fun AutoDealIcon(
+    enabled: Boolean,
+    onClick: () -> Unit = {},
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "autoDealPulse")
+    val borderAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = if (enabled) 1f else 0.5f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(900, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "autoBorderAlpha",
+    )
+
+    val borderColor = if (enabled) PrimaryGold.copy(alpha = borderAlpha) else GlassLight
+    val backgroundColor = if (enabled) PrimaryGold.copy(alpha = 0.15f) else GlassDark
+
+    Box(
+        modifier =
+            Modifier
+                .size(40.dp)
+                .background(backgroundColor, RoundedCornerShape(20.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(20.dp))
+                .clickable { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = "⚡", fontSize = 18.sp)
     }
 }
 

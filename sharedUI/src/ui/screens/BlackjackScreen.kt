@@ -125,6 +125,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     val isTerminal = remember(state.status) { state.status.isTerminal() }
     val isMultiHand = remember(state.playerHands.size) { state.playerHands.size > 1 }
+    var autoDealPending by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.PLAYER_WON) {
@@ -139,7 +140,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
             val sideBets = state.sideBets
             val rules = appSettings.gameRules
             val handCount = appSettings.defaultHandCount
-            delay(2000L)
+            delay(if (appSettings.isAutoDealEnabled) 1500L else 2000L)
+            if (appSettings.isAutoDealEnabled) autoDealPending = true
             component.onAction(
                 GameAction.NewGame(
                     rules = rules,
@@ -148,6 +150,17 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     lastSideBets = sideBets,
                 )
             )
+        }
+    }
+
+    LaunchedEffect(state.status) {
+        if (state.status == GameStatus.BETTING && autoDealPending) {
+            autoDealPending = false
+            if (appSettings.isAutoDealEnabled && state.currentBet > 0) {
+                component.onAction(GameAction.Deal)
+            } else if (appSettings.isAutoDealEnabled && state.currentBet == 0) {
+                component.updateSettings { it.copy(isAutoDealEnabled = false) }
+            }
         }
     }
 
@@ -263,6 +276,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     ) {
                         Header(
                             balance = state.balance,
+                            isAutoDealEnabled = appSettings.isAutoDealEnabled,
+                            onToggleAutoDeal = {
+                                component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) }
+                            },
                             onSettingsClick = { showSettings = true },
                             onStrategyClick = { showStrategy = true },
                             onRulesClick = { showRules = true }

@@ -9,4 +9,5 @@ data class AppSettings(
     val isDebugMode: Boolean = false,
     val gameRules: GameRules = GameRules(),
     val defaultHandCount: Int = 1,
+    val isAutoDealEnabled: Boolean = false,
 )
