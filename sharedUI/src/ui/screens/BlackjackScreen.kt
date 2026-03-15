@@ -19,12 +19,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -41,13 +39,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
@@ -197,7 +195,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
+                            .windowInsetsPadding(WindowInsets.safeDrawing),
                 ) {
                     if (appSettings.isDebugMode) {
                         DebugPanel(
@@ -218,84 +216,87 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         modifier =
                             Modifier
                                 .weight(1f)
-                                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+                                .fillMaxSize(),
                     ) {
                         PortraitLayout(
                             state = state,
                             component = component,
                         )
-
-                        // Game Status Overlay (On top of hands)
-                        val showStatus =
-                            state.status != GameStatus.PLAYING &&
-                                state.status != GameStatus.BETTING &&
-                                state.status != GameStatus.INSURANCE_OFFERED &&
-                                state.status != GameStatus.IDLE
-
-                        // Game Overlays & Status
-                        BlackjackGameOverlay(
-                            state = state,
-                            component = component,
-                            flashAlphaProvider = { flashAlpha.value },
-                            showStatus = showStatus,
-                            modifier = Modifier.zIndex(5f),
-                        )
-
-                        SideBetResultOverlay(
-                            results = state.sideBetResults,
-                            status = state.status,
-                            modifier = Modifier.zIndex(5f),
-                        )
-
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = state.status == GameStatus.BETTING,
-                            modifier = Modifier.zIndex(5f),
-                            enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
-                            exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
-                        ) {
-                            BettingPhaseScreen(
-                                state = state,
-                                component = component,
-                                audioService = audioService,
-                            )
-                        }
-
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = showSettings,
-                            modifier = Modifier.zIndex(10f),
-                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
-                        ) {
-                            SettingsOverlay(
-                                settings = appSettings,
-                                onUpdateSettings = component::updateSettings,
-                                onDismiss = { showSettings = false }
-                            )
-                        }
-
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = showStrategy,
-                            modifier = Modifier.zIndex(10f),
-                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
-                        ) {
-                            StrategyGuideOverlay(
-                                onDismiss = { showStrategy = false }
-                            )
-                        }
-
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = showRules,
-                            modifier = Modifier.zIndex(10f),
-                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
-                        ) {
-                            RulesOverlay(
-                                onDismiss = { showRules = false }
-                            )
-                        }
                     }
                 }
+
+                // Overlay layer (full-bleed within the game bounds)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // Game Status Overlay (On top of hands)
+                    val showStatus =
+                        state.status != GameStatus.PLAYING &&
+                            state.status != GameStatus.BETTING &&
+                            state.status != GameStatus.INSURANCE_OFFERED &&
+                            state.status != GameStatus.IDLE
+
+                    // Game Overlays & Status
+                    BlackjackGameOverlay(
+                        state = state,
+                        component = component,
+                        flashAlphaProvider = { flashAlpha.value },
+                        showStatus = showStatus,
+                        modifier = Modifier.zIndex(5f),
+                    )
+
+                    SideBetResultOverlay(
+                        results = state.sideBetResults,
+                        status = state.status,
+                        modifier = Modifier.zIndex(5f),
+                    )
+
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = state.status == GameStatus.BETTING,
+                        modifier = Modifier.zIndex(5f),
+                        enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
+                        exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
+                    ) {
+                        BettingPhaseScreen(
+                            state = state,
+                            component = component,
+                            audioService = audioService,
+                        )
+                    }
+
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = showSettings,
+                        modifier = Modifier.zIndex(10f),
+                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                    ) {
+                        SettingsOverlay(
+                            settings = appSettings,
+                            onUpdateSettings = component::updateSettings,
+                            onDismiss = { showSettings = false }
+                        )
+                    }
+
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = showRules,
+                        modifier = Modifier.zIndex(10f),
+                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                    ) {
+                        RulesOverlay(
+                            onDismiss = { showRules = false }
+                        )
+                    }
+                }
+            }
+
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showStrategy,
+                modifier = Modifier.zIndex(10f),
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+            ) {
+                StrategyGuideOverlay(
+                    onDismiss = { showStrategy = false }
+                )
             }
         }
     }
@@ -441,6 +442,7 @@ private fun SideBetResultOverlay(
         modifier =
             modifier
                 .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(16.dp),
         contentAlignment = Alignment.TopCenter
     ) {

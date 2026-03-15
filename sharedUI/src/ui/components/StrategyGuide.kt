@@ -1,6 +1,5 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,9 +25,7 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.*
 
 @Composable
-fun StrategyGuideOverlay(
-    onDismiss: () -> Unit
-) {
+fun StrategyGuideOverlay(onDismiss: () -> Unit) {
     var selectedTab by remember { mutableStateOf<StrategyTab>(StrategyTab.Hard) }
 
     Surface(
@@ -36,7 +33,7 @@ fun StrategyGuideOverlay(
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
@@ -75,26 +72,29 @@ private fun StrategyTabs(
     selectedTab: StrategyTab,
     onTabSelected: (StrategyTab) -> Unit
 ) {
-    val tabs = listOf(
-        StrategyTab.Hard to stringResource(Res.string.strategy_tab_hard),
-        StrategyTab.Soft to stringResource(Res.string.strategy_tab_soft),
-        StrategyTab.Pairs to stringResource(Res.string.strategy_tab_pairs)
-    )
+    val tabs =
+        listOf(
+            StrategyTab.Hard to stringResource(Res.string.strategy_tab_hard),
+            StrategyTab.Soft to stringResource(Res.string.strategy_tab_soft),
+            StrategyTab.Pairs to stringResource(Res.string.strategy_tab_pairs)
+        )
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(GlassDark)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(GlassDark)
     ) {
         tabs.forEach { (tab, label) ->
             val isSelected = selectedTab == tab
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onTabSelected(tab) }
-                    .background(if (isSelected) PrimaryGold else Color.Transparent)
-                    .padding(vertical = 10.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .clickable { onTabSelected(tab) }
+                        .background(if (isSelected) PrimaryGold else Color.Transparent)
+                        .padding(vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -110,11 +110,12 @@ private fun StrategyTabs(
 
 @Composable
 private fun ColumnScope.StrategyChart(tab: StrategyTab) {
-    val data = when (tab) {
-        StrategyTab.Hard -> StrategyProvider.getHardStrategy()
-        StrategyTab.Soft -> StrategyProvider.getSoftStrategy()
-        StrategyTab.Pairs -> StrategyProvider.getPairsStrategy()
-    }
+    val data =
+        when (tab) {
+            StrategyTab.Hard -> StrategyProvider.getHardStrategy()
+            StrategyTab.Soft -> StrategyProvider.getSoftStrategy()
+            StrategyTab.Pairs -> StrategyProvider.getPairsStrategy()
+        }
 
     val dealerCards = listOf(2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
 
@@ -179,24 +180,27 @@ private fun StrategyActionCell(
     action: StrategyAction,
     modifier: Modifier = Modifier
 ) {
-    val color = when (action) {
-        StrategyAction.HIT -> ChipGreen
-        StrategyAction.STAND -> TacticalRed
-        StrategyAction.DOUBLE -> PrimaryGold
-        StrategyAction.SPLIT -> ChipPurple
-    }
+    val color =
+        when (action) {
+            StrategyAction.HIT -> ChipGreen
+            StrategyAction.STAND -> TacticalRed
+            StrategyAction.DOUBLE -> PrimaryGold
+            StrategyAction.SPLIT -> ChipPurple
+        }
 
-    val label = when (action) {
-        StrategyAction.HIT -> stringResource(Res.string.strategy_action_hit)
-        StrategyAction.STAND -> stringResource(Res.string.strategy_action_stand)
-        StrategyAction.DOUBLE -> stringResource(Res.string.strategy_action_double)
-        StrategyAction.SPLIT -> stringResource(Res.string.strategy_action_split)
-    }
+    val label =
+        when (action) {
+            StrategyAction.HIT -> stringResource(Res.string.strategy_action_hit)
+            StrategyAction.STAND -> stringResource(Res.string.strategy_action_stand)
+            StrategyAction.DOUBLE -> stringResource(Res.string.strategy_action_double)
+            StrategyAction.SPLIT -> stringResource(Res.string.strategy_action_split)
+        }
 
     Box(
-        modifier = modifier
-            .padding(1.dp)
-            .background(color, RoundedCornerShape(2.dp)),
+        modifier =
+            modifier
+                .padding(1.dp)
+                .background(color, RoundedCornerShape(2.dp)),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -222,7 +226,10 @@ private fun StrategyLegend() {
 }
 
 @Composable
-private fun LegendItem(action: StrategyAction, label: String) {
+private fun LegendItem(
+    action: StrategyAction,
+    label: String
+) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         StrategyActionCell(action = action, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(4.dp))

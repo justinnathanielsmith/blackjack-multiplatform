@@ -227,20 +227,23 @@ object SideBetLogic {
         val c2 = hand.cards[1]
 
         return when {
-            c1.rank == c2.rank && c1.suit == c2.suit -> 
+            c1.rank == c2.rank && c1.suit == c2.suit ->
                 SideBetResult(SideBetType.PERFECT_PAIRS, 25, 0, "Perfect Pair")
-            c1.rank == c2.rank && isSameColor(c1.suit, c2.suit) -> 
+            c1.rank == c2.rank && isSameColor(c1.suit, c2.suit) ->
                 SideBetResult(SideBetType.PERFECT_PAIRS, 12, 0, "Colored Pair")
-            c1.rank == c2.rank -> 
+            c1.rank == c2.rank ->
                 SideBetResult(SideBetType.PERFECT_PAIRS, 5, 0, "Mixed Pair")
             else -> null
         }
     }
 
-    fun evaluateTwentyOnePlusThree(playerHand: Hand, dealerUpcard: Card): SideBetResult? {
+    fun evaluateTwentyOnePlusThree(
+        playerHand: Hand,
+        dealerUpcard: Card
+    ): SideBetResult? {
         if (playerHand.cards.size < 2) return null
         val cards = listOf(playerHand.cards[0], playerHand.cards[1], dealerUpcard)
-        
+
         return when {
             isSuitedTriple(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 100, 0, "Suited Triple")
             isStraightFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 40, 0, "Straight Flush")
@@ -251,7 +254,10 @@ object SideBetLogic {
         }
     }
 
-    private fun isSameColor(s1: Suit, s2: Suit): Boolean {
+    private fun isSameColor(
+        s1: Suit,
+        s2: Suit
+    ): Boolean {
         val red = setOf(Suit.HEARTS, Suit.DIAMONDS)
         val black = setOf(Suit.CLUBS, Suit.SPADES)
         return (s1 in red && s2 in red) || (s1 in black && s2 in black)
@@ -273,12 +279,12 @@ object SideBetLogic {
         val sortedRanks = cards.map { it.rank.ordinal }.sorted()
         // Standard straight
         if (sortedRanks[1] == sortedRanks[0] + 1 && sortedRanks[2] == sortedRanks[1] + 1) return true
-        
-        // Ace-Low straight (A, 2, 3) 
+
+        // Ace-Low straight (A, 2, 3)
         // Rank ordinal: ACE is last (12). TWO is 0. THREE is 1.
         // So (0, 1, 12)
         if (sortedRanks == listOf(0, 1, 12)) return true
-        
+
         return false
     }
 

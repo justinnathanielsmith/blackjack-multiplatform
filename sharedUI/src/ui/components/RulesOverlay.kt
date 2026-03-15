@@ -40,22 +40,22 @@ import sharedui.generated.resources.rules_variations_content
 import sharedui.generated.resources.rules_variations_title
 
 @Composable
-fun RulesOverlay(
-    onDismiss: () -> Unit
-) {
+fun RulesOverlay(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             color = GlassDark,
             tonalElevation = 8.dp
         ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState())
+                modifier =
+                    Modifier
+                        .padding(24.dp)
+                        .verticalScroll(rememberScrollState())
             ) {
                 Text(
                     text = stringResource(Res.string.rules_title).uppercase(),
@@ -74,12 +74,13 @@ fun RulesOverlay(
 
                 RuleSection(
                     title = stringResource(Res.string.rules_actions_title),
-                    items = listOf(
-                        stringResource(Res.string.rules_actions_hit),
-                        stringResource(Res.string.rules_actions_stand),
-                        stringResource(Res.string.rules_actions_double),
-                        stringResource(Res.string.rules_actions_split)
-                    )
+                    items =
+                        listOf(
+                            stringResource(Res.string.rules_actions_hit),
+                            stringResource(Res.string.rules_actions_stand),
+                            stringResource(Res.string.rules_actions_double),
+                            stringResource(Res.string.rules_actions_split)
+                        )
                 )
 
                 RuleSection(
@@ -89,10 +90,11 @@ fun RulesOverlay(
 
                 RuleSection(
                     title = stringResource(Res.string.rules_side_bets_title),
-                    items = listOf(
-                        stringResource(Res.string.rules_side_bets_pairs),
-                        stringResource(Res.string.rules_side_bets_21_3)
-                    )
+                    items =
+                        listOf(
+                            stringResource(Res.string.rules_side_bets_pairs),
+                            stringResource(Res.string.rules_side_bets_21_3)
+                        )
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -100,10 +102,11 @@ fun RulesOverlay(
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryGold,
-                        contentColor = Color.Black
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = PrimaryGold,
+                            contentColor = Color.Black
+                        )
                 ) {
                     Text(stringResource(Res.string.close).uppercase())
                 }

@@ -95,7 +95,7 @@ fun Header(
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             HeaderIcon("rules", onClick = onRulesClick)
             HeaderIcon("strategy", onClick = onStrategyClick)
-HeaderIcon("settings", onClick = onSettingsClick)
+            HeaderIcon("settings", onClick = onSettingsClick)
         }
     }
 }
@@ -116,12 +116,13 @@ private fun HeaderIcon(
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = when (text) {
-                "settings" -> "⚙️"
-                "strategy" -> "💡"
-                "rules" -> "📜"
-                else -> "🕒"
-            },
+            text =
+                when (text) {
+                    "settings" -> "⚙️"
+                    "strategy" -> "💡"
+                    "rules" -> "📜"
+                    else -> "🕒"
+                },
             fontSize = 18.sp,
         )
     }

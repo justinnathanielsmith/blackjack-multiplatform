@@ -7,18 +7,22 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GameEffectHandlerTest {
+    private val noopAudio =
+        object : AudioService {
+            override fun playEffect(effect: AudioService.SoundEffect) {}
 
-    private val noopAudio = object : AudioService {
-        override fun playEffect(effect: AudioService.SoundEffect) {}
-        override fun release() {}
-    }
+            override fun release() {}
+        }
 
     @Test
     fun vibrateEffectTriggersHaptics() {
         var calls = 0
-        val hapticsService = object : HapticsService {
-            override fun vibrate() { calls += 1 }
-        }
+        val hapticsService =
+            object : HapticsService {
+                override fun vibrate() {
+                    calls += 1
+                }
+            }
 
         handleGameEffect(
             effect = GameEffect.Vibrate,
@@ -33,9 +37,12 @@ class GameEffectHandlerTest {
     @Test
     fun nonVibrateEffectDoesNotTriggerHaptics() {
         var calls = 0
-        val hapticsService = object : HapticsService {
-            override fun vibrate() { calls += 1 }
-        }
+        val hapticsService =
+            object : HapticsService {
+                override fun vibrate() {
+                    calls += 1
+                }
+            }
 
         handleGameEffect(
             effect = GameEffect.PlayWinSound,
