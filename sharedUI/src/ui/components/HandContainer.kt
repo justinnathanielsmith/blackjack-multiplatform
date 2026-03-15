@@ -277,7 +277,7 @@ private fun BoxScope.ScoreBadge(
 }
 
 @Composable
-private fun BoxScope.HandOutcomeBadge(result: HandResult) {
+internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
     val color =
         when (result) {
             HandResult.WIN -> Color(0xFFFFD700) // gold

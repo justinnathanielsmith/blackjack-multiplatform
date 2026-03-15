@@ -66,6 +66,8 @@ import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandContainer
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandRow
+import io.github.smithjustinn.blackjack.ui.components.HandStatus
+import io.github.smithjustinn.blackjack.ui.components.PlayerHandContainer
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
@@ -502,24 +504,19 @@ private fun PortraitLayout(
                         remember(index, state.activeHandIndex, state.status) {
                             index > state.activeHandIndex && state.status == GameStatus.PLAYING
                         }
-                    HandContainer(
-                        title = stringResource(Res.string.hand_number, index + 1),
-                        score = hand.score,
-                        bet = state.playerBets.getOrNull(index),
-                        isActive = isActive,
-                        isPending = isPending,
-                        result = state.handResult(index),
-                        isCompact = true,
-                        isExtraCompact = true,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        HandRow(
-                            hand,
-                            isCompact = true,
-                            scale = playerCardScale,
-                            isNearMiss = nearMissHandIndex == index
-                        )
+                    val status = when {
+                        hand.isBust -> HandStatus.BUSTED
+                        isActive -> HandStatus.ACTIVE
+                        else -> HandStatus.WAITING
                     }
+                    PlayerHandContainer(
+                        handTotal = hand.score,
+                        status = status,
+                        cards = hand.cards,
+                        bet = state.playerBets.getOrNull(index),
+                        result = state.handResult(index),
+                        modifier = Modifier.weight(1f),
+                    )
                 }
             }
         } else {
@@ -529,14 +526,18 @@ private fun PortraitLayout(
                 remember(state.status, state.currentBet) {
                     if (state.status != GameStatus.IDLE) state.currentBet else null
                 }
-            HandContainer(
-                title = stringResource(Res.string.you),
-                score = hands[0].score,
-                bet = bet,
-                isActive = isActive,
-            ) {
-                HandRow(hands[0], isNearMiss = nearMissHandIndex == 0)
+            val status = when {
+                hands[0].isBust -> HandStatus.BUSTED
+                isActive -> HandStatus.ACTIVE
+                else -> HandStatus.WAITING
             }
+            PlayerHandContainer(
+                handTotal = hands[0].score,
+                status = status,
+                cards = hands[0].cards,
+                bet = bet,
+                result = state.handResult(index = 0)
+            )
         }
 
         Spacer(modifier = Modifier.height(if (isMultiHand) 8.dp else 12.dp))
