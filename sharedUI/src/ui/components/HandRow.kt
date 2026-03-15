@@ -13,6 +13,7 @@ fun HandRow(
     hand: Hand,
     isDealer: Boolean = false,
     isCompact: Boolean = false,
+    isSlowReveal: Boolean = false,
     scale: Float? = null,
 ) {
     val cardScale = scale ?: if (isCompact) 0.8f else 1f
@@ -29,6 +30,7 @@ fun HandRow(
                     isFaceUp = !card.isFaceDown,
                     isDealer = isDealer,
                     animationDelay = index * 100,
+                    animationDurationMs = if (isSlowReveal && isDealer) 900 else 300,
                     scale = cardScale,
                 )
             }

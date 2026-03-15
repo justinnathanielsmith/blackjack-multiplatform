@@ -150,6 +150,7 @@ data class GameState(
     val sideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val sideBetResults: PersistentMap<SideBetType, SideBetResult> = persistentMapOf(),
     val rules: GameRules = GameRules(),
+    val dealerDrawIsCritical: Boolean = false,
 ) {
     companion object {
         const val MAX_HANDS = 4
@@ -220,4 +221,6 @@ sealed class GameEffect {
     data object PlayLoseSound : GameEffect()
 
     data object Vibrate : GameEffect()
+
+    data object DealerCriticalDraw : GameEffect()
 }

@@ -23,6 +23,7 @@ class BlackjackStateMachine(
         private const val DEALER_STAND_THRESHOLD = 17
         private const val DEALER_TURN_DELAY_MS = 600L
         private const val DEAL_CARD_DELAY_MS = 400L
+        private const val DEALER_CRITICAL_PRE_DELAY_MS = 900L
     }
 
     private val _state = MutableStateFlow(initialState)
@@ -339,17 +340,29 @@ class BlackjackStateMachine(
         val rules = _state.value.rules
 
         while (shouldDealerDraw(currentDealerHand, rules)) {
+            val isCritical = currentDealerHand.score in 12..16 && !currentDealerHand.isSoft
+
+            if (isCritical) {
+                _state.value = _state.value.copy(dealerDrawIsCritical = true)
+                emitEffect(GameEffect.DealerCriticalDraw)
+                delay(DEALER_CRITICAL_PRE_DELAY_MS)
+            }
+
             val newCard = currentDeck.firstOrNull() ?: break
             currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards.add(newCard))
             currentDeck = currentDeck.drop(1).toPersistentList()
 
-            _state.value =
-                _state.value.copy(
-                    deck = currentDeck,
-                    dealerHand = currentDealerHand
-                )
+            _state.value = _state.value.copy(
+                deck = currentDeck,
+                dealerHand = currentDealerHand,
+                dealerDrawIsCritical = isCritical,
+            )
             emitEffect(GameEffect.PlayCardSound)
-            delay(DEALER_TURN_DELAY_MS) // Visual pacing for dealer hits
+            delay(DEALER_TURN_DELAY_MS)
+
+            if (isCritical) {
+                _state.value = _state.value.copy(dealerDrawIsCritical = false)
+            }
         }
 
         finalizeGame()

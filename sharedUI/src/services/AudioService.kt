@@ -12,6 +12,7 @@ import sharedui.generated.resources.audio_mismatch
 import sharedui.generated.resources.audio_nuts
 import sharedui.generated.resources.audio_plink
 import sharedui.generated.resources.audio_push
+import sharedui.generated.resources.audio_tension
 import sharedui.generated.resources.audio_win
 
 interface AudioService {
@@ -31,6 +32,7 @@ interface AudioService {
         DEAL,
         PLINK,
         PUSH,
+        TENSION,
     }
 
     companion object {
@@ -47,6 +49,7 @@ interface AudioService {
                 SoundEffect.DEAL -> Res.string.audio_deal
                 SoundEffect.PLINK -> Res.string.audio_plink
                 SoundEffect.PUSH -> Res.string.audio_push
+                SoundEffect.TENSION -> Res.string.audio_tension
             }
         }
     }

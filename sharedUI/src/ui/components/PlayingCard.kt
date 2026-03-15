@@ -85,6 +85,7 @@ fun PlayingCard(
     isDealer: Boolean,
     modifier: Modifier = Modifier,
     animationDelay: Int = 0,
+    animationDurationMs: Int = 300,
     scale: Float = 1f,
 ) {
     val offsetY = remember { Animatable(if (isDealer) -300f else 300f) }
@@ -93,7 +94,7 @@ fun PlayingCard(
         delay(animationDelay.toLong())
         offsetY.animateTo(
             targetValue = 0f,
-            animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing),
+            animationSpec = tween(durationMillis = animationDurationMs, easing = LinearOutSlowInEasing),
         )
     }
 

@@ -10,6 +10,7 @@
     <string name="audio_plink">plink</string>
     <string name="audio_win">win</string>
     <string name="audio_push">push</string>
+    <string name="audio_tension">tension</string>
 
     <!-- Game actions -->
     <string name="hit">Hit</string>

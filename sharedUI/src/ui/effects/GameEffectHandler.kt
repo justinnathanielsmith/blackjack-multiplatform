@@ -15,5 +15,6 @@ fun handleGameEffect(
         GameEffect.PlayCardSound -> if (!isSoundMuted) audioService.playEffect(AudioService.SoundEffect.FLIP)
         GameEffect.PlayWinSound -> if (!isSoundMuted) audioService.playEffect(AudioService.SoundEffect.WIN)
         GameEffect.PlayLoseSound -> if (!isSoundMuted) audioService.playEffect(AudioService.SoundEffect.LOSE)
+        GameEffect.DealerCriticalDraw -> if (!isSoundMuted) audioService.playEffect(AudioService.SoundEffect.TENSION)
     }
 }

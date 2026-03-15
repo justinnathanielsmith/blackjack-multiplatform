@@ -380,6 +380,7 @@ private fun PortraitLayout(
                 state.dealerHand,
                 isDealer = true,
                 isCompact = isMultiHand,
+                isSlowReveal = state.dealerDrawIsCritical,
                 scale = if (isMultiHand) 0.82f else null,
             )
         }
