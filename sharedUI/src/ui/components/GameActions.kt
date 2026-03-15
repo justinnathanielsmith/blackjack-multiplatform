@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,10 +32,6 @@ import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.double_down
-import sharedui.generated.resources.hit
-import sharedui.generated.resources.split
-import sharedui.generated.resources.stand
 import sharedui.generated.resources.ic_double
 import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_split
@@ -110,37 +107,33 @@ fun GameActions(
 
                 Row(
                     modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     GameActionButton(
                         icon = Res.drawable.ic_double,
-                        label = stringResource(Res.string.double_down),
                         onClick = onDoubleDown,
                         enabled = canDouble,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).aspectRatio(1f),
                         isStrategic = true,
                     )
                     GameActionButton(
                         icon = Res.drawable.ic_split,
-                        label = stringResource(Res.string.split),
                         onClick = onSplit,
                         enabled = canSplit,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).aspectRatio(1f),
                     )
                     GameActionButton(
                         icon = Res.drawable.ic_hit,
-                        label = stringResource(Res.string.hit),
                         onClick = onHit,
                         enabled = true,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).aspectRatio(1f),
                         isStrategic = true,
                     )
                     GameActionButton(
                         icon = Res.drawable.ic_stand,
-                        label = stringResource(Res.string.stand),
                         onClick = onStand,
                         enabled = true,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).aspectRatio(1f),
                         containerColor = TacticalRed,
                         contentColor = Color.White,
                     )

@@ -50,6 +50,8 @@ import kotlin.math.abs
 @Composable
 fun Header(
     balance: Int,
+    isAutoDealEnabled: Boolean,
+    onAutoDealToggle: () -> Unit,
     onSettingsClick: () -> Unit = {},
     onStrategyClick: () -> Unit = {},
     onRulesClick: () -> Unit = {}
@@ -115,6 +117,7 @@ fun Header(
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
             HeaderIcon("rules", onClick = onRulesClick)
             HeaderIcon("strategy", onClick = onStrategyClick)
             HeaderIcon("settings", onClick = onSettingsClick)
@@ -153,23 +156,78 @@ internal fun AutoDealIcon(
         label = "autoBorderAlpha",
     )
 
+    // Sonar pulse rings
+    val pulseScale1 by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = if (enabled) 2.0f else 1.0f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(2000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "pulseScale1",
+    )
+    val pulseAlpha1 by infiniteTransition.animateFloat(
+        initialValue = 0.6f,
+        targetValue = 0.0f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(2000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "pulseAlpha1",
+    )
+
+    val pulseScale2 by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = if (enabled) 2.0f else 1.0f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(2000, delayMillis = 1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "pulseScale2",
+    )
+    val pulseAlpha2 by infiniteTransition.animateFloat(
+        initialValue = 0.6f,
+        targetValue = 0.0f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(2000, delayMillis = 1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "pulseAlpha2",
+    )
+
     val borderColor = if (enabled) PrimaryGold.copy(alpha = borderAlpha) else GlassLight
     val backgroundColor = if (enabled) PrimaryGold.copy(alpha = 0.15f) else GlassDark
 
     Box(
         modifier =
             Modifier
-                .size(40.dp)
+                .size(32.dp)
+                .drawBehind {
+                    if (enabled) {
+                        drawCircle(
+                            color = PrimaryGold.copy(alpha = pulseAlpha1),
+                            radius = (size.minDimension / 2) * pulseScale1,
+                        )
+                        drawCircle(
+                            color = PrimaryGold.copy(alpha = pulseAlpha2),
+                            radius = (size.minDimension / 2) * pulseScale2,
+                        )
+                    }
+                }
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                }.background(backgroundColor, RoundedCornerShape(20.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(20.dp))
-                .clip(RoundedCornerShape(20.dp))
+                }.background(backgroundColor, RoundedCornerShape(16.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = "⚡", fontSize = 18.sp)
+        Text(text = "⚡", fontSize = 14.sp)
     }
 }
 

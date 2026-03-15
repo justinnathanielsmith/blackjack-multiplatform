@@ -265,6 +265,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     ) {
                         Header(
                             balance = state.balance,
+                            isAutoDealEnabled = appSettings.isAutoDealEnabled,
+                            onAutoDealToggle = {
+                                component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) }
+                            },
                             onSettingsClick = { showSettings = true },
                             onStrategyClick = { showStrategy = true },
                             onRulesClick = { showRules = true }
@@ -282,19 +286,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             component = component,
                             nearMissHandIndex = nearMissHandIndex,
                         )
-                        Box(
-                            modifier =
-                                Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(16.dp)
-                        ) {
-                            AutoDealIcon(
-                                enabled = appSettings.isAutoDealEnabled,
-                                onClick = {
-                                    component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) }
-                                },
-                            )
-                        }
                     }
                 }
 

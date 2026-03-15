@@ -11,7 +11,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +44,6 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 @Composable
 fun GameActionButton(
     icon: DrawableResource,
-    label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -98,14 +97,14 @@ fun GameActionButton(
                     if (enabled) {
                         Modifier.shadow(
                             elevation = if (isPressed) 1.dp else 4.dp,
-                            shape = RoundedCornerShape(12.dp),
+                            shape = CircleShape,
                             ambientColor = shadowColor,
                             spotColor = shadowColor
                         )
                     } else {
                         Modifier
                     }
-                ).clip(RoundedCornerShape(12.dp))
+                ).clip(CircleShape)
                 .background(
                     if (enabled) {
                         Brush.verticalGradient(
@@ -138,7 +137,7 @@ fun GameActionButton(
                                             Color.Black.copy(alpha = 0.2f)
                                         )
                                 ),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = CircleShape
                         )
                     } else {
                         Modifier.border(
@@ -149,7 +148,7 @@ fun GameActionButton(
                                 } else {
                                     Color.White.copy(alpha = 0.1f)
                                 },
-                            shape = RoundedCornerShape(12.dp)
+                            shape = CircleShape
                         )
                     }
                 ).clickable(
@@ -170,27 +169,13 @@ fun GameActionButton(
         val finalColor = if (enabled) resolvedContentColor else disabledContentColor
 
         Box(
-            modifier = Modifier.fillMaxWidth()
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(icon),
                 contentDescription = null,
                 tint = finalColor,
-                modifier = Modifier
-                    .size(20.dp)
-                    .align(Alignment.CenterStart)
-                    .padding(start = 4.dp)
-            )
-            Text(
-                text = label.uppercase(),
-                color = finalColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Black,
-                style = MaterialTheme.typography.labelSmall,
-                letterSpacing = 1.sp,
-                maxLines = 1,
-                softWrap = false,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.size(32.dp)
             )
         }
     }
