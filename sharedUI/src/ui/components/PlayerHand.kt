@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Hand
@@ -26,7 +27,8 @@ fun PlayerHand(
     val isActive = status == HandStatus.ACTIVE
     val isWaiting = status == HandStatus.WAITING
 
-    val alpha = if (isWaiting) 0.6f else 1.0f
+    val alpha = if (isWaiting) 0.5f else 1.0f
+    val scaleModifier = if (isWaiting) Modifier.scale(0.9f) else Modifier
 
     BlackjackHandContainer(
         score = handTotal,
@@ -36,7 +38,9 @@ fun PlayerHand(
         result = result,
         isCompact = isCompact,
         isExtraCompact = isExtraCompact,
-        modifier = modifier.alpha(alpha)
+        modifier = modifier
+            .then(scaleModifier)
+            .alpha(alpha)
     ) {
         Column(
             modifier = Modifier.padding(8.dp),

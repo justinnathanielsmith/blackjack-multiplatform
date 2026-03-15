@@ -70,7 +70,6 @@ fun BlackjackHandContainer(
     val backgroundColor =
         when {
             isActive -> PrimaryGold.copy(alpha = 0.1f)
-            isPending -> Color.Black.copy(alpha = 0.2f)
             else -> GlassDark.copy(alpha = 0.3f)
         }
 
