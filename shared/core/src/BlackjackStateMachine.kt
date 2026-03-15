@@ -114,7 +114,7 @@ class BlackjackStateMachine(
         var dealerHand = Hand()
         val bets = List(current.handCount) { current.currentBet }.toPersistentList()
 
-        _state.value = current.copy(
+        _state.value = _state.value.copy(
             playerHands = playerHands,
             dealerHand = dealerHand,
             playerBets = bets,
