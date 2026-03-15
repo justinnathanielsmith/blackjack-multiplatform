@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.rotate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -128,7 +129,7 @@ fun PlayingCard(
         modifier =
             modifier
                 .width(Dimensions.Card.StandardWidth * scale)
-                .aspectRatio(Dimensions.Card.AspectRatio)
+                .aspectRatio(0.7f)
                 .graphicsLayer {
                     translationY = offsetY.value
                     rotationY = rotation
@@ -162,10 +163,11 @@ fun PlayingCard(
                             .padding(8.dp)
                             .graphicsLayer { rotationY = 180f },
                 ) {
-                    // Top Left
+                    // Top Left Corner
                     Column(
+                        modifier = Modifier.align(Alignment.TopStart),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(1.dp)
                     ) {
                         Text(
                             text = card.rank.symbol,
@@ -182,11 +184,13 @@ fun PlayingCard(
                         )
                     }
 
-                    // Center - Structured to prevent "mashing"
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                    // Center Graphic - Box with buffer padding
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp, vertical = 32.dp)
+                            .align(Alignment.Center),
+                        contentAlignment = Alignment.Center
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
@@ -205,14 +209,13 @@ fun PlayingCard(
                         }
                     }
 
-                    // Bottom Right - Inverted corner
+                    // Bottom Right Corner - Inverted and mirrored
                     Column(
-                        modifier =
-                            Modifier
-                                .align(Alignment.BottomEnd)
-                                .graphicsLayer { rotationZ = 180f },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .rotate(180f),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(1.dp)
                     ) {
                         Text(
                             text = card.rank.symbol,
