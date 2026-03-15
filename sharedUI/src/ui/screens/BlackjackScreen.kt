@@ -465,8 +465,6 @@ private fun PortraitLayout(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(if (isMultiHand) 4.dp else 16.dp))
-
         val dealerDisplayScore =
             remember(state.status, state.dealerHand) {
                 if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score

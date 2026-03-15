@@ -76,7 +76,7 @@ fun Header(
             Modifier
                 .fillMaxWidth()
                 .background(GlassDark)
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -95,12 +95,12 @@ fun Header(
             )
             Text(
                 text = "$$formattedBalance",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleMedium,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             HeaderIcon("rules", onClick = onRulesClick)
             HeaderIcon("strategy", onClick = onStrategyClick)
             HeaderIcon("settings", onClick = onSettingsClick)
@@ -194,10 +194,10 @@ private fun HeaderIcon(
     Box(
         modifier =
             Modifier
-                .size(40.dp)
-                .background(GlassDark, RoundedCornerShape(20.dp))
-                .border(1.dp, GlassLight, RoundedCornerShape(20.dp))
-                .clip(RoundedCornerShape(20.dp))
+                .size(32.dp)
+                .background(GlassDark, RoundedCornerShape(16.dp))
+                .border(1.dp, GlassLight, RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
@@ -209,7 +209,7 @@ private fun HeaderIcon(
                     "rules" -> "📜"
                     else -> "🕒"
                 },
-            fontSize = 18.sp,
+            fontSize = 14.sp,
         )
     }
 }
