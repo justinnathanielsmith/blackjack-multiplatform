@@ -45,7 +45,7 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.close
 import sharedui.generated.resources.hand_count_label
 import sharedui.generated.resources.settings_das
-import sharedui.generated.resources.settings_debug
+import sharedui.generated.resources.settings_reset_balance
 import sharedui.generated.resources.settings_decks
 import sharedui.generated.resources.settings_game_rules
 import sharedui.generated.resources.settings_mute
@@ -59,6 +59,7 @@ import sharedui.generated.resources.settings_title
 fun SettingsOverlay(
     settings: AppSettings,
     onUpdateSettings: ((AppSettings) -> AppSettings) -> Unit,
+    onResetBalance: () -> Unit,
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
@@ -94,11 +95,16 @@ fun SettingsOverlay(
                     onCheckedChange = { newVal -> onUpdateSettings { it.copy(isSoundMuted = newVal) } }
                 )
 
-                SettingsToggle(
-                    title = stringResource(Res.string.settings_debug),
-                    checked = settings.isDebugMode,
-                    onCheckedChange = { newVal -> onUpdateSettings { it.copy(isDebugMode = newVal) } }
-                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = onResetBalance, 
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B0000), contentColor = Color.White),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(stringResource(Res.string.settings_reset_balance).uppercase(), style = MaterialTheme.typography.labelLarge)
+                }
 
                 SettingsDropdown(
                     title = stringResource(Res.string.hand_count_label),

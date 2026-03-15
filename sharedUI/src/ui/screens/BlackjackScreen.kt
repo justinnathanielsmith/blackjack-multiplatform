@@ -60,7 +60,6 @@ import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
-import io.github.smithjustinn.blackjack.ui.components.DebugPanel
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandContainer
@@ -260,14 +259,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             .fillMaxSize()
                             .windowInsetsPadding(safeDrawingInsets()),
                 ) {
-                    if (appSettings.isDebugMode) {
-                        DebugPanel(
-                            state = state,
-                            settings = appSettings,
-                            onAction = component::onAction,
-                            onResetBalance = component::resetBalance
-                        )
-                    }
                     Box(
                         modifier =
                             Modifier
@@ -360,6 +351,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         SettingsOverlay(
                             settings = appSettings,
                             onUpdateSettings = component::updateSettings,
+                            onResetBalance = component::resetBalance,
                             onDismiss = { showSettings = false }
                         )
                     }

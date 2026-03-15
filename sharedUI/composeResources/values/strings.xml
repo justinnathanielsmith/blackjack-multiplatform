@@ -51,7 +51,7 @@
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_mute">Mute Sounds</string>
-    <string name="settings_debug">Debug Panel</string>
+    <string name="settings_reset_balance">Reset Balance</string>
     <string name="settings_game_rules">Game Rules</string>
     <string name="settings_payout">Blackjack Payout</string>
     <string name="settings_s17">Dealer Hits Soft 17</string>
