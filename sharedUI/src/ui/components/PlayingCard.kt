@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -91,31 +92,32 @@ fun CardFace(
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        val fontSizeRank = maxOf(maxWidth.value * 0.4f, 20f).sp
-        val fontSizeSuit = maxOf(maxWidth.value * 0.6f, 30f).sp
+        // Slot machine style: single large bold rank centered
+        // '10' is two characters, so scale it down slightly to avoid corner overlap
+        val isTen = rank == Rank.TEN
+        val scaleFactor = if (isTen) 0.55f else 0.7f
+        val minSize = if (isTen) 30f else 40f
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-        ) {
-            Text(
-                text = rank.symbol,
-                color = suit.color,
-                fontWeight = FontWeight.Bold,
-                fontSize = fontSizeRank,
+        val fontSizeRank = maxOf(maxWidth.value * scaleFactor, minSize).sp
+        Text(
+            text = rank.symbol,
+            color = suit.color,
+            fontWeight = FontWeight.Black,
+            fontSize = fontSizeRank,
+            style = androidx.compose.ui.text.TextStyle(
+                shadow = Shadow(
+                    color = Color.Black.copy(alpha = 0.15f),
+                    offset = Offset(2f, 2f),
+                    blurRadius = 4f
+                )
             )
-            Text(
-                text = suit.symbol,
-                color = suit.color,
-                fontSize = fontSizeSuit,
-            )
-        }
+        )
     }
 }
 
 @Composable
 fun PlayingCard(
-    card: Card,
+    card: io.github.smithjustinn.blackjack.Card,
     isFaceUp: Boolean,
     isDealer: Boolean,
     modifier: Modifier = Modifier,
@@ -198,7 +200,7 @@ fun PlayingCard(
                     val cardWidth = maxWidth
                     val isSmall = cardWidth < 65.dp
 
-                    val cornerPadding = if (isSmall) 4.dp else 8.dp
+                    val cornerPadding = if (isSmall) 4.dp else 6.dp
 
                     Box(
                         modifier =
@@ -206,44 +208,42 @@ fun PlayingCard(
                                 .fillMaxSize()
                                 .padding(cornerPadding)
                     ) {
+                        // Faint watermark suit symbol in the center
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = card.suit.symbol,
+                                color = card.suit.color.copy(alpha = if (isSmall) 0.15f else 0.08f),
+                                fontSize = (cardWidth.value * if (isSmall) 1.2f else 1.0f).sp,
+                            )
+                        }
+
                         if (isSmall) {
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-                            ) {
-                                Text(
-                                    text = card.rank.symbol,
-                                    color = card.suit.color,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 22.sp,
-                                    style = MaterialTheme.typography.titleMedium,
-                                )
-                                Text(
-                                    text = card.suit.symbol,
-                                    color = card.suit.color,
-                                    fontSize = 20.sp,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                            }
-                        } else {
-                            // Top Left Corner
+                            // Compact: Only Top-Left Jumbo Index for maximum clarity
                             CardCorner(
                                 rank = card.rank.symbol,
                                 suit = card.suit.symbol,
                                 color = card.suit.color,
+                                isSmall = true,
+                                modifier = Modifier.align(Alignment.TopStart)
+                            )
+                        } else {
+                            // Normal: Top Left Corner
+                            CardCorner(
+                                rank = card.rank.symbol,
+                                suit = card.suit.symbol,
+                                color = card.suit.color,
+                                isSmall = false,
                                 modifier = Modifier.align(Alignment.TopStart)
                             )
 
-                            // Center pip graphic
+                            // Center slot-machine graphic
                             CardFace(
                                 rank = card.rank,
                                 suit = card.suit,
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 16.dp, vertical = 16.dp)
-                                        .align(Alignment.Center),
+                                modifier = Modifier.fillMaxSize()
                             )
 
                             // Bottom Right Corner - Inverted and mirrored
@@ -251,6 +251,7 @@ fun PlayingCard(
                                 rank = card.rank.symbol,
                                 suit = card.suit.symbol,
                                 color = card.suit.color,
+                                isSmall = false,
                                 modifier =
                                     Modifier
                                         .align(Alignment.BottomEnd)
@@ -328,34 +329,31 @@ private fun CardCorner(
     rank: String,
     suit: String,
     color: Color,
+    isSmall: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement =
-            androidx.compose.foundation.layout.Arrangement
-                .spacedBy(1.dp)
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy((-4).dp)
     ) {
         // Fixed width ensures '10' vs 'J' doesn't cause suit jumping/collisions
         Box(
-            modifier = Modifier.width(28.dp),
+            modifier = Modifier.width(if (isSmall) 26.dp else 28.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = rank,
                 color = color,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                fontSize = if (isSmall) 22.sp else 24.sp,
                 maxLines = 1,
             )
         }
         Text(
             text = suit,
             color = color,
-            fontSize = 16.sp,
-            style = MaterialTheme.typography.bodyLarge,
+            fontSize = if (isSmall) 18.sp else 20.sp,
             maxLines = 1,
         )
     }

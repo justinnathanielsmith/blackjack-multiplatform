@@ -487,7 +487,7 @@ private fun BlackjackLayout(
         when (handCount) {
             1 -> 1.0f
             2 -> 0.80f
-            else -> 0.68f
+            else -> 0.62f
         }
 
     Column(
@@ -619,7 +619,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                     }
 
                 // Currently active hand gets slightly more vertical space
-                val layoutWeight = if (isActive) 1.25f else 1.0f
+                val layoutWeight = if (isActive) 1.15f else 1.0f
 
                 Box(
                     modifier = Modifier.weight(layoutWeight),
@@ -632,7 +632,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                         bet = bet,
                         result = state.handResult(index),
                         title = stringResource(Res.string.hand_number, index + 1),
-                        modifier = Modifier.fillMaxHeight(),
+                        modifier = Modifier,
                         scale = baseCardScale,
                         isCompact = true,
                         isExtraCompact = handCount > 2,

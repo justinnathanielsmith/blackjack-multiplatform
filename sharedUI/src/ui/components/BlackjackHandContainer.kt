@@ -132,7 +132,6 @@ fun BlackjackHandContainer(
         modifier =
             modifier
                 .fillMaxWidth()
-                .animateContentSize()
                 .padding(horizontal = horizontalPadding, vertical = 6.dp),
     ) {
         // Visual Background + Border
@@ -141,6 +140,20 @@ fun BlackjackHandContainer(
                 cornerRadius = cornerRadius,
                 backgroundColor = backgroundColor,
                 modifier = Modifier.matchParentSize().padding(vertical = 6.dp),
+            )
+        } else {
+            // Static background for inactive hands or dealer
+            Box(
+                modifier =
+                    Modifier
+                        .matchParentSize()
+                        .padding(vertical = 6.dp)
+                        .background(backgroundColor, cornerRadius)
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f),
+                            shape = cornerRadius
+                        )
             )
         }
 
@@ -188,6 +201,7 @@ fun BlackjackHandContainer(
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .animateContentSize()
                     .defaultMinSize(minHeight = minContentHeight)
                     .padding(
                         start = contentPadding,
