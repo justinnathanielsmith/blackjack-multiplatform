@@ -315,42 +315,77 @@ fun PlayingCard(
         ) {
             if (!showBack) {
                 // Face
-                Box(
+                BoxWithConstraints(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .padding(8.dp)
                             .graphicsLayer { rotationY = 180f },
                 ) {
-                    // Top Left Corner
-                    CardCorner(
-                        rank = card.rank.symbol,
-                        suit = card.suit.symbol,
-                        color = card.suit.color,
-                        modifier = Modifier.align(Alignment.TopStart)
-                    )
+                    val cardWidth = maxWidth
+                    val isSmall = cardWidth < 65.dp
+                    val isLarge = cardWidth > 95.dp
 
-                    // Center pip grid / face graphic
-                    CardFace(
-                        rank = card.rank,
-                        suit = card.suit,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp, vertical = 32.dp)
-                                .align(Alignment.Center),
-                    )
+                    val cornerPadding = if (isSmall) 4.dp else 8.dp
 
-                    // Bottom Right Corner - Inverted and mirrored
-                    CardCorner(
-                        rank = card.rank.symbol,
-                        suit = card.suit.symbol,
-                        color = card.suit.color,
-                        modifier =
-                            Modifier
-                                .align(Alignment.BottomEnd)
-                                .rotate(180f)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(cornerPadding)
+                    ) {
+                        if (isSmall) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                            ) {
+                                Text(
+                                    text = card.rank.symbol,
+                                    color = card.suit.color,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp,
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                                Text(
+                                    text = card.suit.symbol,
+                                    color = card.suit.color,
+                                    fontSize = 20.sp,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
+                        } else {
+                            // Top Left Corner
+                            CardCorner(
+                                rank = card.rank.symbol,
+                                suit = card.suit.symbol,
+                                color = card.suit.color,
+                                modifier = Modifier.align(Alignment.TopStart)
+                            )
+
+                            // Center pip grid / face graphic
+                            if (isLarge) {
+                                CardFace(
+                                    rank = card.rank,
+                                    suit = card.suit,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxSize()
+                                            .padding(horizontal = 24.dp, vertical = 32.dp)
+                                            .align(Alignment.Center),
+                                )
+                            }
+
+                            // Bottom Right Corner - Inverted and mirrored
+                            CardCorner(
+                                rank = card.rank.symbol,
+                                suit = card.suit.symbol,
+                                color = card.suit.color,
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .rotate(180f)
+                            )
+                        }
+                    }
                 }
             } else {
                 // Back
