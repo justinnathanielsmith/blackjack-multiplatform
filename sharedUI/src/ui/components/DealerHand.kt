@@ -13,6 +13,7 @@ fun DealerHand(
     isExtraCompact: Boolean = false,
     isSlowReveal: Boolean = false,
     modifier: Modifier = Modifier,
+    scale: Float = 1.0f,
 ) {
     BlackjackHandContainer(
         title = title,
@@ -27,7 +28,7 @@ fun DealerHand(
             isDealer = true,
             isCompact = isCompact || isExtraCompact,
             isSlowReveal = isSlowReveal,
-            scale = if (isCompact || isExtraCompact) 0.82f else 1f,
+            scale = scale,
         )
     }
 }

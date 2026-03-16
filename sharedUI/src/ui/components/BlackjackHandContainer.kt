@@ -11,9 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.zIndex
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
@@ -24,6 +21,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.ui.theme.*
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.*
@@ -55,38 +55,40 @@ private fun ActiveGlowLayer(
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
         targetValue = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1400, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "glowAlpha"
     )
     val glowElevation by infiniteTransition.animateFloat(
         initialValue = 6f,
         targetValue = 20f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1400, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "glowElevation"
     )
 
     Box(
-        modifier = modifier
-            .graphicsLayer {
-                shadowElevation = glowElevation.dp.toPx()
-                shape = cornerRadius
-                clip = false
-                ambientShadowColor = PrimaryGold.copy(alpha = glowAlpha)
-                spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
-            }
-            .drawBehind {
-                // Soft fill only — no stroke/border
-                drawRoundRect(
-                    color = backgroundColor,
-                    cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
-                )
-            }
+        modifier =
+            modifier
+                .graphicsLayer {
+                    shadowElevation = glowElevation.dp.toPx()
+                    shape = cornerRadius
+                    clip = false
+                    ambientShadowColor = PrimaryGold.copy(alpha = glowAlpha)
+                    spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
+                }.drawBehind {
+                    // Soft fill only — no stroke/border
+                    drawRoundRect(
+                        color = backgroundColor,
+                        cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
+                    )
+                }
     )
 }
 
@@ -175,11 +177,12 @@ fun BlackjackHandContainer(
                 else -> Dimensions.Hand.MinHeightDefault
             }
 
-        val badgeState = when {
-            isDealer -> ScoreBadgeState.DEALER
-            isActive -> ScoreBadgeState.ACTIVE
-            else -> ScoreBadgeState.WAITING
-        }
+        val badgeState =
+            when {
+                isDealer -> ScoreBadgeState.DEALER
+                isActive -> ScoreBadgeState.ACTIVE
+                else -> ScoreBadgeState.WAITING
+            }
 
         Box(
             modifier =
@@ -194,13 +197,23 @@ fun BlackjackHandContainer(
                     ),
             contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = if (badgeState == ScoreBadgeState.DEALER) Alignment.TopEnd else Alignment.BottomEnd) {
-                Box(
-                    modifier = Modifier.graphicsLayer {
-                        if (isPending) {
-                            alpha = 0.5f
-                        }
+            Box(
+                contentAlignment =
+                    if (badgeState ==
+                        ScoreBadgeState.DEALER
+                    ) {
+                        Alignment.TopEnd
+                    } else {
+                        Alignment.BottomEnd
                     }
+            ) {
+                Box(
+                    modifier =
+                        Modifier.graphicsLayer {
+                            if (isPending) {
+                                alpha = 0.5f
+                            }
+                        }
                 ) {
                     content()
                 }
@@ -208,16 +221,16 @@ fun BlackjackHandContainer(
                 ScoreBadge(
                     score = score,
                     state = badgeState,
-                    modifier = Modifier
-                        .then(
-                            if (badgeState == ScoreBadgeState.DEALER) {
-                                Modifier.offset(x = 10.dp, y = (-12).dp)
-                            } else {
-                                Modifier.offset(x = 12.dp, y = 14.dp)
-                            }
-                        )
-                        .zIndex(2f)
-                        .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
+                    modifier =
+                        Modifier
+                            .then(
+                                if (badgeState == ScoreBadgeState.DEALER) {
+                                    Modifier.offset(x = 10.dp, y = (-12).dp)
+                                } else {
+                                    Modifier.offset(x = 12.dp, y = 14.dp)
+                                }
+                            ).zIndex(2f)
+                            .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
                 )
             }
         }
@@ -228,32 +241,37 @@ fun BlackjackHandContainer(
         // Bet Chip Stack
         if (bet != null) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .offset(x = 12.dp, y = 14.dp)
-                    .zIndex(2f)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .offset(x = 12.dp, y = 14.dp)
+                        .zIndex(2f)
             ) {
                 Column(
-                    modifier = Modifier
-                        .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                        .background(Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
-                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                        .onGloballyPositioned { coords ->
-                            if (onBetPositioned != null) {
-                                onBetPositioned(coords.positionInRoot() + Offset(coords.size.width / 2f, coords.size.height / 2f))
-                            }
-                        }
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    modifier =
+                        Modifier
+                            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
+                            .background(Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
+                            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                            .onGloballyPositioned { coords ->
+                                if (onBetPositioned != null) {
+                                    onBetPositioned(
+                                        coords.positionInRoot() +
+                                            Offset(coords.size.width / 2f, coords.size.height / 2f)
+                                    )
+                                }
+                            }.padding(horizontal = 10.dp, vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = "BET",
                         color = Color.White.copy(alpha = 0.5f),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.sp
-                        )
+                        style =
+                            MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 1.sp
+                            )
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Box(modifier = Modifier.padding(top = 16.dp)) {
@@ -273,21 +291,24 @@ private fun BoxScope.TitleBadge(
     isCompact: Boolean,
     titleStyle: TextStyle,
 ) {
-    val containerColor = when {
-        isDealer -> BackgroundDark
-        isActive -> PrimaryGold
-        else -> Color(0xFF2A2A2A)
-    }
-    val contentColor = when {
-        isDealer -> PrimaryGold
-        isActive -> BackgroundDark
-        else -> Color.White.copy(alpha = 0.7f)
-    }
-    val finalBorderColor = when {
-        isDealer -> PrimaryGold.copy(alpha = 0.5f)
-        isActive -> Color.White.copy(alpha = 0.3f)
-        else -> Color.White.copy(alpha = 0.1f)
-    }
+    val containerColor =
+        when {
+            isDealer -> BackgroundDark
+            isActive -> PrimaryGold
+            else -> Color(0xFF2A2A2A)
+        }
+    val contentColor =
+        when {
+            isDealer -> PrimaryGold
+            isActive -> BackgroundDark
+            else -> Color.White.copy(alpha = 0.7f)
+        }
+    val finalBorderColor =
+        when {
+            isDealer -> PrimaryGold.copy(alpha = 0.5f)
+            isActive -> Color.White.copy(alpha = 0.3f)
+            else -> Color.White.copy(alpha = 0.1f)
+        }
 
     Row(
         modifier =
@@ -355,7 +376,6 @@ private fun BoxScope.StatusBadge(
         )
     }
 }
-
 
 @Composable
 internal fun BoxScope.HandOutcomeBadge(result: HandResult) {

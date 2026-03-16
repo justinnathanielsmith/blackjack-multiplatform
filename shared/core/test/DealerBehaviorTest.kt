@@ -16,7 +16,10 @@ class DealerBehaviorTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -38,7 +41,10 @@ class DealerBehaviorTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.SIX, Rank.SIX), // 12
@@ -59,7 +65,10 @@ class DealerBehaviorTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     playingState(
                         balance = 900,
                         playerHand = hand(Rank.EIGHT, Rank.EIGHT), // 16
@@ -81,7 +90,10 @@ class DealerBehaviorTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.TEN, Rank.EIGHT), // 18
@@ -102,7 +114,10 @@ class DealerBehaviorTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.SEVEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.KING), // BJ
@@ -122,7 +137,10 @@ class DealerBehaviorTest {
             val rules = GameRules(dealerHitsSoft17 = true)
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.TWO), // A+2 = soft 13, after hit A+2+4 = soft 17

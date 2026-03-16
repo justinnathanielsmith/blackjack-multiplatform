@@ -16,7 +16,13 @@ class SideBetPersistenceTest {
                     SideBetType.TWENTY_ONE_PLUS_THREE to 25
                 )
 
-            val stateMachine = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)))
+            val stateMachine =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    )
+                )
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 1000,
@@ -42,7 +48,13 @@ class SideBetPersistenceTest {
                     SideBetType.TWENTY_ONE_PLUS_THREE to 100
                 )
 
-            val stateMachine = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)))
+            val stateMachine =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    )
+                )
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 150,

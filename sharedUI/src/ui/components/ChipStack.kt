@@ -53,16 +53,17 @@ fun ChipStack(
         }
 
     // Keep offsets stable for the same amount
-    val stackOffsets = remember(chips.size) {
-        List(chips.size) { index ->
-            val angle = (index * 137.5f) * (PI / 180f).toFloat() // Golden angle jitter
-            val jitter = 1.0f + (Random.nextFloat() * 1.5f)
-            Offset(
-                x = (Math.cos(angle.toDouble()).toFloat() * jitter),
-                y = -index * 4.5f // slightly taller stack height per chip
-            )
+    val stackOffsets =
+        remember(chips.size) {
+            List(chips.size) { index ->
+                val angle = (index * 137.5f) * (PI / 180f).toFloat() // Golden angle jitter
+                val jitter = 1.0f + (Random.nextFloat() * 1.5f)
+                Offset(
+                    x = (Math.cos(angle.toDouble()).toFloat() * jitter),
+                    y = -index * 4.5f // slightly taller stack height per chip
+                )
+            }
         }
-    }
 
     if (chips.isEmpty() && amount > 0) {
         BetChip(amount = amount, isActive = isActive, modifier = modifier)
@@ -70,7 +71,7 @@ fun ChipStack(
         Box(modifier = modifier, contentAlignment = Alignment.BottomCenter) {
             chips.forEachIndexed { index, denom ->
                 val offset = stackOffsets.getOrElse(index) { Offset(0f, -index * 4.5f) }
-                
+
                 BetChip(
                     amount = if (index == chips.lastIndex) amount else denom,
                     chipColor = getChipColor(denom),

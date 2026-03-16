@@ -20,7 +20,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE, Rank.FOUR),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -50,7 +57,10 @@ class SplitTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.EIGHT),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN),
@@ -74,7 +84,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -91,7 +108,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -107,7 +131,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -131,7 +162,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FOUR, Rank.FIVE),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -165,7 +203,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Hit)
             advanceUntilIdle()
 
@@ -181,7 +226,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FIVE, Rank.THREE),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -213,7 +265,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.EIGHT),
                     deck = persistentListOf(),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -242,7 +301,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SIX),
                     deck = deckOf(Rank.KING),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -270,7 +336,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE, Rank.FOUR),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -298,7 +371,14 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FIVE, Rank.THREE),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -329,7 +409,14 @@ class SplitTest {
                     dealerHand = hand(Rank.SEVEN, Rank.SEVEN),
                     deck = deckOf(Rank.TEN),
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState
+                )
             sm.dispatch(GameAction.Hit)
             advanceUntilIdle()
 

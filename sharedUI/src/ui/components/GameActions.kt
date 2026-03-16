@@ -28,19 +28,19 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.action_double
+import sharedui.generated.resources.action_hit
+import sharedui.generated.resources.action_split
+import sharedui.generated.resources.action_stand
 import sharedui.generated.resources.ic_double
 import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_split
 import sharedui.generated.resources.ic_stand
-import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
-import sharedui.generated.resources.action_hit
-import sharedui.generated.resources.action_stand
-import sharedui.generated.resources.action_double
-import sharedui.generated.resources.action_split
 
 @Composable
 fun GameActions(

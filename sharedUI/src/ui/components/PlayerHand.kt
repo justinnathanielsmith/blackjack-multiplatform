@@ -29,11 +29,12 @@ fun PlayerHand(
     val isWaiting = status == HandStatus.WAITING
 
     val alpha = if (isWaiting) 0.5f else 1.0f
-    val targetScale = when {
-        isActive -> 1.05f
-        isWaiting -> 0.9f
-        else -> 1.0f
-    }
+    val targetScale =
+        when {
+            isActive -> 1.05f
+            isWaiting -> 0.9f
+            else -> 1.0f
+        }
     val animatedScale by animateFloatAsState(targetScale, label = "handScale")
     val scaleModifier = Modifier.scale(animatedScale)
 
@@ -47,9 +48,10 @@ fun PlayerHand(
         isCompact = isCompact,
         isExtraCompact = isExtraCompact,
         onBetPositioned = onBetPositioned,
-        modifier = modifier
-            .then(scaleModifier)
-            .alpha(alpha)
+        modifier =
+            modifier
+                .then(scaleModifier)
+                .alpha(alpha)
     ) {
         HandRow(
             hand = Hand(cards.toPersistentList()),

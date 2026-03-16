@@ -123,9 +123,21 @@ fun Header(
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
-            HeaderIcon("rules", contentDescription = stringResource(Res.string.btn_rules_description), onClick = onRulesClick)
-            HeaderIcon("strategy", contentDescription = stringResource(Res.string.btn_strategy_description), onClick = onStrategyClick)
-            HeaderIcon("settings", contentDescription = stringResource(Res.string.btn_settings_description), onClick = onSettingsClick)
+            HeaderIcon(
+                "rules",
+                contentDescription = stringResource(Res.string.btn_rules_description),
+                onClick = onRulesClick
+            )
+            HeaderIcon(
+                "strategy",
+                contentDescription = stringResource(Res.string.btn_strategy_description),
+                onClick = onStrategyClick
+            )
+            HeaderIcon(
+                "settings",
+                contentDescription = stringResource(Res.string.btn_settings_description),
+                onClick = onSettingsClick
+            )
         }
     }
 }
@@ -224,8 +236,7 @@ internal fun AutoDealIcon(
                             radius = (size.minDimension / 2) * pulseScale2,
                         )
                     }
-                }
-                .graphicsLayer {
+                }.graphicsLayer {
                     scaleX = scale
                     scaleY = scale
                 }.background(backgroundColor, RoundedCornerShape(16.dp))

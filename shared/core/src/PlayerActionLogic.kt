@@ -129,7 +129,7 @@ object PlayerActionLogic {
             } else {
                 updatedState
             }
-        
+
         println("split resulting state: hands=${finalState.playerHands.size}, shouldAdvance=$isAceSplit")
 
         return PlayerActionOutcome(

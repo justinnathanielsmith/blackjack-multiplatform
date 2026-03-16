@@ -174,7 +174,11 @@ data class GameState(
 
 enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
 
-fun determineHandOutcome(hand: Hand, dealerScore: Int, dealerBust: Boolean): HandOutcome {
+fun determineHandOutcome(
+    hand: Hand,
+    dealerScore: Int,
+    dealerBust: Boolean
+): HandOutcome {
     if (hand.isBust) return HandOutcome.LOSS
     val isNaturalBJ = hand.cards.size == 2 && hand.score == 21 && !hand.wasSplit
     return when {

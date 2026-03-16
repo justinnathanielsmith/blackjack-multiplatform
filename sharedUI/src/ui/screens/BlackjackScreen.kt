@@ -44,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -63,7 +62,6 @@ import io.github.smithjustinn.blackjack.determineHandOutcome
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
-import io.github.smithjustinn.blackjack.ui.components.AutoDealIcon
 import io.github.smithjustinn.blackjack.ui.components.DealerHand
 import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
@@ -130,9 +128,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val isMultiHand by remember(state.playerHands.size) { derivedStateOf { state.playerHands.size > 1 } }
     var autoDealPending by remember { mutableStateOf(false) }
 
-    val onAutoDealToggle = remember(component) {
-        { component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) } }
-    }
+    val onAutoDealToggle =
+        remember(component) {
+            { component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) } }
+        }
     val onSettingsClick = remember { { showSettings = true } }
     val onStrategyClick = remember { { showStrategy = true } }
     val onRulesClick = remember { { showRules = true } }
@@ -273,12 +272,13 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     .graphicsLayer { translationX = shakeOffset.value * density },
         ) {
             // Enforce a portrait-like aspect ratio (9:16) if the window is too wide (letterboxing)
-            val gameModifier = if (maxHeight > maxWidth) {
-                Modifier.fillMaxSize()
-            } else {
-                val gameWidth = maxHeight * (9f / 16f)
-                Modifier.size(gameWidth, maxHeight).align(Alignment.Center)
-            }
+            val gameModifier =
+                if (maxHeight > maxWidth) {
+                    Modifier.fillMaxSize()
+                } else {
+                    val gameWidth = maxHeight * (9f / 16f)
+                    Modifier.size(gameWidth, maxHeight).align(Alignment.Center)
+                }
 
             Box(modifier = gameModifier) {
                 Column(
@@ -483,6 +483,13 @@ private fun BlackjackLayout(
     val hands = state.playerHands
     val handCount = hands.size
 
+    val baseCardScale =
+        when (handCount) {
+            1 -> 1.0f
+            2 -> 0.80f
+            else -> 0.68f
+        }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -500,12 +507,14 @@ private fun BlackjackLayout(
             isCompact = handCount > 1,
             isExtraCompact = handCount > 2,
             isSlowReveal = state.dealerDrawIsCritical,
+            scale = baseCardScale,
         )
 
         // Player Hands - Dynamic space between dealer and actions
         DynamicPlayerHandsLayout(
             state = state,
             component = component,
+            baseCardScale = baseCardScale,
             onBetPositioned = { index, offset ->
                 handBetOffsets[index] = offset
             }
@@ -538,6 +547,7 @@ data class ChipEruptionInstance(
 private fun ColumnScope.DynamicPlayerHandsLayout(
     state: GameState,
     component: BlackjackComponent,
+    baseCardScale: Float,
     onBetPositioned: (Int, Offset) -> Unit,
 ) {
     val hands = state.playerHands
@@ -546,24 +556,28 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
     if (handCount == 1) {
         // Single hand: Centered vertically and scaled up
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             val hand = hands[0]
-            val isActive = remember(state.activeHandIndex, state.status) {
-                state.activeHandIndex == 0 && state.status == GameStatus.PLAYING
-            }
-            val bet = remember(state.status, state.currentBet) {
-                if (state.status != GameStatus.IDLE) state.currentBet else null
-            }
+            val isActive =
+                remember(state.activeHandIndex, state.status) {
+                    state.activeHandIndex == 0 && state.status == GameStatus.PLAYING
+                }
+            val bet =
+                remember(state.status, state.currentBet) {
+                    if (state.status != GameStatus.IDLE) state.currentBet else null
+                }
 
-            val status = when {
-                hand.isBust -> HandStatus.BUSTED
-                isActive -> HandStatus.ACTIVE
-                else -> HandStatus.WAITING
-            }
+            val status =
+                when {
+                    hand.isBust -> HandStatus.BUSTED
+                    isActive -> HandStatus.ACTIVE
+                    else -> HandStatus.WAITING
+                }
 
             PlayerHand(
                 handTotal = hand.score,
@@ -572,7 +586,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                 bet = bet,
                 result = state.handResult(0),
                 modifier = Modifier, // no fillMaxHeight, allowing natural centering
-                scale = 1.0f,
+                scale = baseCardScale,
                 isCompact = false,
                 isExtraCompact = false,
                 onBetPositioned = { onBetPositioned(0, it) }
@@ -583,25 +597,26 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
     } else {
         // Multi-hand: Distribute visually with weight modifiers
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val playerCardScale = if (handCount == 2) 0.80f else 0.68f
-
             hands.forEachIndexed { index, hand ->
-                val isActive = remember(index, state.activeHandIndex, state.status) {
-                    index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                }
+                val isActive =
+                    remember(index, state.activeHandIndex, state.status) {
+                        index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                    }
                 val bet = state.playerBets.getOrNull(index)
 
-                val status = when {
-                    hand.isBust -> HandStatus.BUSTED
-                    isActive -> HandStatus.ACTIVE
-                    else -> HandStatus.WAITING
-                }
+                val status =
+                    when {
+                        hand.isBust -> HandStatus.BUSTED
+                        isActive -> HandStatus.ACTIVE
+                        else -> HandStatus.WAITING
+                    }
 
                 // Currently active hand gets slightly more vertical space
                 val layoutWeight = if (isActive) 1.25f else 1.0f
@@ -618,7 +633,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                         result = state.handResult(index),
                         title = stringResource(Res.string.hand_number, index + 1),
                         modifier = Modifier.fillMaxHeight(),
-                        scale = playerCardScale,
+                        scale = baseCardScale,
                         isCompact = true,
                         isExtraCompact = handCount > 2,
                         onBetPositioned = { onBetPositioned(index, it) }

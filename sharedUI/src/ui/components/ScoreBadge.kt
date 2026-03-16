@@ -33,76 +33,84 @@ fun ScoreBadge(
     state: ScoreBadgeState,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = when (state) {
-        ScoreBadgeState.ACTIVE -> PrimaryGold
-        ScoreBadgeState.DEALER -> Color.White
-        ScoreBadgeState.WAITING -> Color(0xFF2A2A2A)
-    }
+    val backgroundColor =
+        when (state) {
+            ScoreBadgeState.ACTIVE -> PrimaryGold
+            ScoreBadgeState.DEALER -> Color.White
+            ScoreBadgeState.WAITING -> Color(0xFF2A2A2A)
+        }
 
-    val borderColor = when (state) {
-        ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.3f)
-        ScoreBadgeState.DEALER -> Color.Transparent
-        ScoreBadgeState.WAITING -> Color.White.copy(alpha = 0.3f)
-    }
+    val borderColor =
+        when (state) {
+            ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.3f)
+            ScoreBadgeState.DEALER -> Color.Transparent
+            ScoreBadgeState.WAITING -> Color.White.copy(alpha = 0.3f)
+        }
 
-    val textColor = when (state) {
-        ScoreBadgeState.ACTIVE -> BackgroundDark
-        ScoreBadgeState.DEALER -> BackgroundDark
-        ScoreBadgeState.WAITING -> Color.White.copy(alpha = 0.9f)
-    }
+    val textColor =
+        when (state) {
+            ScoreBadgeState.ACTIVE -> BackgroundDark
+            ScoreBadgeState.DEALER -> BackgroundDark
+            ScoreBadgeState.WAITING -> Color.White.copy(alpha = 0.9f)
+        }
 
     // Spring animation for entrance/exit
     AnimatedVisibility(
         visible = score > 0,
-        enter = scaleIn(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            )
-        ) + fadeIn(),
+        enter =
+            scaleIn(
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+            ) + fadeIn(),
         exit = scaleOut() + fadeOut(),
         modifier = modifier
     ) {
         // Subtle pulse animation when score changes
         val pulseScale = remember { Animatable(1f) }
-        
+
         LaunchedEffect(score) {
             if (score > 0) {
                 pulseScale.animateTo(
                     targetValue = 1.15f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessHigh
-                    )
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessHigh
+                        )
                 )
                 pulseScale.animateTo(
                     targetValue = 1f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
                 )
             }
         }
 
         Box(
-            modifier = Modifier
-                .graphicsLayer {
-                    scaleX = pulseScale.value
-                    scaleY = pulseScale.value
-                }
-                .background(backgroundColor, BadgeShape)
-                .border(1.dp, borderColor, BadgeShape)
-                .padding(horizontal = 12.dp, vertical = 4.dp),
+            modifier =
+                Modifier
+                    .graphicsLayer {
+                        scaleX = pulseScale.value
+                        scaleY = pulseScale.value
+                    }.background(backgroundColor, BadgeShape)
+                    .border(1.dp, borderColor, BadgeShape)
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
             AnimatedContent(
                 targetState = score,
                 transitionSpec = {
-                    val springSpec = spring<Float>(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
+                    val springSpec =
+                        spring<Float>(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
                     (scaleIn(animationSpec = springSpec) + fadeIn())
                         .togetherWith(scaleOut() + fadeOut())
                 },

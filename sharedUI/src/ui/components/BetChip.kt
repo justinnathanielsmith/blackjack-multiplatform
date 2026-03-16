@@ -103,25 +103,27 @@ fun BetChip(
 
             // Main top surface with a subtle gradient for gloss
             drawCircle(
-                brush = Brush.radialGradient(
-                    0.0f to chipColor.copy(alpha = 1f),
-                    0.7f to chipColor.copy(alpha = 0.95f),
-                    1.0f to chipColor.copy(alpha = 0.9f),
-                    center = center,
-                    radius = radius
-                ),
+                brush =
+                    Brush.radialGradient(
+                        0.0f to chipColor.copy(alpha = 1f),
+                        0.7f to chipColor.copy(alpha = 0.95f),
+                        1.0f to chipColor.copy(alpha = 0.9f),
+                        center = center,
+                        radius = radius
+                    ),
                 radius = radius,
                 center = center
             )
 
             // Gloss highlight at the top
             drawCircle(
-                brush = Brush.radialGradient(
-                    0.0f to Color.White.copy(alpha = 0.25f),
-                    1.0f to Color.Transparent,
-                    center = center.copy(y = center.y - radius * 0.4f),
-                    radius = radius * 0.6f
-                ),
+                brush =
+                    Brush.radialGradient(
+                        0.0f to Color.White.copy(alpha = 0.25f),
+                        1.0f to Color.Transparent,
+                        center = center.copy(y = center.y - radius * 0.4f),
+                        radius = radius * 0.6f
+                    ),
                 radius = radius * 0.6f,
                 center = center.copy(y = center.y - radius * 0.4f)
             )

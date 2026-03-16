@@ -105,50 +105,54 @@ fun BettingPhaseScreen(
                 .background(Color.Black.copy(alpha = 0.55f))
                 .windowInsetsPadding(safeDrawingInsets())
     ) {
-    val placeBetOnArea: (GameAction, Offset, Int) -> Unit = remember(audioService, component) {
-        { action, offset, amount ->
-            audioService.playEffect(AudioService.SoundEffect.CLICK)
-            component.onAction(action)
-            if (offset != Offset.Zero) {
-                flyingChips.add(
-                    FlyingChip(
-                        id = (0..Long.MAX_VALUE).random(),
-                        startOffset =
-                            Offset(
-                                x = offset.x + (-10..10).random(),
-                                y = offset.y + (-10..10).random()
+        val placeBetOnArea: (GameAction, Offset, Int) -> Unit =
+            remember(audioService, component) {
+                { action, offset, amount ->
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onAction(action)
+                    if (offset != Offset.Zero) {
+                        flyingChips.add(
+                            FlyingChip(
+                                id = (0..Long.MAX_VALUE).random(),
+                                startOffset =
+                                    Offset(
+                                        x = offset.x + (-10..10).random(),
+                                        y = offset.y + (-10..10).random()
+                                    ),
+                                // Slight jitter for multiple chips
+                                amount = amount,
+                                color = ChipUtils.chipColor(amount),
+                                textColor = ChipUtils.chipTextColor(amount),
                             ),
-                        // Slight jitter for multiple chips
-                        amount = amount,
-                        color = ChipUtils.chipColor(amount),
-                        textColor = ChipUtils.chipTextColor(amount),
-                    ),
-                )
+                        )
+                    }
+                }
             }
-        }
-    }
 
-    val onResetBet = remember(audioService, component) {
-        {
-            audioService.playEffect(AudioService.SoundEffect.CLICK)
-            component.onAction(GameAction.ResetBet)
-            component.onAction(GameAction.ResetSideBets)
-        }
-    }
+        val onResetBet =
+            remember(audioService, component) {
+                {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onAction(GameAction.ResetBet)
+                    component.onAction(GameAction.ResetSideBets)
+                }
+            }
 
-    val onDeal = remember(audioService, component) {
-        {
-            audioService.playEffect(AudioService.SoundEffect.FLIP)
-            component.onAction(GameAction.Deal)
-        }
-    }
+        val onDeal =
+            remember(audioService, component) {
+                {
+                    audioService.playEffect(AudioService.SoundEffect.FLIP)
+                    component.onAction(GameAction.Deal)
+                }
+            }
 
-    val onChipSelected = remember(audioService) {
-        { amount: Int ->
-            selectedAmount = amount
-            audioService.playEffect(AudioService.SoundEffect.PLINK)
-        }
-    }
+        val onChipSelected =
+            remember(audioService) {
+                { amount: Int ->
+                    selectedAmount = amount
+                    audioService.playEffect(AudioService.SoundEffect.PLINK)
+                }
+            }
 
         Column(
             modifier =

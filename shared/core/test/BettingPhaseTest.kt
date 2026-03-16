@@ -6,7 +6,6 @@ import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -16,7 +15,14 @@ class BettingPhaseTest {
     @Test
     fun placeBet_decreasesBalanceAndIncreasesCurrentBet() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.PlaceBet(100))
@@ -31,7 +37,14 @@ class BettingPhaseTest {
     @Test
     fun placeBet_multipleChipsAccumulate() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.PlaceBet(50))
@@ -47,7 +60,14 @@ class BettingPhaseTest {
     @Test
     fun placeBet_rejectedWhenAmountExceedsBalance() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING, balance = 100, currentBet = 0))
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING, balance = 100, currentBet = 0)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.PlaceBet(200))
@@ -59,7 +79,14 @@ class BettingPhaseTest {
     @Test
     fun placeBet_rejectedWhenAmountZeroOrNegative() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.PlaceBet(0))
@@ -74,7 +101,13 @@ class BettingPhaseTest {
     fun placeBet_ignoredWhenNotInBettingPhase() =
         runTest {
             val sm =
-                BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.PLAYING, balance = 1000, currentBet = 100))
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.PLAYING, balance = 1000, currentBet = 100)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.PlaceBet(50))
@@ -89,7 +122,13 @@ class BettingPhaseTest {
     fun resetBet_restoresBalanceAndClearsCurrentBet() =
         runTest {
             val sm =
-                BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100))
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.ResetBet)
@@ -105,7 +144,13 @@ class BettingPhaseTest {
     fun resetBet_ignoredWhenNotInBettingPhase() =
         runTest {
             val sm =
-                BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.PLAYING, balance = 900, currentBet = 100))
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.PLAYING, balance = 900, currentBet = 100)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.ResetBet)
@@ -119,7 +164,14 @@ class BettingPhaseTest {
     @Test
     fun selectHandCount_updatesHandCount() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.SelectHandCount(3))
@@ -144,7 +196,15 @@ class BettingPhaseTest {
                     playerBets = kotlinx.collections.immutable.persistentListOf(100),
                     handCount = 1,
                 )
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState, isTest = true)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState,
+                    isTest = true
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.SelectHandCount(2))
@@ -156,7 +216,14 @@ class BettingPhaseTest {
     @Test
     fun selectHandCount_ignoresInvalidValues() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0))
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.SelectHandCount(0))
@@ -173,7 +240,10 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100, handCount = 1)
                 )
             sm.state.test {
@@ -191,7 +261,10 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3)
                 )
             sm.state.test {
@@ -208,7 +281,15 @@ class BettingPhaseTest {
     fun selectHandCount_rejectedIfInsufficientBalance() =
         runTest {
             val initialState = GameState(status = GameStatus.BETTING, balance = 50, currentBet = 100, handCount = 1)
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState, isTest = true)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState,
+                    isTest = true
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.SelectHandCount(2))
@@ -222,7 +303,10 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, handCount = 1)
                 )
             sm.state.test {
@@ -242,7 +326,10 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 100, handCount = 2)
                 )
             sm.state.test {
@@ -261,7 +348,10 @@ class BettingPhaseTest {
             // 3 hands, bet=100: all 3 hands already paid via PlaceBet → balance=700
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3)
                 )
             sm.state.test {
@@ -276,7 +366,15 @@ class BettingPhaseTest {
     fun placeBet_rejectedWhenTotalCostExceedsBalance() =
         runTest {
             val initialState = GameState(status = GameStatus.BETTING, balance = 25, currentBet = 0, handCount = 3)
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), initialState, isTest = true)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    initialState,
+                    isTest = true
+                )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.PlaceBet(10)) // total cost = 30 > 25
@@ -290,7 +388,10 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, handCount = 3)
                 )
             sm.state.test {
@@ -308,7 +409,10 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3)
                 )
             sm.state.test {
@@ -328,7 +432,10 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)),
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
                     GameState(status = GameStatus.DEALER_WON, balance = 800, currentBet = 0, handCount = 3)
                 )
             sm.state.test {
@@ -344,12 +451,19 @@ class BettingPhaseTest {
     @Test
     fun newGame_usesRulesDeckCount() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), isTest = true)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    isTest = true
+                )
             sm.dispatch(GameAction.NewGame(rules = GameRules(deckCount = 2)))
             sm.dispatch(GameAction.PlaceBet(100))
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
-            
+
             // 2 decks = 104 cards; dealt 4 = 100 remaining
             assertEquals(100, sm.state.value.deck.size)
         }
@@ -357,12 +471,19 @@ class BettingPhaseTest {
     @Test
     fun newGame_defaultDeckCountIs6() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), isTest = true)
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    isTest = true
+                )
             sm.dispatch(GameAction.NewGame())
             sm.dispatch(GameAction.PlaceBet(100))
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
-            
+
             // 6 decks = 312 cards; dealt 4 = 308 remaining
             assertEquals(308, sm.state.value.deck.size)
         }
@@ -370,7 +491,14 @@ class BettingPhaseTest {
     @Test
     fun updateRules_updatesGameRules() =
         runTest {
-            val sm = BlackjackStateMachine(kotlinx.coroutines.CoroutineScope(backgroundScope.coroutineContext + kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)), GameState(status = GameStatus.BETTING))
+            val sm =
+                BlackjackStateMachine(
+                    kotlinx.coroutines.CoroutineScope(
+                        backgroundScope.coroutineContext +
+                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
+                    ),
+                    GameState(status = GameStatus.BETTING)
+                )
             val newRules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE)
             sm.state.test {
                 awaitItem() // initial state

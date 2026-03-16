@@ -14,14 +14,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 
@@ -43,9 +39,10 @@ class BlackjackStateMachine(
 
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
     private val _isShutdown = MutableStateFlow(false)
-    val effects: Flow<GameEffect> = _isShutdown
-        .takeWhile { !it }
-        .flatMapLatest { _effects.asSharedFlow() }
+    val effects: Flow<GameEffect> =
+        _isShutdown
+            .takeWhile { !it }
+            .flatMapLatest { _effects.asSharedFlow() }
 
     private val actionChannel = Channel<GameAction>(Channel.UNLIMITED)
 
@@ -56,7 +53,14 @@ class BlackjackStateMachine(
                 for (action in actionChannel) {
                     println("SM received action: $action")
                     when (action) {
-                        is GameAction.NewGame -> handleNewGame(action.initialBalance, action.rules, action.handCount, action.lastBet, action.lastSideBets)
+                        is GameAction.NewGame ->
+                            handleNewGame(
+                                action.initialBalance,
+                                action.rules,
+                                action.handCount,
+                                action.lastBet,
+                                action.lastSideBets
+                            )
                         is GameAction.Surrender -> handleSurrender()
                         is GameAction.Deal -> {
                             println("SM handling Deal action")
@@ -286,7 +290,6 @@ class BlackjackStateMachine(
 
         var remainingBalance = newBalance - clampedBet * handCount
         val totalSideBetCost = lastSideBets.values.sum()
-
 
         val finalSideBets: PersistentMap<SideBetType, Int>
         val postSideBetBalance: Int
