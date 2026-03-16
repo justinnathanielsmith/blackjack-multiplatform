@@ -1,6 +1,8 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -25,7 +27,13 @@ fun PlayerHand(
     val isWaiting = status == HandStatus.WAITING
 
     val alpha = if (isWaiting) 0.5f else 1.0f
-    val scaleModifier = if (isWaiting) Modifier.scale(0.9f) else Modifier
+    val targetScale = when {
+        isActive -> 1.05f
+        isWaiting -> 0.9f
+        else -> 1.0f
+    }
+    val animatedScale by animateFloatAsState(targetScale, label = "handScale")
+    val scaleModifier = Modifier.scale(animatedScale)
 
     BlackjackHandContainer(
         score = handTotal,

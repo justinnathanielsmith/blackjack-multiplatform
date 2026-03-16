@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.drawscope.Stroke
 import io.github.smithjustinn.blackjack.ui.theme.*
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.*
@@ -51,19 +50,19 @@ private fun ActiveGlowLayer(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1.0f,
+        initialValue = 0.3f,
+        targetValue = 0.8f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
+            animation = tween(1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "glowAlpha"
     )
     val glowElevation by infiniteTransition.animateFloat(
-        initialValue = 4f,
-        targetValue = 12f,
+        initialValue = 6f,
+        targetValue = 20f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
+            animation = tween(1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "glowElevation"
@@ -79,16 +78,10 @@ private fun ActiveGlowLayer(
                 spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
             }
             .drawBehind {
+                // Soft fill only — no stroke/border
                 drawRoundRect(
                     color = backgroundColor,
                     cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
-                )
-                val currentBorderWidth = (2.5.dp + (0.5.dp * glowAlpha)).toPx()
-                val currentBorderColor = PrimaryGold.copy(alpha = 0.6f + (0.4f * glowAlpha))
-                drawRoundRect(
-                    color = currentBorderColor,
-                    cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
-                    style = Stroke(width = currentBorderWidth)
                 )
             }
     )
