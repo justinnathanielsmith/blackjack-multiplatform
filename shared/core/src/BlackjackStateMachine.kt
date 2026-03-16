@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
+import io.github.smithjustinn.blackjack.utils.secureRandom
 
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
@@ -267,7 +268,7 @@ class BlackjackStateMachine(
                     Suit.entries.flatMap { suit ->
                         Rank.entries.map { rank -> Card(rank, suit) }
                     }
-                }.shuffled()
+                }.shuffled(secureRandom)
         }
     }
 
