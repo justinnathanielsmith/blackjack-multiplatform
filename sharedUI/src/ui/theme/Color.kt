@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.Color
 // Premium Design Tokens
 val PrimaryGold = Color(0xFFF2D00D)
 val FeltGreen = Color(0xFF1A4A2E)
+val FeltWarmCenter = Color(0xFF246641)
+val FeltDeepEdge = Color(0xFF0A1F13)
 val FeltDark = Color(0xFF0D2B1A)
 val BackgroundDark = Color(0xFF0A0A05)
 val GlassDark = Color(0x66000000)

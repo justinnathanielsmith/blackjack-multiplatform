@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -79,8 +80,9 @@ import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import io.github.smithjustinn.blackjack.ui.theme.FeltDark
+import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
+import io.github.smithjustinn.blackjack.ui.theme.FeltWarmCenter
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -232,11 +234,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
     }
 
     val backgroundBrush =
-        remember(FeltGreen, FeltDark) {
+        remember(FeltWarmCenter, FeltGreen, FeltDeepEdge) {
             Brush.radialGradient(
-                0.0f to FeltGreen,
-                1.0f to FeltDark,
-                radius = 2000f,
+                0.0f to FeltWarmCenter,
+                0.5f to FeltGreen,
+                1.0f to FeltDeepEdge,
             )
         }
 
