@@ -2,6 +2,7 @@
 
 package io.github.smithjustinn.blackjack
 
+import io.github.smithjustinn.blackjack.utils.secureRandom
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
-import io.github.smithjustinn.blackjack.utils.secureRandom
 
 class BlackjackStateMachine(
     private val scope: CoroutineScope,

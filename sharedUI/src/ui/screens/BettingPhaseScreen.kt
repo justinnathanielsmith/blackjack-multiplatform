@@ -45,6 +45,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -292,8 +295,11 @@ private fun BetSpot(
                         width = 2.dp,
                         color = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0.5f),
                         shape = CircleShape
-                    ).clickable { onClick() }
-                    .onGloballyPositioned {
+                    ).clickable(role = Role.Button) { onClick() }
+                    .semantics {
+                        contentDescription =
+                            if (currentBet > 0) "Bet spot with $currentBet" else "Tap to place bet"
+                    }.onGloballyPositioned {
                         val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
                         onPositioned(center)
                     },
@@ -370,7 +376,11 @@ private fun SideBetSlot(
                         elevation = if (amount > 0) (8 * glowAlpha).dp else 0.dp,
                         shape = CircleShape,
                         spotColor = PrimaryGold.copy(alpha = if (amount > 0) glowAlpha else 0f)
-                    ).clickable { onClick() },
+                    ).clickable(role = Role.Button) { onClick() }
+                    .semantics {
+                        contentDescription =
+                            if (amount > 0) "Side bet $label with $amount" else "Tap to place $label side bet"
+                    },
             contentAlignment = Alignment.Center
         ) {
             if (amount > 0) {

@@ -28,6 +28,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,6 +64,12 @@ fun BetChip(
 
     val chipSize = if (isActive) 56.dp else 48.dp
 
+    val displayAmount =
+        when {
+            amount >= 1000 -> "${amount / 1000}K"
+            else -> amount.toString()
+        }
+
     Box(
         modifier =
             modifier
@@ -75,12 +84,16 @@ fun BetChip(
                     spotColor = if (isActive) chipColor.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.3f),
                 ).then(
                     if (onClick != null) {
-                        Modifier.clickable(
-                            interactionSource = interactionSource,
-                            indication = null,
-                            enabled = enabled,
-                            onClick = onClick,
-                        )
+                        Modifier
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null,
+                                enabled = enabled,
+                                role = Role.Button,
+                                onClick = onClick,
+                            ).semantics {
+                                contentDescription = "Bet chip $displayAmount"
+                            }
                     } else {
                         Modifier
                     }
@@ -178,12 +191,6 @@ fun BetChip(
                     .padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
-            val displayAmount =
-                when {
-                    amount >= 1000 -> "${amount / 1000}K"
-                    else -> amount.toString()
-                }
-
             Text(
                 text = displayAmount,
                 color = if (enabled) textColor else textColor.copy(alpha = 0.4f),
