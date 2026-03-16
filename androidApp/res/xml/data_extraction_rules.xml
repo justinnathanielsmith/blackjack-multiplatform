@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- DataStore creates files in the 'datastore' sub-directory of the app's standard files directory -->
+        <exclude domain="file" path="datastore/blackjack.preferences_pb"/>
+    </cloud-backup>
+
+    <device-transfer>
+        <exclude domain="file" path="datastore/blackjack.preferences_pb"/>
+    </device-transfer>
+</data-extraction-rules>

@@ -1,0 +1,4 @@
+## 2024-10-30 - Granular Backup Rules for DataStore
+**Vulnerability:** DataStore preferences (`blackjack.preferences_pb`) containing application settings and potentially sensitive user balance state were being backed up to Google Drive automatically due to default `allowBackup="true"`.
+**Learning:** `allowBackup="true"` should not be generically disabled if only parts of the app data are sensitive. Instead, granular Android 12+ `dataExtractionRules` and backward-compatible `fullBackupContent` rules should be implemented. DataStore saves files inside the app's `files/datastore` directory, so it falls under the `domain="file"` for exclusions.
+**Prevention:** Always define granular XML exclusion rules for Jetpack DataStore, SharedPreferences, and SQLite databases rather than relying on global backup settings.
