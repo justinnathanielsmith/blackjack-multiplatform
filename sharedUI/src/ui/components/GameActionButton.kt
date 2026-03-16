@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -96,6 +97,7 @@ fun GameActionButton(
                     interactionSource = interactionSource,
                     indication = null,
                     enabled = enabled,
+                    role = Role.Button,
                     onClick = onClick
                 ).padding(2.dp),
         contentAlignment = Alignment.Center

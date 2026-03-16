@@ -1,0 +1,3 @@
+## 2024-05-18 - Added Semantics and Button Roles to Custom Composables
+**Learning:** In Compose Multiplatform, using `.clickable { ... }` on a `Box` or `Canvas` to create a custom button does not automatically expose it as a button to screen readers. Elements like `BetSpot`, `BetChip`, and `CasinoButton` were functioning interactively but lacked correct accessibility roles and descriptions.
+**Action:** Always include `role = Role.Button` in `.clickable(role = Role.Button) { ... }` when creating custom button components. Additionally, for interactive elements that are essentially custom controls (like betting spots), ensure a `semantics { contentDescription = "..." }` is provided so screen readers describe the action (e.g., "Tap to place bet").
