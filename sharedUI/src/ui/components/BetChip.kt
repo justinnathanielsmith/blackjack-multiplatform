@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -95,22 +96,40 @@ fun BetChip(
 
             // Draw the "side" of the chip for 3D depth
             drawCircle(
-                color = chipColor.copy(alpha = 0.7f),
+                color = chipColor.copy(alpha = 0.8f),
                 radius = radius,
                 center = center.copy(y = center.y + depthOffset)
             )
 
-            // Main top surface
+            // Main top surface with a subtle gradient for gloss
             drawCircle(
-                color = chipColor,
+                brush = Brush.radialGradient(
+                    0.0f to chipColor.copy(alpha = 1f),
+                    0.7f to chipColor.copy(alpha = 0.95f),
+                    1.0f to chipColor.copy(alpha = 0.9f),
+                    center = center,
+                    radius = radius
+                ),
                 radius = radius,
                 center = center
             )
 
+            // Gloss highlight at the top
+            drawCircle(
+                brush = Brush.radialGradient(
+                    0.0f to Color.White.copy(alpha = 0.25f),
+                    1.0f to Color.Transparent,
+                    center = center.copy(y = center.y - radius * 0.4f),
+                    radius = radius * 0.6f
+                ),
+                radius = radius * 0.6f,
+                center = center.copy(y = center.y - radius * 0.4f)
+            )
+
             // Outer rim highlights
             drawCircle(
-                color = Color.White.copy(alpha = 0.3f),
-                radius = radius,
+                color = Color.White.copy(alpha = 0.4f),
+                radius = radius - 0.5.dp.toPx(),
                 center = center,
                 style = Stroke(width = 1.dp.toPx())
             )
@@ -119,12 +138,12 @@ fun BetChip(
             val dashLength = (radius * 2 * PI / 12).toFloat()
             if (dashLength > 0f) {
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.6f),
-                    radius = radius * 0.92f,
+                    color = Color.White.copy(alpha = 0.7f),
+                    radius = radius * 0.94f,
                     center = center,
                     style =
                         Stroke(
-                            width = 4.dp.toPx(),
+                            width = 3.5.dp.toPx(),
                             pathEffect =
                                 PathEffect.dashPathEffect(
                                     floatArrayOf(dashLength / 2, dashLength / 2),
@@ -134,17 +153,17 @@ fun BetChip(
                 )
             }
 
-            // Inner circle highlight
+            // Inner circle highlight (recessed look)
             drawCircle(
-                color = Color.Black.copy(alpha = 0.1f),
+                color = Color.Black.copy(alpha = 0.15f),
                 radius = radius * 0.75f,
                 center = center,
-                style = Stroke(width = 2.dp.toPx())
+                style = Stroke(width = 1.5.dp.toPx())
             )
 
             // Center inlay
             drawCircle(
-                color = Color.White.copy(alpha = 0.15f),
+                color = Color.White.copy(alpha = 0.12f),
                 radius = radius * 0.65f,
                 center = center
             )

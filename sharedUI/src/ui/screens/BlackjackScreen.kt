@@ -37,6 +37,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -138,6 +139,27 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val onDismissSettings = remember { { showSettings = false } }
     val onDismissRules = remember { { showRules = false } }
     val onDismissStrategy = remember { { showStrategy = false } }
+
+    val activePayouts = remember { mutableStateListOf<PayoutInstance>() }
+    val handBetOffsets = remember { mutableStateMapOf<Int, Offset>() }
+
+    // Trigger payout animations when results are calculated and it's a win
+    LaunchedEffect(state.status, state.playerHands) {
+        if (state.status.isTerminal()) {
+            state.playerHands.forEachIndexed { index, _ ->
+                val result = state.handResult(index)
+                if (result == HandResult.WIN) {
+                    val bet = state.playerBets.getOrNull(index) ?: 0
+                    if (bet > 0) {
+                        // Delay slightly so it doesn't happen instantly with the result badge
+                        delay(200)
+                        val target = handBetOffsets[index] ?: Offset.Zero
+                        activePayouts.add(PayoutInstance(Random.nextLong(), bet, target))
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.PLAYER_WON) {
@@ -293,6 +315,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             state = state,
                             component = component,
                             nearMissHandIndex = nearMissHandIndex,
+                            handBetOffsets = handBetOffsets,
                         )
                     }
                 }
@@ -367,6 +390,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     }
                     chipLosses.forEach { amount ->
                         ChipLossEffect(amount = amount)
+                    }
+
+                    activePayouts.forEach { instance ->
+                        key(instance.id) {
+                            io.github.smithjustinn.blackjack.ui.effects.PayoutEffect(
+                                amount = instance.amount,
+                                targetOffset = instance.targetOffset,
+                                onAnimationEnd = { activePayouts.remove(instance) }
+                            )
+                        }
                     }
                 }
             }
@@ -445,6 +478,7 @@ private fun BlackjackLayout(
     state: GameState,
     component: BlackjackComponent,
     nearMissHandIndex: Int? = null,
+    handBetOffsets: MutableMap<Int, Offset>,
 ) {
     val hands = state.playerHands
     val handCount = hands.size
@@ -471,7 +505,10 @@ private fun BlackjackLayout(
         // Player Hands - Dynamic space between dealer and actions
         DynamicPlayerHandsLayout(
             state = state,
-            component = component
+            component = component,
+            onBetPositioned = { index, offset ->
+                handBetOffsets[index] = offset
+            }
         )
 
         Spacer(modifier = Modifier.height(if (handCount > 1) 8.dp else 12.dp))
@@ -485,6 +522,12 @@ private fun BlackjackLayout(
     }
 }
 
+data class PayoutInstance(
+    val id: Long,
+    val amount: Int,
+    val targetOffset: Offset
+)
+
 data class ChipEruptionInstance(
     val id: Long,
     val amount: Int,
@@ -495,6 +538,7 @@ data class ChipEruptionInstance(
 private fun ColumnScope.DynamicPlayerHandsLayout(
     state: GameState,
     component: BlackjackComponent,
+    onBetPositioned: (Int, Offset) -> Unit,
 ) {
     val hands = state.playerHands
     val handCount = hands.size
@@ -530,7 +574,8 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                 modifier = Modifier, // no fillMaxHeight, allowing natural centering
                 scale = 1.0f,
                 isCompact = false,
-                isExtraCompact = false
+                isExtraCompact = false,
+                onBetPositioned = { onBetPositioned(0, it) }
             )
 
             SideBetResultsOverlay(state = state)
@@ -575,7 +620,8 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                         modifier = Modifier.fillMaxHeight(),
                         scale = playerCardScale,
                         isCompact = true,
-                        isExtraCompact = handCount > 2
+                        isExtraCompact = handCount > 2,
+                        onBetPositioned = { onBetPositioned(index, it) }
                     )
 
                     if (index == 0) {

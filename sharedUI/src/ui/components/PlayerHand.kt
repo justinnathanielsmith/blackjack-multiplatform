@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Hand
 import kotlinx.collections.immutable.toPersistentList
@@ -20,6 +21,7 @@ fun PlayerHand(
     title: String? = null,
     isCompact: Boolean = false,
     isExtraCompact: Boolean = false,
+    onBetPositioned: ((Offset) -> Unit)? = null,
     modifier: Modifier = Modifier,
     scale: Float = 1.0f
 ) {
@@ -44,6 +46,7 @@ fun PlayerHand(
         result = result,
         isCompact = isCompact,
         isExtraCompact = isExtraCompact,
+        onBetPositioned = onBetPositioned,
         modifier = modifier
             .then(scaleModifier)
             .alpha(alpha)

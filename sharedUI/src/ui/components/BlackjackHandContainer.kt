@@ -11,16 +11,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import io.github.smithjustinn.blackjack.ui.theme.*
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.*
@@ -103,6 +106,7 @@ fun BlackjackHandContainer(
     isExtraCompact: Boolean = false,
     isDealer: Boolean = false,
     modifier: Modifier = Modifier,
+    onBetPositioned: ((Offset) -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val isAnyCompact = isCompact || isExtraCompact
@@ -234,6 +238,11 @@ fun BlackjackHandContainer(
                         .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
                         .background(Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
                         .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                        .onGloballyPositioned { coords ->
+                            if (onBetPositioned != null) {
+                                onBetPositioned(coords.positionInRoot() + Offset(coords.size.width / 2f, coords.size.height / 2f))
+                            }
+                        }
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
