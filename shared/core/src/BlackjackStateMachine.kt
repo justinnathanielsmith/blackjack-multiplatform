@@ -2,6 +2,7 @@
 
 package io.github.smithjustinn.blackjack
 
+import io.github.smithjustinn.blackjack.utils.secureRandom
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
-import io.github.smithjustinn.blackjack.utils.secureRandom
 
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
@@ -267,12 +267,17 @@ class BlackjackStateMachine(
 
     private fun getInitialDeck(current: GameState): List<Card> {
         return current.deck.ifEmpty {
-            (1..current.rules.deckCount)
-                .flatMap {
-                    Suit.entries.flatMap { suit ->
-                        Rank.entries.map { rank -> Card(rank, suit) }
+            val deckSize = current.rules.deckCount * 52
+            val newDeck = ArrayList<Card>(deckSize)
+            for (i in 1..current.rules.deckCount) {
+                for (suit in Suit.entries) {
+                    for (rank in Rank.entries) {
+                        newDeck.add(Card(rank, suit))
                     }
-                }.shuffled(secureRandom)
+                }
+            }
+            newDeck.shuffle(secureRandom)
+            newDeck
         }
     }
 
