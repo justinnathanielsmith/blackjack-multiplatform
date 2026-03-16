@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -162,7 +163,7 @@ fun PlayingCard(
     Box(
         modifier =
             modifier
-                .width(Dimensions.Card.StandardWidth * scale)
+                .requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .shadow(elevation = 12.dp, shape = RoundedCornerShape(8.dp), clip = false)
                 .graphicsLayer {
