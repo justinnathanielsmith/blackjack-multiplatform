@@ -27,7 +27,7 @@ data class StrategyCell(
 )
 
 object StrategyProvider {
-    fun getHardStrategy(): List<StrategyCell> =
+    private val hardStrategy: List<StrategyCell> =
         listOf(
             StrategyCell("17+", (2..11).associateWith { StrategyAction.STAND }),
             StrategyCell(
@@ -84,7 +84,7 @@ object StrategyProvider {
             StrategyCell("8 or less", (2..11).associateWith { StrategyAction.HIT })
         )
 
-    fun getSoftStrategy(): List<StrategyCell> =
+    private val softStrategy: List<StrategyCell> =
         listOf(
             StrategyCell("A,9", (2..11).associateWith { StrategyAction.STAND }),
             StrategyCell("A,8", (2..11).associateWith { StrategyAction.STAND }),
@@ -180,7 +180,7 @@ object StrategyProvider {
             )
         )
 
-    fun getPairsStrategy(): List<StrategyCell> =
+    private val pairsStrategy: List<StrategyCell> =
         listOf(
             StrategyCell("A,A", (2..11).associateWith { StrategyAction.SPLIT }),
             StrategyCell("10,10", (2..11).associateWith { StrategyAction.STAND }),
@@ -232,4 +232,10 @@ object StrategyProvider {
                 (2..7).associateWith { StrategyAction.SPLIT } + (8..11).associateWith { StrategyAction.HIT }
             )
         )
+
+    fun getHardStrategy(): List<StrategyCell> = hardStrategy
+
+    fun getSoftStrategy(): List<StrategyCell> = softStrategy
+
+    fun getPairsStrategy(): List<StrategyCell> = pairsStrategy
 }
