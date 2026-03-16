@@ -113,12 +113,6 @@ fun BlackjackHandContainer(
     content: @Composable BoxScope.() -> Unit,
 ) {
     val isAnyCompact = isCompact || isExtraCompact
-    val borderColor =
-        when {
-            isDealer -> PrimaryGold.copy(alpha = 0.2f)
-            isPending -> GlassLight
-            else -> Color.White.copy(alpha = 0.05f)
-        }
     val backgroundColor =
         when {
             isDealer -> BackgroundDark.copy(alpha = 0.9f)
@@ -148,23 +142,6 @@ fun BlackjackHandContainer(
                 cornerRadius = cornerRadius,
                 backgroundColor = backgroundColor,
                 modifier = Modifier.matchParentSize().padding(vertical = 6.dp),
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .padding(vertical = 6.dp)
-                    .drawBehind {
-                        drawRoundRect(
-                            color = backgroundColor,
-                            cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
-                        )
-                        drawRoundRect(
-                            color = borderColor,
-                            cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
-                            style = Stroke(width = 1.dp.toPx())
-                        )
-                    }
             )
         }
 

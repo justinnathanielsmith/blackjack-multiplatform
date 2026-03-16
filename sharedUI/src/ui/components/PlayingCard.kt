@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -289,6 +290,7 @@ fun PlayingCard(
             modifier
                 .width(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
+                .shadow(elevation = 12.dp, shape = RoundedCornerShape(8.dp), clip = false)
                 .graphicsLayer {
                     translationY = offsetY.value
                     rotationY = rotation
