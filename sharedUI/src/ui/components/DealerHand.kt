@@ -19,6 +19,7 @@ fun DealerHand(
         score = score,
         isCompact = isCompact,
         isExtraCompact = isExtraCompact,
+        isDealer = true,
         modifier = modifier,
     ) {
         HandRow(

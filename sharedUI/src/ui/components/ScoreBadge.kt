@@ -26,7 +26,7 @@ enum class ScoreBadgeState {
     WAITING
 }
 
-val BadgeShape = RoundedCornerShape(12.dp)
+val BadgeShape = RoundedCornerShape(8.dp)
 
 @Composable
 fun ScoreBadge(
@@ -49,14 +49,14 @@ fun ScoreBadge(
     val textColor = when (state) {
         ScoreBadgeState.ACTIVE -> BackgroundDark
         ScoreBadgeState.DEALER -> BackgroundDark
-        ScoreBadgeState.WAITING -> Color.White
+        ScoreBadgeState.WAITING -> Color.White.copy(alpha = 0.9f)
     }
 
     Box(
         modifier = modifier
             .background(backgroundColor, BadgeShape)
             .border(1.dp, borderColor, BadgeShape)
-            .padding(horizontal = 14.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center
     ) {
         AnimatedContent(

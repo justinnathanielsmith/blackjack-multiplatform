@@ -108,17 +108,20 @@ fun BlackjackHandContainer(
     result: HandResult = HandResult.NONE,
     isCompact: Boolean = false,
     isExtraCompact: Boolean = false,
+    isDealer: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val isAnyCompact = isCompact || isExtraCompact
     val borderColor =
         when {
+            isDealer -> PrimaryGold.copy(alpha = 0.2f)
             isPending -> GlassLight
             else -> Color.White.copy(alpha = 0.05f)
         }
     val backgroundColor =
         when {
+            isDealer -> BackgroundDark.copy(alpha = 0.9f)
             isActive -> PrimaryGold.copy(alpha = 0.1f)
             else -> GlassDark.copy(alpha = 0.3f)
         }
@@ -168,7 +171,13 @@ fun BlackjackHandContainer(
         // Title Badge (Dealer, Player 1, etc.) — TopStart, inside container
         if (title != null) {
             val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
-            TitleBadge(title = title, isActive = isActive, isCompact = isAnyCompact, titleStyle = titleStyle)
+            TitleBadge(
+                title = title,
+                isActive = isActive,
+                isDealer = isDealer,
+                isCompact = isAnyCompact,
+                titleStyle = titleStyle
+            )
         }
 
         // Status Badge (Active/Waiting) — TopEnd, inside container
@@ -193,7 +202,7 @@ fun BlackjackHandContainer(
             }
 
         val badgeState = when {
-            title == stringResource(Res.string.dealer) -> ScoreBadgeState.DEALER
+            isDealer -> ScoreBadgeState.DEALER
             isActive -> ScoreBadgeState.ACTIVE
             else -> ScoreBadgeState.WAITING
         }
@@ -228,7 +237,7 @@ fun BlackjackHandContainer(
                     modifier = Modifier
                         .then(
                             if (badgeState == ScoreBadgeState.DEALER) {
-                                Modifier.offset(x = 8.dp, y = (-10).dp)
+                                Modifier.offset(x = 10.dp, y = (-12).dp)
                             } else {
                                 Modifier.offset(x = 12.dp, y = 14.dp)
                             }
@@ -281,28 +290,52 @@ fun BlackjackHandContainer(
 private fun BoxScope.TitleBadge(
     title: String,
     isActive: Boolean,
+    isDealer: Boolean,
     isCompact: Boolean,
     titleStyle: TextStyle,
 ) {
-    Box(
+    val containerColor = when {
+        isDealer -> BackgroundDark
+        isActive -> PrimaryGold
+        else -> Color(0xFF2A2A2A)
+    }
+    val contentColor = when {
+        isDealer -> PrimaryGold
+        isActive -> BackgroundDark
+        else -> Color.White.copy(alpha = 0.7f)
+    }
+    val finalBorderColor = when {
+        isDealer -> PrimaryGold.copy(alpha = 0.5f)
+        isActive -> Color.White.copy(alpha = 0.3f)
+        else -> Color.White.copy(alpha = 0.1f)
+    }
+
+    Row(
         modifier =
             Modifier
                 .align(Alignment.TopStart)
                 .offset(x = 12.dp, y = 8.dp)
                 .zIndex(1f)
                 .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                .background(if (isActive) PrimaryGold else Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
+                .background(containerColor, RoundedCornerShape(12.dp))
                 .border(
                     1.dp,
-                    if (isActive) Color.White.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.1f),
+                    finalBorderColor,
                     RoundedCornerShape(12.dp),
                 ).padding(horizontal = 10.dp, vertical = 4.dp),
-        contentAlignment = Alignment.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        if (isDealer) {
+            Text(
+                "👑",
+                style = titleStyle.copy(fontSize = if (isCompact) 10.sp else 12.sp),
+                modifier = Modifier.padding(end = 4.dp)
+            )
+        }
         Text(
             text = title.uppercase(),
             style = titleStyle,
-            color = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.7f),
+            color = contentColor,
             fontWeight = FontWeight.Black,
             letterSpacing = 2.sp,
         )
