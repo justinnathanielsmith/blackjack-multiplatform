@@ -104,13 +104,15 @@ fun CardFace(
             color = suit.color,
             fontWeight = FontWeight.Black,
             fontSize = fontSizeRank,
-            style = androidx.compose.ui.text.TextStyle(
-                shadow = Shadow(
-                    color = Color.Black.copy(alpha = 0.15f),
-                    offset = Offset(2f, 2f),
-                    blurRadius = 4f
+            style =
+                androidx.compose.ui.text.TextStyle(
+                    shadow =
+                        Shadow(
+                            color = Color.Black.copy(alpha = 0.15f),
+                            offset = Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
                 )
-            )
         )
     }
 }
@@ -335,7 +337,9 @@ private fun CardCorner(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy((-4).dp)
+        verticalArrangement =
+            androidx.compose.foundation.layout.Arrangement
+                .spacedBy((-4).dp)
     ) {
         // Fixed width ensures '10' vs 'J' doesn't cause suit jumping/collisions
         Box(

@@ -283,4 +283,66 @@ class DoubleDownTest {
             val state2 = state1.copy(rules = GameRules(allowDoubleAfterSplit = false))
             assertFalse(state2.canDoubleDown(), "Should NOT allow double after split when rules forbid")
         }
+
+    @Test
+    fun canDoubleDown_true_when_two_cards_and_sufficient_balance_and_not_split() {
+        val state = GameState(
+            playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX)),
+            playerBets = kotlinx.collections.immutable.persistentListOf(100),
+            balance = 100
+        )
+        assertTrue(state.canDoubleDown())
+    }
+
+    @Test
+    fun canDoubleDown_false_when_more_than_two_cards() {
+        val state = GameState(
+            playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX, Rank.TWO)),
+            playerBets = kotlinx.collections.immutable.persistentListOf(100),
+            balance = 100
+        )
+        assertFalse(state.canDoubleDown())
+    }
+
+    @Test
+    fun canDoubleDown_false_when_less_than_two_cards() {
+        val state = GameState(
+            playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE)),
+            playerBets = kotlinx.collections.immutable.persistentListOf(100),
+            balance = 100
+        )
+        assertFalse(state.canDoubleDown())
+    }
+
+    @Test
+    fun canDoubleDown_false_when_insufficient_balance() {
+        val state = GameState(
+            playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX)),
+            playerBets = kotlinx.collections.immutable.persistentListOf(100),
+            balance = 99
+        )
+        assertFalse(state.canDoubleDown())
+    }
+
+    @Test
+    fun canDoubleDown_uses_active_hand_and_bet() {
+        val validHand = hand(Rank.FIVE, Rank.SIX)
+        val invalidHand = hand(Rank.FIVE, Rank.SIX, Rank.TWO)
+
+        val state = GameState(
+            playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand, validHand),
+            playerBets = kotlinx.collections.immutable.persistentListOf(100, 200),
+            balance = 200,
+            activeHandIndex = 1
+        )
+        assertTrue(state.canDoubleDown(), "Should use active hand (index 1) which has 2 cards and sufficient balance")
+
+        val stateInsufficientBalanceForActive = GameState(
+            playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand, validHand),
+            playerBets = kotlinx.collections.immutable.persistentListOf(100, 200),
+            balance = 150,
+            activeHandIndex = 1
+        )
+        assertFalse(stateInsufficientBalanceForActive.canDoubleDown(), "Balance (150) is less than active bet (200)")
+    }
 }
