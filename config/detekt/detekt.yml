@@ -2,6 +2,12 @@ build:
   maxIssues: 0
   excludeCorrectable: false
 
+config:
+  validation: true
+  warningsAsErrors: false
+  # 'compose' comes from the detekt-compose plugin loaded at runtime; exclude from static validation
+  excludes: 'compose'
+
 complexity:
   active: true
   # Compose functions naturally have many parameters; we relax this for @Composable
@@ -69,3 +75,36 @@ performance:
   SpreadOperator:
     active: true
 
+compose:
+  active: true
+  CompositionLocalAllowlist:
+    active: true
+    # LocalAppGraph is the intentional DI mechanism for this project (see sharedUI/src/di/AppGraph.kt)
+    allowedCompositionLocals: 'LocalAppGraph'
+  ContentEmitterReturningValues:
+    active: true
+  ModifierMissing:
+    active: true
+    checkModifiersForPrivateComposables: false
+  ModifierNaming:
+    active: true
+  ModifierNotUsedAtRoot:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierWithoutDefault:
+    active: true
+  MultipleContentEmitters:
+    active: true
+  MutableStateAutoboxing:
+    active: true
+  MutableStateParameter:
+    active: true
+  RememberMissing:
+    active: true
+  UnstableCollections:
+    active: true
+  ViewModelForwarding:
+    active: false  # project passes state down directly, not ViewModels
+  NoCoroutinesInComposables:
+    active: false  # project uses LaunchedEffect / rememberCoroutineScope legitimately

@@ -81,7 +81,7 @@ Write tests first (spec-driven). Tracks in `conductor/tracks/<name>/spec.md` and
 ./lint.sh             # ktlint + detekt (CI check)
 jj fix                # Auto-format changed files (jj VCS)
 ```
-Config: `.editorconfig` (ktlint, `package-name` disabled), `config/detekt.yml` (`InvalidPackageDeclaration` disabled).
+Config: `.editorconfig` (ktlint, `package-name` disabled), `config/detekt/detekt.yml` (`InvalidPackageDeclaration` disabled).
 **Before committing:** `./ktlint --format` then `./lint.sh`.
 
 ## Spec-Driven Development
