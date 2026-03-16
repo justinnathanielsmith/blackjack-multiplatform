@@ -25,9 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -61,11 +60,11 @@ fun Header(
     onStrategyClick: () -> Unit = {},
     onRulesClick: () -> Unit = {}
 ) {
-    var previousBalance by remember { mutableStateOf(balance) }
+    val previousBalance = remember { mutableIntStateOf(balance) }
     val jiggleX = remember { Animatable(0f) }
 
     LaunchedEffect(balance) {
-        if (balance > previousBalance) {
+        if (balance > previousBalance.intValue) {
             jiggleX.snapTo(0f)
             jiggleX.animateTo(-6f, tween(40))
             jiggleX.animateTo(6f, tween(60))
@@ -79,11 +78,11 @@ fun Header(
         targetValue = balance,
         animationSpec =
             tween(
-                durationMillis = if (abs(balance - previousBalance) > 200) 600 else 300,
+                durationMillis = if (abs(balance - previousBalance.intValue) > 200) 600 else 300,
                 easing = FastOutSlowInEasing,
             ),
         label = "balanceRoll",
-        finishedListener = { previousBalance = it },
+        finishedListener = { previousBalance.intValue = it },
     )
 
     val formattedBalance =
