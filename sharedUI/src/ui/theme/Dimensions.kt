@@ -4,8 +4,8 @@ import androidx.compose.ui.unit.dp
 
 object Dimensions {
     object ActionBar {
-        val ButtonHeightNormal = 44.dp
-        val ButtonHeightCompact = 36.dp
+        val ButtonHeightNormal = 40.dp
+        val ButtonHeightCompact = 32.dp
     }
 
     object Hand {

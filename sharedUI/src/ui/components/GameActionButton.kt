@@ -40,6 +40,11 @@ import org.jetbrains.compose.resources.painterResource
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import kotlin.math.PI
 
 @Composable
 fun GameActionButton(
@@ -85,11 +90,6 @@ fun GameActionButton(
         contentColor ?: if (isStrategic) BackgroundDark else Color.White
 
     val baseColor = resolvedContainerColor
-    val shadowColor = if (enabled) {
-        if (isStrategic) baseColor.copy(alpha = 0.8f) else Color.Black.copy(alpha = 0.5f)
-    } else {
-        Color.Transparent
-    }
 
     Box(
         modifier =
@@ -98,81 +98,82 @@ fun GameActionButton(
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                }.then(
-                    if (enabled) {
-                        Modifier.shadow(
-                            elevation = if (isPressed) 1.dp else if (isStrategic) 8.dp else 4.dp,
-                            shape = CircleShape,
-                            ambientColor = shadowColor,
-                            spotColor = shadowColor
-                        )
-                    } else {
-                        Modifier
-                    }
-                ).clip(CircleShape)
-                .background(
-                    if (enabled) {
-                        Brush.verticalGradient(
-                            colors =
-                                listOf(
-                                    if (isStrategic) {
-                                        Color(
-                                            (baseColor.red + 0.15f).coerceIn(0f, 1f),
-                                            (baseColor.green + 0.15f).coerceIn(0f, 1f),
-                                            (baseColor.blue + 0.1f).coerceIn(0f, 1f),
-                                            baseColor.alpha
-                                        )
-                                    } else {
-                                        baseColor
-                                    },
-                                    Color(
-                                        (baseColor.red * if (isStrategic) 0.6f else 0.85f).coerceIn(0f, 1f),
-                                        (baseColor.green * if (isStrategic) 0.6f else 0.85f).coerceIn(0f, 1f),
-                                        (baseColor.blue * if (isStrategic) 0.2f else 0.85f).coerceIn(0f, 1f),
-                                        baseColor.alpha
-                                    )
-                                )
-                        )
-                    } else {
-                        Brush.verticalGradient(
-                            colors = listOf(GlassDark, GlassDark)
-                        )
-                    }
-                ).then(
-                    if (enabled) {
-                        Modifier.border(
-                            width = 1.dp,
-                            brush =
-                                Brush.verticalGradient(
-                                    colors =
-                                        listOf(
-                                            Color.White.copy(alpha = 0.3f),
-                                            Color.Transparent,
-                                            Color.Black.copy(alpha = 0.2f)
-                                        )
-                                ),
-                            shape = CircleShape
-                        )
-                    } else {
-                        Modifier.border(
-                            width = 1.dp,
-                            color =
-                                if (isStrategic) {
-                                    PrimaryGold.copy(alpha = 0.2f)
-                                } else {
-                                    Color.White.copy(alpha = 0.1f)
-                                },
-                            shape = CircleShape
-                        )
-                    }
-                ).clickable(
+                }
+                .clickable(
                     interactionSource = interactionSource,
                     indication = null,
                     enabled = enabled,
                     onClick = onClick
-                ).padding(vertical = 8.dp, horizontal = 8.dp),
+                )
+                .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val radius = size.minDimension / 2
+            val center = Offset(size.width / 2, size.height / 2)
+            val depthOffset = 2.dp.toPx()
+
+            if (enabled) {
+                // Side depth
+                drawCircle(
+                    color = baseColor.copy(alpha = 0.5f),
+                    radius = radius,
+                    center = center.copy(y = center.y + depthOffset)
+                )
+
+                // Main chip body with subtle vertical gradient for 3D feel
+                drawCircle(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            baseColor.copy(alpha = 1f).blend(Color.White, 0.1f),
+                            baseColor,
+                            baseColor.copy(alpha = 1f).blend(Color.Black, 0.1f)
+                        )
+                    ),
+                    radius = radius,
+                    center = center
+                )
+
+                // Dashed rim
+                val dashLength = (radius * 2 * Math.PI / 16).toFloat()
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.4f),
+                    radius = radius * 0.92f,
+                    center = center,
+                    style = Stroke(
+                        width = 3.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(
+                            floatArrayOf(dashLength / 2, dashLength / 2),
+                            0f
+                        )
+                    )
+                )
+
+                // Inner embossed ring
+                drawCircle(
+                    color = Color.Black.copy(alpha = 0.15f),
+                    radius = radius * 0.78f,
+                    center = center,
+                    style = Stroke(width = 1.dp.toPx())
+                )
+                
+                // Top highlight
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.1f),
+                    radius = radius * 0.76f,
+                    center = center,
+                    style = Stroke(width = 0.5.dp.toPx())
+                )
+            } else {
+                // Disabled flat look
+                drawCircle(
+                    color = GlassDark.copy(alpha = 0.5f),
+                    radius = radius,
+                    center = center
+                )
+            }
+        }
+
         val disabledContentColor =
             if (isStrategic) {
                 PrimaryGold.copy(alpha = 0.3f)
@@ -184,13 +185,14 @@ fun GameActionButton(
 
         androidx.compose.foundation.layout.Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+            modifier = Modifier.padding(4.dp)
         ) {
             Icon(
                 painter = painterResource(icon),
                 contentDescription = null,
                 tint = finalColor,
-                modifier = Modifier.size(if (label != null) 24.dp else 32.dp)
+                modifier = Modifier.size(if (label != null) 20.dp else 28.dp)
             )
             if (label != null) {
                 Text(
@@ -198,11 +200,20 @@ fun GameActionButton(
                     color = finalColor,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 8.sp,
-                    letterSpacing = 1.sp,
-                    modifier = Modifier.padding(top = 2.dp)
+                    fontSize = 7.sp,
+                    letterSpacing = 0.5.sp,
+                    modifier = Modifier.padding(top = 1.dp)
                 )
             }
         }
     }
+}
+
+private fun Color.blend(other: Color, amount: Float): Color {
+    return Color(
+        red = (red + (other.red - red) * amount).coerceIn(0f, 1f),
+        green = (green + (other.green - green) * amount).coerceIn(0f, 1f),
+        blue = (blue + (other.blue - blue) * amount).coerceIn(0f, 1f),
+        alpha = alpha + (other.alpha - alpha) * amount
+    )
 }
