@@ -9,6 +9,9 @@ data class SideBetResolution(
 )
 
 object SideBetLogic {
+    private val RED_SUITS = setOf(Suit.HEARTS, Suit.DIAMONDS)
+    private val BLACK_SUITS = setOf(Suit.CLUBS, Suit.SPADES)
+
     fun resolveSideBets(
         sideBets: PersistentMap<SideBetType, Int>,
         playerHand: Hand,
@@ -75,9 +78,7 @@ object SideBetLogic {
         s1: Suit,
         s2: Suit
     ): Boolean {
-        val red = setOf(Suit.HEARTS, Suit.DIAMONDS)
-        val black = setOf(Suit.CLUBS, Suit.SPADES)
-        return (s1 in red && s2 in red) || (s1 in black && s2 in black)
+        return (s1 in RED_SUITS && s2 in RED_SUITS) || (s1 in BLACK_SUITS && s2 in BLACK_SUITS)
     }
 
     private fun isSuitedTriple(cards: List<Card>): Boolean {
