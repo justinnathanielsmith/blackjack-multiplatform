@@ -214,6 +214,7 @@ fun BlackjackHandContainer(
                 .fillMaxWidth()
                 .animateContentSize()
                 .defaultMinSize(minHeight = minContentHeight)
+                .graphicsLayer { clip = false }
         ) {
             Box(
                 modifier = Modifier
