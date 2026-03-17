@@ -130,8 +130,6 @@ object PlayerActionLogic {
                 updatedState
             }
 
-        println("split resulting state: hands=${finalState.playerHands.size}, shouldAdvance=$isAceSplit")
-
         return PlayerActionOutcome(
             state = finalState,
             effects = listOf(GameEffect.PlayCardSound, GameEffect.PlayCardSound),
