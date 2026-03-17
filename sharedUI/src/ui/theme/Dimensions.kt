@@ -3,6 +3,12 @@ package io.github.smithjustinn.blackjack.ui.theme
 import androidx.compose.ui.unit.dp
 
 object Dimensions {
+    object Spacing {
+        val Small = 8.dp
+        val Medium = 16.dp
+        val Large = 24.dp
+    }
+
     object ActionBar {
         val ButtonHeightNormal = 40.dp
         val ButtonHeightCompact = 32.dp

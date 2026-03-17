@@ -47,6 +47,7 @@ import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.ChipPurple
+import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
@@ -72,7 +73,12 @@ fun StrategyGuideOverlay(onDismiss: () -> Unit) {
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().windowInsetsPadding(safeDrawingInsets()).padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(
+                        safeDrawingInsets()
+                    ).padding(Dimensions.Spacing.Medium)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
@@ -95,11 +101,11 @@ fun StrategyGuideOverlay(onDismiss: () -> Unit) {
                 onTabSelected = { selectedTab = it }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimensions.Spacing.Medium))
 
             StrategyChart(selectedTab)
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimensions.Spacing.Medium))
 
             StrategyLegend()
         }
