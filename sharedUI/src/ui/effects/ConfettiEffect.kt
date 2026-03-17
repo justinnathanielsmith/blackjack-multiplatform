@@ -86,14 +86,9 @@ fun ConfettiEffect(
             withFrameNanos { time ->
                 frameState.longValue = time
 
-                // Iterate backwards to avoid Iterator allocation and O(N^2) shifting during removal
-                for (i in particles.indices.reversed()) {
-                    val p = particles[i]
-                    p.update()
-                    if (p.alpha <= 0) {
-                        particles.removeAt(i)
-                    }
-                }
+                // Optimized single-pass removal with O(N) complexity
+                particles.forEach { it.update() }
+                particles.removeAll { it.alpha <= 0 }
             }
         }
     }
