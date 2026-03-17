@@ -51,8 +51,14 @@ data class Hand(
 ) {
     val score: Int
         get() {
-            var s = cards.sumOf { it.rank.value }
-            var aces = cards.count { it.rank == Rank.ACE }
+            var s = 0
+            var aces = 0
+            for (card in cards) {
+                s += card.rank.value
+                if (card.rank == Rank.ACE) {
+                    aces++
+                }
+            }
             while (s > 21 && aces > 0) {
                 s -= 10
                 aces -= 1
@@ -62,9 +68,16 @@ data class Hand(
 
     val visibleScore: Int
         get() {
-            val faceUpCards = cards.filter { !it.isFaceDown }
-            var s = faceUpCards.sumOf { it.rank.value }
-            var aces = faceUpCards.count { it.rank == Rank.ACE }
+            var s = 0
+            var aces = 0
+            for (card in cards) {
+                if (!card.isFaceDown) {
+                    s += card.rank.value
+                    if (card.rank == Rank.ACE) {
+                        aces++
+                    }
+                }
+            }
             while (s > 21 && aces > 0) {
                 s -= 10
                 aces -= 1
@@ -87,6 +100,9 @@ data class Hand(
                 }
             }
             if (!hasAce) return false
+            // If the current score is different from the score where all aces are 1, it's soft.
+            // Actually, a hand is soft if it contains an Ace that is being counted as 11.
+            // Our score calculation already handles this.
             return score != hardScore
         }
 }
