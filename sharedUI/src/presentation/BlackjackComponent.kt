@@ -1,6 +1,7 @@
 package io.github.smithjustinn.blackjack.presentation
 
 import androidx.compose.runtime.Stable
+import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.blackjack.BlackjackStateMachine
 import io.github.smithjustinn.blackjack.GameAction
@@ -34,9 +35,10 @@ class DefaultBlackjackComponent(
     componentContext: ComponentContext,
     private val balanceService: BalanceService,
     private val settingsRepository: SettingsRepository,
+    private val logger: Logger,
 ) : BlackjackComponent,
     ComponentContext by componentContext {
-    private val stateMachine = BlackjackStateMachine(componentScope, isTest = false)
+    private val stateMachine = BlackjackStateMachine(componentScope, isTest = false, logger = logger)
 
     override val state: StateFlow<GameState> = stateMachine.state
     override val effects: Flow<GameEffect> = stateMachine.effects

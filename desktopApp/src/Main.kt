@@ -17,7 +17,8 @@ fun main() =
             DefaultRootComponent(
                 DefaultComponentContext(lifecycle),
                 appGraph.balanceService,
-                appGraph.settingsRepository
+                appGraph.settingsRepository,
+                appGraph.logger
             )
 
         Window(

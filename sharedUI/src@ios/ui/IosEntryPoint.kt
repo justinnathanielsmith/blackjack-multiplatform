@@ -36,7 +36,8 @@ fun BlackjackViewController(): UIViewController =
             DefaultRootComponent(
                 DefaultComponentContext(lifecycle),
                 appGraph.balanceService,
-                appGraph.settingsRepository
+                appGraph.settingsRepository,
+                appGraph.logger
             )
 
         RootScreen(root, appGraph)
