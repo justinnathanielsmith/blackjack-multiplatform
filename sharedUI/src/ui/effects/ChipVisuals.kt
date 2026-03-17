@@ -33,11 +33,15 @@ object ChipVisuals {
 
         for ((value, color) in denominations) {
             val count = remaining / value
-            repeat(count) {
-                if (result.size < maxParticles) {
+            if (count > 0) {
+                val toAdd = minOf(count, maxParticles - result.size)
+                repeat(toAdd) {
                     result.add(color)
-                    remaining -= value
                 }
+                remaining -= count * value
+            }
+            if (result.size >= maxParticles) {
+                break
             }
         }
 
