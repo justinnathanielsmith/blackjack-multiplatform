@@ -17,7 +17,6 @@ class DealTest {
     @Test
     fun debug_channel_reading() =
         runTest {
-            println("DEBUG TEST START")
             val sm =
                 BlackjackStateMachine(
                     kotlinx.coroutines.CoroutineScope(
@@ -26,11 +25,8 @@ class DealTest {
                     ),
                     GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 100)
                 )
-            println("DEBUG TEST DISPATCHING")
             sm.dispatch(GameAction.Deal)
-            println("DEBUG TEST ADVANCING")
             advanceUntilIdle()
-            println("DEBUG TEST END")
             assertTrue(true)
         }
 

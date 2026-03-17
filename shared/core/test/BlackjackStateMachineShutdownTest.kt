@@ -21,8 +21,8 @@ class BlackjackStateMachineShutdownTest {
                     )
                 )
 
+            sm.shutdown()
             sm.effects.test {
-                sm.shutdown()
                 awaitComplete()
             }
         }
