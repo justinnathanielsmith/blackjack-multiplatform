@@ -8,20 +8,30 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
@@ -31,8 +41,11 @@ import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.action_double
@@ -80,13 +93,7 @@ fun GameActions(
                 component.onAction(GameAction.Split)
             }
         }
-    val onSurrender =
-        remember(audioService, component) {
-            {
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                component.onAction(GameAction.Surrender)
-            }
-        }
+
     AnimatedContent(
         targetState = state.status,
         transitionSpec = {
@@ -97,7 +104,6 @@ fun GameActions(
     ) { status ->
         val buttonHeight =
             if (isCompact) Dimensions.ActionBar.ButtonHeightCompact else Dimensions.ActionBar.ButtonHeightNormal
-        val totalActionsHeight = buttonHeight
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
@@ -114,55 +120,110 @@ fun GameActions(
 
                 Row(
                     modifier = Modifier.fillMaxWidth().height(buttonHeight),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val buttonModifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp)
+                    val buttonModifier = Modifier.weight(1f).height(buttonHeight)
 
-                    GameActionButton(
+                    ModernActionButton(
                         icon = Res.drawable.ic_double,
+                        label = stringResource(Res.string.action_double),
                         onClick = onDoubleDown,
                         enabled = canDouble,
-                        modifier = buttonModifier,
                         containerColor = PrimaryGold,
                         contentColor = BackgroundDark,
-                        label = stringResource(Res.string.action_double),
+                        modifier = buttonModifier
                     )
+
                     if (canSplit) {
-                        GameActionButton(
+                        ModernActionButton(
                             icon = Res.drawable.ic_split,
+                            label = stringResource(Res.string.action_split),
                             onClick = onSplit,
                             enabled = true,
-                            modifier = buttonModifier,
-                            label = stringResource(Res.string.action_split),
+                            containerColor = PrimaryGold,
+                            contentColor = BackgroundDark,
+                            modifier = buttonModifier
                         )
                     }
-                    GameActionButton(
+
+                    ModernActionButton(
                         icon = Res.drawable.ic_hit,
+                        label = stringResource(Res.string.action_hit),
                         onClick = onHit,
                         enabled = true,
-                        modifier = buttonModifier,
-                        containerColor = ChipGreen,
-                        contentColor = Color.White,
-                        label = stringResource(Res.string.action_hit),
+                        containerColor = GlassDark,
+                        contentColor = ChipGreen,
+                        borderColor = ChipGreen.copy(alpha = 0.5f),
+                        modifier = buttonModifier
                     )
-                    GameActionButton(
+
+                    ModernActionButton(
                         icon = Res.drawable.ic_stand,
+                        label = stringResource(Res.string.action_stand),
                         onClick = onStand,
                         enabled = true,
-                        modifier = buttonModifier,
-                        containerColor = TacticalRed,
-                        contentColor = Color.White,
-                        label = stringResource(Res.string.action_stand),
+                        containerColor = GlassDark,
+                        contentColor = TacticalRed,
+                        borderColor = TacticalRed.copy(alpha = 0.5f),
+                        modifier = buttonModifier
                     )
                 }
             }
 
             if (status != GameStatus.PLAYING && status != GameStatus.INSURANCE_OFFERED) {
-                Spacer(modifier = Modifier.height(totalActionsHeight))
+                Spacer(modifier = Modifier.height(buttonHeight))
             } else if (status == GameStatus.INSURANCE_OFFERED) {
-                Spacer(modifier = Modifier.height(totalActionsHeight))
+                Spacer(modifier = Modifier.height(buttonHeight))
             }
+        }
+    }
+}
+
+@Composable
+private fun ModernActionButton(
+    icon: DrawableResource,
+    label: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    containerColor: Color,
+    contentColor: Color,
+    modifier: Modifier = Modifier,
+    borderColor: Color? = null,
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier,
+        shape = RoundedCornerShape(50),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.3f),
+            disabledContentColor = contentColor.copy(alpha = 0.3f)
+        ),
+        border = borderColor?.let {
+            BorderStroke(1.dp, if (enabled) it else it.copy(alpha = 0.3f))
+        },
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = label.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                fontSize = 9.sp,
+                letterSpacing = 0.5.sp,
+                modifier = Modifier.padding(top = 2.dp)
+            )
         }
     }
 }
