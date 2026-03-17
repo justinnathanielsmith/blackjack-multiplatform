@@ -56,7 +56,7 @@ class JvmAudioServiceImpl(
         scope.launch {
             try {
                 // macOS only audio playback fallback natively provided by the OS
-                ProcessBuilder("afplay", path).start()
+                ProcessBuilder(listOf("afplay", path)).start()
             } catch (e: Exception) {
                 logger.e(e) { "Error playing sound: $resource" }
             }
