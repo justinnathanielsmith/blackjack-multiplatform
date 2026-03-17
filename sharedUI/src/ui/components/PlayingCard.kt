@@ -45,7 +45,6 @@ import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
-import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -268,56 +267,84 @@ fun PlayingCard(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .background(FeltDark)
+                            // 1. Classic white casino edge to prevent marking
+                            .background(Color.White)
+                            .padding(4.dp)
+                            // 2. Rich casino red core
+                            .background(io.github.smithjustinn.blackjack.ui.theme.TacticalRed, RoundedCornerShape(4.dp))
                             .drawWithCache {
-                                // Pre-build the checkerboard path to avoid repeated for-loops in onDrawBehind
-                                val cellSize = 8.dp.toPx()
-                                val checkerPath =
-                                    androidx.compose.ui.graphics
-                                        .Path()
-                                for (x in 0..(size.width / cellSize).toInt()) {
-                                    for (y in 0..(size.height / cellSize).toInt()) {
-                                        if ((x + y) % 2 == 0) {
-                                            checkerPath.addRect(
-                                                androidx.compose.ui.geometry.Rect(
-                                                    Offset(x * cellSize, y * cellSize),
-                                                    androidx.compose.ui.geometry
-                                                        .Size(cellSize, cellSize)
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
+                                val spacing = 6.dp.toPx()
+                                val strokeWidth = 1.dp.toPx()
+                                val patternColor = Color.White.copy(alpha = 0.15f)
 
                                 onDrawBehind {
-                                    // Outer frame
-                                    drawRoundRect(
-                                        color = PrimaryGold.copy(alpha = 0.15f),
-                                        size = size,
-                                        cornerRadius = CornerRadius(6.dp.toPx()),
-                                        style = Stroke(width = 2.dp.toPx()),
-                                    )
+                                    // 3. Elegant diamond lattice pattern
+                                    val maxDimension = maxOf(size.width, size.height) * 2
+                                    var i = -maxDimension
+                                    while (i < maxDimension) {
+                                        // Diagonal lines top-left to bottom-right
+                                        drawLine(
+                                            color = patternColor,
+                                            start = Offset(i, 0f),
+                                            end = Offset(i + maxDimension, maxDimension),
+                                            strokeWidth = strokeWidth
+                                        )
+                                        // Diagonal lines bottom-left to top-right
+                                        drawLine(
+                                            color = patternColor,
+                                            start = Offset(i, maxDimension),
+                                            end = Offset(i + maxDimension, 0f),
+                                            strokeWidth = strokeWidth
+                                        )
+                                        i += spacing
+                                    }
 
-                                    // Inner frame
+                                    // 4. Inner gold foil frame
                                     drawRoundRect(
-                                        color = PrimaryGold.copy(alpha = 0.08f),
+                                        color = PrimaryGold.copy(alpha = 0.8f),
                                         size =
                                             size.copy(
-                                                width = size.width - 8.dp.toPx(),
+                                                width = size.width - 12.dp.toPx(),
                                                 height =
-                                                    size.height - 8.dp.toPx()
+                                                    size.height - 12.dp.toPx()
                                             ),
-                                        topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
+                                        topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
                                         cornerRadius = CornerRadius(4.dp.toPx()),
-                                        style = Stroke(width = 1.dp.toPx()),
+                                        style = Stroke(width = 1.5.dp.toPx()),
                                     )
                                 }
                             },
                 ) {
+                    // 5. Center Casino Medallion
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        androidx.compose.foundation.Canvas(modifier = Modifier.size(36.dp)) {
+                            val centerOffset = Offset(size.width / 2, size.height / 2)
+
+                            // Outer gold ring
+                            drawCircle(
+                                color = PrimaryGold,
+                                radius = size.minDimension / 2,
+                                center = centerOffset
+                            )
+                            // Inner red core
+                            drawCircle(
+                                color = io.github.smithjustinn.blackjack.ui.theme.TacticalRed,
+                                radius = size.minDimension / 2 - 2.dp.toPx(),
+                                center = centerOffset
+                            )
+                            // Delicate inner gold detail
+                            drawCircle(
+                                color = PrimaryGold.copy(alpha = 0.5f),
+                                radius = size.minDimension / 2 - 4.dp.toPx(),
+                                center = centerOffset,
+                                style = Stroke(width = 1.dp.toPx())
+                            )
+                        }
+                        // Center icon (Spade)
                         Text(
-                            text = "👑",
-                            fontSize = 40.sp,
+                            text = "♠",
+                            fontSize = 18.sp,
+                            color = PrimaryGold
                         )
                     }
                 }
