@@ -42,6 +42,7 @@ import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance
@@ -257,14 +258,4 @@ private fun HeaderIcon(
             modifier = Modifier.alpha(0.9f)
         )
     }
-}
-
-private fun Int.formatWithCommas(): String {
-    val s = this.toString()
-    if (s.length <= 3) return s
-    return s
-        .reversed()
-        .chunked(3)
-        .joinToString(",")
-        .reversed()
 }
