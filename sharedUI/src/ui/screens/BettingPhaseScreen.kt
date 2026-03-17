@@ -38,9 +38,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -49,6 +51,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,7 +67,7 @@ import io.github.smithjustinn.blackjack.ui.components.ChipSelector
 import io.github.smithjustinn.blackjack.ui.components.ChipStack
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
-import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
+import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.delay
@@ -101,86 +104,77 @@ fun BettingPhaseScreen(
     var selectedAmount by remember { mutableStateOf(10) }
     val sideBetOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
 
+    // Dim the felt slightly to bring focus to the betting layer
     Box(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.55f))
-                .windowInsetsPadding(safeDrawingInsets())
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f))
+            .windowInsetsPadding(safeDrawingInsets())
     ) {
-        val placeBetOnArea: (GameAction, Offset, Int) -> Unit =
-            remember(audioService, component) {
-                { action, offset, amount ->
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onAction(action)
-                    if (offset != Offset.Zero) {
-                        flyingChips.add(
-                            FlyingChip(
-                                id = (0..Long.MAX_VALUE).random(),
-                                startOffset =
-                                    Offset(
-                                        x = offset.x + (-10..10).random(),
-                                        y = offset.y + (-10..10).random()
-                                    ),
-                                // Slight jitter for multiple chips
-                                amount = amount,
-                                color = ChipUtils.chipColor(amount),
-                                textColor = ChipUtils.chipTextColor(amount),
+        val placeBetOnArea: (GameAction, Offset, Int) -> Unit = remember(audioService, component) {
+            { action, offset, amount ->
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onAction(action)
+                if (offset != Offset.Zero) {
+                    flyingChips.add(
+                        FlyingChip(
+                            id = (0..Long.MAX_VALUE).random(),
+                            startOffset = Offset(
+                                x = offset.x + (-10..10).random(),
+                                y = offset.y + (-10..10).random()
                             ),
-                        )
-                    }
+                            amount = amount,
+                            color = ChipUtils.chipColor(amount),
+                            textColor = ChipUtils.chipTextColor(amount),
+                        ),
+                    )
                 }
             }
+        }
 
-        val onResetBet =
-            remember(audioService, component) {
-                {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onAction(GameAction.ResetBet)
-                    component.onAction(GameAction.ResetSideBets)
-                }
+        val onResetBet = remember(audioService, component) {
+            {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onAction(GameAction.ResetBet)
+                component.onAction(GameAction.ResetSideBets)
             }
+        }
 
-        val onDeal =
-            remember(audioService, component) {
-                {
-                    audioService.playEffect(AudioService.SoundEffect.FLIP)
-                    component.onAction(GameAction.Deal)
-                }
+        val onDeal = remember(audioService, component) {
+            {
+                audioService.playEffect(AudioService.SoundEffect.FLIP)
+                component.onAction(GameAction.Deal)
             }
+        }
 
-        val onChipSelected =
-            remember(audioService) {
-                { amount: Int ->
-                    selectedAmount = amount
-                    audioService.playEffect(AudioService.SoundEffect.PLINK)
-                }
+        val onChipSelected = remember(audioService) {
+            { amount: Int ->
+                selectedAmount = amount
+                audioService.playEffect(AudioService.SoundEffect.PLINK)
             }
+        }
 
+        // --- Center: Betting Spots floating directly on the table ---
         Column(
-            modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .zIndex(1f)
-                    .fillMaxWidth(0.85f)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(GlassDark)
-                    .border(1.dp, PrimaryGold.copy(alpha = 0.5f), RoundedCornerShape(24.dp))
-                    .padding(20.dp),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .offset(y = (-40).dp)
+                .fillMaxWidth()
+                .zIndex(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
             Text(
                 text = stringResource(Res.string.status_betting).uppercase(),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleLarge,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,
-                letterSpacing = 4.sp,
+                letterSpacing = 6.sp,
             )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SideBetSlot(
@@ -193,11 +187,10 @@ fun BettingPhaseScreen(
                             selectedAmount
                         )
                     },
-                    modifier =
-                        Modifier.onGloballyPositioned {
-                            sideBetOffsets[SideBetType.PERFECT_PAIRS] =
-                                it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                        }
+                    modifier = Modifier.onGloballyPositioned {
+                        sideBetOffsets[SideBetType.PERFECT_PAIRS] =
+                            it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                    }
                 )
 
                 BetSpot(
@@ -223,14 +216,28 @@ fun BettingPhaseScreen(
                             selectedAmount
                         )
                     },
-                    modifier =
-                        Modifier.onGloballyPositioned {
-                            sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] =
-                                it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                        }
+                    modifier = Modifier.onGloballyPositioned {
+                        sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] =
+                            it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                    }
                 )
             }
+        }
 
+        // --- Bottom: Controls in a sleek glass panel ---
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp) // Offset above the ControlCenter
+                .zIndex(2f)
+                .fillMaxWidth(0.9f)
+                .clip(RoundedCornerShape(24.dp))
+                .background(GlassDark)
+                .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
             ChipSelector(
                 balance = state.balance,
                 selectedAmount = selectedAmount,
@@ -244,6 +251,7 @@ fun BettingPhaseScreen(
             )
         }
 
+        // Flying chip animations layer
         flyingChips.forEach { chip ->
             key(chip.id) {
                 FlyingChipAnimation(
@@ -266,67 +274,74 @@ private fun BetSpot(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "betSpotGlow")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = if (currentBet > 0) 1.0f else 0.5f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1000, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
+        initialValue = 0.4f,
+        targetValue = if (currentBet > 0) 1.0f else 0.4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
         label = "betSpotGlowAlpha"
     )
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Box(
-            modifier =
-                Modifier
-                    .size(112.dp)
-                    .shadow(
-                        elevation = if (currentBet > 0) (8 * glowAlpha).dp else 0.dp,
-                        shape = CircleShape,
-                        spotColor = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0f)
-                    ).clip(CircleShape)
-                    .background(FeltGreen)
-                    .border(
-                        width = 2.dp,
-                        color = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0.5f),
-                        shape = CircleShape
-                    ).clickable(role = Role.Button) { onClick() }
-                    .semantics {
-                        contentDescription =
-                            if (currentBet > 0) "Bet spot with $currentBet" else "Tap to place bet"
-                    }.onGloballyPositioned {
-                        val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                        onPositioned(center)
-                    },
+            modifier = Modifier
+                .size(124.dp)
+                .drawBehind {
+                    val strokeWidth = 2.dp.toPx()
+                    val outerDash = PathEffect.dashPathEffect(floatArrayOf(24f, 16f), 0f)
+                    
+                    // Outer Dashed Circle
+                    drawCircle(
+                        color = PrimaryGold.copy(alpha = if (currentBet > 0) glowAlpha else 0.4f),
+                        style = Stroke(width = strokeWidth, pathEffect = outerDash),
+                        radius = size.minDimension / 2f
+                    )
+                    // Inner Thin Circle
+                    drawCircle(
+                        color = PrimaryGold.copy(alpha = 0.15f),
+                        style = Stroke(width = 1.dp.toPx()),
+                        radius = size.minDimension / 2.3f
+                    )
+                }
+                .clip(CircleShape)
+                .clickable(role = Role.Button) { onClick() }
+                .semantics {
+                    contentDescription = if (currentBet > 0) "Bet spot with $currentBet" else "Tap to place bet"
+                }
+                .onGloballyPositioned {
+                    val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                    onPositioned(center)
+                },
             contentAlignment = Alignment.Center
         ) {
             if (currentBet > 0) {
                 ChipStack(amount = currentBet, isActive = true)
             } else {
                 Text(
-                    text = stringResource(Res.string.bet_spot_tap_to_bet),
-                    color = PrimaryGold.copy(alpha = 0.4f),
-                    style = MaterialTheme.typography.labelSmall,
+                    text = stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n"),
+                    color = PrimaryGold.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
+                    letterSpacing = 2.sp,
+                    textAlign = TextAlign.Center
                 )
             }
         }
+
         if (handCount > 1) {
             Text(
                 text = stringResource(Res.string.bet_multiplier, handCount),
                 style = MaterialTheme.typography.labelSmall,
-                color = PrimaryGold,
-                fontWeight = FontWeight.Bold,
-                modifier =
-                    Modifier
-                        .background(PrimaryGold.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                color = BackgroundDark,
+                fontWeight = FontWeight.Black,
+                modifier = Modifier
+                    .background(PrimaryGold, RoundedCornerShape(12.dp))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
     }
@@ -339,21 +354,19 @@ private fun SideBetSlot(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val label =
-        when (type) {
-            SideBetType.PERFECT_PAIRS -> stringResource(Res.string.side_bet_perfect_pairs_label)
-            SideBetType.TWENTY_ONE_PLUS_THREE -> stringResource(Res.string.side_bet_twenty_one_plus_three_label)
-        }
+    val label = when (type) {
+        SideBetType.PERFECT_PAIRS -> stringResource(Res.string.side_bet_perfect_pairs_label)
+        SideBetType.TWENTY_ONE_PLUS_THREE -> stringResource(Res.string.side_bet_twenty_one_plus_three_label)
+    }
 
     val infiniteTransition = rememberInfiniteTransition(label = "sideBetGlow")
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
         targetValue = if (amount > 0) 0.8f else 0.3f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
         label = "glowAlpha"
     )
 
@@ -363,24 +376,23 @@ private fun SideBetSlot(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Box(
-            modifier =
-                Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.05f))
-                    .border(
-                        width = if (amount > 0) 2.dp else 1.dp,
-                        color = PrimaryGold.copy(alpha = if (amount > 0) glowAlpha else 0.3f),
-                        shape = CircleShape
-                    ).shadow(
-                        elevation = if (amount > 0) (8 * glowAlpha).dp else 0.dp,
-                        shape = CircleShape,
-                        spotColor = PrimaryGold.copy(alpha = if (amount > 0) glowAlpha else 0f)
-                    ).clickable(role = Role.Button) { onClick() }
-                    .semantics {
-                        contentDescription =
-                            if (amount > 0) "Side bet $label with $amount" else "Tap to place $label side bet"
-                    },
+            modifier = Modifier
+                .size(76.dp)
+                .drawBehind {
+                    drawCircle(
+                        color = Color.White.copy(alpha = if (amount > 0) glowAlpha else 0.25f),
+                        style = Stroke(
+                            width = if (amount > 0) 2.dp.toPx() else 1.dp.toPx(),
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(16f, 12f), 0f)
+                        ),
+                        radius = size.minDimension / 2f
+                    )
+                }
+                .clip(CircleShape)
+                .clickable(role = Role.Button) { onClick() }
+                .semantics {
+                    contentDescription = if (amount > 0) "Side bet $label with $amount" else "Tap to place $label side bet"
+                },
             contentAlignment = Alignment.Center
         ) {
             if (amount > 0) {
@@ -391,10 +403,11 @@ private fun SideBetSlot(
                 )
             } else {
                 Text(
-                    text = label,
-                    color = PrimaryGold.copy(alpha = 0.5f),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold
+                    text = label.replace(" ", "\n"),
+                    color = Color.White.copy(alpha = 0.5f),
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -411,11 +424,10 @@ private fun BettingActions(
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = if (canDeal) 1.05f else 1f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(800, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
         label = "dealPulse"
     )
 
@@ -427,20 +439,23 @@ private fun BettingActions(
             text = stringResource(Res.string.reset_bet),
             onClick = onReset,
             modifier = Modifier.weight(1f),
-            containerColor = Color.Transparent,
-            contentColor = Color.White.copy(alpha = 0.7f),
+            containerColor = GlassDark,
+            contentColor = Color.White,
         )
         CasinoButton(
             text = stringResource(Res.string.deal),
             onClick = onDeal,
-            modifier =
-                Modifier.weight(1f).graphicsLayer {
+            modifier = Modifier
+                .weight(1f)
+                .graphicsLayer {
                     scaleX = pulseScale
                     scaleY = pulseScale
                 },
             enabled = canDeal,
             isStrategic = true,
             showShine = canDeal,
+            containerColor = PrimaryGold,
+            contentColor = BackgroundDark,
         )
     }
 }
@@ -461,7 +476,6 @@ private fun FlyingChipAnimation(
     val alpha = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
-        // Phase 1: glide to just above the target (180ms)
         val aboveY = targetOffset.y - dropHeight
         launch {
             animX.animateTo(
@@ -474,13 +488,11 @@ private fun FlyingChipAnimation(
             animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
         )
 
-        // Phase 2: fall onto the stack (220ms, gravity easing)
         animY.animateTo(
             targetValue = targetOffset.y,
             animationSpec = tween(durationMillis = 220, easing = FastOutLinearInEasing),
         )
 
-        // Phase 3: squash on landing
         launch {
             scaleX.animateTo(1.2f, animationSpec = tween(50))
             scaleX.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
@@ -490,21 +502,19 @@ private fun FlyingChipAnimation(
             scaleY.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
         }
 
-        // Phase 4: fade out after brief pause
         delay(120)
         alpha.animateTo(0f, animationSpec = tween(180))
         onAnimationEnd()
     }
 
     Box(
-        modifier =
-            Modifier
-                .offset { IntOffset(animX.value.toInt(), animY.value.toInt()) }
-                .graphicsLayer {
-                    this.alpha = alpha.value
-                    this.scaleX = scaleX.value
-                    this.scaleY = scaleY.value
-                },
+        modifier = Modifier
+            .offset { IntOffset(animX.value.toInt(), animY.value.toInt()) }
+            .graphicsLayer {
+                this.alpha = alpha.value
+                this.scaleX = scaleX.value
+                this.scaleY = scaleY.value
+            },
     ) {
         BetChip(
             amount = chip.amount,
