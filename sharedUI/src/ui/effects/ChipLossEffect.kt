@@ -61,12 +61,9 @@ fun ChipLossEffect(
         while (chips.isNotEmpty()) {
             withFrameNanos { time ->
                 frameState.longValue = time
-                val iterator = chips.iterator()
-                while (iterator.hasNext()) {
-                    val chip = iterator.next()
-                    chip.update()
-                    if (chip.isDone) iterator.remove()
-                }
+                // Optimized single-pass removal with O(N) complexity
+                chips.forEach { it.update() }
+                chips.removeAll { it.isDone }
             }
         }
     }
