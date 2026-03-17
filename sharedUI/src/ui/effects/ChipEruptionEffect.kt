@@ -79,9 +79,8 @@ fun ChipEruptionEffect(
         val height = size.height
 
         val srcX = startOffset?.x ?: (width * 0.5f)
-        val srcY = startOffset?.y ?: (height * 0.65f)
-        val dstX = width * 0.08f
-        val dstY = height * 0.06f
+        val srcY = startOffset?.y ?: (height * 0.4f)
+        val dstY = height * 1.1f
 
         for (chip in chips) {
             if (chip.t <= 0f) continue
@@ -89,6 +88,9 @@ fun ChipEruptionEffect(
             val t = chip.t
             val cx = chip.controlXFraction * width
             val cy = chip.controlYFraction * height
+
+            // Spread the destination X based on control X so they fan out
+            val dstX = width * 0.5f + (chip.controlXFraction - 0.5f) * width * 2f
 
             val inv = 1f - t
             val x = inv * inv * srcX + 2f * inv * t * cx + t * t * dstX

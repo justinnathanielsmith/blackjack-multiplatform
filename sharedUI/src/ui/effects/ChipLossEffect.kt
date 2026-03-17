@@ -79,7 +79,6 @@ fun ChipLossEffect(
 
         val srcX = width * 0.5f // Pot area
         val srcY = height * 0.65f
-        val dstX = width * 0.5f // Dealer area
         val dstY = -height * 0.1f // Fly off-screen top
 
         for (chip in chips) {
@@ -88,6 +87,8 @@ fun ChipLossEffect(
             val t = chip.t
             val cx = chip.controlXFraction * width
             val cy = chip.controlYFraction * height
+
+            val dstX = width * 0.5f + (chip.controlXFraction - 0.5f) * width * 1.5f // Dealer area, spread out
 
             val inv = 1f - t
             val x = inv * inv * srcX + 2f * inv * t * cx + t * t * dstX
