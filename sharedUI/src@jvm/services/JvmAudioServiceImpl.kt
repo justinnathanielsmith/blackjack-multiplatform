@@ -12,6 +12,7 @@ import org.jetbrains.compose.resources.getString
 import sharedui.generated.resources.Res
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.file.Files
 import java.util.concurrent.ConcurrentHashMap
 
 class JvmAudioServiceImpl(
@@ -19,7 +20,7 @@ class JvmAudioServiceImpl(
 ) : AudioService {
     private val scope = CoroutineScope(Dispatchers.IO)
     override var isMuted: Boolean = false
-    private val tempAudioDir = File(System.getProperty("java.io.tmpdir"), "blackjack_audio").apply { mkdirs() }
+    private val tempAudioDir = Files.createTempDirectory("blackjack_audio").toFile()
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
 
     init {
