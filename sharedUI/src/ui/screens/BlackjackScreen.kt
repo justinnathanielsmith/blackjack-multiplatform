@@ -544,7 +544,7 @@ private fun BlackjackLayout(
         when (handCount) {
             1 -> 1.0f
             2 -> 0.80f
-            else -> 0.62f
+            else -> 0.55f
         }
 
     Column(

@@ -129,7 +129,7 @@ fun BlackjackHandContainer(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = horizontalPadding, vertical = 4.dp)
+            .padding(horizontal = horizontalPadding, vertical = if (isExtraCompact) 0.dp else 4.dp)
             .graphicsLayer { clip = false }
             .onGloballyPositioned { coords ->
                 if (onPositioned != null) {
@@ -169,8 +169,8 @@ fun BlackjackHandContainer(
 
             // 2. Content box — drives the height of the background
             val contentPadding = if (isExtraCompact) 10.dp else 16.dp
-            val topPadding = when { isExtraCompact -> 28.dp; isCompact -> 32.dp; else -> 36.dp }
-            val bottomPadding = when { isExtraCompact -> 16.dp; isCompact -> 24.dp; else -> 28.dp }
+            val topPadding = when { isExtraCompact -> 20.dp; isCompact -> 32.dp; else -> 36.dp }
+            val bottomPadding = when { isExtraCompact -> 24.dp; isCompact -> 24.dp; else -> 28.dp }
             val minContentHeight = when {
                 isExtraCompact -> Dimensions.Hand.MinHeightExtraCompact
                 isCompact -> Dimensions.Hand.MinHeightCompact
