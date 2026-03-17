@@ -369,20 +369,26 @@ internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
         visible = result != HandResult.NONE,
         enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 600f)) + fadeIn(tween(150)),
         exit = scaleOut(tween(150)) + fadeOut(tween(150)),
-        modifier = Modifier.align(Alignment.Center).zIndex(3f),
+        // Shifted to the top center, slightly overlapping the top border
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .offset(y = (-16).dp)
+            .zIndex(3f),
     ) {
         Box(
             modifier =
                 Modifier
                     .background(color, RoundedCornerShape(8.dp))
                     .border(2.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    // Reduced padding slightly for a sleeker badge
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
         ) {
             Text(
                 text = text.uppercase(),
                 color = Color.White,
                 fontWeight = FontWeight.Black,
-                fontSize = 20.sp,
+                // Scaled down from 20.sp to fit the new top-edge placement
+                fontSize = 16.sp,
                 letterSpacing = 2.sp,
             )
         }
