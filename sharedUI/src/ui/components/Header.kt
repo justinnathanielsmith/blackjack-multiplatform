@@ -1,11 +1,9 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -24,10 +22,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,52 +40,19 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.balance
 import sharedui.generated.resources.btn_auto_deal_description
 import sharedui.generated.resources.btn_rules_description
 import sharedui.generated.resources.btn_settings_description
 import sharedui.generated.resources.btn_strategy_description
-import kotlin.math.abs
 
 @Composable
 fun Header(
-    balance: Int,
     isAutoDealEnabled: Boolean,
     onAutoDealToggle: () -> Unit,
     onSettingsClick: () -> Unit = {},
     onStrategyClick: () -> Unit = {},
     onRulesClick: () -> Unit = {}
 ) {
-    val previousBalance = remember { mutableIntStateOf(balance) }
-    val jiggleX = remember { Animatable(0f) }
-
-    LaunchedEffect(balance) {
-        if (balance > previousBalance.intValue) {
-            jiggleX.snapTo(0f)
-            jiggleX.animateTo(-6f, tween(40))
-            jiggleX.animateTo(6f, tween(60))
-            jiggleX.animateTo(-4f, tween(50))
-            jiggleX.animateTo(4f, tween(50))
-            jiggleX.animateTo(0f, tween(40, easing = FastOutSlowInEasing))
-        }
-    }
-
-    val animatedBalance by animateIntAsState(
-        targetValue = balance,
-        animationSpec =
-            tween(
-                durationMillis = if (abs(balance - previousBalance.intValue) > 200) 600 else 300,
-                easing = FastOutSlowInEasing,
-            ),
-        label = "balanceRoll",
-        finishedListener = { previousBalance.intValue = it },
-    )
-
-    val formattedBalance =
-        remember(animatedBalance) {
-            animatedBalance.formatWithCommas()
-        }
-
     Row(
         modifier =
             Modifier

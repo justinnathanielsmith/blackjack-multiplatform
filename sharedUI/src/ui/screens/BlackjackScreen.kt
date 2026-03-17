@@ -273,11 +273,12 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     .drawBehind {
                         // 1. Base Felt Gradient (shifted up towards the dealer)
                         drawRect(
-                            brush = Brush.radialGradient(
-                                colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
-                                center = Offset(size.width / 2, size.height * 0.35f),
-                                radius = size.maxDimension * 0.6f
-                            )
+                            brush =
+                                Brush.radialGradient(
+                                    colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
+                                    center = Offset(size.width / 2, size.height * 0.35f),
+                                    radius = size.maxDimension * 0.6f
+                                )
                         )
 
                         // 2. The Classic Table Arc (Betting Line)
@@ -292,10 +293,13 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             sweepAngle = 180f,
                             useCenter = false,
                             topLeft = Offset(arcLeft, arcTop),
-                            size = androidx.compose.ui.geometry.Size(arcWidth, arcHeight),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(
-                                width = 3.dp.toPx()
-                            )
+                            size =
+                                androidx.compose.ui.geometry
+                                    .Size(arcWidth, arcHeight),
+                            style =
+                                androidx.compose.ui.graphics.drawscope.Stroke(
+                                    width = 3.dp.toPx()
+                                )
                         )
 
                         // 3. The Insurance Line (Fainter, above the main arc)
@@ -305,22 +309,25 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             sweepAngle = 180f,
                             useCenter = false,
                             topLeft = Offset(arcLeft, arcTop - 40.dp.toPx()),
-                            size = androidx.compose.ui.geometry.Size(arcWidth, arcHeight),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(
-                                width = 1.5.dp.toPx()
-                            )
+                            size =
+                                androidx.compose.ui.geometry
+                                    .Size(arcWidth, arcHeight),
+                            style =
+                                androidx.compose.ui.graphics.drawscope.Stroke(
+                                    width = 1.5.dp.toPx()
+                                )
                         )
 
                         // 4. Heavy Vignette (Simulates the dark leather rail around the table)
                         drawRect(
-                            brush = Brush.radialGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
-                                center = Offset(size.width / 2, size.height / 2),
-                                radius = size.maxDimension * 0.55f
-                            )
+                            brush =
+                                Brush.radialGradient(
+                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                                    center = Offset(size.width / 2, size.height / 2),
+                                    radius = size.maxDimension * 0.55f
+                                )
                         )
-                    }
-                    .graphicsLayer { translationX = shakeOffset.value * density },
+                    }.graphicsLayer { translationX = shakeOffset.value * density },
         ) {
             // Enforce a portrait-like aspect ratio (9:16) if the window is too wide (letterboxing)
             val gameModifier =
@@ -347,7 +354,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 }
                     ) {
                         Header(
-                            balance = state.balance,
                             isAutoDealEnabled = appSettings.isAutoDealEnabled,
                             onAutoDealToggle = onAutoDealToggle,
                             onSettingsClick = onSettingsClick,
