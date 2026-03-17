@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.presentation
 
+import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.services.BalanceService
@@ -12,8 +13,9 @@ class DefaultRootComponent(
     componentContext: ComponentContext,
     balanceService: BalanceService,
     settingsRepository: SettingsRepository,
+    logger: Logger,
 ) : RootComponent,
     ComponentContext by componentContext {
     override val blackjackComponent: BlackjackComponent =
-        DefaultBlackjackComponent(this, balanceService, settingsRepository)
+        DefaultBlackjackComponent(this, balanceService, settingsRepository, logger)
 }

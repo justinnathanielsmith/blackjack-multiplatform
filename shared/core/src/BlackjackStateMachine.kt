@@ -2,6 +2,7 @@
 
 package io.github.smithjustinn.blackjack
 
+import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.utils.secureRandom
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
@@ -25,7 +26,8 @@ import kotlinx.coroutines.launch
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
     initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0),
-    private val isTest: Boolean = true
+    private val isTest: Boolean = true,
+    private val logger: Logger = Logger.withTag("BlackjackStateMachine")
 ) {
     companion object {
         private const val DEALER_STAND_THRESHOLD = 17
@@ -39,9 +41,9 @@ class BlackjackStateMachine(
     val state: StateFlow<GameState> = _state.asStateFlow()
 
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
-    private val _isShutdown = MutableStateFlow(false)
+    private val isShutdown = MutableStateFlow(false)
     val effects: Flow<GameEffect> =
-        _isShutdown
+        isShutdown
             .takeWhile { !it }
             .flatMapLatest { _effects.asSharedFlow() }
 
@@ -49,10 +51,10 @@ class BlackjackStateMachine(
 
     init {
         scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
-            println("SM init block launched on ${Thread.currentThread().name}")
+            logger.d { "SM init block launched on ${Thread.currentThread().name}" }
             try {
                 for (action in actionChannel) {
-                    println("SM received action: $action")
+                    logger.v { "SM received action: $action" }
                     when (action) {
                         is GameAction.NewGame ->
                             handleNewGame(
@@ -64,7 +66,7 @@ class BlackjackStateMachine(
                             )
                         is GameAction.Surrender -> handleSurrender()
                         is GameAction.Deal -> {
-                            println("SM handling Deal action")
+                            logger.d { "SM handling Deal action" }
                             handleDeal()
                         }
                         is GameAction.Hit -> handleHit()
@@ -73,7 +75,7 @@ class BlackjackStateMachine(
                         is GameAction.TakeInsurance -> handleTakeInsurance()
                         is GameAction.DeclineInsurance -> handleDeclineInsurance()
                         is GameAction.Split -> {
-                            println("SM handling Split action")
+                            logger.d { "SM handling Split action" }
                             handleSplit()
                         }
                         is GameAction.UpdateRules -> handleUpdateRules(action.rules)
@@ -83,14 +85,13 @@ class BlackjackStateMachine(
                         is GameAction.PlaceSideBet -> handlePlaceSideBet(action.type, action.amount)
                         is GameAction.ResetSideBets -> handleResetSideBets()
                     }
-                    println("SM action loop finished current item: $action")
+                    logger.v { "SM action loop finished current item: $action" }
                 }
             } catch (e: Exception) {
-                println("SM init block caught exception: $e")
-                e.printStackTrace()
+                logger.e(e) { "SM init block caught exception" }
             } finally {
-                println("SM init block finally")
-                _isShutdown.value = true
+                logger.d { "SM init block finally" }
+                isShutdown.value = true
             }
         }
     }
@@ -147,10 +148,10 @@ class BlackjackStateMachine(
     }
 
     private suspend fun handleDeal() {
-        println("handleDeal started")
+        logger.d { "handleDeal started" }
         val current = _state.value
         if (current.status != GameStatus.BETTING || current.currentBet <= 0) {
-            println("handleDeal aborted - status:${current.status}, bet:${current.currentBet}")
+            logger.d { "handleDeal aborted - status:${current.status}, bet:${current.currentBet}" }
             return
         }
         _state.value = current.copy(status = GameStatus.DEALING)
@@ -288,7 +289,7 @@ class BlackjackStateMachine(
         lastBet: Int = 0,
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) {
-        println("handleNewGame called with lastBet=$lastBet, lastSideBets=$lastSideBets")
+        logger.d { "handleNewGame called with lastBet=$lastBet, lastSideBets=$lastSideBets" }
         val currentState = _state.value
         val newBalance = initialBalance ?: currentState.balance
         val maxAffordableMainBet = if (handCount > 0) newBalance / handCount else newBalance
@@ -401,14 +402,14 @@ class BlackjackStateMachine(
     }
 
     private suspend fun runDealerTurn() {
-        println("DEALER_TURN: start")
+        logger.d { "DEALER_TURN: start" }
         if (_state.value.status != GameStatus.DEALER_TURN) {
             _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
         }
         revealDealerHoleCard()
-        println("DEALER_TURN: before first delay")
+        logger.v { "DEALER_TURN: before first delay" }
         delay(dealerTurnDelayMs) // Visual pause for hole card reveal
-        println("DEALER_TURN: after first delay")
+        logger.v { "DEALER_TURN: after first delay" }
 
         handleInsurancePayout()
 
@@ -422,9 +423,9 @@ class BlackjackStateMachine(
             if (isCritical) {
                 _state.value = _state.value.copy(dealerDrawIsCritical = true)
                 emitEffect(GameEffect.DealerCriticalDraw)
-                println("DEALER_TURN: before critical delay")
+                logger.v { "DEALER_TURN: before critical delay" }
                 delay(dealerCriticalPreDelayMs)
-                println("DEALER_TURN: after critical delay")
+                logger.v { "DEALER_TURN: after critical delay" }
             }
 
             val newCard = currentDeck.firstOrNull() ?: break
@@ -438,18 +439,18 @@ class BlackjackStateMachine(
                     dealerDrawIsCritical = isCritical,
                 )
             emitEffect(GameEffect.PlayCardSound)
-            println("DEALER_TURN: before card delay")
+            logger.v { "DEALER_TURN: before card delay" }
             delay(dealerTurnDelayMs)
-            println("DEALER_TURN: after card delay")
+            logger.v { "DEALER_TURN: after card delay" }
 
             if (isCritical) {
                 _state.value = _state.value.copy(dealerDrawIsCritical = false)
             }
         }
 
-        println("DEALER_TURN: finalizing game")
+        logger.d { "DEALER_TURN: finalizing game" }
         finalizeGame()
-        println("DEALER_TURN: end")
+        logger.d { "DEALER_TURN: end" }
     }
 
     private fun shouldDealerDraw(
