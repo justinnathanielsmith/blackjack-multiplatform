@@ -83,7 +83,6 @@ private fun ActiveGlowLayer(
                     ambientShadowColor = PrimaryGold.copy(alpha = glowAlpha)
                     spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
                 }.drawBehind {
-                    // Soft fill only — no stroke/border
                     drawRoundRect(
                         color = backgroundColor,
                         cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
@@ -92,10 +91,6 @@ private fun ActiveGlowLayer(
     )
 }
 
-/**
- * The unified, premium hand container for both Dealer and Player hands.
- * Features a "breaking out" score badge, status indicators, and result overlays.
- */
 @Composable
 fun BlackjackHandContainer(
     score: Int,
@@ -132,6 +127,7 @@ fun BlackjackHandContainer(
         modifier =
             modifier
                 .fillMaxWidth()
+                .wrapContentHeight(unbounded = true)
                 .padding(horizontal = horizontalPadding, vertical = 6.dp)
                 .onGloballyPositioned { coords ->
                     if (onPositioned != null) {
@@ -142,7 +138,6 @@ fun BlackjackHandContainer(
                     }
                 },
     ) {
-        // Visual Background + Border
         if (isActive) {
             ActiveGlowLayer(
                 cornerRadius = cornerRadius,
@@ -150,7 +145,6 @@ fun BlackjackHandContainer(
                 modifier = Modifier.matchParentSize().padding(vertical = 6.dp),
             )
         } else {
-            // Static background for inactive hands or dealer
             Box(
                 modifier =
                     Modifier
@@ -172,7 +166,6 @@ fun BlackjackHandContainer(
             )
         }
 
-        // Title Badge (Dealer, Player 1, etc.) — TopStart, inside container
         if (title != null) {
             val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
             TitleBadge(
@@ -184,7 +177,6 @@ fun BlackjackHandContainer(
             )
         }
 
-        // Status Badge (Active/Waiting) — TopEnd, inside container
         if (showStatus && (isActive || isPending)) {
             StatusBadge(isActive = isActive, isPending = isPending, isCompact = isAnyCompact)
         }
@@ -218,56 +210,44 @@ fun BlackjackHandContainer(
             }
 
         Box(
-            modifier =
-                Modifier
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize()
+                .defaultMinSize(minHeight = minContentHeight)
+        ) {
+            Box(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .animateContentSize()
-                    .defaultMinSize(minHeight = minContentHeight)
                     .padding(
                         start = contentPadding,
                         end = contentPadding,
                         top = topPadding,
                         bottom = bottomPadding
                     ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Box(
-                contentAlignment =
-                    if (badgeState == ScoreBadgeState.DEALER) {
-                        Alignment.TopCenter
-                    } else {
-                        Alignment.BottomCenter
-                    }
+                contentAlignment = Alignment.Center,
             ) {
                 Box(
-                    modifier =
-                        Modifier.graphicsLayer {
-                            if (isPending) {
-                                alpha = 0.5f
-                            }
+                    modifier = Modifier.graphicsLayer {
+                        if (isPending) {
+                            alpha = 0.8f
                         }
+                    }
                 ) {
                     content()
                 }
-
-                ScoreBadge(
-                    score = score,
-                    state = badgeState,
-                    modifier =
-                        Modifier
-                            .then(
-                                if (badgeState == ScoreBadgeState.DEALER) {
-                                    Modifier.offset(y = (-16).dp)
-                                } else {
-                                    Modifier.offset(y = 16.dp)
-                                }
-                            ).zIndex(2f)
-                            .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
-                )
             }
+
+            ScoreBadge(
+                score = score,
+                state = badgeState,
+                modifier = Modifier
+                    .align(if (badgeState == ScoreBadgeState.DEALER) Alignment.TopCenter else Alignment.BottomCenter)
+                    .offset(y = if (badgeState == ScoreBadgeState.DEALER) (-4).dp else 4.dp)
+                    .zIndex(2f)
+                    .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
+            )
         }
 
-        // Result Overlay (WIN/LOSS/PUSH)
         HandOutcomeBadge(result = result)
     }
 }
@@ -370,9 +350,9 @@ private fun BoxScope.StatusBadge(
 internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
     val color =
         when (result) {
-            HandResult.WIN -> Color(0xFFFFD700) // gold
-            HandResult.LOSS -> Color(0xFFCC2222) // red
-            HandResult.PUSH -> Color(0xFF888888) // gray
+            HandResult.WIN -> Color(0xFFFFD700)
+            HandResult.LOSS -> Color(0xFFCC2222)
+            HandResult.PUSH -> Color(0xFF888888)
             HandResult.NONE -> Color.Transparent
         }
 
