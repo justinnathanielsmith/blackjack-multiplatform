@@ -253,12 +253,14 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
+    // Update the background brush to center the light source slightly higher (where the dealer is)
     val backgroundBrush =
         remember(FeltWarmCenter, FeltGreen, FeltDeepEdge) {
             Brush.radialGradient(
                 0.0f to FeltWarmCenter,
-                0.5f to FeltGreen,
+                0.6f to FeltGreen,
                 1.0f to FeltDeepEdge,
+                center = androidx.compose.ui.geometry.Offset.Unspecified // Will default to center, but we tweak it in the canvas below
             )
         }
 
@@ -267,7 +269,57 @@ fun BlackjackScreen(component: BlackjackComponent) {
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(backgroundBrush)
+                    .background(FeltDeepEdge) // Fallback deep color
+                    .drawBehind {
+                        // 1. Base Felt Gradient (shifted up towards the dealer)
+                        drawRect(
+                            brush = Brush.radialGradient(
+                                colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
+                                center = Offset(size.width / 2, size.height * 0.35f),
+                                radius = size.maxDimension * 0.6f
+                            )
+                        )
+
+                        // 2. The Classic Table Arc (Betting Line)
+                        val arcWidth = size.width * 1.5f
+                        val arcHeight = size.height * 0.6f
+                        val arcLeft = (size.width - arcWidth) / 2
+                        val arcTop = size.height * 0.35f // Starts below the dealer
+
+                        drawArc(
+                            color = PrimaryGold.copy(alpha = 0.15f),
+                            startAngle = 180f,
+                            sweepAngle = 180f,
+                            useCenter = false,
+                            topLeft = Offset(arcLeft, arcTop),
+                            size = androidx.compose.ui.geometry.Size(arcWidth, arcHeight),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                width = 3.dp.toPx()
+                            )
+                        )
+
+                        // 3. The Insurance Line (Fainter, above the main arc)
+                        drawArc(
+                            color = PrimaryGold.copy(alpha = 0.08f),
+                            startAngle = 180f,
+                            sweepAngle = 180f,
+                            useCenter = false,
+                            topLeft = Offset(arcLeft, arcTop - 40.dp.toPx()),
+                            size = androidx.compose.ui.geometry.Size(arcWidth, arcHeight),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                width = 1.5.dp.toPx()
+                            )
+                        )
+
+                        // 4. Heavy Vignette (Simulates the dark leather rail around the table)
+                        drawRect(
+                            brush = Brush.radialGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                                center = Offset(size.width / 2, size.height / 2),
+                                radius = size.maxDimension * 0.55f
+                            )
+                        )
+                    }
                     .graphicsLayer { translationX = shakeOffset.value * density },
         ) {
             // Enforce a portrait-like aspect ratio (9:16) if the window is too wide (letterboxing)

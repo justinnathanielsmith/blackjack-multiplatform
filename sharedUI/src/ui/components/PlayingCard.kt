@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -90,29 +91,108 @@ fun CardFace(
     suit: Suit,
     modifier: Modifier = Modifier
 ) {
-    BoxWithConstraints(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        // Slot machine style: single large bold rank centered
-        // '10' is two characters, so scale it down slightly to avoid corner overlap
-        val isTen = rank == Rank.TEN
-        val scaleFactor = if (isTen) 0.55f else 0.7f
-        val minSize = if (isTen) 30f else 40f
+    val isCourt = rank == Rank.JACK || rank == Rank.QUEEN || rank == Rank.KING
+    val isAce = rank == Rank.ACE
+    val isTen = rank == Rank.TEN
 
-        val fontSizeRank = maxOf(maxWidth.value * scaleFactor, minSize).sp
-        Text(
-            text = rank.symbol,
-            color = suit.color,
-            fontWeight = FontWeight.Black,
-            fontSize = fontSizeRank,
-            style =
-                androidx.compose.ui.text.TextStyle(
-                    shadow =
-                        Shadow(
-                            color = Color.Black.copy(alpha = 0.15f),
-                            offset = Offset(2f, 2f),
-                            blurRadius = 4f
+    BoxWithConstraints(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        val cardWidth = maxWidth
+
+        // 1. Elegant Inner Frame
+        androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+            val strokeWidth = 1.dp.toPx()
+
+            // Outer fine line
+            drawRoundRect(
+                color = suit.color.copy(alpha = 0.2f),
+                size = size,
+                cornerRadius = CornerRadius(4.dp.toPx()),
+                style = Stroke(width = strokeWidth)
+            )
+            // Inner bounding box
+            drawRoundRect(
+                color = suit.color.copy(alpha = 0.1f),
+                size = size.copy(width = size.width - 8f, height = size.height - 8f),
+                topLeft = Offset(4f, 4f),
+                cornerRadius = CornerRadius(2.dp.toPx()),
+                style = Stroke(width = strokeWidth)
+            )
+        }
+
+        // 2. Centerpiece Design
+        if (isCourt) {
+            // Court Cards: Emblem layout
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "👑",
+                    fontSize = (cardWidth.value * 0.3f).sp,
+                    modifier = Modifier.padding(bottom = 2.dp)
+                )
+                Text(
+                    text = rank.symbol,
+                    color = suit.color,
+                    fontWeight = FontWeight.Black,
+                    fontSize = (cardWidth.value * 0.5f).sp,
+                    style =
+                        androidx.compose.ui.text.TextStyle(
+                            shadow =
+                                Shadow(
+                                    color = Color.Black.copy(alpha = 0.2f),
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 4f
+                                )
                         )
                 )
-        )
+            }
+        } else if (isAce) {
+            // Aces: Oversized Power Pip
+            Text(
+                text = suit.symbol,
+                color = suit.color,
+                fontSize = (cardWidth.value * 0.8f).sp,
+                style =
+                    androidx.compose.ui.text.TextStyle(
+                        shadow =
+                            Shadow(
+                                color = suit.color.copy(alpha = 0.3f),
+                                offset = Offset(0f, 6f),
+                                blurRadius = 12f
+                            )
+                    )
+            )
+        } else {
+            // Number Cards: Clean Rank + Pip Stack
+            val scaleFactor = if (isTen) 0.45f else 0.55f
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = rank.symbol,
+                    color = suit.color,
+                    fontWeight = FontWeight.Black,
+                    fontSize = (cardWidth.value * scaleFactor).sp,
+                    style =
+                        androidx.compose.ui.text.TextStyle(
+                            shadow =
+                                Shadow(
+                                    color = Color.Black.copy(alpha = 0.15f),
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 4f
+                                )
+                        )
+                )
+                Text(
+                    text = suit.symbol,
+                    color = suit.color,
+                    fontSize = (cardWidth.value * 0.25f).sp,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
     }
 }
 
@@ -209,18 +289,6 @@ fun PlayingCard(
                                 .fillMaxSize()
                                 .padding(cornerPadding)
                     ) {
-                        // Faint watermark suit symbol in the center
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = card.suit.symbol,
-                                color = card.suit.color.copy(alpha = if (isSmall) 0.15f else 0.08f),
-                                fontSize = (cardWidth.value * if (isSmall) 1.2f else 1.0f).sp,
-                            )
-                        }
-
                         if (isSmall) {
                             // Compact: Only Top-Left Jumbo Index for maximum clarity
                             CardCorner(
