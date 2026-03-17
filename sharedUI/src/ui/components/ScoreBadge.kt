@@ -12,12 +12,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 
 enum class ScoreBadgeState {
     ACTIVE,
@@ -25,7 +27,8 @@ enum class ScoreBadgeState {
     WAITING
 }
 
-val BadgeShape = RoundedCornerShape(8.dp)
+// Sleek pill shape
+val BadgeShape = RoundedCornerShape(percent = 50)
 
 @Composable
 fun ScoreBadge(
@@ -33,84 +36,86 @@ fun ScoreBadge(
     state: ScoreBadgeState,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor =
-        when (state) {
-            ScoreBadgeState.ACTIVE -> PrimaryGold
-            ScoreBadgeState.DEALER -> Color.White
-            ScoreBadgeState.WAITING -> Color(0xFF2A2A2A)
-        }
+    val isBust = score > 21
+    val is21 = score == 21
 
-    val borderColor =
-        when (state) {
-            ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.3f)
-            ScoreBadgeState.DEALER -> Color.Transparent
-            ScoreBadgeState.WAITING -> Color.White.copy(alpha = 0.3f)
-        }
+    val backgroundColor = when {
+        isBust -> TacticalRed
+        is21 -> PrimaryGold
+        state == ScoreBadgeState.ACTIVE -> PrimaryGold
+        state == ScoreBadgeState.DEALER -> Color.White
+        else -> Color(0xFF1A1A1A) // Deep dark for waiting
+    }
 
-    val textColor =
-        when (state) {
-            ScoreBadgeState.ACTIVE -> BackgroundDark
-            ScoreBadgeState.DEALER -> BackgroundDark
-            ScoreBadgeState.WAITING -> Color.White.copy(alpha = 0.9f)
-        }
+    val borderColor = when {
+        isBust -> Color.White.copy(alpha = 0.6f)
+        is21 || state == ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.5f)
+        state == ScoreBadgeState.DEALER -> PrimaryGold.copy(alpha = 0.5f)
+        else -> Color.White.copy(alpha = 0.15f)
+    }
 
-    // Spring animation for entrance/exit
+    val textColor = when {
+        isBust -> Color.White
+        is21 || state == ScoreBadgeState.ACTIVE -> BackgroundDark
+        state == ScoreBadgeState.DEALER -> BackgroundDark
+        else -> Color.White.copy(alpha = 0.7f)
+    }
+
     AnimatedVisibility(
         visible = score > 0,
-        enter =
-            scaleIn(
-                animationSpec =
-                    spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-            ) + fadeIn(),
+        enter = scaleIn(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+        ) + fadeIn(),
         exit = scaleOut() + fadeOut(),
         modifier = modifier
     ) {
-        // Subtle pulse animation when score changes
         val pulseScale = remember { Animatable(1f) }
 
         LaunchedEffect(score) {
             if (score > 0) {
                 pulseScale.animateTo(
-                    targetValue = 1.15f,
-                    animationSpec =
-                        spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessHigh
-                        )
+                    targetValue = 1.2f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh
+                    )
                 )
                 pulseScale.animateTo(
                     targetValue = 1f,
-                    animationSpec =
-                        spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
                 )
             }
         }
 
         Box(
-            modifier =
-                Modifier
-                    .graphicsLayer {
-                        scaleX = pulseScale.value
-                        scaleY = pulseScale.value
-                    }.background(backgroundColor, BadgeShape)
-                    .border(1.dp, borderColor, BadgeShape)
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
+            modifier = Modifier
+                .graphicsLayer {
+                    scaleX = pulseScale.value
+                    scaleY = pulseScale.value
+                }
+                .shadow(
+                    elevation = if (state == ScoreBadgeState.ACTIVE || is21) 8.dp else 4.dp,
+                    shape = BadgeShape,
+                    spotColor = backgroundColor
+                )
+                .background(backgroundColor, BadgeShape)
+                .border(1.5.dp, borderColor, BadgeShape)
+                .padding(horizontal = 16.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
             AnimatedContent(
                 targetState = score,
                 transitionSpec = {
-                    val springSpec =
-                        spring<Float>(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
+                    val springSpec = spring<Float>(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
                     (scaleIn(animationSpec = springSpec) + fadeIn())
                         .togetherWith(scaleOut() + fadeOut())
                 },
@@ -118,7 +123,7 @@ fun ScoreBadge(
             ) { targetScore ->
                 Text(
                     text = targetScore.toString(),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleMedium,
                     color = textColor,
                     fontWeight = FontWeight.Black,
                 )

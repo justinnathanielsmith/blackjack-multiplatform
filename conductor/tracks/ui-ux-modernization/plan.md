@@ -5,7 +5,7 @@
 
 ### Tasks
 - [ ] Update `BlackjackHandContainer.kt` to position the state label at `Alignment.TopCenter`.
-- [ ] Move `ScoreBadge` placement in `BlackjackHandContainer.kt` to the top-right corner *inside* the box.
+- [x] Update `ScoreBadge` placement in `BlackjackHandContainer.kt` to perfectly straddle the container's border (Alignment.TopCenter for Dealer, Alignment.BottomCenter for Player).
 - [ ] Update `PlayerHand.kt` or `HandRow.kt` if they handle internal badge logic.
 
 ---

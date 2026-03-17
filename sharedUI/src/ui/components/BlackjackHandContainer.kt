@@ -128,7 +128,8 @@ fun BlackjackHandContainer(
             modifier
                 .fillMaxWidth()
                 .wrapContentHeight(unbounded = true)
-                .padding(horizontal = horizontalPadding, vertical = 6.dp)
+                .padding(horizontal = horizontalPadding, vertical = 16.dp)
+                .graphicsLayer { clip = false }
                 .onGloballyPositioned { coords ->
                     if (onPositioned != null) {
                         onPositioned(
@@ -142,14 +143,14 @@ fun BlackjackHandContainer(
             ActiveGlowLayer(
                 cornerRadius = cornerRadius,
                 backgroundColor = backgroundColor,
-                modifier = Modifier.matchParentSize().padding(vertical = 6.dp),
+                modifier = Modifier.matchParentSize().padding(vertical = 16.dp),
             )
         } else {
             Box(
                 modifier =
                     Modifier
                         .matchParentSize()
-                        .padding(vertical = 6.dp)
+                        .padding(vertical = 16.dp)
                         .background(backgroundColor, cornerRadius)
                         .border(
                             width = if (isActive) 2.dp else 1.dp,
@@ -243,7 +244,8 @@ fun BlackjackHandContainer(
                 state = badgeState,
                 modifier = Modifier
                     .align(if (badgeState == ScoreBadgeState.DEALER) Alignment.TopCenter else Alignment.BottomCenter)
-                    .offset(y = if (badgeState == ScoreBadgeState.DEALER) (-4).dp else 4.dp)
+                    // Increased offset to 14.dp to perfectly straddle the border line
+                    .offset(y = if (badgeState == ScoreBadgeState.DEALER) (-14).dp else 14.dp)
                     .zIndex(2f)
                     .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
             )
