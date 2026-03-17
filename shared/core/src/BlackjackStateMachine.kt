@@ -19,8 +19,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 
 class BlackjackStateMachine(
@@ -42,10 +43,11 @@ class BlackjackStateMachine(
 
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
     private val isShutdown = MutableStateFlow(false)
-    val effects: Flow<GameEffect> =
-        isShutdown
-            .takeWhile { !it }
-            .flatMapLatest { _effects.asSharedFlow() }
+    val effects: Flow<GameEffect> = channelFlow {
+        val collectJob = launch { _effects.collect { send(it) } }
+        isShutdown.first { it }
+        collectJob.cancelAndJoin()
+    }
 
     private val actionChannel = Channel<GameAction>(Channel.UNLIMITED)
 
