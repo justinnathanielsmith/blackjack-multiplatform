@@ -28,8 +28,10 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -113,27 +115,33 @@ fun GameActions(
                 Row(
                     modifier = Modifier.fillMaxWidth().height(buttonHeight),
                     horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val buttonModifier = Modifier.weight(1f).aspectRatio(1f).padding(4.dp)
+
                     GameActionButton(
                         icon = Res.drawable.ic_double,
                         onClick = onDoubleDown,
                         enabled = canDouble,
-                        modifier = Modifier.weight(1f).aspectRatio(1f),
-                        isStrategic = true,
+                        modifier = buttonModifier,
+                        containerColor = PrimaryGold,
+                        contentColor = BackgroundDark,
                         label = stringResource(Res.string.action_double),
                     )
-                    GameActionButton(
-                        icon = Res.drawable.ic_split,
-                        onClick = onSplit,
-                        enabled = canSplit,
-                        modifier = Modifier.weight(1f).aspectRatio(1f),
-                        label = stringResource(Res.string.action_split),
-                    )
+                    if (canSplit) {
+                        GameActionButton(
+                            icon = Res.drawable.ic_split,
+                            onClick = onSplit,
+                            enabled = true,
+                            modifier = buttonModifier,
+                            label = stringResource(Res.string.action_split),
+                        )
+                    }
                     GameActionButton(
                         icon = Res.drawable.ic_hit,
                         onClick = onHit,
                         enabled = true,
-                        modifier = Modifier.weight(1f).aspectRatio(1f),
+                        modifier = buttonModifier,
                         containerColor = ChipGreen,
                         contentColor = Color.White,
                         label = stringResource(Res.string.action_hit),
@@ -142,7 +150,7 @@ fun GameActions(
                         icon = Res.drawable.ic_stand,
                         onClick = onStand,
                         enabled = true,
-                        modifier = Modifier.weight(1f).aspectRatio(1f),
+                        modifier = buttonModifier,
                         containerColor = TacticalRed,
                         contentColor = Color.White,
                         label = stringResource(Res.string.action_stand),

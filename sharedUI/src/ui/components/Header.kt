@@ -14,13 +14,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,13 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -95,33 +95,13 @@ fun Header(
             Modifier
                 .fillMaxWidth()
                 .background(GlassDark)
+                .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Top))
                 .padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = "Balance: $$formattedBalance"
-                    }.graphicsLayer { translationX = jiggleX.value },
-        ) {
-            Text(
-                text = stringResource(Res.string.balance).uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.6f),
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.sp,
-            )
-            Text(
-                text = "$$formattedBalance",
-                style = MaterialTheme.typography.headlineSmall,
-                color = PrimaryGold,
-                fontWeight = FontWeight.Black,
-            )
-        }
+        AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
             HeaderIcon(
                 "rules",
                 contentDescription = stringResource(Res.string.btn_rules_description),

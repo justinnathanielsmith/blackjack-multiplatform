@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -165,12 +166,13 @@ class PlayerActionLogicTest {
 
     @Test
     fun doubleDown_returnsNoop_whenCannotDoubleDown_dueToBalance() {
-        val state = playingState(
-            balance = 50,
-            bet = 100,
-            playerHand = hand(Rank.FIVE, Rank.SIX),
-            dealerHand = dealerHand(Rank.TEN, Rank.NINE)
-        )
+        val state =
+            playingState(
+                balance = 50,
+                bet = 100,
+                playerHand = hand(Rank.FIVE, Rank.SIX),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE)
+            )
         val outcome = PlayerActionLogic.doubleDown(state)
 
         assertEquals(state, outcome.state)
@@ -180,12 +182,13 @@ class PlayerActionLogicTest {
 
     @Test
     fun doubleDown_returnsNoop_whenCannotDoubleDown_dueToCardCount() {
-        val state = playingState(
-            balance = 500,
-            bet = 100,
-            playerHand = hand(Rank.TWO, Rank.THREE, Rank.FOUR),
-            dealerHand = dealerHand(Rank.TEN, Rank.NINE)
-        )
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.TWO, Rank.THREE, Rank.FOUR),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE)
+            )
         val outcome = PlayerActionLogic.doubleDown(state)
 
         assertEquals(state, outcome.state)
@@ -195,13 +198,14 @@ class PlayerActionLogicTest {
 
     @Test
     fun doubleDown_returnsNoop_whenDeckIsEmpty() {
-        val state = playingState(
-            balance = 500,
-            bet = 100,
-            playerHand = hand(Rank.FIVE, Rank.SIX),
-            dealerHand = dealerHand(Rank.TEN, Rank.NINE),
-            deck = persistentListOf()
-        )
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.FIVE, Rank.SIX),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = persistentListOf()
+            )
         val outcome = PlayerActionLogic.doubleDown(state)
 
         assertEquals(state, outcome.state)
@@ -211,13 +215,14 @@ class PlayerActionLogicTest {
 
     @Test
     fun doubleDown_updatesStateCorrectly_andAdvancesTurn() {
-        val state = playingState(
-            balance = 500,
-            bet = 100,
-            playerHand = hand(Rank.FIVE, Rank.SIX),
-            dealerHand = dealerHand(Rank.TEN, Rank.NINE),
-            deck = deckOf(Rank.EIGHT, Rank.NINE)
-        )
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.FIVE, Rank.SIX),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = deckOf(Rank.EIGHT, Rank.NINE)
+            )
         val outcome = PlayerActionLogic.doubleDown(state)
 
         val newState = outcome.state
@@ -234,13 +239,14 @@ class PlayerActionLogicTest {
 
     @Test
     fun doubleDown_addsCorrectEffects_whenDrawnCardIsTenOrMore() {
-        val state = playingState(
-            balance = 500,
-            bet = 100,
-            playerHand = hand(Rank.FIVE, Rank.SIX),
-            dealerHand = dealerHand(Rank.TEN, Rank.NINE),
-            deck = deckOf(Rank.TEN)
-        )
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.FIVE, Rank.SIX),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = deckOf(Rank.TEN)
+            )
         val outcome = PlayerActionLogic.doubleDown(state)
 
         assertTrue(outcome.effects.contains(GameEffect.HeavyCardThud))
@@ -249,13 +255,14 @@ class PlayerActionLogicTest {
 
     @Test
     fun doubleDown_addsCorrectEffects_whenHandBusts() {
-        val state = playingState(
-            balance = 500,
-            bet = 100,
-            playerHand = hand(Rank.TEN, Rank.SIX), // 16
-            dealerHand = dealerHand(Rank.TEN, Rank.NINE),
-            deck = deckOf(Rank.TEN) // 26 -> Bust
-        )
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.TEN, Rank.SIX), // 16
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = deckOf(Rank.TEN) // 26 -> Bust
+            )
         val outcome = PlayerActionLogic.doubleDown(state)
 
         assertTrue(outcome.effects.contains(GameEffect.PlayLoseSound))

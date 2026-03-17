@@ -16,12 +16,11 @@ fun PlayerHand(
     handTotal: Int,
     status: HandStatus,
     cards: List<Card>,
-    bet: Int? = null,
     result: HandResult = HandResult.NONE,
     title: String? = null,
     isCompact: Boolean = false,
     isExtraCompact: Boolean = false,
-    onBetPositioned: ((Offset) -> Unit)? = null,
+    onPositioned: ((Offset) -> Unit)? = null,
     modifier: Modifier = Modifier,
     scale: Float = 1.0f
 ) {
@@ -29,11 +28,18 @@ fun PlayerHand(
     val isWaiting = status == HandStatus.WAITING
 
     val alpha = if (isWaiting) 0.5f else 1.0f
+    val baseScale =
+        when {
+            cards.size >= 7 -> 0.75f
+            cards.size >= 5 -> 0.85f
+            else -> 1.0f
+        }
+
     val targetScale =
         when {
-            isActive -> 1.05f
-            isWaiting -> 0.9f
-            else -> 1.0f
+            isActive -> 1.05f * baseScale
+            isWaiting -> 0.9f * baseScale
+            else -> 1.0f * baseScale
         }
     val animatedScale by animateFloatAsState(targetScale, label = "handScale")
     val scaleModifier = Modifier.scale(animatedScale)
@@ -43,11 +49,10 @@ fun PlayerHand(
         title = title,
         isActive = isActive,
         isPending = isWaiting,
-        bet = bet,
         result = result,
         isCompact = isCompact,
         isExtraCompact = isExtraCompact,
-        onBetPositioned = onBetPositioned,
+        onPositioned = onPositioned,
         modifier =
             modifier
                 .then(scaleModifier)

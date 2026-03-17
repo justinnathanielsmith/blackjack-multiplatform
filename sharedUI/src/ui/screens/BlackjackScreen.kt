@@ -19,10 +19,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -61,8 +61,8 @@ import io.github.smithjustinn.blackjack.determineHandOutcome
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.components.ControlCenter
 import io.github.smithjustinn.blackjack.ui.components.DealerHand
-import io.github.smithjustinn.blackjack.ui.components.GameActions
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.HandStatus
@@ -284,7 +284,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .windowInsetsPadding(safeDrawingInsets()),
+                            .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Horizontal)),
                 ) {
                     Box(
                         modifier =
@@ -317,6 +317,12 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             handBetOffsets = handBetOffsets,
                         )
                     }
+
+                    ControlCenter(
+                        state = state,
+                        component = component,
+                        isCompact = isMultiHand,
+                    )
                 }
 
                 // Overlay layer (full-bleed within the game bounds)
@@ -519,14 +525,7 @@ private fun BlackjackLayout(
             }
         )
 
-        Spacer(modifier = Modifier.height(if (handCount > 1) 8.dp else 12.dp))
-
-        // Action Bar - Fixed size at the bottom
-        GameActions(
-            state = state,
-            component = component,
-            isCompact = handCount > 1,
-        )
+        // Action Bar moved to ControlCenter
     }
 }
 
@@ -566,11 +565,6 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                 remember(state.activeHandIndex, state.status) {
                     state.activeHandIndex == 0 && state.status == GameStatus.PLAYING
                 }
-            val bet =
-                remember(state.status, state.currentBet) {
-                    if (state.status != GameStatus.IDLE) state.currentBet else null
-                }
-
             val status =
                 when {
                     hand.isBust -> HandStatus.BUSTED
@@ -582,13 +576,12 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                 handTotal = hand.score,
                 status = status,
                 cards = hand.cards,
-                bet = bet,
                 result = state.handResult(0),
                 modifier = Modifier, // no fillMaxHeight, allowing natural centering
                 scale = baseCardScale,
                 isCompact = false,
                 isExtraCompact = false,
-                onBetPositioned = { onBetPositioned(0, it) }
+                onPositioned = { onBetPositioned(0, it) }
             )
 
             SideBetResultsOverlay(state = state)
@@ -608,8 +601,6 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                     remember(index, state.activeHandIndex, state.status) {
                         index == state.activeHandIndex && state.status == GameStatus.PLAYING
                     }
-                val bet = state.playerBets.getOrNull(index)
-
                 val status =
                     when {
                         hand.isBust -> HandStatus.BUSTED
@@ -628,14 +619,13 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                         handTotal = hand.score,
                         status = status,
                         cards = hand.cards,
-                        bet = bet,
                         result = state.handResult(index),
                         title = stringResource(Res.string.hand_number, index + 1),
                         modifier = Modifier,
                         scale = baseCardScale,
                         isCompact = true,
                         isExtraCompact = handCount > 2,
-                        onBetPositioned = { onBetPositioned(index, it) }
+                        onPositioned = { onBetPositioned(index, it) }
                     )
 
                     if (index == 0) {

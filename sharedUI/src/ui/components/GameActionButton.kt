@@ -27,7 +27,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
@@ -39,7 +38,6 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import kotlin.math.PI
 
 @Composable
 fun GameActionButton(
@@ -115,51 +113,28 @@ fun GameActionButton(
                     center = center.copy(y = center.y + depthOffset)
                 )
 
-                // Main chip body with subtle vertical gradient for 3D feel
+                // Main body
+                val brush =
+                    Brush.verticalGradient(
+                        listOf(
+                            baseColor.copy(alpha = 1f).blend(Color.White, 0.15f),
+                            baseColor,
+                            baseColor.copy(alpha = 1f).blend(Color.Black, 0.15f)
+                        )
+                    )
+
                 drawCircle(
-                    brush =
-                        Brush.verticalGradient(
-                            listOf(
-                                baseColor.copy(alpha = 1f).blend(Color.White, 0.1f),
-                                baseColor,
-                                baseColor.copy(alpha = 1f).blend(Color.Black, 0.1f)
-                            )
-                        ),
+                    brush = brush,
                     radius = radius,
                     center = center
                 )
 
-                // Dashed rim
-                val dashLength = (radius * 2 * Math.PI / 16).toFloat()
+                // Clean rim highlight
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.4f),
-                    radius = radius * 0.92f,
+                    color = Color.White.copy(alpha = 0.2f),
+                    radius = radius * 0.95f,
                     center = center,
-                    style =
-                        Stroke(
-                            width = 3.dp.toPx(),
-                            pathEffect =
-                                PathEffect.dashPathEffect(
-                                    floatArrayOf(dashLength / 2, dashLength / 2),
-                                    0f
-                                )
-                        )
-                )
-
-                // Inner embossed ring
-                drawCircle(
-                    color = Color.Black.copy(alpha = 0.15f),
-                    radius = radius * 0.78f,
-                    center = center,
-                    style = Stroke(width = 1.dp.toPx())
-                )
-
-                // Top highlight
-                drawCircle(
-                    color = Color.White.copy(alpha = 0.1f),
-                    radius = radius * 0.76f,
-                    center = center,
-                    style = Stroke(width = 0.5.dp.toPx())
+                    style = Stroke(width = 2.dp.toPx())
                 )
             } else {
                 // Disabled flat look

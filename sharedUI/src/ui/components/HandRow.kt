@@ -51,13 +51,33 @@ fun HandRow(
         val n = placeables.size
         val cardW = placeables.firstOrNull()?.width ?: 0
         val cardH = placeables.maxOfOrNull { it.height } ?: 0
-        val stepPx = overlapOffset.roundToPx() + cardW
 
-        val totalWidth = if (n == 0) 0 else cardW + (n - 1) * stepPx
+        // Base step size (positive distance from left edge of one card to left edge of next)
+        val defaultStepPx = overlapOffset.roundToPx() + cardW
 
-        layout(totalWidth.coerceAtLeast(0), cardH) {
+        val maxAvailableW = constraints.maxWidth
+
+        // Determine the horizontal step size dynamically so it fits in the container
+        val actualStepPx =
+            if (n > 1) {
+                val requiredDefaultW = cardW + (n - 1) * defaultStepPx
+                if (requiredDefaultW > maxAvailableW) {
+                    // Squeeze cards to fit, but reserve at least ~32% of card width for readability
+                    val squeezedStep = (maxAvailableW - cardW) / (n - 1)
+                    val minStepPx = (cardW * 0.32f).toInt()
+                    squeezedStep.coerceAtLeast(minStepPx)
+                } else {
+                    defaultStepPx
+                }
+            } else {
+                defaultStepPx
+            }
+
+        val totalWidth = if (n == 0) 0 else cardW + (n - 1) * actualStepPx
+
+        layout(totalWidth.coerceAtLeast(0).coerceAtMost(maxAvailableW), cardH) {
             placeables.forEachIndexed { i, placeable ->
-                placeable.placeRelative(i * stepPx, 0)
+                placeable.placeRelative(i * actualStepPx, 0)
             }
         }
     }

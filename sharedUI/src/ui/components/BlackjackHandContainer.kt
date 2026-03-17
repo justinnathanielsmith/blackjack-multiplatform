@@ -100,7 +100,6 @@ private fun ActiveGlowLayer(
 fun BlackjackHandContainer(
     score: Int,
     title: String? = null,
-    bet: Int? = null,
     isActive: Boolean = false,
     isPending: Boolean = false,
     result: HandResult = HandResult.NONE,
@@ -108,7 +107,7 @@ fun BlackjackHandContainer(
     isExtraCompact: Boolean = false,
     isDealer: Boolean = false,
     modifier: Modifier = Modifier,
-    onBetPositioned: ((Offset) -> Unit)? = null,
+    onPositioned: ((Offset) -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val isAnyCompact = isCompact || isExtraCompact
@@ -132,7 +131,15 @@ fun BlackjackHandContainer(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = horizontalPadding, vertical = 6.dp),
+                .padding(horizontal = horizontalPadding, vertical = 6.dp)
+                .onGloballyPositioned { coords ->
+                    if (onPositioned != null) {
+                        onPositioned(
+                            coords.positionInRoot() +
+                                Offset(coords.size.width / 2f, coords.size.height / 2f)
+                        )
+                    }
+                },
     ) {
         // Visual Background + Border
         if (isActive) {
@@ -150,8 +157,15 @@ fun BlackjackHandContainer(
                         .padding(vertical = 6.dp)
                         .background(backgroundColor, cornerRadius)
                         .border(
-                            width = 1.dp,
-                            color = Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f),
+                            width = if (isActive) 2.dp else 1.dp,
+                            color =
+                                if (isActive) {
+                                    PrimaryGold.copy(
+                                        alpha = 0.5f
+                                    )
+                                } else {
+                                    Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f)
+                                },
                             shape = cornerRadius
                         )
             )
@@ -177,11 +191,16 @@ fun BlackjackHandContainer(
         val contentPadding = if (isExtraCompact) 10.dp else 16.dp
         val topPadding =
             when {
-                isExtraCompact -> 22.dp
-                isCompact -> 28.dp
-                else -> 32.dp
+                isExtraCompact -> 28.dp
+                isCompact -> 32.dp
+                else -> 36.dp
             }
-        val bottomPadding = if (isExtraCompact) 8.dp else contentPadding
+        val bottomPadding =
+            when {
+                isExtraCompact -> 16.dp
+                isCompact -> 24.dp
+                else -> 28.dp
+            }
 
         val minContentHeight =
             when {
@@ -213,12 +232,10 @@ fun BlackjackHandContainer(
         ) {
             Box(
                 contentAlignment =
-                    if (badgeState ==
-                        ScoreBadgeState.DEALER
-                    ) {
-                        Alignment.TopEnd
+                    if (badgeState == ScoreBadgeState.DEALER) {
+                        Alignment.TopCenter
                     } else {
-                        Alignment.BottomEnd
+                        Alignment.BottomCenter
                     }
             ) {
                 Box(
@@ -239,9 +256,9 @@ fun BlackjackHandContainer(
                         Modifier
                             .then(
                                 if (badgeState == ScoreBadgeState.DEALER) {
-                                    Modifier.offset(x = 10.dp, y = (-12).dp)
+                                    Modifier.offset(y = (-16).dp)
                                 } else {
-                                    Modifier.offset(x = 12.dp, y = 14.dp)
+                                    Modifier.offset(y = 16.dp)
                                 }
                             ).zIndex(2f)
                             .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
@@ -251,49 +268,6 @@ fun BlackjackHandContainer(
 
         // Result Overlay (WIN/LOSS/PUSH)
         HandOutcomeBadge(result = result)
-
-        // Bet Chip Stack
-        if (bet != null) {
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomStart)
-                        .offset(x = 12.dp, y = 14.dp)
-                        .zIndex(2f)
-            ) {
-                Column(
-                    modifier =
-                        Modifier
-                            .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                            .background(Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
-                            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                            .onGloballyPositioned { coords ->
-                                if (onBetPositioned != null) {
-                                    onBetPositioned(
-                                        coords.positionInRoot() +
-                                            Offset(coords.size.width / 2f, coords.size.height / 2f)
-                                    )
-                                }
-                            }.padding(horizontal = 10.dp, vertical = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "BET",
-                        color = Color.White.copy(alpha = 0.5f),
-                        style =
-                            MaterialTheme.typography.labelSmall.copy(
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 1.sp
-                            )
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Box(modifier = Modifier.padding(top = 16.dp)) {
-                        ChipStack(amount = bet, isActive = isActive)
-                    }
-                }
-            }
-        }
     }
 }
 
