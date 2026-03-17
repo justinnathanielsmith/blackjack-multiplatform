@@ -20,6 +20,7 @@ fun PlayerHand(
     title: String? = null,
     isCompact: Boolean = false,
     isExtraCompact: Boolean = false,
+    showStatus: Boolean = true,
     onPositioned: ((Offset) -> Unit)? = null,
     modifier: Modifier = Modifier,
     scale: Float = 1.0f
@@ -52,6 +53,7 @@ fun PlayerHand(
         result = result,
         isCompact = isCompact,
         isExtraCompact = isExtraCompact,
+        showStatus = showStatus,
         onPositioned = onPositioned,
         modifier =
             modifier

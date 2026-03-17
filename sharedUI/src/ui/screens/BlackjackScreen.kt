@@ -581,6 +581,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                 scale = baseCardScale,
                 isCompact = false,
                 isExtraCompact = false,
+                showStatus = false,
                 onPositioned = { onBetPositioned(0, it) }
             )
 

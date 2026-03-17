@@ -21,6 +21,7 @@ fun DealerHand(
         isCompact = isCompact,
         isExtraCompact = isExtraCompact,
         isDealer = true,
+        showStatus = false,
         modifier = modifier,
     ) {
         HandRow(

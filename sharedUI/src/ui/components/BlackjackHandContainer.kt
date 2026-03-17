@@ -106,6 +106,7 @@ fun BlackjackHandContainer(
     isCompact: Boolean = false,
     isExtraCompact: Boolean = false,
     isDealer: Boolean = false,
+    showStatus: Boolean = true,
     modifier: Modifier = Modifier,
     onPositioned: ((Offset) -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
@@ -184,7 +185,7 @@ fun BlackjackHandContainer(
         }
 
         // Status Badge (Active/Waiting) — TopEnd, inside container
-        if (isActive || isPending) {
+        if (showStatus && (isActive || isPending)) {
             StatusBadge(isActive = isActive, isPending = isPending, isCompact = isAnyCompact)
         }
 
