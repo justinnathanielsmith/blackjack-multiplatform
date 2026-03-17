@@ -1,0 +1,147 @@
+package io.github.smithjustinn.blackjack.ui.components
+
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.bet_multiplier
+import sharedui.generated.resources.bet_spot_tap_to_bet
+
+@Composable
+fun BettingSlot(
+    amount: Int,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    slotSize: Dp = 124.dp,
+    isSideBet: Boolean = false,
+    handCount: Int = 1,
+    onPositioned: (Offset) -> Unit = {}
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "bettingSlotGlow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = if (isSideBet) 0.3f else 0.4f,
+        targetValue = if (amount > 0) (if (isSideBet) 0.8f else 1.0f) else (if (isSideBet) 0.3f else 0.4f),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowAlpha"
+    )
+
+    val primaryColor = if (isSideBet) Color.White else PrimaryGold
+    val dashEffect = if (isSideBet) {
+        PathEffect.dashPathEffect(floatArrayOf(16f, 12f), 0f)
+    } else {
+        PathEffect.dashPathEffect(floatArrayOf(24f, 16f), 0f)
+    }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(if (isSideBet) 4.dp else 10.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(slotSize)
+                .drawBehind {
+                    val strokeWidth = if (isSideBet && amount > 0) 2.dp.toPx() else (if (isSideBet) 1.dp.toPx() else 2.dp.toPx())
+                    
+                    // Outer Dashed Circle
+                    drawCircle(
+                        color = primaryColor.copy(alpha = glowAlpha),
+                        style = Stroke(width = strokeWidth, pathEffect = dashEffect),
+                        radius = size.minDimension / 2f
+                    )
+                    
+                    if (!isSideBet) {
+                        // Inner Thin Circle for main bet
+                        drawCircle(
+                            color = primaryColor.copy(alpha = 0.15f),
+                            style = Stroke(width = 1.dp.toPx()),
+                            radius = size.minDimension / 2.3f
+                        )
+                    }
+                }
+                .clip(CircleShape)
+                .clickable(role = Role.Button) { onClick() }
+                .semantics {
+                    contentDescription = if (amount > 0) {
+                        if (isSideBet) "Side bet $label with $amount" else "Bet spot with $amount"
+                    } else {
+                        if (isSideBet) "Tap to place $label side bet" else "Tap to place bet"
+                    }
+                }
+                .onGloballyPositioned {
+                    val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                    onPositioned(center)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            if (amount > 0) {
+                if (isSideBet) {
+                    BetChip(
+                        amount = amount,
+                        chipColor = ChipUtils.chipColor(amount),
+                        textColor = ChipUtils.chipTextColor(amount),
+                    )
+                } else {
+                    ChipStack(amount = amount, isActive = true)
+                }
+            } else {
+                Text(
+                    text = if (isSideBet) label.replace(" ", "\n") else stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n"),
+                    color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
+                    style = if (isSideBet) {
+                        MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                    } else {
+                        MaterialTheme.typography.labelMedium
+                    },
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = if (isSideBet) 0.sp else 2.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        if (!isSideBet && handCount > 1) {
+            Text(
+                text = stringResource(Res.string.bet_multiplier, handCount),
+                style = MaterialTheme.typography.labelSmall,
+                color = BackgroundDark,
+                fontWeight = FontWeight.Black,
+                modifier = Modifier
+                    .background(PrimaryGold, RoundedCornerShape(12.dp))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            )
+        }
+    }
+}

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,7 +51,16 @@ import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.delay
+
+private val CardShape = RoundedCornerShape(8.dp)
+
+private fun shadowStyle(
+    color: Color,
+    offset: Offset,
+    blur: Float
+) = TextStyle(shadow = Shadow(color = color, offset = offset, blurRadius = blur))
 
 val Suit.color: Color
     get() =
@@ -99,7 +110,7 @@ fun CardFace(
         val cardWidth = maxWidth
 
         // 1. Elegant Inner Frame
-        androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
             val strokeWidth = 1.dp.toPx()
 
             // Outer fine line
@@ -128,23 +139,15 @@ fun CardFace(
             ) {
                 Text(
                     text = "👑",
-                    fontSize = (cardWidth.value * 0.3f).sp,
+                    fontSize = (cardWidth.value * Dimensions.Card.CourtCrownScale).sp,
                     modifier = Modifier.padding(bottom = 2.dp)
                 )
                 Text(
                     text = rank.symbol,
                     color = suit.color,
                     fontWeight = FontWeight.Black,
-                    fontSize = (cardWidth.value * 0.5f).sp,
-                    style =
-                        androidx.compose.ui.text.TextStyle(
-                            shadow =
-                                Shadow(
-                                    color = Color.Black.copy(alpha = 0.2f),
-                                    offset = Offset(2f, 2f),
-                                    blurRadius = 4f
-                                )
-                        )
+                    fontSize = (cardWidth.value * Dimensions.Card.CourtRankScale).sp,
+                    style = shadowStyle(Color.Black.copy(alpha = 0.2f), Offset(2f, 2f), 4f)
                 )
             }
         } else if (isAce) {
@@ -152,20 +155,12 @@ fun CardFace(
             Text(
                 text = suit.symbol,
                 color = suit.color,
-                fontSize = (cardWidth.value * 0.55f).sp,
-                style =
-                    androidx.compose.ui.text.TextStyle(
-                        shadow =
-                            Shadow(
-                                color = suit.color.copy(alpha = 0.3f),
-                                offset = Offset(0f, 6f),
-                                blurRadius = 12f
-                            )
-                    )
+                fontSize = (cardWidth.value * Dimensions.Card.AcePipScale).sp,
+                style = shadowStyle(suit.color.copy(alpha = 0.3f), Offset(0f, 6f), 12f)
             )
         } else {
             // Number Cards: Clean Rank + Pip Stack
-            val scaleFactor = if (isTen) 0.45f else 0.55f
+            val scaleFactor = if (isTen) Dimensions.Card.NumberRankScaleTen else Dimensions.Card.NumberRankScaleNormal
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -175,20 +170,12 @@ fun CardFace(
                     color = suit.color,
                     fontWeight = FontWeight.Black,
                     fontSize = (cardWidth.value * scaleFactor).sp,
-                    style =
-                        androidx.compose.ui.text.TextStyle(
-                            shadow =
-                                Shadow(
-                                    color = Color.Black.copy(alpha = 0.15f),
-                                    offset = Offset(2f, 2f),
-                                    blurRadius = 4f
-                                )
-                        )
+                    style = shadowStyle(Color.Black.copy(alpha = 0.15f), Offset(2f, 2f), 4f)
                 )
                 Text(
                     text = suit.symbol,
                     color = suit.color,
-                    fontSize = (cardWidth.value * 0.25f).sp,
+                    fontSize = (cardWidth.value * Dimensions.Card.NumberPipScale).sp,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
@@ -207,14 +194,19 @@ fun PlayingCard(
     scale: Float = 1f,
     isNearMiss: Boolean = false,
 ) {
-    val offsetY = remember { Animatable(if (isDealer) -300f else 300f) }
+    val offsetY =
+        remember {
+            Animatable(
+                if (isDealer) AnimationConstants.CardDealOffsetDealer else AnimationConstants.CardDealOffsetPlayer
+            )
+        }
     val nearMissAlpha = remember { Animatable(0f) }
 
     LaunchedEffect(isNearMiss) {
         if (isNearMiss) {
-            nearMissAlpha.animateTo(1f, tween(durationMillis = 300))
-            delay(600L)
-            nearMissAlpha.animateTo(0f, tween(durationMillis = 600))
+            nearMissAlpha.animateTo(1f, tween(durationMillis = AnimationConstants.NearMissInDuration))
+            delay(AnimationConstants.NearMissHoldDuration)
+            nearMissAlpha.animateTo(0f, tween(durationMillis = AnimationConstants.NearMissOutDuration))
         } else {
             nearMissAlpha.snapTo(0f)
         }
@@ -245,7 +237,7 @@ fun PlayingCard(
             modifier
                 .requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
-                .shadow(elevation = 12.dp, shape = RoundedCornerShape(8.dp), clip = false)
+                .shadow(elevation = 12.dp, shape = CardShape, clip = false)
                 .graphicsLayer {
                     translationY = offsetY.value
                     rotationY = rotation
@@ -264,9 +256,9 @@ fun PlayingCard(
                             } else {
                                 Color.Black.copy(alpha = 0.1f)
                             },
-                        shape = RoundedCornerShape(8.dp)
+                        shape = CardShape
                     ),
-            shape = RoundedCornerShape(8.dp),
+            shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         ) {
@@ -279,7 +271,7 @@ fun PlayingCard(
                             .graphicsLayer { rotationY = 180f },
                 ) {
                     val cardWidth = maxWidth
-                    val isSmall = cardWidth < 65.dp
+                    val isSmall = cardWidth < Dimensions.Card.SmallCardThreshold
 
                     val cornerPadding = if (isSmall) 4.dp else 6.dp
 
@@ -339,7 +331,7 @@ fun PlayingCard(
                             .background(Color.White)
                             .padding(4.dp)
                             // 2. Rich casino red core
-                            .background(io.github.smithjustinn.blackjack.ui.theme.TacticalRed, RoundedCornerShape(4.dp))
+                            .background(TacticalRed, RoundedCornerShape(4.dp))
                             .drawWithCache {
                                 val spacing = 6.dp.toPx()
                                 val strokeWidth = 1.dp.toPx()
@@ -385,7 +377,7 @@ fun PlayingCard(
                 ) {
                     // 5. Center Casino Medallion
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        androidx.compose.foundation.Canvas(modifier = Modifier.size(36.dp)) {
+                        Canvas(modifier = Modifier.size(36.dp)) {
                             val centerOffset = Offset(size.width / 2, size.height / 2)
 
                             // Outer gold ring
@@ -396,7 +388,7 @@ fun PlayingCard(
                             )
                             // Inner red core
                             drawCircle(
-                                color = io.github.smithjustinn.blackjack.ui.theme.TacticalRed,
+                                color = TacticalRed,
                                 radius = size.minDimension / 2 - 2.dp.toPx(),
                                 center = centerOffset
                             )
@@ -432,9 +424,7 @@ private fun CardCorner(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement =
-            androidx.compose.foundation.layout.Arrangement
-                .spacedBy((-4).dp)
+        verticalArrangement = Arrangement.spacedBy((-4).dp)
     ) {
         // Fixed width ensures '10' vs 'J' doesn't cause suit jumping/collisions
         Box(
