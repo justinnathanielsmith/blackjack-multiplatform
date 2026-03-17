@@ -76,13 +76,17 @@ data class Hand(
 
     val isSoft: Boolean
         get() {
-            if (cards.none { it.rank == Rank.ACE }) return false
-            var s = cards.sumOf { it.rank.value }
-            var aces = cards.count { it.rank == Rank.ACE }
-            val hardScore = cards.sumOf { if (it.rank == Rank.ACE) 1 else it.rank.value }
-            // If the current score is different from the score where all aces are 1, it's soft.
-            // Actually, a hand is soft if it contains an Ace that is being counted as 11.
-            // Our score calculation already handles this.
+            var hasAce = false
+            var hardScore = 0
+            for (card in cards) {
+                if (card.rank == Rank.ACE) {
+                    hasAce = true
+                    hardScore += 1
+                } else {
+                    hardScore += card.rank.value
+                }
+            }
+            if (!hasAce) return false
             return score != hardScore
         }
 }
@@ -165,14 +169,15 @@ data class GameState(
                 } else {
                     playerBets.sum()
                 }
-            
+
             // Only count active side bets (before they are settled)
-            val sideBetsTotal = if (sideBetResults.isEmpty()) {
-                sideBets.values.sum()
-            } else {
-                0
-            }
-            
+            val sideBetsTotal =
+                if (sideBetResults.isEmpty()) {
+                    sideBets.values.sum()
+                } else {
+                    0
+                }
+
             return mainBetsTotal + sideBetsTotal + insuranceBet
         }
 
