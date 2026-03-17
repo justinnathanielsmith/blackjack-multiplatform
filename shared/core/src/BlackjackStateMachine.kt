@@ -11,17 +11,16 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 
 class BlackjackStateMachine(
@@ -43,11 +42,12 @@ class BlackjackStateMachine(
 
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
     private val isShutdown = MutableStateFlow(false)
-    val effects: Flow<GameEffect> = channelFlow {
-        val collectJob = launch { _effects.collect { send(it) } }
-        isShutdown.first { it }
-        collectJob.cancelAndJoin()
-    }
+    val effects: Flow<GameEffect> =
+        channelFlow {
+            val collectJob = launch { _effects.collect { send(it) } }
+            isShutdown.first { it }
+            collectJob.cancelAndJoin()
+        }
 
     private val actionChannel = Channel<GameAction>(Channel.UNLIMITED)
 
@@ -216,7 +216,13 @@ class BlackjackStateMachine(
         val finalDealerHand =
             when (initialStatus) {
                 GameStatus.PUSH, GameStatus.DEALER_WON -> dealerHandRevealed
-                else -> dealerHand // Keep hole card hidden for PLAYING and INSURANCE_OFFERED
+                GameStatus.PLAYER_WON,
+                GameStatus.BETTING,
+                GameStatus.DEALING,
+                GameStatus.IDLE,
+                GameStatus.PLAYING,
+                GameStatus.INSURANCE_OFFERED,
+                GameStatus.DEALER_TURN -> dealerHand // Keep hole card hidden for PLAYING and INSURANCE_OFFERED
             }
         val balanceUpdate =
             when (initialStatus) {
@@ -224,7 +230,13 @@ class BlackjackStateMachine(
                     (current.currentBet * current.rules.blackjackPayout.numerator) /
                         current.rules.blackjackPayout.denominator + current.currentBet
                 GameStatus.PUSH -> current.currentBet
-                else -> 0
+                GameStatus.DEALER_WON,
+                GameStatus.BETTING,
+                GameStatus.DEALING,
+                GameStatus.IDLE,
+                GameStatus.PLAYING,
+                GameStatus.INSURANCE_OFFERED,
+                GameStatus.DEALER_TURN -> 0
             }
         _state.value =
             _state.value.copy(
@@ -490,7 +502,13 @@ class BlackjackStateMachine(
                 emitEffect(GameEffect.PlayLoseSound)
                 emitEffect(GameEffect.Vibrate)
             }
-            else -> {}
+            GameStatus.PUSH,
+            GameStatus.BETTING,
+            GameStatus.DEALING,
+            GameStatus.IDLE,
+            GameStatus.PLAYING,
+            GameStatus.INSURANCE_OFFERED,
+            GameStatus.DEALER_TURN -> {}
         }
     }
 
