@@ -64,7 +64,7 @@ fun ControlCenter(
             // Total Bet (Bottom Left)
             FinancialData(
                 label = stringResource(Res.string.bet_total_label),
-                amount = state.currentBet,
+                amount = state.totalBet,
                 alignment = Alignment.Start
             )
 

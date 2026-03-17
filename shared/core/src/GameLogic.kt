@@ -157,6 +157,18 @@ data class GameState(
         const val MAX_HANDS = 4
     }
 
+    val totalBet: Int
+        get() {
+            val mainBetsTotal =
+                if (status == GameStatus.BETTING) {
+                    currentBet * handCount
+                } else {
+                    playerBets.sum()
+                }
+            val sideBetsTotal = sideBets.values.sum()
+            return mainBetsTotal + sideBetsTotal + insuranceBet
+        }
+
     val activeHand: Hand get() = playerHands[activeHandIndex]
     val activeBet: Int get() = playerBets[activeHandIndex]
 
