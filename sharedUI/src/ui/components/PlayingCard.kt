@@ -193,135 +193,145 @@ fun PlayingCard(
         ) {
             if (!showBack) {
                 // Face
-                BoxWithConstraints(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .graphicsLayer { rotationY = 180f },
-                ) {
-                    val cardWidth = maxWidth
-                    val isSmall = cardWidth < 65.dp
-
-                    val cornerPadding = if (isSmall) 4.dp else 6.dp
-
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(cornerPadding)
-                    ) {
-                        // Faint watermark suit symbol in the center
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = card.suit.symbol,
-                                color = card.suit.color.copy(alpha = if (isSmall) 0.15f else 0.08f),
-                                fontSize = (cardWidth.value * if (isSmall) 1.2f else 1.0f).sp,
-                            )
-                        }
-
-                        if (isSmall) {
-                            // Compact: Only Top-Left Jumbo Index for maximum clarity
-                            CardCorner(
-                                rank = card.rank.symbol,
-                                suit = card.suit.symbol,
-                                color = card.suit.color,
-                                isSmall = true,
-                                modifier = Modifier.align(Alignment.TopStart)
-                            )
-                        } else {
-                            // Normal: Top Left Corner
-                            CardCorner(
-                                rank = card.rank.symbol,
-                                suit = card.suit.symbol,
-                                color = card.suit.color,
-                                isSmall = false,
-                                modifier = Modifier.align(Alignment.TopStart)
-                            )
-
-                            // Center slot-machine graphic
-                            CardFace(
-                                rank = card.rank,
-                                suit = card.suit,
-                                modifier = Modifier.fillMaxSize()
-                            )
-
-                            // Bottom Right Corner - Inverted and mirrored
-                            CardCorner(
-                                rank = card.rank.symbol,
-                                suit = card.suit.symbol,
-                                color = card.suit.color,
-                                isSmall = false,
-                                modifier =
-                                    Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .rotate(180f)
-                            )
-                        }
-                    }
-                }
+                PlayingCardFront(card = card)
             } else {
                 // Back
-                Box(
+                PlayingCardBack()
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlayingCardFront(card: io.github.smithjustinn.blackjack.Card) {
+    BoxWithConstraints(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .graphicsLayer { rotationY = 180f },
+    ) {
+        val cardWidth = maxWidth
+        val isSmall = cardWidth < 65.dp
+
+        val cornerPadding = if (isSmall) 4.dp else 6.dp
+
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(cornerPadding)
+        ) {
+            // Faint watermark suit symbol in the center
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = card.suit.symbol,
+                    color = card.suit.color.copy(alpha = if (isSmall) 0.15f else 0.08f),
+                    fontSize = (cardWidth.value * if (isSmall) 1.2f else 1.0f).sp,
+                )
+            }
+
+            if (isSmall) {
+                // Compact: Only Top-Left Jumbo Index for maximum clarity
+                CardCorner(
+                    rank = card.rank.symbol,
+                    suit = card.suit.symbol,
+                    color = card.suit.color,
+                    isSmall = true,
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+            } else {
+                // Normal: Top Left Corner
+                CardCorner(
+                    rank = card.rank.symbol,
+                    suit = card.suit.symbol,
+                    color = card.suit.color,
+                    isSmall = false,
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+
+                // Center slot-machine graphic
+                CardFace(
+                    rank = card.rank,
+                    suit = card.suit,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Bottom Right Corner - Inverted and mirrored
+                CardCorner(
+                    rank = card.rank.symbol,
+                    suit = card.suit.symbol,
+                    color = card.suit.color,
+                    isSmall = false,
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .background(FeltDark)
-                            .drawWithCache {
-                                // Pre-build the checkerboard path to avoid repeated for-loops in onDrawBehind
-                                val cellSize = 8.dp.toPx()
-                                val checkerPath =
-                                    androidx.compose.ui.graphics
-                                        .Path()
-                                for (x in 0..(size.width / cellSize).toInt()) {
-                                    for (y in 0..(size.height / cellSize).toInt()) {
-                                        if ((x + y) % 2 == 0) {
-                                            checkerPath.addRect(
-                                                androidx.compose.ui.geometry.Rect(
-                                                    Offset(x * cellSize, y * cellSize),
-                                                    androidx.compose.ui.geometry
-                                                        .Size(cellSize, cellSize)
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
+                            .align(Alignment.BottomEnd)
+                            .rotate(180f)
+                )
+            }
+        }
+    }
+}
 
-                                onDrawBehind {
-                                    // Outer frame
-                                    drawRoundRect(
-                                        color = PrimaryGold.copy(alpha = 0.15f),
-                                        size = size,
-                                        cornerRadius = CornerRadius(6.dp.toPx()),
-                                        style = Stroke(width = 2.dp.toPx()),
+@Composable
+private fun PlayingCardBack() {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(FeltDark)
+                .drawWithCache {
+                    // Pre-build the checkerboard path to avoid repeated for-loops in onDrawBehind
+                    val cellSize = 8.dp.toPx()
+                    val checkerPath =
+                        androidx.compose.ui.graphics
+                            .Path()
+                    for (x in 0..(size.width / cellSize).toInt()) {
+                        for (y in 0..(size.height / cellSize).toInt()) {
+                            if ((x + y) % 2 == 0) {
+                                checkerPath.addRect(
+                                    androidx.compose.ui.geometry.Rect(
+                                        Offset(x * cellSize, y * cellSize),
+                                        androidx.compose.ui.geometry
+                                            .Size(cellSize, cellSize)
                                     )
+                                )
+                            }
+                        }
+                    }
 
-                                    // Inner frame
-                                    drawRoundRect(
-                                        color = PrimaryGold.copy(alpha = 0.08f),
-                                        size =
-                                            size.copy(
-                                                width = size.width - 8.dp.toPx(),
-                                                height =
-                                                    size.height - 8.dp.toPx()
-                                            ),
-                                        topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
-                                        cornerRadius = CornerRadius(4.dp.toPx()),
-                                        style = Stroke(width = 1.dp.toPx()),
-                                    )
-                                }
-                            },
-                ) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "👑",
-                            fontSize = 40.sp,
+                    onDrawBehind {
+                        // Outer frame
+                        drawRoundRect(
+                            color = PrimaryGold.copy(alpha = 0.15f),
+                            size = size,
+                            cornerRadius = CornerRadius(6.dp.toPx()),
+                            style = Stroke(width = 2.dp.toPx()),
+                        )
+
+                        // Inner frame
+                        drawRoundRect(
+                            color = PrimaryGold.copy(alpha = 0.08f),
+                            size =
+                                size.copy(
+                                    width = size.width - 8.dp.toPx(),
+                                    height =
+                                        size.height - 8.dp.toPx()
+                                ),
+                            topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
+                            cornerRadius = CornerRadius(4.dp.toPx()),
+                            style = Stroke(width = 1.dp.toPx()),
                         )
                     }
-                }
-            }
+                },
+    ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = "👑",
+                fontSize = 40.sp,
+            )
         }
     }
 }

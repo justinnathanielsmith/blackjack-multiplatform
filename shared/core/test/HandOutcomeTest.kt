@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class HandOutcomeTest {
-
     @Test
     fun testPlayerBust_isAlwaysLoss() {
         // Player hand: 22 (bust)
