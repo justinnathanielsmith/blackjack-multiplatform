@@ -28,7 +28,7 @@ fun PlayerHand(
     val isActive = status == HandStatus.ACTIVE
     val isWaiting = status == HandStatus.WAITING
 
-    val alpha = if (isWaiting) 0.9f else 1.0f
+    val alpha = if (isWaiting) 0.5f else 1.0f
     val baseScale =
         when {
             cards.size >= 7 -> 0.75f
@@ -38,7 +38,7 @@ fun PlayerHand(
 
     val targetScale =
         when {
-            isActive -> 1.05f * baseScale
+            isActive -> 1.08f * baseScale
             isWaiting -> 0.9f * baseScale
             else -> 1.0f * baseScale
         }

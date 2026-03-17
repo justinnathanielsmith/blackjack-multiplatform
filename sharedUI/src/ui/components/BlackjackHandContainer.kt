@@ -53,8 +53,8 @@ private fun ActiveGlowLayer(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.8f,
+        initialValue = 0.5f,
+        targetValue = 1.0f,
         animationSpec =
             infiniteRepeatable(
                 animation = tween(1400, easing = FastOutSlowInEasing),
@@ -63,8 +63,8 @@ private fun ActiveGlowLayer(
         label = "glowAlpha"
     )
     val glowElevation by infiniteTransition.animateFloat(
-        initialValue = 6f,
-        targetValue = 20f,
+        initialValue = 12f,
+        targetValue = 32f,
         animationSpec =
             infiniteRepeatable(
                 animation = tween(1400, easing = FastOutSlowInEasing),
