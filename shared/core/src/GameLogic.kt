@@ -165,7 +165,14 @@ data class GameState(
                 } else {
                     playerBets.sum()
                 }
-            val sideBetsTotal = sideBets.values.sum()
+            
+            // Only count active side bets (before they are settled)
+            val sideBetsTotal = if (sideBetResults.isEmpty()) {
+                sideBets.values.sum()
+            } else {
+                0
+            }
+            
             return mainBetsTotal + sideBetsTotal + insuranceBet
         }
 

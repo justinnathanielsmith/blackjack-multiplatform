@@ -36,6 +36,22 @@ class GameStateTest {
     }
 
     @Test
+    fun totalBet_excludesSideBets_whenSettled() {
+        val state = GameState(
+            status = GameStatus.PLAYING,
+            playerBets = persistentListOf(100),
+            sideBets = persistentMapOf(
+                SideBetType.PERFECT_PAIRS to 50
+            ),
+            sideBetResults = persistentMapOf(
+                SideBetType.PERFECT_PAIRS to SideBetResult(SideBetType.PERFECT_PAIRS, 0, 0, "Loss")
+            )
+        )
+        // 100 main bet + 0 side bet (settled) = 100
+        assertEquals(100, state.totalBet)
+    }
+
+    @Test
     fun totalBet_isZero_whenNoBets() {
         val state = GameState(status = GameStatus.BETTING)
         assertEquals(0, state.totalBet)
