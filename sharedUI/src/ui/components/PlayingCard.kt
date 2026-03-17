@@ -152,7 +152,7 @@ fun CardFace(
             Text(
                 text = suit.symbol,
                 color = suit.color,
-                fontSize = (cardWidth.value * 0.8f).sp,
+                fontSize = (cardWidth.value * 0.55f).sp,
                 style =
                     androidx.compose.ui.text.TextStyle(
                         shadow =
