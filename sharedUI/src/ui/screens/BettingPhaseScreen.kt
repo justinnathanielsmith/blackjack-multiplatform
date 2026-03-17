@@ -76,8 +76,6 @@ import sharedui.generated.resources.side_bet_perfect_pairs_label
 import sharedui.generated.resources.side_bet_twenty_one_plus_three_label
 import sharedui.generated.resources.status_betting
 
-private fun formatCurrency(amount: Int): String = "$$amount"
-
 data class FlyingChip(
     val id: Long,
     val startOffset: Offset,
