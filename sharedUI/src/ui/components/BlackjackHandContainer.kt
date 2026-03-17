@@ -123,108 +123,70 @@ fun BlackjackHandContainer(
 
     val horizontalPadding = if (isCompact) 8.dp else 16.dp
 
+    // Safe zone absorbs the badge overhangs so parent containers measure the full bounds
+    val verticalSafeArea = 16.dp
+
     Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .wrapContentHeight(unbounded = true)
-                .padding(horizontal = horizontalPadding, vertical = 16.dp)
-                .graphicsLayer { clip = false }
-                .onGloballyPositioned { coords ->
-                    if (onPositioned != null) {
-                        onPositioned(
-                            coords.positionInRoot() +
-                                Offset(coords.size.width / 2f, coords.size.height / 2f)
-                        )
-                    }
-                },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = horizontalPadding, vertical = 4.dp)
+            .graphicsLayer { clip = false }
+            .onGloballyPositioned { coords ->
+                if (onPositioned != null) {
+                    onPositioned(
+                        coords.positionInRoot() +
+                            Offset(coords.size.width / 2f, coords.size.height / 2f)
+                    )
+                }
+            },
     ) {
-        if (isActive) {
-            ActiveGlowLayer(
-                cornerRadius = cornerRadius,
-                backgroundColor = backgroundColor,
-                modifier = Modifier.matchParentSize().padding(vertical = 16.dp),
-            )
-        } else {
-            Box(
-                modifier =
-                    Modifier
+        // Safe Zone: gives layout the real height including badge overhangs
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = verticalSafeArea)
+        ) {
+
+            // 1. Background layer
+            if (isActive) {
+                ActiveGlowLayer(
+                    cornerRadius = cornerRadius,
+                    backgroundColor = backgroundColor,
+                    modifier = Modifier.matchParentSize(),
+                )
+            } else {
+                Box(
+                    modifier = Modifier
                         .matchParentSize()
-                        .padding(vertical = 16.dp)
                         .background(backgroundColor, cornerRadius)
                         .border(
-                            width = if (isActive) 2.dp else 1.dp,
-                            color =
-                                if (isActive) {
-                                    PrimaryGold.copy(
-                                        alpha = 0.5f
-                                    )
-                                } else {
-                                    Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f)
-                                },
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f),
                             shape = cornerRadius
                         )
-            )
-        }
-
-        if (title != null) {
-            val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
-            TitleBadge(
-                title = title,
-                isActive = isActive,
-                isDealer = isDealer,
-                isCompact = isAnyCompact,
-                titleStyle = titleStyle
-            )
-        }
-
-        if (showStatus && (isActive || isPending)) {
-            StatusBadge(isActive = isActive, isPending = isPending, isCompact = isAnyCompact)
-        }
-
-        val contentPadding = if (isExtraCompact) 10.dp else 16.dp
-        val topPadding =
-            when {
-                isExtraCompact -> 28.dp
-                isCompact -> 32.dp
-                else -> 36.dp
-            }
-        val bottomPadding =
-            when {
-                isExtraCompact -> 16.dp
-                isCompact -> 24.dp
-                else -> 28.dp
+                )
             }
 
-        val minContentHeight =
-            when {
+            // 2. Content box — drives the height of the background
+            val contentPadding = if (isExtraCompact) 10.dp else 16.dp
+            val topPadding = when { isExtraCompact -> 28.dp; isCompact -> 32.dp; else -> 36.dp }
+            val bottomPadding = when { isExtraCompact -> 16.dp; isCompact -> 24.dp; else -> 28.dp }
+            val minContentHeight = when {
                 isExtraCompact -> Dimensions.Hand.MinHeightExtraCompact
                 isCompact -> Dimensions.Hand.MinHeightCompact
                 else -> Dimensions.Hand.MinHeightDefault
             }
 
-        val badgeState =
-            when {
-                isDealer -> ScoreBadgeState.DEALER
-                isActive -> ScoreBadgeState.ACTIVE
-                else -> ScoreBadgeState.WAITING
-            }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-                .defaultMinSize(minHeight = minContentHeight)
-                .graphicsLayer { clip = false }
-        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .animateContentSize()
+                    .defaultMinSize(minHeight = minContentHeight)
                     .padding(
                         start = contentPadding,
                         end = contentPadding,
-                        top = topPadding,
-                        bottom = bottomPadding
+                        top = (topPadding - verticalSafeArea).coerceAtLeast(0.dp),
+                        bottom = (bottomPadding - verticalSafeArea).coerceAtLeast(0.dp),
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -239,19 +201,61 @@ fun BlackjackHandContainer(
                 }
             }
 
+            // 3. Floating badges — anchored to the safe-zone box edges
+
+            if (title != null) {
+                val titleStyle = if (isAnyCompact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium
+                TitleBadge(
+                    title = title,
+                    isActive = isActive,
+                    isDealer = isDealer,
+                    isCompact = isAnyCompact,
+                    titleStyle = titleStyle,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .offset(x = 12.dp, y = (-12).dp)
+                        .zIndex(1f)
+                        .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
+                )
+            }
+
+            if (showStatus && (isActive || isPending)) {
+                StatusBadge(
+                    isActive = isActive,
+                    isPending = isPending,
+                    isCompact = isAnyCompact,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-12).dp, y = (-12).dp)
+                        .zIndex(1f)
+                        .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
+                )
+            }
+
+            val badgeState = when {
+                isDealer -> ScoreBadgeState.DEALER
+                isActive -> ScoreBadgeState.ACTIVE
+                else -> ScoreBadgeState.WAITING
+            }
+
             ScoreBadge(
                 score = score,
                 state = badgeState,
                 modifier = Modifier
                     .align(if (badgeState == ScoreBadgeState.DEALER) Alignment.TopCenter else Alignment.BottomCenter)
-                    // Increased offset to 14.dp to perfectly straddle the border line
                     .offset(y = if (badgeState == ScoreBadgeState.DEALER) (-14).dp else 14.dp)
                     .zIndex(2f)
                     .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
             )
-        }
 
-        HandOutcomeBadge(result = result)
+            HandOutcomeBadge(
+                result = result,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .zIndex(10f)
+                    .graphicsLayer { rotationZ = -6f }
+            )
+        }
     }
 }
 
@@ -262,6 +266,7 @@ private fun BoxScope.TitleBadge(
     isDealer: Boolean,
     isCompact: Boolean,
     titleStyle: TextStyle,
+    modifier: Modifier = Modifier,
 ) {
     val containerColor =
         when {
@@ -283,18 +288,13 @@ private fun BoxScope.TitleBadge(
         }
 
     Row(
-        modifier =
-            Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 12.dp, y = 8.dp)
-                .zIndex(1f)
-                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                .background(containerColor, RoundedCornerShape(12.dp))
-                .border(
-                    1.dp,
-                    finalBorderColor,
-                    RoundedCornerShape(12.dp),
-                ).padding(horizontal = 10.dp, vertical = 4.dp),
+        modifier = modifier
+            .background(containerColor, RoundedCornerShape(12.dp))
+            .border(
+                1.dp,
+                finalBorderColor,
+                RoundedCornerShape(12.dp),
+            ).padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (isDealer) {
@@ -319,6 +319,7 @@ private fun BoxScope.StatusBadge(
     isActive: Boolean,
     isPending: Boolean,
     isCompact: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val badgeColor = if (isActive) PrimaryGold else Color.White.copy(alpha = 0.2f)
     val badgeTextColor = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.8f)
@@ -330,14 +331,9 @@ private fun BoxScope.StatusBadge(
         }
 
     Box(
-        modifier =
-            Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = (-12).dp, y = 8.dp)
-                .zIndex(1f)
-                .then(if (isCompact) Modifier.scale(0.85f) else Modifier)
-                .background(badgeColor, RoundedCornerShape(12.dp))
-                .padding(horizontal = 12.dp, vertical = 4.dp),
+        modifier = modifier
+            .background(badgeColor, RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(
             text = badgeText.uppercase(),
@@ -350,13 +346,22 @@ private fun BoxScope.StatusBadge(
 }
 
 @Composable
-internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
-    val color =
+internal fun BoxScope.HandOutcomeBadge(
+    result: HandResult,
+    modifier: Modifier = Modifier,
+) {
+    val containerColor =
         when (result) {
-            HandResult.WIN -> Color(0xFFFFD700)
-            HandResult.LOSS -> Color(0xFFCC2222)
-            HandResult.PUSH -> Color(0xFF888888)
+            HandResult.WIN -> PrimaryGold
+            HandResult.LOSS -> TacticalRed
+            HandResult.PUSH -> Color(0xFF555555)
             HandResult.NONE -> Color.Transparent
+        }
+
+    val contentColor =
+        when (result) {
+            HandResult.WIN -> BackgroundDark
+            else -> Color.White
         }
 
     val text =
@@ -369,29 +374,26 @@ internal fun BoxScope.HandOutcomeBadge(result: HandResult) {
 
     AnimatedVisibility(
         visible = result != HandResult.NONE,
-        enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 600f)) + fadeIn(tween(150)),
+        enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 400f)) + fadeIn(tween(200)),
         exit = scaleOut(tween(150)) + fadeOut(tween(150)),
-        // Shifted to the top center, slightly overlapping the top border
-        modifier = Modifier
-            .align(Alignment.TopCenter)
-            .offset(y = (-16).dp)
-            .zIndex(3f),
+        modifier = modifier,
     ) {
         Box(
-            modifier =
-                Modifier
-                    .background(color, RoundedCornerShape(8.dp))
-                    .border(2.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                    // Reduced padding slightly for a sleeker badge
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier
+                .background(containerColor, RoundedCornerShape(12.dp))
+                .border(
+                    width = 2.dp,
+                    color = if (result == HandResult.WIN) BackgroundDark.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.4f),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 24.dp, vertical = 8.dp),
         ) {
             Text(
                 text = text.uppercase(),
-                color = Color.White,
+                color = contentColor,
                 fontWeight = FontWeight.Black,
-                // Scaled down from 20.sp to fit the new top-edge placement
-                fontSize = 16.sp,
-                letterSpacing = 2.sp,
+                fontSize = 24.sp,
+                letterSpacing = 4.sp,
             )
         }
     }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,24 +108,29 @@ fun GameActions(
             if (isCompact) Dimensions.ActionBar.ButtonHeightCompact else Dimensions.ActionBar.ButtonHeightNormal
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .graphicsLayer { clip = false },
             verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AnimatedVisibility(
                 visible = status == GameStatus.PLAYING,
-                enter = fadeIn(tween(300)) + expandVertically(tween(300)),
-                exit = fadeOut(tween(300)) + shrinkVertically(tween(300)),
+                enter = fadeIn(tween(300)) + expandVertically(tween(300), expandFrom = Alignment.Top),
+                exit = fadeOut(tween(300)) + shrinkVertically(tween(300), shrinkTowards = Alignment.Top),
             ) {
                 val canSplit = state.canSplit()
                 val canDouble = state.canDoubleDown()
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val buttonModifier = Modifier.weight(1f).height(buttonHeight)
+                    val buttonModifier = Modifier.weight(1f).defaultMinSize(minHeight = buttonHeight)
 
                     ModernActionButton(
                         icon = Res.drawable.ic_double,
@@ -195,7 +202,7 @@ private fun ModernActionButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier,
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(percent = 50),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor,
@@ -205,7 +212,7 @@ private fun ModernActionButton(
         border = borderColor?.let {
             BorderStroke(1.dp, if (enabled) it else it.copy(alpha = 0.3f))
         },
-        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -222,6 +229,7 @@ private fun ModernActionButton(
                 fontWeight = FontWeight.Bold,
                 fontSize = 9.sp,
                 letterSpacing = 0.5.sp,
+                maxLines = 1,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
