@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
@@ -197,6 +198,7 @@ fun CardBack(modifier: Modifier = Modifier) {
                 .padding(4.dp)
                 // 2. Rich casino red core
                 .background(TacticalRed, RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(4.dp))
                 .drawWithCache {
                     val spacing = 6.dp.toPx()
                     val strokeWidth = 1.dp.toPx()
@@ -204,21 +206,24 @@ fun CardBack(modifier: Modifier = Modifier) {
 
                     onDrawBehind {
                         // 3. Elegant diamond lattice pattern
-                        val maxDimension = maxOf(size.width, size.height) * 2
-                        var i = -maxDimension
-                        while (i < maxDimension) {
-                            // Diagonal lines top-left to bottom-right
+                        // Optimized: Only draw lines that actually cross the card area
+                        val width = size.width
+                        val height = size.height
+
+                        var i = -height
+                        while (i < width) {
+                            // Diagonal lines top-left to bottom-right ( \ )
                             drawLine(
                                 color = patternColor,
                                 start = Offset(i, 0f),
-                                end = Offset(i + maxDimension, maxDimension),
+                                end = Offset(i + height, height),
                                 strokeWidth = strokeWidth
                             )
-                            // Diagonal lines bottom-left to top-right
+                            // Diagonal lines bottom-left to top-right ( / )
                             drawLine(
                                 color = patternColor,
-                                start = Offset(i, maxDimension),
-                                end = Offset(i + maxDimension, 0f),
+                                start = Offset(i, height),
+                                end = Offset(i + height, 0f),
                                 strokeWidth = strokeWidth
                             )
                             i += spacing

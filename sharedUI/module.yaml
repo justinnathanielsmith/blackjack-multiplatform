@@ -27,6 +27,8 @@ dependencies:
   - $libs.compottie
   - $libs.compose.material3
   - $libs.compose.resources
+  - $libs.compose.runtime
+  - org.jetbrains.compose.material:material-icons-core:1.7.3
   - $libs.kermit
   - $libs.kotlinx.collections.immutable: exported
 
