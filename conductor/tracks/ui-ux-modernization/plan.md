@@ -4,9 +4,9 @@
 **Goal**: Move badges and labels to standardized, contained positions.
 
 ### Tasks
-- [ ] Update `BlackjackHandContainer.kt` to position the state label at `Alignment.TopCenter`.
+- [x] Update `BlackjackHandContainer.kt` to position the state label at `Alignment.TopCenter`.
 - [x] Update `ScoreBadge` placement in `BlackjackHandContainer.kt` to perfectly straddle the container's border (Alignment.TopCenter for Dealer, Alignment.BottomCenter for Player).
-- [ ] Update `PlayerHand.kt` or `HandRow.kt` if they handle internal badge logic.
+- [x] Update `PlayerHand.kt` or `HandRow.kt` if they handle internal badge logic.
 
 ---
 
@@ -14,8 +14,8 @@
 **Goal**: Sub-set chips within the hand container.
 
 ### Tasks
-- [ ] Adjust `Box` nesting in `PlayerHand.kt` to anchor the `BetChip` relative to the bottom-center of the local hand area.
-- [ ] Remove any global offsets that push chips across container boundaries.
+- [x] Adjust `Box` nesting in `PlayerHand.kt` to anchor the `BetChip` relative to the bottom-center of the local hand area.
+- [x] Remove any global offsets that push chips across container boundaries.
 
 ---
 
@@ -23,9 +23,9 @@
 **Goal**: Semantic colors and text labels.
 
 ### Tasks
-- [ ] Update `GameAction` UI model or `GameActions.kt` to pass semantic colors to `GameActionButton`.
-- [ ] Modify `GameActionButton.kt` to include a `Text` element below the icon.
-- [ ] Scale icons slightly down to accommodate the label within the circular bounds.
+- [x] Update `GameAction` UI model or `GameActions.kt` to pass semantic colors to `GameActionButton`.
+- [x] Modify `GameActionButton.kt` to include a `Text` element below the icon.
+- [x] Scale icons slightly down to accommodate the label within the circular bounds.
 
 ---
 
@@ -33,9 +33,9 @@
 **Goal**: Premium asset finish.
 
 ### Tasks
-- [ ] Align `BalanceDisplay` and utility icons vertically in `Header.kt`.
-- [ ] Update `CardBack` in `PlayingCard.kt` to use a sophisticated gradient or subtle pattern (e.g., `Brush.radialGradient`).
-- [ ] Tweak Lightning icon alpha or background in the header.
+- [x] Align `BalanceDisplay` and utility icons vertically in `Header.kt`.
+- [x] Update `CardBack` in `PlayingCard.kt` to use a sophisticated gradient or subtle pattern (e.g., `Brush.radialGradient`).
+- [x] Tweak Lightning icon alpha or background in the header.
 
 ---
 

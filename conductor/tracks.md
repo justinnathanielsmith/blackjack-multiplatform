@@ -11,7 +11,7 @@ This file tracks the progress of various development streams.
 | `ui-juice` | UI Polish & "Juicy" Animations | ✅ Completed | [Link](./tracks/ui-juice/index.md) |
 | `landscape-layout` | Landscape Mode Optimization | ✅ Completed | [Link](./tracks/landscape-layout/index.md) |
 | `multi-hand` | Multi-Hand Support | ✅ Completed | [Link](./tracks/multi-hand/index.md) |
-| `compose-best-practices` | Compose Best Practices & Performance Hardening | 🟨 In Progress | [Link](./tracks/compose-best-practices/index.md) |
-| `strategy-guide` | Blackjack Strategy Guide | 🟨 In Progress | [Link](./tracks/strategy-guide/index.md) |
+| `compose-best-practices` | Compose Best Practices & Performance Hardening | ✅ Completed | [Link](./tracks/compose-best-practices/index.md) |
+| `strategy-guide` | Blackjack Strategy Guide | ✅ Completed | [Link](./tracks/strategy-guide/index.md) |
 | `side-bets` | Side Bets (21+3, Perfect Pairs) | ✅ Completed | [Link](./tracks/side-bets/index.md) |
-| `ui-ux-modernization` | UI/UX Modernization & Refinement | 🟨 In Progress | [Link](./tracks/ui-ux-modernization/index.md) |
+| `ui-ux-modernization` | UI/UX Modernization & Refinement | ✅ Completed | [Link](./tracks/ui-ux-modernization/index.md) |

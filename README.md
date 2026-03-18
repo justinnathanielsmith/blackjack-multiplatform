@@ -6,8 +6,9 @@ This project demonstrates a modern Kotlin Multiplatform (KMP) architecture, supp
 
 ## 🚀 Features
 
-- **Cross-Platform UI**: Beautifully crafted game interface using Compose Multiplatform with adaptive layouts for Portrait and Landscape.
-- **Shared Game Logic**: Core Blackjack engine, standard rules (Split, Double-down, Insurance), and dealer AI implemented in pure Kotlin.
+- **Cross-Platform UI**: Beautifully crafted game interface using Compose Multiplatform with adaptive layouts, "juicy" animations, and modern aesthetics.
+- **Shared Game Logic**: Core Blackjack engine, standard rules (Split, Double-down, Insurance), Multi-Hand support, Side Bets (21+3, Perfect Pairs), and dealer AI implemented in pure Kotlin.
+- **Strategy Guide**: Integrated strategy chart to assist players with optimal decision making based on hard, soft, and pair hands.
 - **Reactive Architecture**: State machine pattern using `StateFlow` and decoupled side effects (audio, haptics) via `SharedFlow`.
 - **Rich Audio & Haptics**: Integrated sound effects for dealing, flipping cards, and game outcomes, with haptic feedback on supported platforms.
 - **Modern Tech Stack**: Uses **Amper** for build configuration and **Jujutsu (jj)** for version control.
