@@ -45,6 +45,12 @@ import sharedui.generated.resources.btn_rules_description
 import sharedui.generated.resources.btn_settings_description
 import sharedui.generated.resources.btn_strategy_description
 
+import sharedui.generated.resources.emoji_bulb
+import sharedui.generated.resources.emoji_clock
+import sharedui.generated.resources.emoji_gear
+import sharedui.generated.resources.emoji_lightning
+import sharedui.generated.resources.emoji_scroll
+
 @Composable
 fun Header(
     isAutoDealEnabled: Boolean,
@@ -187,7 +193,7 @@ internal fun AutoDealIcon(
                 .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = "⚡", fontSize = 14.sp)
+        Text(text = stringResource(Res.string.emoji_lightning), fontSize = 14.sp)
     }
 }
 
@@ -211,10 +217,10 @@ private fun HeaderIcon(
         Text(
             text =
                 when (text) {
-                    "settings" -> "⚙️"
-                    "strategy" -> "💡"
-                    "rules" -> "📜"
-                    else -> "🕒"
+                    "settings" -> stringResource(Res.string.emoji_gear)
+                    "strategy" -> stringResource(Res.string.emoji_bulb)
+                    "rules" -> stringResource(Res.string.emoji_scroll)
+                    else -> stringResource(Res.string.emoji_clock)
                 },
             fontSize = 14.sp,
             modifier = Modifier.alpha(0.9f)

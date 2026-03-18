@@ -31,9 +31,12 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
-import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_multiplier
+import sharedui.generated.resources.bet_spot_description
 import sharedui.generated.resources.bet_spot_tap_to_bet
+import sharedui.generated.resources.side_bet_spot_description
+import sharedui.generated.resources.tap_to_place_bet
+import sharedui.generated.resources.tap_to_place_side_bet
 
 @Composable
 fun BettingSlot(
@@ -64,6 +67,20 @@ fun BettingSlot(
         PathEffect.dashPathEffect(floatArrayOf(24f, 16f), 0f)
     }
 
+    val currentDescription = if (amount > 0) {
+        if (isSideBet) {
+            stringResource(Res.string.side_bet_spot_description, label, amount)
+        } else {
+            stringResource(Res.string.bet_spot_description, amount)
+        }
+    } else {
+        if (isSideBet) {
+            stringResource(Res.string.tap_to_place_side_bet, label)
+        } else {
+            stringResource(Res.string.tap_to_place_bet)
+        }
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -74,14 +91,14 @@ fun BettingSlot(
                 .size(slotSize)
                 .drawBehind {
                     val strokeWidth = if (isSideBet && amount > 0) 2.dp.toPx() else (if (isSideBet) 1.dp.toPx() else 2.dp.toPx())
-                    
+
                     // Outer Dashed Circle
                     drawCircle(
                         color = primaryColor.copy(alpha = glowAlpha),
                         style = Stroke(width = strokeWidth, pathEffect = dashEffect),
                         radius = size.minDimension / 2f
                     )
-                    
+
                     if (!isSideBet) {
                         // Inner Thin Circle for main bet
                         drawCircle(
@@ -94,11 +111,7 @@ fun BettingSlot(
                 .clip(CircleShape)
                 .clickable(role = Role.Button) { onClick() }
                 .semantics {
-                    contentDescription = if (amount > 0) {
-                        if (isSideBet) "Side bet $label with $amount" else "Bet spot with $amount"
-                    } else {
-                        if (isSideBet) "Tap to place $label side bet" else "Tap to place bet"
-                    }
+                    contentDescription = currentDescription
                 }
                 .onGloballyPositioned {
                     val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)

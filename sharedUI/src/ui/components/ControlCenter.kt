@@ -33,6 +33,10 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance
 import sharedui.generated.resources.bet_total_label
 
+import sharedui.generated.resources.currency_template
+import sharedui.generated.resources.Res
+import org.jetbrains.compose.resources.stringResource
+
 @Composable
 fun ControlCenter(
     state: GameState,
@@ -99,7 +103,7 @@ private fun FinancialData(
             letterSpacing = 1.sp
         )
         Text(
-            text = "$${animatedAmount.formatWithCommas()}",
+            text = stringResource(Res.string.currency_template, animatedAmount.formatWithCommas()),
             style = MaterialTheme.typography.titleLarge,
             color = PrimaryGold,
             fontWeight = FontWeight.Black,

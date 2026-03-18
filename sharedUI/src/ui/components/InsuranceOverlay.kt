@@ -25,6 +25,13 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.insurance_message
+import sharedui.generated.resources.insurance_title
+import sharedui.generated.resources.insure
+import sharedui.generated.resources.no_thanks
+import org.jetbrains.compose.resources.stringResource
+
 @Composable
 fun InsuranceOverlay(
     onInsure: () -> Unit,
@@ -48,28 +55,28 @@ fun InsuranceOverlay(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "INSURANCE?",
+                text = stringResource(Res.string.insurance_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = PrimaryGold,
                 fontWeight = FontWeight.Black,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Dealer shows an ACE. Insurance pays 2:1.",
+                text = stringResource(Res.string.insurance_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White.copy(alpha = 0.8f),
             )
             Spacer(modifier = Modifier.height(24.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 CasinoButton(
-                    text = "NO THANKS",
+                    text = stringResource(Res.string.no_thanks),
                     onClick = onDecline,
                     modifier = Modifier.weight(1f),
                     containerColor = Color.Transparent,
                     contentColor = Color.White,
                 )
                 CasinoButton(
-                    text = "INSURE",
+                    text = stringResource(Res.string.insure),
                     onClick = onInsure,
                     modifier = Modifier.weight(1f),
                     isStrategic = true,

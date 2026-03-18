@@ -299,7 +299,7 @@ private fun BoxScope.TitleBadge(
     ) {
         if (isDealer) {
             Text(
-                "👑",
+                stringResource(Res.string.emoji_crown),
                 style = titleStyle.copy(fontSize = if (isCompact) 10.sp else 12.sp),
                 modifier = Modifier.padding(end = 4.dp)
             )

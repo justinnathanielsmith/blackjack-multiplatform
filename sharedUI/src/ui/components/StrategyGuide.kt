@@ -62,7 +62,14 @@ import sharedui.generated.resources.strategy_action_stand
 import sharedui.generated.resources.strategy_guide_title
 import sharedui.generated.resources.strategy_tab_hard
 import sharedui.generated.resources.strategy_tab_pairs
-import sharedui.generated.resources.strategy_tab_soft
+import sharedui.generated.resources.btn_close_description
+import sharedui.generated.resources.strategy_ace_label
+import sharedui.generated.resources.strategy_hand_header
+import sharedui.generated.resources.strategy_legend_double
+import sharedui.generated.resources.strategy_legend_hit
+import sharedui.generated.resources.strategy_legend_split
+import sharedui.generated.resources.strategy_legend_stand
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun StrategyGuideOverlay(onDismiss: () -> Unit) {
@@ -92,7 +99,11 @@ fun StrategyGuideOverlay(onDismiss: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(Res.string.btn_close_description),
+                        tint = Color.White
+                    )
                 }
             }
 
@@ -169,7 +180,7 @@ private fun ColumnScope.StrategyChart(tab: StrategyTab) {
         Row(modifier = Modifier.fillMaxWidth().background(GlassLight)) {
             Box(modifier = Modifier.width(60.dp).padding(4.dp)) {
                 Text(
-                    text = "Hand",
+                    text = stringResource(Res.string.strategy_hand_header),
                     fontSize = 10.sp,
                     color = Color.White.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
@@ -178,7 +189,7 @@ private fun ColumnScope.StrategyChart(tab: StrategyTab) {
             dealerCards.forEach { card ->
                 Box(modifier = Modifier.weight(1f).padding(4.dp), contentAlignment = Alignment.Center) {
                     Text(
-                        text = if (card == 11) "A" else card.toString(),
+                        text = if (card == 11) stringResource(Res.string.strategy_ace_label) else card.toString(),
                         fontSize = 12.sp,
                         color = PrimaryGold,
                         fontWeight = FontWeight.Bold
@@ -263,10 +274,10 @@ private fun StrategyLegend() {
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        LegendItem(StrategyAction.HIT, "Hit")
-        LegendItem(StrategyAction.STAND, "Stand")
-        LegendItem(StrategyAction.DOUBLE, "Double")
-        LegendItem(StrategyAction.SPLIT, "Split")
+        LegendItem(StrategyAction.HIT, stringResource(Res.string.strategy_legend_hit))
+        LegendItem(StrategyAction.STAND, stringResource(Res.string.strategy_legend_stand))
+        LegendItem(StrategyAction.DOUBLE, stringResource(Res.string.strategy_legend_double))
+        LegendItem(StrategyAction.SPLIT, stringResource(Res.string.strategy_legend_split))
     }
 }
 

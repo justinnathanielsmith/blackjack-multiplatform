@@ -88,6 +88,15 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.dealer
 import sharedui.generated.resources.hand_number
+import sharedui.generated.resources.side_bet_colored_pair
+import sharedui.generated.resources.side_bet_flush
+import sharedui.generated.resources.side_bet_mixed_pair
+import sharedui.generated.resources.side_bet_perfect_pair
+import sharedui.generated.resources.side_bet_result_template
+import sharedui.generated.resources.side_bet_straight
+import sharedui.generated.resources.side_bet_straight_flush
+import sharedui.generated.resources.side_bet_suited_triple
+import sharedui.generated.resources.side_bet_three_of_a_kind
 import kotlin.random.Random
 
 fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
@@ -721,7 +730,11 @@ private fun BoxScope.SideBetResultsOverlay(state: GameState) {
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                 ) {
                     Text(
-                        text = "${result.outcomeName}: +$${result.payoutAmount}",
+                        text = stringResource(
+                            Res.string.side_bet_result_template,
+                            getLocalizedOutcomeName(result.outcomeName),
+                            result.payoutAmount
+                        ),
                         color = PrimaryGold,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Black,
@@ -729,5 +742,20 @@ private fun BoxScope.SideBetResultsOverlay(state: GameState) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun getLocalizedOutcomeName(name: String): String {
+    return when (name) {
+        "Perfect Pair" -> stringResource(Res.string.side_bet_perfect_pair)
+        "Colored Pair" -> stringResource(Res.string.side_bet_colored_pair)
+        "Mixed Pair" -> stringResource(Res.string.side_bet_mixed_pair)
+        "Suited Triple" -> stringResource(Res.string.side_bet_suited_triple)
+        "Straight Flush" -> stringResource(Res.string.side_bet_straight_flush)
+        "Three of a Kind" -> stringResource(Res.string.side_bet_three_of_a_kind)
+        "Straight" -> stringResource(Res.string.side_bet_straight)
+        "Flush" -> stringResource(Res.string.side_bet_flush)
+        else -> name
     }
 }
