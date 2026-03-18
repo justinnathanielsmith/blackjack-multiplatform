@@ -269,4 +269,131 @@ class PlayerActionLogicTest {
         assertTrue(outcome.effects.contains(GameEffect.BustThud))
         assertTrue(outcome.effects.contains(GameEffect.ChipLoss(200)))
     }
+
+    @Test
+    fun split_returnsNoop_whenGameNotPlaying() {
+        val state = GameState(status = GameStatus.PLAYER_WON)
+        val outcome = PlayerActionLogic.split(state)
+
+        assertEquals(state, outcome.state)
+        assertFalse(outcome.shouldAdvanceTurn)
+        assertTrue(outcome.effects.isEmpty())
+    }
+
+    @Test
+    fun split_returnsNoop_whenCannotSplit_dueToDifferentRanks() {
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.TEN, Rank.NINE),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE)
+            )
+        val outcome = PlayerActionLogic.split(state)
+
+        assertEquals(state, outcome.state)
+        assertFalse(outcome.shouldAdvanceTurn)
+        assertTrue(outcome.effects.isEmpty())
+    }
+
+    @Test
+    fun split_returnsNoop_whenDeckHasLessThanTwoCards() {
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.EIGHT, Rank.EIGHT),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = deckOf(Rank.TWO) // Only 1 card
+            )
+        val outcome = PlayerActionLogic.split(state)
+
+        assertEquals(state, outcome.state)
+        assertFalse(outcome.shouldAdvanceTurn)
+        assertTrue(outcome.effects.isEmpty())
+    }
+
+    @Test
+    fun split_updatesStateCorrectly_andDoesNotAdvanceTurn_forNonAceSplit() {
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.EIGHT, Rank.EIGHT),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = deckOf(Rank.TWO, Rank.THREE, Rank.FOUR)
+            )
+        val outcome = PlayerActionLogic.split(state)
+
+        val newState = outcome.state
+        assertEquals(400, newState.balance)
+        assertEquals(2, newState.playerHands.size)
+
+        val hand1 = newState.playerHands[0]
+        val hand2 = newState.playerHands[1]
+
+        assertEquals(2, hand1.cards.size)
+        assertEquals(Rank.EIGHT, hand1.cards[0].rank)
+        assertEquals(Rank.TWO, hand1.cards[1].rank)
+        assertTrue(hand1.wasSplit)
+        assertFalse(hand1.isFromSplitAce)
+
+        assertEquals(2, hand2.cards.size)
+        assertEquals(Rank.EIGHT, hand2.cards[0].rank)
+        assertEquals(Rank.THREE, hand2.cards[1].rank)
+        assertTrue(hand2.wasSplit)
+        assertFalse(hand2.isFromSplitAce)
+
+        assertEquals(100, newState.playerBets[0])
+        assertEquals(100, newState.playerBets[1])
+
+        assertEquals(1, newState.deck.size)
+        assertEquals(Rank.FOUR, newState.deck[0].rank)
+
+        assertFalse(outcome.shouldAdvanceTurn)
+        assertEquals(listOf(GameEffect.PlayCardSound, GameEffect.PlayCardSound), outcome.effects)
+        assertEquals(0, newState.activeHandIndex)
+    }
+
+    @Test
+    fun split_updatesStateCorrectly_andAdvancesTurn_forAceSplit() {
+        val state =
+            playingState(
+                balance = 500,
+                bet = 100,
+                playerHand = hand(Rank.ACE, Rank.ACE),
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = deckOf(Rank.NINE, Rank.TEN, Rank.JACK)
+            )
+        val outcome = PlayerActionLogic.split(state)
+
+        val newState = outcome.state
+        assertEquals(400, newState.balance)
+        assertEquals(2, newState.playerHands.size)
+
+        val hand1 = newState.playerHands[0]
+        val hand2 = newState.playerHands[1]
+
+        assertEquals(2, hand1.cards.size)
+        assertEquals(Rank.ACE, hand1.cards[0].rank)
+        assertEquals(Rank.NINE, hand1.cards[1].rank)
+        assertTrue(hand1.wasSplit)
+        assertTrue(hand1.isFromSplitAce)
+
+        assertEquals(2, hand2.cards.size)
+        assertEquals(Rank.ACE, hand2.cards[0].rank)
+        assertEquals(Rank.TEN, hand2.cards[1].rank)
+        assertTrue(hand2.wasSplit)
+        assertTrue(hand2.isFromSplitAce)
+
+        assertEquals(100, newState.playerBets[0])
+        assertEquals(100, newState.playerBets[1])
+
+        assertEquals(1, newState.deck.size)
+        assertEquals(Rank.JACK, newState.deck[0].rank)
+
+        assertTrue(outcome.shouldAdvanceTurn)
+        assertEquals(listOf(GameEffect.PlayCardSound, GameEffect.PlayCardSound), outcome.effects)
+        assertEquals(1, newState.activeHandIndex)
+    }
 }
