@@ -27,20 +27,31 @@ fun HandRow(
         content = {
             hand.cards.forEachIndexed { index, card ->
                 key(card) {
-                    PlayingCard(
-                        card = card,
-                        isFaceUp = !card.isFaceDown,
-                        isDealer = isDealer,
-                        animationDelay = index * AnimationConstants.CardDealDelay,
-                        animationDurationMs =
-                            if (isSlowReveal && isDealer) {
-                                AnimationConstants.CardRevealDurationSlow
-                            } else {
-                                AnimationConstants.CardRevealDurationDefault
-                            },
-                        scale = cardScale,
-                        isNearMiss = isNearMiss
-                    )
+                    val isHoleCard = isDealer && index == 1
+                    if (isHoleCard) {
+                        DealerCard(
+                            card = card,
+                            isFaceUp = !card.isFaceDown,
+                            dealerUpcard = hand.cards.getOrNull(0),
+                            dealerScore = hand.score,
+                            scale = cardScale,
+                        )
+                    } else {
+                        PlayingCard(
+                            card = card,
+                            isFaceUp = !card.isFaceDown,
+                            isDealer = isDealer,
+                            animationDelay = index * AnimationConstants.CardDealDelay,
+                            animationDurationMs =
+                                if (isSlowReveal && isDealer) {
+                                    AnimationConstants.CardRevealDurationSlow
+                                } else {
+                                    AnimationConstants.CardRevealDurationDefault
+                                },
+                            scale = cardScale,
+                            isNearMiss = isNearMiss
+                        )
+                    }
                 }
             }
         }

@@ -55,9 +55,9 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.delay
 
-private val CardShape = RoundedCornerShape(8.dp)
+internal val CardShape = RoundedCornerShape(8.dp)
 
-private fun shadowStyle(
+internal fun shadowStyle(
     color: Color,
     offset: Offset,
     blur: Float
@@ -429,7 +429,7 @@ fun PlayingCard(
 }
 
 @Composable
-private fun CardCorner(
+internal fun CardCorner(
     rank: String,
     suit: String,
     color: Color,
