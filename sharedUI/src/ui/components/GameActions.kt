@@ -2,6 +2,11 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -26,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -167,6 +173,9 @@ fun GameActions(
                         modifier = buttonModifier
                     )
 
+                    val activeHand = state.playerHands.getOrNull(state.activeHandIndex)
+                    val shouldGlowStand = activeHand != null && (activeHand.score == 19 || activeHand.score == 20)
+
                     ModernActionButton(
                         icon = Res.drawable.ic_stand,
                         label = stringResource(Res.string.action_stand),
@@ -175,7 +184,8 @@ fun GameActions(
                         containerColor = GlassDark,
                         contentColor = TacticalRed,
                         borderColor = TacticalRed.copy(alpha = 0.5f),
-                        modifier = buttonModifier
+                        modifier = buttonModifier,
+                        isGlowing = shouldGlowStand
                     )
                 }
             }
@@ -199,11 +209,46 @@ private fun ModernActionButton(
     contentColor: Color,
     modifier: Modifier = Modifier,
     borderColor: Color? = null,
+    isGlowing: Boolean = false,
 ) {
+    val glowModifier =
+        if (isGlowing && enabled) {
+            val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
+            val glowElevation by infiniteTransition.animateFloat(
+                initialValue = 2f,
+                targetValue = 20f,
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(800, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                label = "glowElevation"
+            )
+            val glowAlpha by infiniteTransition.animateFloat(
+                initialValue = 0.5f,
+                targetValue = 1.0f,
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(800, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                label = "glowAlpha"
+            )
+            Modifier.graphicsLayer {
+                shadowElevation = glowElevation
+                spotShadowColor = contentColor.copy(alpha = glowAlpha)
+                ambientShadowColor = contentColor.copy(alpha = glowAlpha)
+                shape = RoundedCornerShape(50)
+                clip = false
+            }
+        } else {
+            Modifier
+        }
+
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier.then(glowModifier),
         shape = RoundedCornerShape(percent = 50),
         colors =
             ButtonDefaults.buttonColors(

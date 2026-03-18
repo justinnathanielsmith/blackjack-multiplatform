@@ -35,9 +35,11 @@ object PlayerActionLogic {
         val effects =
             buildList {
                 add(GameEffect.PlayCardSound)
+                if (newCard.rank.value < HIGH_CARD_VALUE) add(GameEffect.LightTick)
                 if (newCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
                 if (newHand.score == BLACKJACK_SCORE) add(GameEffect.Pulse21)
                 if (newHand.score == NEAR_MISS_SCORE) add(GameEffect.NearMissHighlight(state.activeHandIndex))
+                if (newHand.isBust) add(GameEffect.BustThud)
             }
         return PlayerActionOutcome(
             state = updatedState,
@@ -80,7 +82,7 @@ object PlayerActionLogic {
                 if (newHand.score == BLACKJACK_SCORE) add(GameEffect.Pulse21)
                 if (newHand.isBust) {
                     add(GameEffect.PlayLoseSound)
-                    add(GameEffect.Vibrate)
+                    add(GameEffect.BustThud)
                     add(GameEffect.ChipLoss(state.activeBet * 2))
                 }
             }

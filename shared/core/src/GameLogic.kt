@@ -295,6 +295,12 @@ sealed class GameEffect {
 
     data object Pulse21 : GameEffect()
 
+    data object LightTick : GameEffect()
+
+    data object WinPulse : GameEffect()
+
+    data object BustThud : GameEffect()
+
     data class ChipEruption(
         val amount: Int,
         val sideBetType: SideBetType? = null

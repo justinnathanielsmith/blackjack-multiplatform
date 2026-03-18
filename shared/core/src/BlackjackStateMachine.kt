@@ -227,6 +227,7 @@ class BlackjackStateMachine(
         }
         if (initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0) {
             emitEffect(GameEffect.PlayWinSound)
+            if (initialStatus == GameStatus.PLAYER_WON) emitEffect(GameEffect.WinPulse)
         } else if (initialStatus == GameStatus.DEALER_WON) {
             emitEffect(GameEffect.PlayLoseSound)
             emitEffect(GameEffect.ChipLoss(current.currentBet))
@@ -238,7 +239,8 @@ class BlackjackStateMachine(
         playerHands: List<Hand>,
         dealerHand: Hand,
     ): Triple<GameStatus, Hand, Int> {
-        val playerHasBJ = current.handCount == 1 && playerHands[0].score == BLACKJACK_SCORE && playerHands[0].cards.size == 2
+        val playerHasBJ =
+            current.handCount == 1 && playerHands[0].score == BLACKJACK_SCORE && playerHands[0].cards.size == 2
         val shouldOfferInsurance = current.handCount == 1 && !playerHasBJ && dealerHand.cards[0].rank == Rank.ACE
         val dealerHandRevealed = Hand(dealerHand.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
 
@@ -443,7 +445,8 @@ class BlackjackStateMachine(
         val rules = _state.value.rules
 
         while (shouldDealerDraw(currentDealerHand, rules)) {
-            val isCritical = currentDealerHand.score in DEALER_STIFF_MIN until DEALER_STAND_THRESHOLD && !currentDealerHand.isSoft
+            val isCritical =
+                currentDealerHand.score in DEALER_STIFF_MIN until DEALER_STAND_THRESHOLD && !currentDealerHand.isSoft
 
             if (isCritical) {
                 _state.value = _state.value.copy(dealerDrawIsCritical = true)
@@ -508,10 +511,14 @@ class BlackjackStateMachine(
         if (totalPayout < totalBet) emitEffect(GameEffect.ChipLoss(totalBet - totalPayout))
 
         when (finalStatus) {
-            GameStatus.PLAYER_WON -> emitEffect(GameEffect.PlayWinSound)
+            GameStatus.PLAYER_WON -> {
+                emitEffect(GameEffect.PlayWinSound)
+                emitEffect(GameEffect.WinPulse)
+            }
             GameStatus.DEALER_WON -> {
                 emitEffect(GameEffect.PlayLoseSound)
-                emitEffect(GameEffect.Vibrate)
+                val anyPlayerBust = state.playerHands.any { it.isBust }
+                if (!anyPlayerBust) emitEffect(GameEffect.Vibrate)
             }
             GameStatus.PUSH,
             GameStatus.BETTING,
@@ -595,7 +602,10 @@ class BlackjackStateMachine(
         }
     }
 
-    private fun handlePlaceSideBet(type: SideBetType?, amount: Int) {
+    private fun handlePlaceSideBet(
+        type: SideBetType?,
+        amount: Int
+    ) {
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
         if (type == null) {

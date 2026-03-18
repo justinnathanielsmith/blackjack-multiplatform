@@ -71,7 +71,7 @@ class PlayerActionLogicTest {
                 .rank
         )
         assertFalse(outcome.shouldAdvanceTurn)
-        assertEquals(listOf(GameEffect.PlayCardSound), outcome.effects)
+        assertEquals(listOf(GameEffect.PlayCardSound, GameEffect.LightTick), outcome.effects)
     }
 
     @Test
@@ -266,7 +266,7 @@ class PlayerActionLogicTest {
         val outcome = PlayerActionLogic.doubleDown(state)
 
         assertTrue(outcome.effects.contains(GameEffect.PlayLoseSound))
-        assertTrue(outcome.effects.contains(GameEffect.Vibrate))
+        assertTrue(outcome.effects.contains(GameEffect.BustThud))
         assertTrue(outcome.effects.contains(GameEffect.ChipLoss(200)))
     }
 }

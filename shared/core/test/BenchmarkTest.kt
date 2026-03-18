@@ -17,16 +17,18 @@ class BenchmarkTest {
         // Warmup old
         repeat(100_000) { runOldApproach(cards) }
 
-        val timeOld = kotlin.system.measureTimeMillis {
-            repeat(1_000_000) { runOldApproach(cards) }
-        }
+        val timeOld =
+            kotlin.system.measureTimeMillis {
+                repeat(1_000_000) { runOldApproach(cards) }
+            }
 
         // Warmup new
         repeat(100_000) { runNewApproach(cards) }
 
-        val timeNew = kotlin.system.measureTimeMillis {
-            repeat(1_000_000) { runNewApproach(cards) }
-        }
+        val timeNew =
+            kotlin.system.measureTimeMillis {
+                repeat(1_000_000) { runNewApproach(cards) }
+            }
 
         println("===============================")
         println("Old approach: $timeOld ms")

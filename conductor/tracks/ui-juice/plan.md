@@ -309,6 +309,52 @@ Box(modifier = Modifier
 
 ---
 
+## Phase 8: Stand Button Glow (`GameActions.kt`)
+
+### Goal
+Provide a visual "heat map" hint by making the "Stand" button glow when the active player's hand score is 19 or 20.
+
+### Implementation
+
+Add a pulsing glow effect to the `ModernActionButton` inside `GameActions.kt` for the "Stand" button.
+
+1. **Calculate the condition:** In `GameActions`, get the current hand score:
+```kotlin
+val activeHand = state.playerHands.getOrNull(state.activeHandIndex)
+val shouldGlowStand = activeHand != null && (activeHand.score == 19 || activeHand.score == 20)
+```
+2. **Add Glow modifier/properties to `ModernActionButton`:** Update `ModernActionButton` to accept an `isGlowing: Boolean` parameter. If true, apply a repeating shadow or alpha animation using `rememberInfiniteTransition`.
+```kotlin
+val infiniteTransition = rememberInfiniteTransition(label = "standGlow")
+val glowElevation by infiniteTransition.animateFloat(
+    initialValue = 4f,
+    targetValue = 16f,
+    animationSpec = infiniteRepeatable(
+        animation = tween(800, easing = FastOutSlowInEasing),
+        repeatMode = RepeatMode.Reverse
+    ),
+    label = "glowElevation"
+)
+val glowAlpha by infiniteTransition.animateFloat(
+    initialValue = 0.4f,
+    targetValue = 1.0f,
+    animationSpec = infiniteRepeatable(
+        animation = tween(800, easing = FastOutSlowInEasing),
+        repeatMode = RepeatMode.Reverse
+    ),
+    label = "glowAlpha"
+)
+// Wrap the Button or use Modifier.graphicsLayer to apply the glow
+```
+3. **Apply it:** Pass `isGlowing = shouldGlowStand` to the "Stand" `ModernActionButton`.
+
+### Verification
+- Stand button normal appearance on 18 or below.
+- Stand button visibly pulses/glows when hand score reaches 19 or 20.
+- Glow stops if the game state changes to something other than `PLAYING`.
+
+---
+
 ## Verification Plan
 
 - **Visual review**: Run on Android emulator and desktop; verify each animation phase independently.

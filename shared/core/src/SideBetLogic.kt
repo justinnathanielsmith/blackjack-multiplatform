@@ -75,9 +75,15 @@ object SideBetLogic {
         val cards = listOf(playerHand.cards[0], playerHand.cards[1], dealerUpcard)
 
         return when {
-            isSuitedTriple(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, SUITED_TRIPLE_PAYOUT, 0, "Suited Triple")
-            isStraightFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_FLUSH_PAYOUT, 0, "Straight Flush")
-            isThreeOfAKind(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, THREE_OF_A_KIND_PAYOUT, 0, "Three of a Kind")
+            isSuitedTriple(
+                cards
+            ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, SUITED_TRIPLE_PAYOUT, 0, "Suited Triple")
+            isStraightFlush(
+                cards
+            ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_FLUSH_PAYOUT, 0, "Straight Flush")
+            isThreeOfAKind(
+                cards
+            ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, THREE_OF_A_KIND_PAYOUT, 0, "Three of a Kind")
             isStraight(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_PAYOUT, 0, "Straight")
             isFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, FLUSH_PAYOUT, 0, "Flush")
             else -> null

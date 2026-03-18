@@ -6,6 +6,12 @@ interface HapticsService {
     fun heavyThud()
 
     fun pulse()
+
+    fun lightTick()
+
+    fun winPulse()
+
+    fun bustThud()
 }
 
 object NoOpHapticsService : HapticsService {
@@ -14,4 +20,10 @@ object NoOpHapticsService : HapticsService {
     override fun heavyThud() = Unit
 
     override fun pulse() = Unit
+
+    override fun lightTick() = Unit
+
+    override fun winPulse() = Unit
+
+    override fun bustThud() = Unit
 }
