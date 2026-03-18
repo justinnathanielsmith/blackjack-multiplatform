@@ -108,10 +108,11 @@ fun GameActions(
             if (isCompact) Dimensions.ActionBar.ButtonHeightCompact else Dimensions.ActionBar.ButtonHeightNormal
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .graphicsLayer { clip = false },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .graphicsLayer { clip = false },
             verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -124,9 +125,10 @@ fun GameActions(
                 val canDouble = state.canDoubleDown()
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -203,15 +205,17 @@ private fun ModernActionButton(
         enabled = enabled,
         modifier = modifier,
         shape = RoundedCornerShape(percent = 50),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = containerColor.copy(alpha = 0.3f),
-            disabledContentColor = contentColor.copy(alpha = 0.3f)
-        ),
-        border = borderColor?.let {
-            BorderStroke(1.dp, if (enabled) it else it.copy(alpha = 0.3f))
-        },
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContainerColor = containerColor.copy(alpha = 0.3f),
+                disabledContentColor = contentColor.copy(alpha = 0.3f)
+            ),
+        border =
+            borderColor?.let {
+                BorderStroke(1.dp, if (enabled) it else it.copy(alpha = 0.3f))
+            },
         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
     ) {
         Column(

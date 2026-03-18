@@ -153,11 +153,12 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val handBetOffsets = remember { mutableStateMapOf<Int, Offset>() }
 
     val activeHandHighlightPosition by animateOffsetAsState(
-        targetValue = if (state.status == GameStatus.PLAYING) {
-            handBetOffsets[state.activeHandIndex] ?: Offset.Zero
-        } else {
-            Offset.Zero
-        },
+        targetValue =
+            if (state.status == GameStatus.PLAYING) {
+                handBetOffsets[state.activeHandIndex] ?: Offset.Zero
+            } else {
+                Offset.Zero
+            },
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "activeHandHighlight"
     )
@@ -352,14 +353,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         // 5. Active Hand Highlight (Subtle)
                         if (activeHandHighlightPosition != Offset.Zero) {
                             drawRect(
-                                brush = Brush.radialGradient(
-                                    colors = listOf(
-                                        PrimaryGold.copy(alpha = 0.08f),
-                                        Color.Transparent
-                                    ),
-                                    center = activeHandHighlightPosition,
-                                    radius = size.maxDimension * 0.4f
-                                )
+                                brush =
+                                    Brush.radialGradient(
+                                        colors =
+                                            listOf(
+                                                PrimaryGold.copy(alpha = 0.08f),
+                                                Color.Transparent
+                                            ),
+                                        center = activeHandHighlightPosition,
+                                        radius = size.maxDimension * 0.4f
+                                    )
                             )
                         }
                     }.graphicsLayer { translationX = shakeOffset.value * density },
@@ -592,49 +595,50 @@ private fun BlackjackLayout(
         // 1. The Shoe (Deck) in the top-right corner
         Shoe(
             state = state,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 16.dp)
-                .graphicsLayer {
-                    // Tilt the shoe slightly to fit the table's perspective
-                    rotationZ = -15f
-                    rotationX = 10f
-                    translationX = 20.dp.toPx()
-                    translationY = -10.dp.toPx()
-                }
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 16.dp)
+                    .graphicsLayer {
+                        // Tilt the shoe slightly to fit the table's perspective
+                        rotationZ = -15f
+                        rotationX = 10f
+                        translationX = 20.dp.toPx()
+                        translationY = -10.dp.toPx()
+                    }
         )
 
         Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-        val dealerDisplayScore =
-            remember(state.status, state.dealerHand) {
-                if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-            }
+            val dealerDisplayScore =
+                remember(state.status, state.dealerHand) {
+                    if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
+                }
 
-        // Dealer Hand - Fixed size at the top
-        DealerHand(
-            hand = state.dealerHand,
-            score = dealerDisplayScore,
-            title = stringResource(Res.string.dealer),
-            isCompact = handCount > 1,
-            isExtraCompact = handCount > 2,
-            isSlowReveal = state.dealerDrawIsCritical,
-            scale = baseCardScale,
-        )
+            // Dealer Hand - Fixed size at the top
+            DealerHand(
+                hand = state.dealerHand,
+                score = dealerDisplayScore,
+                title = stringResource(Res.string.dealer),
+                isCompact = handCount > 1,
+                isExtraCompact = handCount > 2,
+                isSlowReveal = state.dealerDrawIsCritical,
+                scale = baseCardScale,
+            )
 
-        // Player Hands - Dynamic space between dealer and actions
-        DynamicPlayerHandsLayout(
-            state = state,
-            component = component,
-            baseCardScale = baseCardScale,
-            onBetPositioned = { index, offset ->
-                handBetOffsets[index] = offset
-            }
-        )
+            // Player Hands - Dynamic space between dealer and actions
+            DynamicPlayerHandsLayout(
+                state = state,
+                component = component,
+                baseCardScale = baseCardScale,
+                onBetPositioned = { index, offset ->
+                    handBetOffsets[index] = offset
+                }
+            )
 
-        // Action Bar moved to ControlCenter
+            // Action Bar moved to ControlCenter
         }
     }
 }
@@ -773,11 +777,12 @@ private fun BoxScope.SideBetResultsOverlay(state: GameState) {
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                 ) {
                     Text(
-                        text = stringResource(
-                            Res.string.side_bet_result_template,
-                            getLocalizedOutcomeName(result.outcomeName),
-                            result.payoutAmount
-                        ),
+                        text =
+                            stringResource(
+                                Res.string.side_bet_result_template,
+                                getLocalizedOutcomeName(result.outcomeName),
+                                result.payoutAmount
+                            ),
                         color = PrimaryGold,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Black,

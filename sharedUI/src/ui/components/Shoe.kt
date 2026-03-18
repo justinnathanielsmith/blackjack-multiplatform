@@ -19,11 +19,12 @@ fun Shoe(
 
     // Calculate how "thick" the shoe should look
     // 0.0 to 1.0 (1.0 being a full 6-deck shoe)
-    val thicknessRatio = if (totalCards > 0) {
-        remainingCards.toFloat() / totalCards.coerceAtLeast(1)
-    } else {
-        0f
-    }
+    val thicknessRatio =
+        if (totalCards > 0) {
+            remainingCards.toFloat() / totalCards.coerceAtLeast(1)
+        } else {
+            0f
+        }
 
     // Maximum number of visible layers to simulate depth
     // 8 layers for a full shoe feels premium without over-rendering
@@ -37,12 +38,13 @@ fun Shoe(
 
         repeat(visibleLayers) { index ->
             CardBack(
-                modifier = Modifier
-                    .scale(shoeScale)
-                    .offset(
-                        x = (index * 1.5).dp,
-                        y = (index * 1.5).dp
-                    )
+                modifier =
+                    Modifier
+                        .scale(shoeScale)
+                        .offset(
+                            x = (index * 1.5).dp,
+                            y = (index * 1.5).dp
+                        )
             )
         }
     }

@@ -37,14 +37,12 @@ import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.btn_auto_deal_description
 import sharedui.generated.resources.btn_rules_description
 import sharedui.generated.resources.btn_settings_description
 import sharedui.generated.resources.btn_strategy_description
-
 import sharedui.generated.resources.emoji_bulb
 import sharedui.generated.resources.emoji_clock
 import sharedui.generated.resources.emoji_gear

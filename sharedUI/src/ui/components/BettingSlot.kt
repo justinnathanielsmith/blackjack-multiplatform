@@ -54,33 +54,36 @@ fun BettingSlot(
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = if (isSideBet) 0.3f else 0.4f,
         targetValue = if (amount > 0) (if (isSideBet) 0.8f else 1.0f) else (if (isSideBet) 0.3f else 0.4f),
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "glowAlpha"
     )
 
     val primaryColor = if (isSideBet) Color.White else PrimaryGold
-    val dashEffect = if (isSideBet) {
-        PathEffect.dashPathEffect(floatArrayOf(16f, 12f), 0f)
-    } else {
-        PathEffect.dashPathEffect(floatArrayOf(24f, 16f), 0f)
-    }
+    val dashEffect =
+        if (isSideBet) {
+            PathEffect.dashPathEffect(floatArrayOf(16f, 12f), 0f)
+        } else {
+            PathEffect.dashPathEffect(floatArrayOf(24f, 16f), 0f)
+        }
 
-    val currentDescription = if (amount > 0) {
-        if (isSideBet) {
-            stringResource(Res.string.side_bet_spot_description, label, amount)
+    val currentDescription =
+        if (amount > 0) {
+            if (isSideBet) {
+                stringResource(Res.string.side_bet_spot_description, label, amount)
+            } else {
+                stringResource(Res.string.bet_spot_description, amount)
+            }
         } else {
-            stringResource(Res.string.bet_spot_description, amount)
+            if (isSideBet) {
+                stringResource(Res.string.tap_to_place_side_bet, label)
+            } else {
+                stringResource(Res.string.tap_to_place_bet)
+            }
         }
-    } else {
-        if (isSideBet) {
-            stringResource(Res.string.tap_to_place_side_bet, label)
-        } else {
-            stringResource(Res.string.tap_to_place_bet)
-        }
-    }
 
     Column(
         modifier = modifier,
@@ -88,36 +91,42 @@ fun BettingSlot(
         verticalArrangement = Arrangement.spacedBy(if (isSideBet) 4.dp else 10.dp)
     ) {
         Box(
-            modifier = Modifier
-                .size(slotSize)
-                .drawBehind {
-                    val strokeWidth = if (isSideBet && amount > 0) 2.dp.toPx() else (if (isSideBet) 1.dp.toPx() else 2.dp.toPx())
+            modifier =
+                Modifier
+                    .size(slotSize)
+                    .drawBehind {
+                        val strokeWidth =
+                            if (isSideBet &&
+                                amount > 0
+                            ) {
+                                2.dp.toPx()
+                            } else {
+                                (if (isSideBet) 1.dp.toPx() else 2.dp.toPx())
+                            }
 
-                    // Outer Dashed Circle
-                    drawCircle(
-                        color = primaryColor.copy(alpha = glowAlpha),
-                        style = Stroke(width = strokeWidth, pathEffect = dashEffect),
-                        radius = size.minDimension / 2f
-                    )
-
-                    if (!isSideBet) {
-                        // Inner Thin Circle for main bet
+                        // Outer Dashed Circle
                         drawCircle(
-                            color = primaryColor.copy(alpha = 0.15f),
-                            style = Stroke(width = 1.dp.toPx()),
-                            radius = size.minDimension / 2.3f
+                            color = primaryColor.copy(alpha = glowAlpha),
+                            style = Stroke(width = strokeWidth, pathEffect = dashEffect),
+                            radius = size.minDimension / 2f
                         )
-                    }
-                }
-                .clip(CircleShape)
-                .clickable(role = Role.Button) { onClick() }
-                .semantics {
-                    contentDescription = currentDescription
-                }
-                .onGloballyPositioned {
-                    val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                    onPositioned(center)
-                },
+
+                        if (!isSideBet) {
+                            // Inner Thin Circle for main bet
+                            drawCircle(
+                                color = primaryColor.copy(alpha = 0.15f),
+                                style = Stroke(width = 1.dp.toPx()),
+                                radius = size.minDimension / 2.3f
+                            )
+                        }
+                    }.clip(CircleShape)
+                    .clickable(role = Role.Button) { onClick() }
+                    .semantics {
+                        contentDescription = currentDescription
+                    }.onGloballyPositioned {
+                        val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                        onPositioned(center)
+                    },
             contentAlignment = Alignment.Center
         ) {
             if (amount > 0) {
@@ -132,13 +141,22 @@ fun BettingSlot(
                 }
             } else {
                 Text(
-                    text = if (isSideBet) label.replace(" ", "\n") else stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n"),
+                    text =
+                        if (isSideBet) {
+                            label.replace(
+                                " ",
+                                "\n"
+                            )
+                        } else {
+                            stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
+                        },
                     color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
-                    style = if (isSideBet) {
-                        MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
-                    } else {
-                        MaterialTheme.typography.labelMedium
-                    },
+                    style =
+                        if (isSideBet) {
+                            MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                        } else {
+                            MaterialTheme.typography.labelMedium
+                        },
                     fontWeight = FontWeight.Bold,
                     letterSpacing = if (isSideBet) 0.sp else 2.sp,
                     textAlign = TextAlign.Center
@@ -152,9 +170,10 @@ fun BettingSlot(
                 style = MaterialTheme.typography.labelSmall,
                 color = BackgroundDark,
                 fontWeight = FontWeight.Black,
-                modifier = Modifier
-                    .background(PrimaryGold, RoundedCornerShape(12.dp))
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                modifier =
+                    Modifier
+                        .background(PrimaryGold, RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
     }

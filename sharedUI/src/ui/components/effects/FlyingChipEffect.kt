@@ -73,13 +73,14 @@ fun FlyingChipAnimation(
     }
 
     Box(
-        modifier = Modifier
-            .offset { IntOffset(animX.value.toInt(), animY.value.toInt()) }
-            .graphicsLayer {
-                this.alpha = alpha.value
-                this.scaleX = scaleX.value
-                this.scaleY = scaleY.value
-            },
+        modifier =
+            Modifier
+                .offset { IntOffset(animX.value.toInt(), animY.value.toInt()) }
+                .graphicsLayer {
+                    this.alpha = alpha.value
+                    this.scaleX = scaleX.value
+                    this.scaleY = scaleY.value
+                },
     ) {
         BetChip(
             amount = chip.amount,

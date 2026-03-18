@@ -24,13 +24,12 @@ import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-
+import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.insurance_message
 import sharedui.generated.resources.insurance_title
 import sharedui.generated.resources.insure
 import sharedui.generated.resources.no_thanks
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun InsuranceOverlay(

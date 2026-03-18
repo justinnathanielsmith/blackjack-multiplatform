@@ -30,10 +30,11 @@ fun BettingActions(
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = if (canDeal) 1.05f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "dealPulse"
     )
 
@@ -51,12 +52,13 @@ fun BettingActions(
         CasinoButton(
             text = stringResource(Res.string.deal),
             onClick = onDeal,
-            modifier = Modifier
-                .weight(1f)
-                .graphicsLayer {
-                    scaleX = pulseScale
-                    scaleY = pulseScale
-                },
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .graphicsLayer {
+                        scaleX = pulseScale
+                        scaleY = pulseScale
+                    },
             enabled = canDeal,
             isStrategic = true,
             showShine = canDeal,

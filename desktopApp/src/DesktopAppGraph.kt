@@ -14,11 +14,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
 class DesktopAppGraph : AppGraph {
-    override val logger: Logger = Logger.withTag("Blackjack")
-    override val audioService: AudioService = JvmAudioServiceImpl(logger)
-    override val hapticsService = NoOpHapticsService
-    override val balanceService: BalanceService = createBalanceService()
-    override val settingsRepository: SettingsRepository = createSettingsRepository()
-    override val coroutineDispatchers: CoroutineDispatchers = CoroutineDispatchers()
-    override val applicationScope: CoroutineScope = MainScope()
+    override val logger: Logger by lazy { Logger.withTag("Blackjack") }
+    override val audioService: AudioService by lazy { JvmAudioServiceImpl(logger) }
+    override val hapticsService by lazy { NoOpHapticsService }
+    override val balanceService: BalanceService by lazy { createBalanceService() }
+    override val settingsRepository: SettingsRepository by lazy { createSettingsRepository() }
+    override val coroutineDispatchers: CoroutineDispatchers by lazy { CoroutineDispatchers() }
+    override val applicationScope: CoroutineScope by lazy { MainScope() }
 }

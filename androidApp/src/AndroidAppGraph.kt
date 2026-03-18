@@ -4,7 +4,6 @@ import android.content.Context
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.data.createSettingsRepository
-import io.github.smithjustinn.blackjack.data.initDataStore
 import io.github.smithjustinn.blackjack.di.AppGraph
 import io.github.smithjustinn.blackjack.services.AndroidAudioServiceImpl
 import io.github.smithjustinn.blackjack.services.AndroidHapticsServiceImpl
@@ -17,17 +16,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
 class AndroidAppGraph(
-    context: Context
+    private val context: Context
 ) : AppGraph {
-    init {
-        initDataStore(context)
-    }
-
-    override val logger: Logger = Logger.withTag("Blackjack")
-    override val audioService: AudioService = AndroidAudioServiceImpl(context, logger)
-    override val hapticsService: HapticsService = AndroidHapticsServiceImpl(context)
-    override val balanceService: BalanceService = createBalanceService()
-    override val settingsRepository: SettingsRepository = createSettingsRepository()
-    override val coroutineDispatchers: CoroutineDispatchers = CoroutineDispatchers()
-    override val applicationScope: CoroutineScope = MainScope()
+    override val logger: Logger by lazy { Logger.withTag("Blackjack") }
+    override val audioService: AudioService by lazy { AndroidAudioServiceImpl(context, logger) }
+    override val hapticsService: HapticsService by lazy { AndroidHapticsServiceImpl(context) }
+    override val balanceService: BalanceService by lazy { createBalanceService() }
+    override val settingsRepository: SettingsRepository by lazy { createSettingsRepository() }
+    override val coroutineDispatchers: CoroutineDispatchers by lazy { CoroutineDispatchers() }
+    override val applicationScope: CoroutineScope by lazy { MainScope() }
 }

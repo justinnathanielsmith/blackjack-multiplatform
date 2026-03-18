@@ -55,22 +55,21 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.btn_close_description
+import sharedui.generated.resources.strategy_ace_label
 import sharedui.generated.resources.strategy_action_double
 import sharedui.generated.resources.strategy_action_hit
 import sharedui.generated.resources.strategy_action_split
 import sharedui.generated.resources.strategy_action_stand
 import sharedui.generated.resources.strategy_guide_title
-import sharedui.generated.resources.strategy_tab_hard
-import sharedui.generated.resources.strategy_tab_soft
-import sharedui.generated.resources.strategy_tab_pairs
-import sharedui.generated.resources.btn_close_description
-import sharedui.generated.resources.strategy_ace_label
 import sharedui.generated.resources.strategy_hand_header
 import sharedui.generated.resources.strategy_legend_double
 import sharedui.generated.resources.strategy_legend_hit
 import sharedui.generated.resources.strategy_legend_split
 import sharedui.generated.resources.strategy_legend_stand
-import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.strategy_tab_hard
+import sharedui.generated.resources.strategy_tab_pairs
+import sharedui.generated.resources.strategy_tab_soft
 
 @Composable
 fun StrategyGuideOverlay(onDismiss: () -> Unit) {

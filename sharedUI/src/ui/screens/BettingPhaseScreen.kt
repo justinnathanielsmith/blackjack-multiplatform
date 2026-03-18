@@ -44,61 +44,68 @@ fun BettingPhaseScreen(
 
     // Dim the felt slightly to bring focus to the betting layer
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.5f))
-            .windowInsetsPadding(safeDrawingInsets())
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+                .windowInsetsPadding(safeDrawingInsets())
     ) {
-        val placeBetOnArea: (GameAction, Offset, Int) -> Unit = remember(audioService, component) {
-            { action, offset, amount ->
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                component.onAction(action)
-                if (offset != Offset.Zero) {
-                    flyingChips.add(
-                        FlyingChip(
-                            id = (0..Long.MAX_VALUE).random(),
-                            startOffset = Offset(
-                                x = offset.x + (-10..10).random(),
-                                y = offset.y + (-10..10).random()
+        val placeBetOnArea: (GameAction, Offset, Int) -> Unit =
+            remember(audioService, component) {
+                { action, offset, amount ->
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onAction(action)
+                    if (offset != Offset.Zero) {
+                        flyingChips.add(
+                            FlyingChip(
+                                id = (0..Long.MAX_VALUE).random(),
+                                startOffset =
+                                    Offset(
+                                        x = offset.x + (-10..10).random(),
+                                        y = offset.y + (-10..10).random()
+                                    ),
+                                amount = amount,
+                                color = ChipUtils.chipColor(amount),
+                                textColor = ChipUtils.chipTextColor(amount),
                             ),
-                            amount = amount,
-                            color = ChipUtils.chipColor(amount),
-                            textColor = ChipUtils.chipTextColor(amount),
-                        ),
-                    )
+                        )
+                    }
                 }
             }
-        }
 
-        val onResetBet = remember(audioService, component) {
-            {
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                component.onAction(GameAction.ResetBet)
-                component.onAction(GameAction.ResetSideBets)
+        val onResetBet =
+            remember(audioService, component) {
+                {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onAction(GameAction.ResetBet)
+                    component.onAction(GameAction.ResetSideBets)
+                }
             }
-        }
 
-        val onDeal = remember(audioService, component) {
-            {
-                audioService.playEffect(AudioService.SoundEffect.FLIP)
-                component.onAction(GameAction.Deal)
+        val onDeal =
+            remember(audioService, component) {
+                {
+                    audioService.playEffect(AudioService.SoundEffect.FLIP)
+                    component.onAction(GameAction.Deal)
+                }
             }
-        }
 
-        val onChipSelected = remember(audioService) {
-            { amount: Int ->
-                selectedAmount = amount
-                audioService.playEffect(AudioService.SoundEffect.PLINK)
+        val onChipSelected =
+            remember(audioService) {
+                { amount: Int ->
+                    selectedAmount = amount
+                    audioService.playEffect(AudioService.SoundEffect.PLINK)
+                }
             }
-        }
 
         // --- Center: Betting Spots floating directly on the table ---
         Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = (-40).dp)
-                .fillMaxWidth()
-                .zIndex(1f),
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .offset(y = (-40).dp)
+                    .fillMaxWidth()
+                    .zIndex(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
@@ -163,15 +170,16 @@ fun BettingPhaseScreen(
 
         // --- Bottom: Controls in a sleek glass panel ---
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 80.dp) // Offset above the ControlCenter
-                .zIndex(2f)
-                .fillMaxWidth(0.9f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(GlassDark)
-                .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
-                .padding(20.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 80.dp) // Offset above the ControlCenter
+                    .zIndex(2f)
+                    .fillMaxWidth(0.9f)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(GlassDark)
+                    .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
+                    .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {

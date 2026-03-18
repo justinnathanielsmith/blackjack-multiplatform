@@ -186,9 +186,7 @@ fun CardFace(
 }
 
 @Composable
-fun CardBack(
-    modifier: Modifier = Modifier
-) {
+fun CardBack(modifier: Modifier = Modifier) {
     Box(
         modifier =
             modifier
