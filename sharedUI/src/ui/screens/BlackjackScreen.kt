@@ -3,6 +3,7 @@ package io.github.smithjustinn.blackjack.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -149,6 +150,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     val activePayouts = remember { mutableStateListOf<PayoutInstance>() }
     val handBetOffsets = remember { mutableStateMapOf<Int, Offset>() }
+
+    val activeHandHighlightPosition by animateOffsetAsState(
+        targetValue = if (state.status == GameStatus.PLAYING) {
+            handBetOffsets[state.activeHandIndex] ?: Offset.Zero
+        } else {
+            Offset.Zero
+        },
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "activeHandHighlight"
+    )
 
     // Trigger payout animations when results are calculated and it's a win
     LaunchedEffect(state.status, state.playerHands) {
@@ -336,6 +347,20 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     radius = size.maxDimension * 0.55f
                                 )
                         )
+
+                        // 5. Active Hand Highlight (Subtle)
+                        if (activeHandHighlightPosition != Offset.Zero) {
+                            drawRect(
+                                brush = Brush.radialGradient(
+                                    colors = listOf(
+                                        PrimaryGold.copy(alpha = 0.08f),
+                                        Color.Transparent
+                                    ),
+                                    center = activeHandHighlightPosition,
+                                    radius = size.maxDimension * 0.4f
+                                )
+                            )
+                        }
                     }.graphicsLayer { translationX = shakeOffset.value * density },
         ) {
             // Enforce a portrait-like aspect ratio (9:16) if the window is too wide (letterboxing)

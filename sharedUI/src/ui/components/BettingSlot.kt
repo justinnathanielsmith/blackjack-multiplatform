@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_multiplier
 import sharedui.generated.resources.bet_spot_description
 import sharedui.generated.resources.bet_spot_tap_to_bet

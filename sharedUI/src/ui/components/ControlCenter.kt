@@ -32,10 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance
 import sharedui.generated.resources.bet_total_label
-
 import sharedui.generated.resources.currency_template
-import sharedui.generated.resources.Res
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ControlCenter(

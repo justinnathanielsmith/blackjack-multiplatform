@@ -61,6 +61,7 @@ import sharedui.generated.resources.strategy_action_split
 import sharedui.generated.resources.strategy_action_stand
 import sharedui.generated.resources.strategy_guide_title
 import sharedui.generated.resources.strategy_tab_hard
+import sharedui.generated.resources.strategy_tab_soft
 import sharedui.generated.resources.strategy_tab_pairs
 import sharedui.generated.resources.btn_close_description
 import sharedui.generated.resources.strategy_ace_label
