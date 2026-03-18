@@ -72,6 +72,7 @@ import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.PlayerHand
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
+import io.github.smithjustinn.blackjack.ui.components.Shoe
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
@@ -587,10 +588,26 @@ private fun BlackjackLayout(
             else -> 0.55f
         }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // 1. The Shoe (Deck) in the top-right corner
+        Shoe(
+            state = state,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 16.dp, end = 16.dp)
+                .graphicsLayer {
+                    // Tilt the shoe slightly to fit the table's perspective
+                    rotationZ = -15f
+                    rotationX = 10f
+                    translationX = 20.dp.toPx()
+                    translationY = -10.dp.toPx()
+                }
+        )
+
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
         val dealerDisplayScore =
             remember(state.status, state.dealerHand) {
                 if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
@@ -618,6 +635,7 @@ private fun BlackjackLayout(
         )
 
         // Action Bar moved to ControlCenter
+        }
     }
 }
 

@@ -186,6 +186,98 @@ fun CardFace(
 }
 
 @Composable
+fun CardBack(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier =
+            modifier
+                .requiredWidth(Dimensions.Card.StandardWidth)
+                .aspectRatio(Dimensions.Card.AspectRatio)
+                .shadow(elevation = 12.dp, shape = CardShape, clip = false)
+                .background(Color.White)
+                .padding(4.dp)
+                // 2. Rich casino red core
+                .background(TacticalRed, RoundedCornerShape(4.dp))
+                .drawWithCache {
+                    val spacing = 6.dp.toPx()
+                    val strokeWidth = 1.dp.toPx()
+                    val patternColor = Color.White.copy(alpha = 0.15f)
+
+                    onDrawBehind {
+                        // 3. Elegant diamond lattice pattern
+                        val maxDimension = maxOf(size.width, size.height) * 2
+                        var i = -maxDimension
+                        while (i < maxDimension) {
+                            // Diagonal lines top-left to bottom-right
+                            drawLine(
+                                color = patternColor,
+                                start = Offset(i, 0f),
+                                end = Offset(i + maxDimension, maxDimension),
+                                strokeWidth = strokeWidth
+                            )
+                            // Diagonal lines bottom-left to top-right
+                            drawLine(
+                                color = patternColor,
+                                start = Offset(i, maxDimension),
+                                end = Offset(i + maxDimension, 0f),
+                                strokeWidth = strokeWidth
+                            )
+                            i += spacing
+                        }
+
+                        // 4. Inner gold foil frame
+                        drawRoundRect(
+                            color = PrimaryGold.copy(alpha = 0.8f),
+                            size =
+                                size.copy(
+                                    width = size.width - 12.dp.toPx(),
+                                    height =
+                                        size.height - 12.dp.toPx()
+                                ),
+                            topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
+                            cornerRadius = CornerRadius(4.dp.toPx()),
+                            style = Stroke(width = 1.5.dp.toPx()),
+                        )
+                    }
+                },
+    ) {
+        // 5. Center Casino Medallion
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Canvas(modifier = Modifier.size(36.dp)) {
+                val centerOffset = Offset(size.width / 2, size.height / 2)
+
+                // Outer gold ring
+                drawCircle(
+                    color = PrimaryGold,
+                    radius = size.minDimension / 2,
+                    center = centerOffset
+                )
+                // Inner red core
+                drawCircle(
+                    color = TacticalRed,
+                    radius = size.minDimension / 2 - 2.dp.toPx(),
+                    center = centerOffset
+                )
+                // Delicate inner gold detail
+                drawCircle(
+                    color = PrimaryGold.copy(alpha = 0.5f),
+                    radius = size.minDimension / 2 - 4.dp.toPx(),
+                    center = centerOffset,
+                    style = Stroke(width = 1.dp.toPx())
+                )
+            }
+            // Center icon (Spade)
+            Text(
+                text = "♠",
+                fontSize = 18.sp,
+                color = PrimaryGold
+            )
+        }
+    }
+}
+
+@Composable
 fun PlayingCard(
     card: io.github.smithjustinn.blackjack.Card,
     isFaceUp: Boolean,
@@ -325,91 +417,9 @@ fun PlayingCard(
                 }
             } else {
                 // Back
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            // 1. Classic white casino edge to prevent marking
-                            .background(Color.White)
-                            .padding(4.dp)
-                            // 2. Rich casino red core
-                            .background(TacticalRed, RoundedCornerShape(4.dp))
-                            .drawWithCache {
-                                val spacing = 6.dp.toPx()
-                                val strokeWidth = 1.dp.toPx()
-                                val patternColor = Color.White.copy(alpha = 0.15f)
-
-                                onDrawBehind {
-                                    // 3. Elegant diamond lattice pattern
-                                    val maxDimension = maxOf(size.width, size.height) * 2
-                                    var i = -maxDimension
-                                    while (i < maxDimension) {
-                                        // Diagonal lines top-left to bottom-right
-                                        drawLine(
-                                            color = patternColor,
-                                            start = Offset(i, 0f),
-                                            end = Offset(i + maxDimension, maxDimension),
-                                            strokeWidth = strokeWidth
-                                        )
-                                        // Diagonal lines bottom-left to top-right
-                                        drawLine(
-                                            color = patternColor,
-                                            start = Offset(i, maxDimension),
-                                            end = Offset(i + maxDimension, 0f),
-                                            strokeWidth = strokeWidth
-                                        )
-                                        i += spacing
-                                    }
-
-                                    // 4. Inner gold foil frame
-                                    drawRoundRect(
-                                        color = PrimaryGold.copy(alpha = 0.8f),
-                                        size =
-                                            size.copy(
-                                                width = size.width - 12.dp.toPx(),
-                                                height =
-                                                    size.height - 12.dp.toPx()
-                                            ),
-                                        topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
-                                        cornerRadius = CornerRadius(4.dp.toPx()),
-                                        style = Stroke(width = 1.5.dp.toPx()),
-                                    )
-                                }
-                            },
-                ) {
-                    // 5. Center Casino Medallion
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Canvas(modifier = Modifier.size(36.dp)) {
-                            val centerOffset = Offset(size.width / 2, size.height / 2)
-
-                            // Outer gold ring
-                            drawCircle(
-                                color = PrimaryGold,
-                                radius = size.minDimension / 2,
-                                center = centerOffset
-                            )
-                            // Inner red core
-                            drawCircle(
-                                color = TacticalRed,
-                                radius = size.minDimension / 2 - 2.dp.toPx(),
-                                center = centerOffset
-                            )
-                            // Delicate inner gold detail
-                            drawCircle(
-                                color = PrimaryGold.copy(alpha = 0.5f),
-                                radius = size.minDimension / 2 - 4.dp.toPx(),
-                                center = centerOffset,
-                                style = Stroke(width = 1.dp.toPx())
-                            )
-                        }
-                        // Center icon (Spade)
-                        Text(
-                            text = "♠",
-                            fontSize = 18.sp,
-                            color = PrimaryGold
-                        )
-                    }
-                }
+                CardBack(
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
