@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -80,42 +81,49 @@ private fun ActiveGlowLayer(
     modifier: Modifier = Modifier,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 1.0f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1400, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-        label = "glowAlpha"
-    )
-    val glowElevation by infiniteTransition.animateFloat(
-        initialValue = 12f,
-        targetValue = 32f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1400, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-        label = "glowElevation"
-    )
+    val glowAlpha by
+        infiniteTransition.animateFloat(
+            initialValue = 0.3f, // Subtle start
+            targetValue = 0.8f, // Brighter peak
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1400, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+            label = "glowAlpha"
+        )
+    val glowRadiusScale by
+        infiniteTransition.animateFloat(
+            initialValue = 0.8f,
+            targetValue = 1.2f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1400, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+            label = "glowRadiusScale"
+        )
 
     Box(
         modifier =
-            modifier
-                .graphicsLayer {
-                    shadowElevation = glowElevation.dp.toPx()
-                    shape = cornerRadius
-                    clip = false
-                    ambientShadowColor = PrimaryGold.copy(alpha = glowAlpha)
-                    spotShadowColor = PrimaryGold.copy(alpha = glowAlpha)
-                }.drawBehind {
-                    drawRoundRect(
-                        color = backgroundColor,
-                        cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
-                    )
-                }
+            modifier.drawBehind {
+                val radius = size.maxDimension * 0.7f * glowRadiusScale
+                drawRect(
+                    brush =
+                        Brush.radialGradient(
+                            colors = listOf(PrimaryGold.copy(alpha = glowAlpha), Color.Transparent),
+                            center = center,
+                            radius = radius
+                        ),
+                    size = size
+                )
+
+                // Keep the original rounded background
+                drawRoundRect(
+                    color = backgroundColor,
+                    cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
+                )
+            }
     )
 }
 
