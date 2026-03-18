@@ -170,7 +170,9 @@ fun CardFace(
                     color = suit.color,
                     fontWeight = FontWeight.Black,
                     fontSize = (cardWidth.value * scaleFactor).sp,
-                    style = shadowStyle(Color.Black.copy(alpha = 0.15f), Offset(2f, 2f), 4f)
+                    style = shadowStyle(Color.Black.copy(alpha = 0.15f), Offset(2f, 2f), 4f),
+                    letterSpacing = if (isTen) (-0.5).sp else 0.sp,
+                    softWrap = false
                 )
                 Text(
                     text = suit.symbol,
@@ -437,6 +439,8 @@ private fun CardCorner(
                 fontWeight = FontWeight.Black,
                 fontSize = if (isSmall) 22.sp else 24.sp,
                 maxLines = 1,
+                letterSpacing = if (rank == "10") (-0.5).sp else 0.sp,
+                softWrap = false
             )
         }
         Text(
