@@ -38,10 +38,10 @@ class AndroidHapticsServiceImpl(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK))
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(80L, VibrationEffect.DEFAULT_AMPLITUDE))
+            v.vibrate(VibrationEffect.createOneShot(HEAVY_THUD_DURATION_MS, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             @Suppress("DEPRECATION")
-            v.vibrate(80L)
+            v.vibrate(HEAVY_THUD_DURATION_MS)
         }
     }
 
@@ -49,16 +49,19 @@ class AndroidHapticsServiceImpl(
     override fun pulse() {
         val v = vibrator ?: return
         if (!v.hasVibrator()) return
-        val timings = longArrayOf(0, 60, 80, 60)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createWaveform(timings, intArrayOf(0, 200, 0, 200), -1))
+            v.vibrate(VibrationEffect.createWaveform(PULSE_TIMINGS, PULSE_AMPLITUDES, VIBRATE_ONCE))
         } else {
             @Suppress("DEPRECATION")
-            v.vibrate(timings, -1)
+            v.vibrate(PULSE_TIMINGS, VIBRATE_ONCE)
         }
     }
 
     companion object {
         private const val DURATION_MS = 35L
+        private const val HEAVY_THUD_DURATION_MS = 80L
+        private const val VIBRATE_ONCE = -1
+        private val PULSE_TIMINGS = longArrayOf(0, 60, 80, 60)
+        private val PULSE_AMPLITUDES = intArrayOf(0, 200, 0, 200)
     }
 }

@@ -29,20 +29,20 @@ class StrategyProviderTest {
         // 17+
         assertEquals("17+", strategy[0].playerValue)
         assertEquals(10, strategy[0].actions.size)
-        (2..11).forEach { dealerUpcard ->
+        for (dealerUpcard in 2..11) {
             assertEquals(StrategyAction.STAND, strategy[0].actions[dealerUpcard])
         }
 
         // 11
         val elevenStrategy = strategy.first { it.playerValue == "11" }
-        (2..10).forEach { dealerUpcard ->
+        for (dealerUpcard in 2..10) {
             assertEquals(StrategyAction.DOUBLE, elevenStrategy.actions[dealerUpcard])
         }
         assertEquals(StrategyAction.HIT, elevenStrategy.actions[11])
 
         // 8 or less
         val eightOrLessStrategy = strategy.first { it.playerValue == "8 or less" }
-        (2..11).forEach { dealerUpcard ->
+        for (dealerUpcard in 2..11) {
             assertEquals(StrategyAction.HIT, eightOrLessStrategy.actions[dealerUpcard])
         }
     }
@@ -55,25 +55,25 @@ class StrategyProviderTest {
 
         // A,9
         assertEquals("A,9", strategy[0].playerValue)
-        (2..11).forEach { dealerUpcard ->
+        for (dealerUpcard in 2..11) {
             assertEquals(StrategyAction.STAND, strategy[0].actions[dealerUpcard])
         }
 
         // A,8
         val a8Strategy = strategy.first { it.playerValue == "A,8" }
-        (2..11).forEach { dealerUpcard ->
+        for (dealerUpcard in 2..11) {
             assertEquals(StrategyAction.STAND, a8Strategy.actions[dealerUpcard])
         }
 
         // A,7
         val a7Strategy = strategy.first { it.playerValue == "A,7" }
         assertEquals(StrategyAction.STAND, a7Strategy.actions[2])
-        (3..6).forEach { dealerUpcard ->
+        for (dealerUpcard in 3..6) {
             assertEquals(StrategyAction.DOUBLE, a7Strategy.actions[dealerUpcard])
         }
         assertEquals(StrategyAction.STAND, a7Strategy.actions[7])
         assertEquals(StrategyAction.STAND, a7Strategy.actions[8])
-        (9..11).forEach { dealerUpcard ->
+        for (dealerUpcard in 9..11) {
             assertEquals(StrategyAction.HIT, a7Strategy.actions[dealerUpcard])
         }
     }

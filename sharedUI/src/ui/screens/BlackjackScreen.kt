@@ -282,7 +282,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 0.0f to FeltWarmCenter,
                 0.6f to FeltGreen,
                 1.0f to FeltDeepEdge,
-                center = androidx.compose.ui.geometry.Offset.Unspecified // Will default to center, but we tweak it in the canvas below
+                center = Offset.Unspecified // defaults to center; tweaked in canvas below
             )
         }
 

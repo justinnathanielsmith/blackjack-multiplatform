@@ -2,6 +2,7 @@ package io.github.smithjustinn.blackjack
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 
 // ── Card / Hand builders ──────────────────────────────────────────────────────
 
@@ -12,11 +13,11 @@ fun card(
 ): Card = Card(rank, suit, faceDown)
 
 fun hand(vararg pairs: Pair<Rank, Boolean>): Hand =
-    Hand(persistentListOf(*pairs.map { (rank, down) -> card(rank, faceDown = down) }.toTypedArray()))
+    Hand(pairs.map { (rank, down) -> card(rank, faceDown = down) }.toPersistentList())
 
-fun hand(vararg ranks: Rank): Hand = Hand(persistentListOf(*ranks.map { card(it) }.toTypedArray()))
+fun hand(vararg ranks: Rank): Hand = Hand(ranks.map { card(it) }.toPersistentList())
 
-fun deckOf(vararg ranks: Rank): PersistentList<Card> = persistentListOf(*ranks.map { card(it) }.toTypedArray())
+fun deckOf(vararg ranks: Rank): PersistentList<Card> = ranks.map { card(it) }.toPersistentList()
 
 // ── Common GameState presets ──────────────────────────────────────────────────
 
@@ -52,8 +53,8 @@ fun multiHandPlayingState(
     GameState(
         status = GameStatus.PLAYING,
         balance = balance,
-        playerHands = persistentListOf(*hands.toTypedArray()),
-        playerBets = persistentListOf(*bets.toIntArray().toTypedArray()),
+        playerHands = hands.toPersistentList(),
+        playerBets = bets.toPersistentList(),
         activeHandIndex = activeHandIndex,
         handCount = hands.size,
         dealerHand = dealerHand,

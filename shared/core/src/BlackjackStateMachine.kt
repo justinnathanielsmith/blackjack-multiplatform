@@ -30,12 +30,18 @@ class BlackjackStateMachine(
     private val logger: Logger = Logger.withTag("BlackjackStateMachine")
 ) {
     companion object {
+        private const val BLACKJACK_SCORE = 21
         private const val DEALER_STAND_THRESHOLD = 17
+        private const val DEALER_STIFF_MIN = 12
+        private const val CARDS_PER_DECK = 52
+        private const val DEALER_TURN_DELAY_MS = 600L
+        private const val DEAL_CARD_DELAY_MS = 400L
+        private const val DEALER_CRITICAL_PRE_DELAY_MS = 900L
     }
 
-    private val dealerTurnDelayMs: Long get() = if (isTest) 0L else 600L
-    private val dealCardDelayMs: Long get() = if (isTest) 0L else 400L
-    private val dealerCriticalPreDelayMs: Long get() = if (isTest) 0L else 900L
+    private val dealerTurnDelayMs: Long get() = if (isTest) 0L else DEALER_TURN_DELAY_MS
+    private val dealCardDelayMs: Long get() = if (isTest) 0L else DEAL_CARD_DELAY_MS
+    private val dealerCriticalPreDelayMs: Long get() = if (isTest) 0L else DEALER_CRITICAL_PRE_DELAY_MS
 
     private val _state = MutableStateFlow(initialState)
     val state: StateFlow<GameState> = _state.asStateFlow()
@@ -74,24 +80,28 @@ class BlackjackStateMachine(
                         is GameAction.Hit -> handleHit()
                         is GameAction.Stand -> handleStand()
                         is GameAction.DoubleDown -> handleDoubleDown()
-                        is GameAction.TakeInsurance -> handleTakeInsurance()
-                        is GameAction.DeclineInsurance -> handleDeclineInsurance()
+                        is GameAction.TakeInsurance -> handleInsurance(true)
+                        is GameAction.DeclineInsurance -> handleInsurance(false)
                         is GameAction.Split -> {
                             logger.d { "SM handling Split action" }
                             handleSplit()
                         }
                         is GameAction.UpdateRules -> handleUpdateRules(action.rules)
                         is GameAction.PlaceBet -> handlePlaceBet(action.amount)
-                        is GameAction.ResetBet -> handleResetBet()
+                        is GameAction.ResetBet -> handlePlaceBet(null)
                         is GameAction.SelectHandCount -> handleSelectHandCount(action.count)
                         is GameAction.PlaceSideBet -> handlePlaceSideBet(action.type, action.amount)
-                        is GameAction.ResetSideBets -> handleResetSideBets()
+                        is GameAction.ResetSideBets -> handlePlaceSideBet(null, 0)
                     }
                     logger.v { "SM action loop finished current item: $action" }
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                logger.d { "SM action loop cancelled" }
+                throw e
             } catch (e: Exception) {
-                logger.e(e) { "SM init block caught exception" }
+                logger.e(e) { "SM init block caught fatal error" }
             } finally {
+
                 logger.d { "SM init block finally" }
                 isShutdown.value = true
             }
@@ -106,26 +116,24 @@ class BlackjackStateMachine(
         actionChannel.close()
     }
 
-    private fun handlePlaceBet(amount: Int) {
+    private fun handlePlaceBet(amount: Int?) {
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
-        val totalCost = amount * current.handCount
-        if (amount <= 0 || totalCost > current.balance) return
-        _state.value =
-            current.copy(
-                balance = current.balance - totalCost,
-                currentBet = current.currentBet + amount
-            )
-    }
-
-    private fun handleResetBet() {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        _state.value =
-            current.copy(
-                balance = current.balance + current.currentBet * current.handCount,
-                currentBet = 0
-            )
+        if (amount == null) {
+            _state.value =
+                current.copy(
+                    balance = current.balance + current.currentBet * current.handCount,
+                    currentBet = 0,
+                )
+        } else {
+            val totalCost = amount * current.handCount
+            if (amount <= 0 || totalCost > current.balance) return
+            _state.value =
+                current.copy(
+                    balance = current.balance - totalCost,
+                    currentBet = current.currentBet + amount,
+                )
+        }
     }
 
     private fun handleSelectHandCount(count: Int) {
@@ -202,42 +210,10 @@ class BlackjackStateMachine(
                 playerHand = playerHands[0],
                 dealerUpcard = dealerHand.cards[0],
             )
-        // Offer insurance before revealing the hole card. Only applies to single-hand when
-        // dealer shows an Ace and the player doesn't already have a natural blackjack.
-        val playerHasBJ = current.handCount == 1 && playerHands[0].score == 21 && playerHands[0].cards.size == 2
-        val shouldOfferInsurance = current.handCount == 1 && !playerHasBJ && dealerHand.cards[0].rank == Rank.ACE
-        val dealerHandRevealed = Hand(dealerHand.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
-        val initialStatus =
-            if (shouldOfferInsurance) {
-                GameStatus.INSURANCE_OFFERED
-            } else {
-                determineInitialStatus(playerHands, dealerHandRevealed, current.handCount)
-            }
-        val finalDealerHand =
-            when (initialStatus) {
-                GameStatus.PUSH, GameStatus.DEALER_WON -> dealerHandRevealed
-                GameStatus.PLAYER_WON,
-                GameStatus.BETTING,
-                GameStatus.DEALING,
-                GameStatus.IDLE,
-                GameStatus.PLAYING,
-                GameStatus.INSURANCE_OFFERED,
-                GameStatus.DEALER_TURN -> dealerHand // Keep hole card hidden for PLAYING and INSURANCE_OFFERED
-            }
-        val balanceUpdate =
-            when (initialStatus) {
-                GameStatus.PLAYER_WON ->
-                    (current.currentBet * current.rules.blackjackPayout.numerator) /
-                        current.rules.blackjackPayout.denominator + current.currentBet
-                GameStatus.PUSH -> current.currentBet
-                GameStatus.DEALER_WON,
-                GameStatus.BETTING,
-                GameStatus.DEALING,
-                GameStatus.IDLE,
-                GameStatus.PLAYING,
-                GameStatus.INSURANCE_OFFERED,
-                GameStatus.DEALER_TURN -> 0
-            }
+
+        val (initialStatus, finalDealerHand, balanceUpdate) =
+            resolveInitialOutcomeValues(current, playerHands, dealerHand)
+
         _state.value =
             _state.value.copy(
                 status = initialStatus,
@@ -257,15 +233,50 @@ class BlackjackStateMachine(
         }
     }
 
+    private fun resolveInitialOutcomeValues(
+        current: GameState,
+        playerHands: List<Hand>,
+        dealerHand: Hand,
+    ): Triple<GameStatus, Hand, Int> {
+        val playerHasBJ = current.handCount == 1 && playerHands[0].score == BLACKJACK_SCORE && playerHands[0].cards.size == 2
+        val shouldOfferInsurance = current.handCount == 1 && !playerHasBJ && dealerHand.cards[0].rank == Rank.ACE
+        val dealerHandRevealed = Hand(dealerHand.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
+
+        val initialStatus =
+            if (shouldOfferInsurance) {
+                GameStatus.INSURANCE_OFFERED
+            } else {
+                determineInitialStatus(playerHands, dealerHandRevealed, current.handCount)
+            }
+
+        val finalDealerHand =
+            if (initialStatus == GameStatus.PUSH || initialStatus == GameStatus.DEALER_WON) {
+                dealerHandRevealed
+            } else {
+                dealerHand
+            }
+
+        val balanceUpdate =
+            when (initialStatus) {
+                GameStatus.PLAYER_WON ->
+                    (current.currentBet * current.rules.blackjackPayout.numerator) /
+                        current.rules.blackjackPayout.denominator + current.currentBet
+                GameStatus.PUSH -> current.currentBet
+                else -> 0
+            }
+
+        return Triple(initialStatus, finalDealerHand, balanceUpdate)
+    }
+
     private fun determineInitialStatus(
         hands: List<Hand>,
         dealerHand: Hand,
         handCount: Int
     ): GameStatus {
-        val dealerHasBJ = dealerHand.score == 21 && dealerHand.cards.size == 2
+        val dealerHasBJ = dealerHand.score == BLACKJACK_SCORE && dealerHand.cards.size == 2
 
         if (handCount == 1) {
-            val playerHasBJ = hands[0].score == 21 && hands[0].cards.size == 2
+            val playerHasBJ = hands[0].score == BLACKJACK_SCORE && hands[0].cards.size == 2
             return when {
                 playerHasBJ && dealerHasBJ -> GameStatus.PUSH
                 playerHasBJ -> GameStatus.PLAYER_WON
@@ -282,7 +293,7 @@ class BlackjackStateMachine(
 
     private fun getInitialDeck(current: GameState): List<Card> {
         return current.deck.ifEmpty {
-            val deckSize = current.rules.deckCount * 52
+            val deckSize = current.rules.deckCount * CARDS_PER_DECK
             val newDeck = ArrayList<Card>(deckSize)
             for (i in 1..current.rules.deckCount) {
                 for (suit in Suit.entries) {
@@ -432,7 +443,7 @@ class BlackjackStateMachine(
         val rules = _state.value.rules
 
         while (shouldDealerDraw(currentDealerHand, rules)) {
-            val isCritical = currentDealerHand.score in 12..16 && !currentDealerHand.isSoft
+            val isCritical = currentDealerHand.score in DEALER_STIFF_MIN until DEALER_STAND_THRESHOLD && !currentDealerHand.isSoft
 
             if (isCritical) {
                 _state.value = _state.value.copy(dealerDrawIsCritical = true)
@@ -535,7 +546,7 @@ class BlackjackStateMachine(
     private fun handleInsurancePayout() {
         val current = _state.value
         val dealerHasNaturalBJ =
-            current.dealerHand.score == 21 && current.dealerHand.cards.size == 2
+            current.dealerHand.score == BLACKJACK_SCORE && current.dealerHand.cards.size == 2
         if (current.insuranceBet > 0 && dealerHasNaturalBJ) {
             _state.value =
                 current.copy(
@@ -558,63 +569,50 @@ class BlackjackStateMachine(
             HandOutcome.LOSS -> 0
         }
 
-    private suspend fun handleTakeInsurance() {
+    private suspend fun handleInsurance(take: Boolean) {
         val state = _state.value
         if (state.status != GameStatus.INSURANCE_OFFERED) return
-        val insuranceBet = state.currentBet / 2
-        if (insuranceBet > state.balance) return
 
-        _state.value =
-            state.copy(
-                balance = state.balance - insuranceBet,
-                insuranceBet = insuranceBet,
-                status = GameStatus.PLAYING,
-            )
+        if (take) {
+            val insuranceBet = state.currentBet / 2
+            if (insuranceBet > state.balance) return
+            _state.value =
+                state.copy(
+                    balance = state.balance - insuranceBet,
+                    insuranceBet = insuranceBet,
+                    status = GameStatus.PLAYING,
+                )
+        } else {
+            _state.value =
+                state.copy(
+                    insuranceBet = 0,
+                    status = GameStatus.PLAYING,
+                )
+        }
 
-        if (_state.value.dealerHand.score == 21) {
+        if (_state.value.dealerHand.score == BLACKJACK_SCORE) {
             runDealerTurn()
         }
     }
 
-    private suspend fun handleDeclineInsurance() {
-        val state = _state.value
-        if (state.status != GameStatus.INSURANCE_OFFERED) return
-        _state.value =
-            state.copy(
-                insuranceBet = 0,
-                status = GameStatus.PLAYING,
-            )
-
-        if (_state.value.dealerHand.score == 21) {
-            runDealerTurn()
+    private fun handlePlaceSideBet(type: SideBetType?, amount: Int) {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
+        if (type == null) {
+            val totalRefund = current.sideBets.values.sum()
+            _state.value =
+                current.copy(
+                    balance = current.balance + totalRefund,
+                    sideBets = persistentMapOf(),
+                )
+        } else if (amount > 0 && amount <= current.balance) {
+            val newSideBets = current.sideBets.put(type, (current.sideBets[type] ?: 0) + amount)
+            _state.value =
+                current.copy(
+                    balance = current.balance - amount,
+                    sideBets = newSideBets,
+                )
         }
-    }
-
-    private fun handlePlaceSideBet(
-        type: SideBetType,
-        amount: Int
-    ) {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        if (amount <= 0 || amount > current.balance) return
-        val newSideBets = current.sideBets.put(type, (current.sideBets[type] ?: 0) + amount)
-
-        _state.value =
-            current.copy(
-                balance = current.balance - amount,
-                sideBets = newSideBets
-            )
-    }
-
-    private fun handleResetSideBets() {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        val totalRefund = current.sideBets.values.sum()
-        _state.value =
-            current.copy(
-                balance = current.balance + totalRefund,
-                sideBets = persistentMapOf()
-            )
     }
 
     private fun emitEffect(effect: GameEffect) {

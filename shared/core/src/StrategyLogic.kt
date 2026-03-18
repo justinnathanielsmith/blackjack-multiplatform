@@ -26,25 +26,30 @@ data class StrategyCell(
     val actions: Map<Int, StrategyAction>
 )
 
+@Suppress("MagicNumber")
 object StrategyProvider {
+    private val ALL_UPCARDS = 2..11
+    private val LOW_UPCARDS = 2..6
+    private val HIGH_UPCARDS = 7..11
+
     private val hardStrategy: List<StrategyCell> =
         listOf(
-            StrategyCell("17+", (2..11).associateWith { StrategyAction.STAND }),
+            StrategyCell("17+", ALL_UPCARDS.associateWith { StrategyAction.STAND }),
             StrategyCell(
                 "16",
-                (2..6).associateWith { StrategyAction.STAND } + (7..11).associateWith { StrategyAction.HIT }
+                LOW_UPCARDS.associateWith { StrategyAction.STAND } + HIGH_UPCARDS.associateWith { StrategyAction.HIT }
             ),
             StrategyCell(
                 "15",
-                (2..6).associateWith { StrategyAction.STAND } + (7..11).associateWith { StrategyAction.HIT }
+                LOW_UPCARDS.associateWith { StrategyAction.STAND } + HIGH_UPCARDS.associateWith { StrategyAction.HIT }
             ),
             StrategyCell(
                 "14",
-                (2..6).associateWith { StrategyAction.STAND } + (7..11).associateWith { StrategyAction.HIT }
+                LOW_UPCARDS.associateWith { StrategyAction.STAND } + HIGH_UPCARDS.associateWith { StrategyAction.HIT }
             ),
             StrategyCell(
                 "13",
-                (2..6).associateWith { StrategyAction.STAND } + (7..11).associateWith { StrategyAction.HIT }
+                LOW_UPCARDS.associateWith { StrategyAction.STAND } + HIGH_UPCARDS.associateWith { StrategyAction.HIT }
             ),
             StrategyCell(
                 "12",
@@ -81,13 +86,13 @@ object StrategyProvider {
                     11 to StrategyAction.HIT
                 )
             ),
-            StrategyCell("8 or less", (2..11).associateWith { StrategyAction.HIT })
+            StrategyCell("8 or less", ALL_UPCARDS.associateWith { StrategyAction.HIT })
         )
 
     private val softStrategy: List<StrategyCell> =
         listOf(
-            StrategyCell("A,9", (2..11).associateWith { StrategyAction.STAND }),
-            StrategyCell("A,8", (2..11).associateWith { StrategyAction.STAND }),
+            StrategyCell("A,9", ALL_UPCARDS.associateWith { StrategyAction.STAND }),
+            StrategyCell("A,8", ALL_UPCARDS.associateWith { StrategyAction.STAND }),
             StrategyCell(
                 "A,7",
                 mapOf(
@@ -182,8 +187,8 @@ object StrategyProvider {
 
     private val pairsStrategy: List<StrategyCell> =
         listOf(
-            StrategyCell("A,A", (2..11).associateWith { StrategyAction.SPLIT }),
-            StrategyCell("10,10", (2..11).associateWith { StrategyAction.STAND }),
+            StrategyCell("A,A", ALL_UPCARDS.associateWith { StrategyAction.SPLIT }),
+            StrategyCell("10,10", ALL_UPCARDS.associateWith { StrategyAction.STAND }),
             StrategyCell(
                 "9,9",
                 (2..6).associateWith { StrategyAction.SPLIT } +
@@ -195,7 +200,7 @@ object StrategyProvider {
                         11 to StrategyAction.STAND
                     )
             ),
-            StrategyCell("8,8", (2..11).associateWith { StrategyAction.SPLIT }),
+            StrategyCell("8,8", ALL_UPCARDS.associateWith { StrategyAction.SPLIT }),
             StrategyCell(
                 "7,7",
                 (2..7).associateWith { StrategyAction.SPLIT } + (8..11).associateWith { StrategyAction.HIT }

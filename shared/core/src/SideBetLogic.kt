@@ -9,6 +9,16 @@ data class SideBetResolution(
 )
 
 object SideBetLogic {
+    private const val PERFECT_PAIR_PAYOUT = 25
+    private const val COLORED_PAIR_PAYOUT = 12
+    private const val MIXED_PAIR_PAYOUT = 5
+
+    private const val SUITED_TRIPLE_PAYOUT = 100
+    private const val STRAIGHT_FLUSH_PAYOUT = 40
+    private const val THREE_OF_A_KIND_PAYOUT = 30
+    private const val STRAIGHT_PAYOUT = 10
+    private const val FLUSH_PAYOUT = 5
+
     private val RED_SUITS = setOf(Suit.HEARTS, Suit.DIAMONDS)
     private val BLACK_SUITS = setOf(Suit.CLUBS, Suit.SPADES)
 
@@ -48,11 +58,11 @@ object SideBetLogic {
 
         return when {
             c1.rank == c2.rank && c1.suit == c2.suit ->
-                SideBetResult(SideBetType.PERFECT_PAIRS, 25, 0, "Perfect Pair")
+                SideBetResult(SideBetType.PERFECT_PAIRS, PERFECT_PAIR_PAYOUT, 0, "Perfect Pair")
             c1.rank == c2.rank && isSameColor(c1.suit, c2.suit) ->
-                SideBetResult(SideBetType.PERFECT_PAIRS, 12, 0, "Colored Pair")
+                SideBetResult(SideBetType.PERFECT_PAIRS, COLORED_PAIR_PAYOUT, 0, "Colored Pair")
             c1.rank == c2.rank ->
-                SideBetResult(SideBetType.PERFECT_PAIRS, 5, 0, "Mixed Pair")
+                SideBetResult(SideBetType.PERFECT_PAIRS, MIXED_PAIR_PAYOUT, 0, "Mixed Pair")
             else -> null
         }
     }
@@ -65,11 +75,11 @@ object SideBetLogic {
         val cards = listOf(playerHand.cards[0], playerHand.cards[1], dealerUpcard)
 
         return when {
-            isSuitedTriple(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 100, 0, "Suited Triple")
-            isStraightFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 40, 0, "Straight Flush")
-            isThreeOfAKind(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 30, 0, "Three of a Kind")
-            isStraight(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 10, 0, "Straight")
-            isFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, 5, 0, "Flush")
+            isSuitedTriple(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, SUITED_TRIPLE_PAYOUT, 0, "Suited Triple")
+            isStraightFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_FLUSH_PAYOUT, 0, "Straight Flush")
+            isThreeOfAKind(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, THREE_OF_A_KIND_PAYOUT, 0, "Three of a Kind")
+            isStraight(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_PAYOUT, 0, "Straight")
+            isFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, FLUSH_PAYOUT, 0, "Flush")
             else -> null
         }
     }
@@ -100,7 +110,7 @@ object SideBetLogic {
 
         // Ace-low straight (A, 2, 3).
         // Rank ordinal: ACE is last (12). TWO is 0. THREE is 1.
-        if (sortedRanks == listOf(0, 1, 12)) return true
+        if (sortedRanks == listOf(Rank.TWO.ordinal, Rank.THREE.ordinal, Rank.ACE.ordinal)) return true
 
         return false
     }

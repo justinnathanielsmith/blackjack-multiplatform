@@ -14,6 +14,10 @@ data class PlayerActionOutcome(
 }
 
 object PlayerActionLogic {
+    private const val BLACKJACK_SCORE = 21
+    private const val HIGH_CARD_VALUE = 10
+    private const val NEAR_MISS_SCORE = 11
+
     fun hit(state: GameState): PlayerActionOutcome {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
 
@@ -31,9 +35,9 @@ object PlayerActionLogic {
         val effects =
             buildList {
                 add(GameEffect.PlayCardSound)
-                if (newCard.rank.value >= 10) add(GameEffect.HeavyCardThud)
-                if (newHand.score == 21) add(GameEffect.Pulse21)
-                if (newHand.score == 11) add(GameEffect.NearMissHighlight(state.activeHandIndex))
+                if (newCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
+                if (newHand.score == BLACKJACK_SCORE) add(GameEffect.Pulse21)
+                if (newHand.score == NEAR_MISS_SCORE) add(GameEffect.NearMissHighlight(state.activeHandIndex))
             }
         return PlayerActionOutcome(
             state = updatedState,
@@ -72,8 +76,8 @@ object PlayerActionLogic {
         val effects =
             buildList {
                 add(GameEffect.PlayCardSound)
-                if (drawnCard.rank.value >= 10) add(GameEffect.HeavyCardThud)
-                if (newHand.score == 21) add(GameEffect.Pulse21)
+                if (drawnCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
+                if (newHand.score == BLACKJACK_SCORE) add(GameEffect.Pulse21)
                 if (newHand.isBust) {
                     add(GameEffect.PlayLoseSound)
                     add(GameEffect.Vibrate)

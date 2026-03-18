@@ -14,72 +14,53 @@ class BenchmarkTest {
                 Card(Rank.TWO, Suit.HEARTS)
             )
 
-        // Warmup
-        for (i in 0..100000) {
-            val faceUpCards = cards.filter { !it.isFaceDown }
-            var s = faceUpCards.sumOf { it.rank.value }
-            var aces = faceUpCards.count { it.rank == Rank.ACE }
-            while (s > 21 && aces > 0) {
-                s -= 10
-                aces -= 1
-            }
+        // Warmup old
+        repeat(100_000) { runOldApproach(cards) }
+
+        val timeOld = kotlin.system.measureTimeMillis {
+            repeat(1_000_000) { runOldApproach(cards) }
         }
 
-        val timeOld =
-            kotlin.system.measureTimeMillis {
-                for (i in 0..1000000) {
-                    val faceUpCards = cards.filter { !it.isFaceDown }
-                    var s = faceUpCards.sumOf { it.rank.value }
-                    var aces = faceUpCards.count { it.rank == Rank.ACE }
-                    while (s > 21 && aces > 0) {
-                        s -= 10
-                        aces -= 1
-                    }
-                }
-            }
+        // Warmup new
+        repeat(100_000) { runNewApproach(cards) }
 
-        // Warmup
-        for (i in 0..100000) {
-            var s = 0
-            var aces = 0
-            for (card in cards) {
-                if (!card.isFaceDown) {
-                    s += card.rank.value
-                    if (card.rank == Rank.ACE) {
-                        aces++
-                    }
-                }
-            }
-            while (s > 21 && aces > 0) {
-                s -= 10
-                aces -= 1
-            }
+        val timeNew = kotlin.system.measureTimeMillis {
+            repeat(1_000_000) { runNewApproach(cards) }
         }
-
-        val timeNew =
-            kotlin.system.measureTimeMillis {
-                for (i in 0..1000000) {
-                    var s = 0
-                    var aces = 0
-                    for (card in cards) {
-                        if (!card.isFaceDown) {
-                            s += card.rank.value
-                            if (card.rank == Rank.ACE) {
-                                aces++
-                            }
-                        }
-                    }
-                    while (s > 21 && aces > 0) {
-                        s -= 10
-                        aces -= 1
-                    }
-                }
-            }
 
         println("===============================")
         println("Old approach: $timeOld ms")
         println("New approach: $timeNew ms")
-        println("Improvement: ${(timeOld - timeNew).toDouble() / timeOld * 100}%")
+        if (timeOld > 0) {
+            println("Improvement: ${(timeOld - timeNew).toDouble() / timeOld * 100}%")
+        }
         println("===============================")
+    }
+
+    private fun runOldApproach(cards: List<Card>) {
+        val faceUpCards = cards.filter { !it.isFaceDown }
+        var s = faceUpCards.sumOf { it.rank.value }
+        var aces = faceUpCards.count { it.rank == Rank.ACE }
+        while (s > 21 && aces > 0) {
+            s -= 10
+            aces -= 1
+        }
+    }
+
+    private fun runNewApproach(cards: List<Card>) {
+        var s = 0
+        var aces = 0
+        for (card in cards) {
+            if (!card.isFaceDown) {
+                s += card.rank.value
+                if (card.rank == Rank.ACE) {
+                    aces++
+                }
+            }
+        }
+        while (s > 21 && aces > 0) {
+            s -= 10
+            aces -= 1
+        }
     }
 }
