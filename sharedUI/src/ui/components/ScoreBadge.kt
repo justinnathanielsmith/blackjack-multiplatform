@@ -100,13 +100,13 @@ fun ScoreBadge(
                     scaleY = pulseScale.value
                 }
                 .shadow(
-                    elevation = if (state == ScoreBadgeState.ACTIVE || is21) 8.dp else 4.dp,
+                    elevation = if (state == ScoreBadgeState.ACTIVE || state == ScoreBadgeState.DEALER || is21) 8.dp else 4.dp,
                     shape = BadgeShape,
                     spotColor = backgroundColor
                 )
                 .background(backgroundColor, BadgeShape)
                 .border(1.5.dp, borderColor, BadgeShape)
-                .padding(horizontal = 16.dp, vertical = 4.dp),
+                .padding(horizontal = 16.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             AnimatedContent(

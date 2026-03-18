@@ -243,7 +243,7 @@ fun BlackjackHandContainer(
                 state = badgeState,
                 modifier = Modifier
                     .align(if (badgeState == ScoreBadgeState.DEALER) Alignment.TopCenter else Alignment.BottomCenter)
-                    .offset(y = if (badgeState == ScoreBadgeState.DEALER) (-14).dp else 14.dp)
+                    .offset(y = if (badgeState == ScoreBadgeState.DEALER) (-18).dp else 14.dp)
                     .zIndex(2f)
                     .then(if (isAnyCompact) Modifier.scale(0.85f) else Modifier)
             )
