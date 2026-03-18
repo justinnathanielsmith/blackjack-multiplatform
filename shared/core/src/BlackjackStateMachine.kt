@@ -37,6 +37,8 @@ class BlackjackStateMachine(
         private const val DEALER_TURN_DELAY_MS = 600L
         private const val DEAL_CARD_DELAY_MS = 400L
         private const val DEALER_CRITICAL_PRE_DELAY_MS = 900L
+        private const val REVEAL_DELAY_MS = 1500L
+        private const val SLOW_ROLL_DELAY_MS = 2500L
     }
 
     private val dealerTurnDelayMs: Long get() = if (isTest) 0L else DEALER_TURN_DELAY_MS
@@ -213,6 +215,10 @@ class BlackjackStateMachine(
 
         val (initialStatus, finalDealerHand, balanceUpdate) =
             resolveInitialOutcomeValues(current, playerHands, dealerHand)
+
+        if (initialStatus.isTerminal()) {
+            delay(getRevealDelayMs(dealerHand))
+        }
 
         _state.value =
             _state.value.copy(
@@ -435,7 +441,7 @@ class BlackjackStateMachine(
         }
         revealDealerHoleCard()
         logger.v { "DEALER_TURN: before first delay" }
-        delay(dealerTurnDelayMs) // Visual pause for hole card reveal
+        delay(getRevealDelayMs(_state.value.dealerHand)) // Visual pause for hole card reveal
         logger.v { "DEALER_TURN: after first delay" }
 
         handleInsurancePayout()
@@ -627,5 +633,19 @@ class BlackjackStateMachine(
 
     private fun emitEffect(effect: GameEffect) {
         _effects.tryEmit(effect)
+    }
+
+    private fun isSlowRoll(hand: Hand): Boolean {
+        if (hand.cards.size < 2) return false
+        val upcard = hand.cards[0]
+        val holeCard = hand.cards[1]
+        val isBlackjack = hand.score == 21 && hand.cards.size == 2
+        val isTensionVisible = upcard.rank == Rank.ACE || upcard.rank.value == 10
+        return isBlackjack && isTensionVisible
+    }
+
+    private fun getRevealDelayMs(hand: Hand): Long {
+        if (isTest) return 0L
+        return if (isSlowRoll(hand)) SLOW_ROLL_DELAY_MS else REVEAL_DELAY_MS
     }
 }

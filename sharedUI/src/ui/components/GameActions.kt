@@ -35,6 +35,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -174,7 +179,7 @@ fun GameActions(
                     )
 
                     val activeHand = state.playerHands.getOrNull(state.activeHandIndex)
-                    val shouldGlowStand = activeHand != null && (activeHand.score == 19 || activeHand.score == 20)
+                    val tension = activeHand?.let { calculateTension(it.score) } ?: 0.0f
 
                     ModernActionButton(
                         icon = Res.drawable.ic_stand,
@@ -185,7 +190,7 @@ fun GameActions(
                         contentColor = TacticalRed,
                         borderColor = TacticalRed.copy(alpha = 0.5f),
                         modifier = buttonModifier,
-                        isGlowing = shouldGlowStand
+                        tension = tension
                     )
                 }
             }
@@ -209,36 +214,61 @@ private fun ModernActionButton(
     contentColor: Color,
     modifier: Modifier = Modifier,
     borderColor: Color? = null,
-    isGlowing: Boolean = false,
+    tension: Float = 0f,
 ) {
+    val isGlowing = tension > 0f
+
     val glowModifier =
         if (isGlowing && enabled) {
             val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
-            val glowElevation by infiniteTransition.animateFloat(
-                initialValue = 2f,
-                targetValue = 20f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(800, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                label = "glowElevation"
-            )
+
+            // Faster pulsing at higher tension
+            val pulseDuration = (1200 - (tension * 600)).toInt()
+
             val glowAlpha by infiniteTransition.animateFloat(
-                initialValue = 0.5f,
-                targetValue = 1.0f,
+                initialValue = 0.4f * tension,
+                targetValue = 0.9f * tension,
                 animationSpec =
                     infiniteRepeatable(
-                        animation = tween(800, easing = FastOutSlowInEasing),
+                        animation = tween(pulseDuration, easing = FastOutSlowInEasing),
                         repeatMode = RepeatMode.Reverse
                     ),
                 label = "glowAlpha"
             )
-            Modifier.graphicsLayer {
-                shadowElevation = glowElevation
-                spotShadowColor = contentColor.copy(alpha = glowAlpha)
-                ambientShadowColor = contentColor.copy(alpha = glowAlpha)
-                shape = RoundedCornerShape(50)
+
+            val glowScale by infiniteTransition.animateFloat(
+                initialValue = 1.0f,
+                targetValue = 1.0f + (0.4f * tension),
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(pulseDuration, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                label = "glowScale"
+            )
+
+            Modifier.drawBehind {
+                val extraGlow = 8.dp.toPx() * tension * glowScale
+                val glowSize = Size(size.width + extraGlow * 2, size.height + extraGlow * 2)
+                val glowTopLeft = Offset(-extraGlow, -extraGlow)
+
+                drawRoundRect(
+                    brush =
+                        Brush.radialGradient(
+                            colors = listOf(contentColor.copy(alpha = glowAlpha), Color.Transparent),
+                            center = center,
+                            radius = size.maxDimension * 0.8f * glowScale
+                        ),
+                    topLeft = glowTopLeft,
+                    size = glowSize,
+                    cornerRadius = CornerRadius(glowSize.height / 2)
+                )
+            }.graphicsLayer {
+                // Subtle breathing scale for the whole button at high tension
+                if (tension > 0.8f) {
+                    scaleX = 0.98f + (0.04f * glowScale)
+                    scaleY = 0.98f + (0.04f * glowScale)
+                }
                 clip = false
             }
         } else {
@@ -282,5 +312,15 @@ private fun ModernActionButton(
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
+    }
+}
+
+private fun calculateTension(score: Int): Float {
+    return when {
+        score >= 20 -> 1.0f
+        score == 19 -> 0.7f
+        score == 18 -> 0.4f
+        score == 17 -> 0.2f
+        else -> 0.0f
     }
 }
