@@ -28,10 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,7 +71,7 @@ import sharedui.generated.resources.strategy_tab_soft
 
 @Composable
 fun StrategyGuideOverlay(onDismiss: () -> Unit) {
-    var selectedTab by remember { mutableStateOf<StrategyTab>(StrategyTab.Hard) }
+    val selectedTab = remember { mutableStateOf<StrategyTab>(StrategyTab.Hard) }
 
     Surface(
         color = FeltDark.copy(alpha = 0.95f),
@@ -108,13 +106,13 @@ fun StrategyGuideOverlay(onDismiss: () -> Unit) {
             }
 
             StrategyTabs(
-                selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it }
+                selectedTab = selectedTab.value,
+                onTabSelected = { selectedTab.value = it }
             )
 
             Spacer(modifier = Modifier.height(Dimensions.Spacing.Medium))
 
-            StrategyChart(selectedTab)
+            StrategyChart(selectedTab.value)
 
             Spacer(modifier = Modifier.height(Dimensions.Spacing.Medium))
 
