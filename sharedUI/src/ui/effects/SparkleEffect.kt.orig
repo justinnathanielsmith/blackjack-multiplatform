@@ -82,8 +82,6 @@ fun SparkleEffect(modifier: Modifier = Modifier) {
         while (particles.isNotEmpty()) {
             withFrameNanos { time ->
                 frameState.longValue = time
-                // Performance Optimization: Update in O(N) then use removeAll which maps to
-                // an efficient single-pass O(N) removal, rather than O(N^2) backward while loops with removeAt.
                 for (i in 0 until particles.size) {
                     particles[i].update()
                 }
