@@ -6,10 +6,10 @@ import platform.UIKit.UINotificationFeedbackGenerator
 import platform.UIKit.UINotificationFeedbackType
 
 class IosHapticsServiceImpl : HapticsService {
-    private val mediumGenerator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleMedium)
-    private val heavyGenerator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
-    private val lightGenerator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleLight)
-    private val notifGenerator = UINotificationFeedbackGenerator()
+    private val mediumGenerator by lazy { UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleMedium) }
+    private val heavyGenerator by lazy { UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy) }
+    private val lightGenerator by lazy { UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleLight) }
+    private val notifGenerator by lazy { UINotificationFeedbackGenerator() }
 
     override fun vibrate() {
         mediumGenerator.prepare()
@@ -34,6 +34,8 @@ class IosHapticsServiceImpl : HapticsService {
     override fun winPulse() {
         notifGenerator.prepare()
         notifGenerator.notificationOccurred(UINotificationFeedbackType.UINotificationFeedbackTypeSuccess)
+        mediumGenerator.prepare()
+        mediumGenerator.impactOccurred()
     }
 
     override fun bustThud() {
