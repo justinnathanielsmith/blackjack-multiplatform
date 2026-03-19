@@ -1,11 +1,11 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.collections.immutable.persistentMapOf
 
 class SideBetLogicTest {
     @Test
@@ -166,12 +166,13 @@ class SideBetLogicTest {
     @Test
     fun testResolveSideBets_win() {
         val sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 10)
-        val playerHand = Hand(
-            kotlinx.collections.immutable.persistentListOf(
-                card(Rank.TEN, Suit.SPADES),
-                card(Rank.TEN, Suit.SPADES),
+        val playerHand =
+            Hand(
+                kotlinx.collections.immutable.persistentListOf(
+                    card(Rank.TEN, Suit.SPADES),
+                    card(Rank.TEN, Suit.SPADES),
+                )
             )
-        )
         val resolution = SideBetLogic.resolveSideBets(sideBets, playerHand, card(Rank.FIVE, Suit.CLUBS))
         // Perfect Pair = 25x multiplier; payout = 10 * 25 + 10 = 260
         assertEquals(260, resolution.payoutTotal)
@@ -181,12 +182,13 @@ class SideBetLogicTest {
     @Test
     fun testResolveSideBets_loss() {
         val sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 10)
-        val playerHand = Hand(
-            kotlinx.collections.immutable.persistentListOf(
-                card(Rank.TEN, Suit.SPADES),
-                card(Rank.FIVE, Suit.HEARTS),
+        val playerHand =
+            Hand(
+                kotlinx.collections.immutable.persistentListOf(
+                    card(Rank.TEN, Suit.SPADES),
+                    card(Rank.FIVE, Suit.HEARTS),
+                )
             )
-        )
         val resolution = SideBetLogic.resolveSideBets(sideBets, playerHand, card(Rank.KING, Suit.CLUBS))
         assertEquals(0, resolution.payoutTotal)
         assertTrue(resolution.results.isEmpty())

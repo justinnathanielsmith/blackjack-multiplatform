@@ -10,6 +10,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.withTransform
 import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawChipVisual
 import kotlin.random.Random
 
@@ -62,9 +63,16 @@ fun ChipEruptionEffect(
         while (chips.isNotEmpty()) {
             withFrameNanos { time ->
                 frameState.longValue = time
-                // Optimized single-pass removal with O(N) complexity
-                chips.forEach { it.update() }
-                chips.removeAll { it.isDone }
+                var i = 0
+                while (i < chips.size) {
+                    val chip = chips[i]
+                    chip.update()
+                    if (chip.isDone) {
+                        chips.removeAt(i)
+                    } else {
+                        i++
+                    }
+                }
             }
         }
     }
@@ -79,7 +87,8 @@ fun ChipEruptionEffect(
         val srcY = startOffset?.y ?: (height * 0.4f)
         val dstY = height * 1.1f
 
-        for (chip in chips) {
+        for (i in 0 until chips.size) {
+            val chip = chips[i]
             if (chip.t <= 0f) continue
 
             val t = chip.t
@@ -95,16 +104,18 @@ fun ChipEruptionEffect(
 
             val alpha = if (t > 0.8f) 1f - (t - 0.8f) / 0.2f else 1f
             val scale = 1.2f - 0.5f * t
-            val radius = CHIP_RADIUS * scale
 
-            drawChipVisual(
-                color = chip.color,
-                alpha = alpha.coerceIn(0f, 1f),
-                radius = radius,
-                center = Offset(x, y)
-            )
+            withTransform({
+                translate(x, y)
+                scale(scale, scale, Offset.Zero)
+            }) {
+                drawChipVisual(
+                    color = chip.color,
+                    alpha = alpha.coerceIn(0f, 1f),
+                    radius = ChipVisuals.STANDARD_RADIUS,
+                    center = Offset.Zero
+                )
+            }
         }
     }
 }
-
-private const val CHIP_RADIUS = 24f

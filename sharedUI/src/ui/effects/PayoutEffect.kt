@@ -74,12 +74,11 @@ fun PayoutEffect(
 
         // Quad ease in out for the glide
         val t =
-            if (progress <
-                0.5f
-            ) {
+            if (progress < 0.5f) {
                 2f * progress * progress
             } else {
-                1f - Math.pow(-2f * progress + 2.0, 2.0).toFloat() / 2f
+                val inv = -2f * progress + 2f
+                1f - (inv * inv) / 2f
             }
 
         val currentX = startX + (targetOffset.x - startX) * t
@@ -100,12 +99,13 @@ fun PayoutEffect(
             translate(currentX, currentY)
             scale(scale, scale, Offset.Zero)
         }) {
-            chips.forEachIndexed { index, color ->
-                val offset = stackVisualOffsets[index]
+            for (i in 0 until chips.size) {
+                val color = chips[i]
+                val offset = stackVisualOffsets[i]
                 drawChipVisual(
                     color = color,
                     alpha = alpha,
-                    radius = 24f, // Standard radius for effects
+                    radius = ChipVisuals.STANDARD_RADIUS, // Standard radius for effects
                     center = offset
                 )
             }

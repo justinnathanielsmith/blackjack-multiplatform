@@ -58,7 +58,10 @@ data class Hand(
             s += card.rank.value
             if (card.rank == Rank.ACE) aces++
         }
-        while (s > 21 && aces > 0) { s -= 10; aces-- }
+        while (s > 21 && aces > 0) {
+            s -= 10
+            aces--
+        }
         return s
     }
 
@@ -119,6 +122,7 @@ data class GameRules(
 @Serializable
 enum class GameStatus {
     BETTING,
+
     /** Transient state during the animated card deal. Never terminal; transitions to [PLAYING] or a terminal status immediately after. */
     DEALING,
     IDLE,
@@ -221,7 +225,11 @@ enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
  * @param anyWin true if at least one hand won or had a natural BJ
  * @param allPush true if every hand pushed (used to determine [GameStatus.PUSH])
  */
-data class HandResults(val totalPayout: Int, val anyWin: Boolean, val allPush: Boolean)
+data class HandResults(
+    val totalPayout: Int,
+    val anyWin: Boolean,
+    val allPush: Boolean
+)
 
 object BlackjackRules {
     const val BLACKJACK_SCORE = 21

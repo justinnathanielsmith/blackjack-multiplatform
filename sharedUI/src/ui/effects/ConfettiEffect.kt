@@ -86,9 +86,16 @@ fun ConfettiEffect(
             withFrameNanos { time ->
                 frameState.longValue = time
 
-                // Optimized single-pass removal with O(N) complexity
-                particles.forEach { it.update() }
-                particles.removeAll { it.alpha <= 0 }
+                var i = 0
+                while (i < particles.size) {
+                    val p = particles[i]
+                    p.update()
+                    if (p.alpha <= 0) {
+                        particles.removeAt(i)
+                    } else {
+                        i++
+                    }
+                }
             }
         }
     }

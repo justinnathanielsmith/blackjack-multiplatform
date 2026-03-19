@@ -10,6 +10,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.withTransform
 import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawChipVisual
 import kotlin.random.Random
 
@@ -61,9 +62,16 @@ fun ChipLossEffect(
         while (chips.isNotEmpty()) {
             withFrameNanos { time ->
                 frameState.longValue = time
-                // Optimized single-pass removal with O(N) complexity
-                chips.forEach { it.update() }
-                chips.removeAll { it.isDone }
+                var i = 0
+                while (i < chips.size) {
+                    val chip = chips[i]
+                    chip.update()
+                    if (chip.isDone) {
+                        chips.removeAt(i)
+                    } else {
+                        i++
+                    }
+                }
             }
         }
     }
@@ -78,7 +86,8 @@ fun ChipLossEffect(
         val srcY = height * 0.65f
         val dstY = -height * 0.1f // Fly off-screen top
 
-        for (chip in chips) {
+        for (i in 0 until chips.size) {
+            val chip = chips[i]
             if (chip.t <= 0f) continue
 
             val t = chip.t
@@ -93,16 +102,18 @@ fun ChipLossEffect(
 
             val alpha = if (t > 0.7f) 1f - (t - 0.7f) / 0.3f else 1f
             val scale = 1.0f + 0.5f * t
-            val radius = CHIP_RADIUS * scale
 
-            drawChipVisual(
-                color = chip.color,
-                alpha = alpha.coerceIn(0f, 1f),
-                radius = radius,
-                center = Offset(x, y)
-            )
+            withTransform({
+                translate(x, y)
+                scale(scale, scale, Offset.Zero)
+            }) {
+                drawChipVisual(
+                    color = chip.color,
+                    alpha = alpha.coerceIn(0f, 1f),
+                    radius = ChipVisuals.STANDARD_RADIUS,
+                    center = Offset.Zero
+                )
+            }
         }
     }
 }
-
-private const val CHIP_RADIUS = 24f

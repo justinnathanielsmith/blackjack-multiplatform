@@ -103,11 +103,11 @@ object PlayerActionLogic {
 
         val card1 = state.activeHand.cards[0]
         val card2 = state.activeHand.cards[1]
-        
+
         // Use sequential draws to ensure deck consistency
         val cardFromDeck1 = state.deck[0]
         val cardFromDeck2 = state.deck[1]
-        
+
         val newPrimaryHand = Hand(persistentListOf(card1, cardFromDeck1))
         val newSplitHand = Hand(persistentListOf(card2, cardFromDeck2))
         val isAceSplit = card1.rank == Rank.ACE

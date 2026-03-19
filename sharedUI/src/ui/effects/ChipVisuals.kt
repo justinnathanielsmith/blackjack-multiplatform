@@ -14,6 +14,18 @@ import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 import kotlin.math.PI
 
 object ChipVisuals {
+    const val STANDARD_RADIUS = 24f
+    private val DASH_LENGTH = (STANDARD_RADIUS * 2 * PI / 12).toFloat()
+    private val STANDARD_STROKE =
+        Stroke(
+            width = STANDARD_RADIUS * 0.16f,
+            pathEffect =
+                PathEffect.dashPathEffect(
+                    floatArrayOf(DASH_LENGTH / 2, DASH_LENGTH / 2),
+                    0f
+                )
+        )
+
     fun breakdownAmount(
         amount: Int,
         maxParticles: Int = 30
@@ -77,12 +89,11 @@ object ChipVisuals {
         )
 
         // Classic casino dashed rim
-        val dashLength = (radius * 2 * PI / 12).toFloat()
-        drawCircle(
-            color = accentColor,
-            radius = radius * 0.92f,
-            center = center,
-            style =
+        val stroke =
+            if (radius == STANDARD_RADIUS) {
+                STANDARD_STROKE
+            } else {
+                val dashLength = (radius * 2 * PI / 12).toFloat()
                 Stroke(
                     width = radius * 0.16f,
                     pathEffect =
@@ -91,6 +102,13 @@ object ChipVisuals {
                             0f
                         )
                 )
+            }
+
+        drawCircle(
+            color = accentColor,
+            radius = radius * 0.92f,
+            center = center,
+            style = stroke
         )
 
         // Center inlay
