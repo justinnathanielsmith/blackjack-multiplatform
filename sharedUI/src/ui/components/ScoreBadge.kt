@@ -90,24 +90,22 @@ fun ScoreBadge(
         val pulseScale = remember { Animatable(1f) }
 
         LaunchedEffect(score) {
-            if (score > 0) {
-                pulseScale.animateTo(
-                    targetValue = 1.2f,
-                    animationSpec =
-                        spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessHigh
-                        )
-                )
-                pulseScale.animateTo(
-                    targetValue = 1f,
-                    animationSpec =
-                        spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                )
-            }
+            pulseScale.animateTo(
+                targetValue = 1.2f,
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh
+                    )
+            )
+            pulseScale.animateTo(
+                targetValue = 1f,
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+            )
         }
 
         Box(
@@ -120,7 +118,8 @@ fun ScoreBadge(
                         elevation =
                             if (state == ScoreBadgeState.ACTIVE ||
                                 state == ScoreBadgeState.DEALER ||
-                                is21
+                                is21 ||
+                                isBust
                             ) {
                                 8.dp
                             } else {
