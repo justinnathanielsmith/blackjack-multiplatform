@@ -237,6 +237,9 @@ class BlackjackStateMachine(
             BlackjackRules.resolveInitialOutcomeValues(current, playerHands, dealerHand)
 
         if (initialStatus.isTerminal()) {
+            if (finalDealerHand != dealerHand) {
+                _state.value = _state.value.copy(dealerHand = finalDealerHand)
+            }
             delay(getRevealDelayMs(dealerHand))
         }
 
