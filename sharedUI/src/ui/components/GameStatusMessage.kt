@@ -61,7 +61,7 @@ fun GameStatusMessage(
             targetValue = if (isBlackjack) 1.15f else 1.04f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(if (isBlackjack) 600 else 1000, easing = FastOutSlowInEasing),
+                    animation = tween(if (isBlackjack) 400 else 600, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "pulseScale",

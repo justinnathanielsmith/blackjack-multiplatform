@@ -63,12 +63,11 @@ fun BettingPhaseScreen(
     var selectedAmount by remember { mutableStateOf(10) }
     val sideBetOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
 
-    // Dim the felt slightly to bring focus to the betting layer
+    // Remove the dimming felt to bring focus to the betting layer while keeping the table visible
     Box(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))
                 .windowInsetsPadding(safeDrawingInsets())
     ) {
         val placeBetOnArea: (GameAction, Offset, Int) -> Unit =
@@ -130,14 +129,6 @@ fun BettingPhaseScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
-            Text(
-                text = stringResource(Res.string.status_betting).uppercase(),
-                style = MaterialTheme.typography.titleLarge,
-                color = PrimaryGold,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 6.sp,
-            )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
@@ -189,20 +180,16 @@ fun BettingPhaseScreen(
             }
         }
 
-        // --- Bottom: Controls in a sleek glass panel ---
+        // --- Bottom: Controls integrated into the table rail ---
         Column(
             modifier =
                 Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 80.dp) // Offset above the ControlCenter
+                    .padding(bottom = 40.dp) // Lowered to sit on the rail
                     .zIndex(2f)
-                    .fillMaxWidth(0.9f)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(GlassDark)
-                    .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
-                    .padding(20.dp),
+                    .fillMaxWidth(0.9f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             ChipSelector(
                 balance = state.balance,

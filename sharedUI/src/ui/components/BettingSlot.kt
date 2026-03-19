@@ -61,8 +61,8 @@ fun BettingSlot(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "bettingSlotGlow")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = if (isSideBet) 0.3f else 0.4f,
-        targetValue = if (amount > 0) (if (isSideBet) 0.8f else 1.0f) else (if (isSideBet) 0.3f else 0.4f),
+        initialValue = if (isSideBet) 0.15f else 0.15f,
+        targetValue = if (amount > 0) (if (isSideBet) 0.5f else 0.7f) else (if (isSideBet) 0.15f else 0.15f),
         animationSpec =
             infiniteRepeatable(
                 animation = tween(1200, easing = FastOutSlowInEasing),
@@ -76,7 +76,7 @@ fun BettingSlot(
         if (isSideBet) {
             PathEffect.dashPathEffect(floatArrayOf(16f, 12f), 0f)
         } else {
-            PathEffect.dashPathEffect(floatArrayOf(24f, 16f), 0f)
+            null // Solid painted line for the main bet
         }
 
     val currentDescription =
