@@ -528,12 +528,18 @@ private fun BlackjackGameOverlay(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
+        val isBlackjack by remember(playerHands, status) {
+            derivedStateOf {
+                status == GameStatus.PLAYER_WON && playerHands.any { it.cards.size == 2 && it.score == 21 }
+            }
+        }
+
         androidx.compose.animation.AnimatedVisibility(
             visible = showStatus,
             enter = fadeIn() + scaleIn(initialScale = 0.8f),
             exit = fadeOut() + scaleOut(targetScale = 0.8f),
         ) {
-            GameStatusMessage(status = status)
+            GameStatusMessage(status = status, isBlackjack = isBlackjack)
         }
 
         if (status == GameStatus.INSURANCE_OFFERED) {
@@ -544,9 +550,6 @@ private fun BlackjackGameOverlay(
         }
 
         if (status == GameStatus.PLAYER_WON) {
-            val isBlackjack by remember(playerHands) {
-                derivedStateOf { playerHands.any { it.cards.size == 2 && it.score == 21 } }
-            }
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
             )

@@ -132,8 +132,8 @@ class DealTest {
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
 
-            // Perfect Pair payout: 50 * 25 = 1250 added to 1000
-            assertEquals(2250, sm.state.value.balance)
+            // Perfect Pair payout: 50 * 25 + 50 (original bet returned) = 1300 added to 1000
+            assertEquals(2300, sm.state.value.balance)
             assertNotNull(sm.state.value.sideBetResults[SideBetType.PERFECT_PAIRS])
         }
 }

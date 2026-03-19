@@ -448,7 +448,16 @@ internal fun BoxScope.HandOutcomeBadge(
         Box(
             modifier =
                 Modifier
-                    .background(containerColor, RoundedCornerShape(12.dp))
+                    .drawWithCache {
+                        val glowBrush =
+                            Brush.radialGradient(
+                                colors = listOf(containerColor.copy(alpha = 0.4f), Color.Transparent),
+                                radius = size.maxDimension * 1.2f
+                            )
+                        onDrawBehind {
+                            drawCircle(brush = glowBrush)
+                        }
+                    }.background(containerColor, RoundedCornerShape(12.dp))
                     .border(
                         width = 2.dp,
                         color =
