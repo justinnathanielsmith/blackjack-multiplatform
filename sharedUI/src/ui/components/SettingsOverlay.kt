@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.BlackjackPayout
@@ -228,7 +229,7 @@ private fun SettingsDropdown(
                 modifier =
                     Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable { expanded = true },
+                        .clickable(role = Role.Button) { expanded = true },
                 color = Color.White.copy(alpha = 0.1f)
             ) {
                 Text(

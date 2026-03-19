@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -188,7 +189,7 @@ internal fun AutoDealIcon(
                 }.background(backgroundColor, RoundedCornerShape(16.dp))
                 .border(1.dp, borderColor, RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))
-                .clickable { onClick() },
+                .clickable(role = Role.Button) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Text(text = stringResource(Res.string.emoji_lightning), fontSize = 14.sp)
@@ -209,7 +210,7 @@ private fun HeaderIcon(
                 .background(GlassDark, RoundedCornerShape(16.dp))
                 .border(1.dp, PrimaryGold.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))
-                .clickable { onClick() },
+                .clickable(role = Role.Button) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Text(
