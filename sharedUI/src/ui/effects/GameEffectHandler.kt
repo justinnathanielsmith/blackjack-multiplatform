@@ -4,25 +4,44 @@ import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 
+/**
+ * Dispatches [GameEffect]s to the appropriate service (audio, haptics, etc.).
+ * Complexity is managed by decomposing into specialized handlers.
+ */
 fun handleGameEffect(
     effect: GameEffect,
     hapticsService: HapticsService,
     audioService: AudioService,
 ) {
+    handleHapticEffect(effect, hapticsService)
+    handleAudioEffect(effect, audioService)
+}
+
+private fun handleHapticEffect(
+    effect: GameEffect,
+    haptics: HapticsService
+) {
     when (effect) {
-        GameEffect.Vibrate -> hapticsService.vibrate()
-        GameEffect.PlayCardSound -> audioService.playEffect(AudioService.SoundEffect.FLIP)
-        GameEffect.PlayWinSound -> audioService.playEffect(AudioService.SoundEffect.WIN)
-        GameEffect.PlayLoseSound -> audioService.playEffect(AudioService.SoundEffect.LOSE)
-        GameEffect.DealerCriticalDraw -> audioService.playEffect(AudioService.SoundEffect.TENSION)
-        is GameEffect.NearMissHighlight -> { /* visual only — handled in BlackjackScreen */ }
-        GameEffect.HeavyCardThud -> hapticsService.heavyThud()
-        GameEffect.Pulse21 -> hapticsService.pulse()
-        GameEffect.LightTick -> hapticsService.lightTick()
-        GameEffect.WinPulse -> hapticsService.winPulse()
-        GameEffect.BustThud -> hapticsService.bustThud()
-        is GameEffect.ChipEruption -> { /* visual only — handled in BlackjackScreen */ }
-        is GameEffect.ChipLoss -> { /* visual only — handled in BlackjackScreen */ }
-        GameEffect.PlayPlinkSound -> audioService.playEffect(AudioService.SoundEffect.PLINK)
+        GameEffect.Vibrate -> haptics.vibrate()
+        GameEffect.HeavyCardThud -> haptics.heavyThud()
+        GameEffect.Pulse21 -> haptics.pulse()
+        GameEffect.LightTick -> haptics.lightTick()
+        GameEffect.WinPulse -> haptics.winPulse()
+        GameEffect.BustThud -> haptics.bustThud()
+        else -> {}
+    }
+}
+
+private fun handleAudioEffect(
+    effect: GameEffect,
+    audio: AudioService
+) {
+    when (effect) {
+        GameEffect.PlayCardSound -> audio.playEffect(AudioService.SoundEffect.FLIP)
+        GameEffect.PlayWinSound -> audio.playEffect(AudioService.SoundEffect.WIN)
+        GameEffect.PlayLoseSound -> audio.playEffect(AudioService.SoundEffect.LOSE)
+        GameEffect.DealerCriticalDraw -> audio.playEffect(AudioService.SoundEffect.TENSION)
+        GameEffect.PlayPlinkSound -> audio.playEffect(AudioService.SoundEffect.PLINK)
+        else -> {}
     }
 }

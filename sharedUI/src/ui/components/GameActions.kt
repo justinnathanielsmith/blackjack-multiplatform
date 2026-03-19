@@ -247,30 +247,31 @@ private fun ModernActionButton(
                 label = "glowScale"
             )
 
-            Modifier.drawBehind {
-                val extraGlow = 8.dp.toPx() * tension * glowScale
-                val glowSize = Size(size.width + extraGlow * 2, size.height + extraGlow * 2)
-                val glowTopLeft = Offset(-extraGlow, -extraGlow)
+            Modifier
+                .drawBehind {
+                    val extraGlow = 8.dp.toPx() * tension * glowScale
+                    val glowSize = Size(size.width + extraGlow * 2, size.height + extraGlow * 2)
+                    val glowTopLeft = Offset(-extraGlow, -extraGlow)
 
-                drawRoundRect(
-                    brush =
-                        Brush.radialGradient(
-                            colors = listOf(contentColor.copy(alpha = glowAlpha), Color.Transparent),
-                            center = center,
-                            radius = size.maxDimension * 0.8f * glowScale
-                        ),
-                    topLeft = glowTopLeft,
-                    size = glowSize,
-                    cornerRadius = CornerRadius(glowSize.height / 2)
-                )
-            }.graphicsLayer {
-                // Subtle breathing scale for the whole button at high tension
-                if (tension > 0.8f) {
-                    scaleX = 0.98f + (0.04f * glowScale)
-                    scaleY = 0.98f + (0.04f * glowScale)
+                    drawRoundRect(
+                        brush =
+                            Brush.radialGradient(
+                                colors = listOf(contentColor.copy(alpha = glowAlpha), Color.Transparent),
+                                center = center,
+                                radius = size.maxDimension * 0.8f * glowScale
+                            ),
+                        topLeft = glowTopLeft,
+                        size = glowSize,
+                        cornerRadius = CornerRadius(glowSize.height / 2)
+                    )
+                }.graphicsLayer {
+                    // Subtle breathing scale for the whole button at high tension
+                    if (tension > 0.8f) {
+                        scaleX = 0.98f + (0.04f * glowScale)
+                        scaleY = 0.98f + (0.04f * glowScale)
+                    }
+                    clip = false
                 }
-                clip = false
-            }
         } else {
             Modifier
         }

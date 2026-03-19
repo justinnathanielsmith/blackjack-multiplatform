@@ -53,12 +53,12 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import io.github.smithjustinn.blackjack.BlackjackRules
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.HandOutcome
-import io.github.smithjustinn.blackjack.determineHandOutcome
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
@@ -107,7 +107,7 @@ import kotlin.random.Random
 fun GameState.handResult(index: Int): HandResult {
     if (!status.isTerminal()) return HandResult.NONE
     val hand = playerHands.getOrNull(index) ?: return HandResult.NONE
-    return when (determineHandOutcome(hand, dealerHand.score, dealerHand.isBust)) {
+    return when (BlackjackRules.determineHandOutcome(hand, dealerHand.score, dealerHand.isBust)) {
         HandOutcome.WIN, HandOutcome.NATURAL_WIN -> HandResult.WIN
         HandOutcome.PUSH -> HandResult.PUSH
         HandOutcome.LOSS -> HandResult.LOSS

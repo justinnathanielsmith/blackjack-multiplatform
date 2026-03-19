@@ -5,6 +5,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -216,18 +217,144 @@ data class GameState(
 
 enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
 
-fun determineHandOutcome(
-    hand: Hand,
-    dealerScore: Int,
-    dealerBust: Boolean
-): HandOutcome {
-    if (hand.isBust) return HandOutcome.LOSS
-    val isNaturalBJ = hand.cards.size == 2 && hand.score == 21 && !hand.wasSplit
-    return when {
-        isNaturalBJ && dealerScore != 21 -> HandOutcome.NATURAL_WIN
-        dealerBust || hand.score > dealerScore -> HandOutcome.WIN
-        hand.score == dealerScore -> HandOutcome.PUSH
-        else -> HandOutcome.LOSS
+object BlackjackRules {
+    const val BLACKJACK_SCORE = 21
+    const val DEALER_STAND_THRESHOLD = 17
+    const val DEALER_STIFF_MIN = 12
+    const val CARDS_PER_DECK = 52
+
+    fun shouldDealerDraw(
+        hand: Hand,
+        rules: GameRules
+    ): Boolean {
+        if (hand.score < DEALER_STAND_THRESHOLD) return true
+        if (hand.score == DEALER_STAND_THRESHOLD && rules.dealerHitsSoft17 && hand.isSoft) return true
+        return false
+    }
+
+    fun determineHandOutcome(
+        hand: Hand,
+        dealerScore: Int,
+        dealerBust: Boolean
+    ): HandOutcome {
+        if (hand.isBust) return HandOutcome.LOSS
+        val isNaturalBJ = hand.cards.size == 2 && hand.score == 21 && !hand.wasSplit
+        return when {
+            isNaturalBJ && dealerScore != 21 -> HandOutcome.NATURAL_WIN
+            dealerBust || hand.score > dealerScore -> HandOutcome.WIN
+            hand.score == dealerScore -> HandOutcome.PUSH
+            else -> HandOutcome.LOSS
+        }
+    }
+
+    fun resolveHand(
+        hand: Hand,
+        bet: Int,
+        dealerScore: Int,
+        dealerBust: Boolean,
+        rules: GameRules,
+    ): Int =
+        when (determineHandOutcome(hand, dealerScore, dealerBust)) {
+            HandOutcome.NATURAL_WIN -> bet + (bet * rules.blackjackPayout.numerator) / rules.blackjackPayout.denominator
+            HandOutcome.WIN -> bet * 2
+            HandOutcome.PUSH -> bet
+            HandOutcome.LOSS -> 0
+        }
+
+    fun calculateHandResults(
+        state: GameState,
+        dealerScore: Int,
+        dealerBust: Boolean,
+    ): Triple<Int, Boolean, Boolean> {
+        var totalPayout = 0
+        var anyWin = false
+        var allPush = true
+        for (i in state.playerHands.indices) {
+            val hand = state.playerHands[i]
+            val bet = state.playerBets[i]
+            totalPayout += resolveHand(hand, bet, dealerScore, dealerBust, state.rules)
+            val handWins = !hand.isBust && (dealerBust || hand.score > dealerScore)
+            val handPushes = !hand.isBust && !dealerBust && hand.score == dealerScore
+            if (handWins) anyWin = true
+            if (!handPushes) allPush = false
+        }
+        return Triple(totalPayout, anyWin, allPush)
+    }
+
+    fun determineInitialStatus(
+        hands: List<Hand>,
+        dealerHand: Hand,
+        handCount: Int
+    ): GameStatus {
+        val dealerHasBJ = dealerHand.score == BLACKJACK_SCORE && dealerHand.cards.size == 2
+
+        if (handCount == 1) {
+            val playerHasBJ = hands[0].score == BLACKJACK_SCORE && hands[0].cards.size == 2
+            return when {
+                playerHasBJ && dealerHasBJ -> GameStatus.PUSH
+                playerHasBJ -> GameStatus.PLAYER_WON
+                dealerHasBJ -> GameStatus.DEALER_WON
+                else -> GameStatus.PLAYING
+            }
+        }
+
+        // Multi-hand: If dealer has Blackjack, it's immediately terminal for simplicity
+        if (dealerHasBJ) return GameStatus.DEALER_WON
+
+        return GameStatus.PLAYING
+    }
+
+    fun resolveInitialOutcomeValues(
+        current: GameState,
+        playerHands: List<Hand>,
+        dealerHand: Hand,
+    ): Triple<GameStatus, Hand, Int> {
+        val playerHasBJ =
+            current.handCount == 1 && playerHands[0].score == BLACKJACK_SCORE && playerHands[0].cards.size == 2
+        val shouldOfferInsurance = current.handCount == 1 && !playerHasBJ && dealerHand.cards[0].rank == Rank.ACE
+        val dealerHandRevealed = Hand(dealerHand.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
+
+        val initialStatus =
+            if (shouldOfferInsurance) {
+                GameStatus.INSURANCE_OFFERED
+            } else {
+                determineInitialStatus(playerHands, dealerHandRevealed, current.handCount)
+            }
+
+        val finalDealerHand =
+            if (initialStatus == GameStatus.PUSH || initialStatus == GameStatus.DEALER_WON) {
+                dealerHandRevealed
+            } else {
+                dealerHand
+            }
+
+        val balanceUpdate =
+            when (initialStatus) {
+                GameStatus.PLAYER_WON ->
+                    (current.currentBet * current.rules.blackjackPayout.numerator) /
+                        current.rules.blackjackPayout.denominator + current.currentBet
+                GameStatus.PUSH -> current.currentBet
+                else -> 0
+            }
+
+        return Triple(initialStatus, finalDealerHand, balanceUpdate)
+    }
+
+    fun createDeck(
+        rules: GameRules,
+        random: kotlin.random.Random
+    ): List<Card> {
+        val deckSize = rules.deckCount * CARDS_PER_DECK
+        val newDeck = ArrayList<Card>(deckSize)
+        for (i in 1..rules.deckCount) {
+            for (suit in Suit.entries) {
+                for (rank in Rank.entries) {
+                    newDeck.add(Card(rank, suit))
+                }
+            }
+        }
+        newDeck.shuffle(random)
+        return newDeck
     }
 }
 

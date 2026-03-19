@@ -15,6 +15,13 @@ Standard operating procedures for developing and maintaining the Blackjack proje
 - **Diff**: `jj diff`
 - **Commit**: `jj commit -m "Description"`
 - **Log**: `jj log`
+- **Format Changed**: `jj fix`
+
+## Linting & Quality
+- **Unified Check**: `./lint.sh`
+- **Auto-Fix**: `./lint.sh --format`
+- **Static Analysis**: `detekt` (via `lint.sh`)
+- **Formatting**: `ktlint` (via `lint.sh`)
 
 ## Development Principles
 1. **Explain the "Why"**: Document architectural decisions and platform nuances.

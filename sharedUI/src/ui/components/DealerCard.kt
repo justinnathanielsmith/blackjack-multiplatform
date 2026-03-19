@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.delay
 
 enum class RevealState {
@@ -62,16 +61,17 @@ fun DealerCard(
             // 1. Peeking Phase
             rotationY.animateTo(
                 targetValue = 20f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
             )
 
             // 2. Pause + Heartbeat Haptics
             val pauseDuration = if (isSlowRoll) 1200L else 500L
             val heartbeatCount = if (isSlowRoll) 3 else 1
-            
+
             repeat(heartbeatCount) {
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 delay(200)
@@ -82,11 +82,12 @@ fun DealerCard(
             // 3. The Slam
             rotationY.animateTo(
                 targetValue = 180f,
-                animationSpec = tween(
-                    durationMillis = 400,
-                    // Use a manual overshoot logic or just a snappy tween
-                    // High-velocity tween with overshoot bounce
-                )
+                animationSpec =
+                    tween(
+                        durationMillis = 400,
+                        // Use a manual overshoot logic or just a snappy tween
+                        // High-velocity tween with overshoot bounce
+                    )
             )
             // Final Slam Haptic
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -98,23 +99,25 @@ fun DealerCard(
     val showBack = rotationY.value < 90f
 
     Box(
-        modifier = modifier
-            .requiredWidth(Dimensions.Card.StandardWidth * scale)
-            .aspectRatio(Dimensions.Card.AspectRatio)
-            .shadow(elevation = 12.dp, shape = CardShape, clip = false)
-            .graphicsLayer {
-                this.rotationY = rotationY.value
-                cameraDistance = 15f * density.density
-            },
+        modifier =
+            modifier
+                .requiredWidth(Dimensions.Card.StandardWidth * scale)
+                .aspectRatio(Dimensions.Card.AspectRatio)
+                .shadow(elevation = 12.dp, shape = CardShape, clip = false)
+                .graphicsLayer {
+                    this.rotationY = rotationY.value
+                    cameraDistance = 15f * density.density
+                },
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxSize()
-                .border(
-                    width = 0.5.dp,
-                    color = Color.Black.copy(alpha = 0.1f),
-                    shape = CardShape
-                ),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .border(
+                        width = 0.5.dp,
+                        color = Color.Black.copy(alpha = 0.1f),
+                        shape = CardShape
+                    ),
             shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -122,18 +125,20 @@ fun DealerCard(
             if (!showBack) {
                 // Face
                 BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer { this.rotationY = 180f },
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .graphicsLayer { this.rotationY = 180f },
                 ) {
                     val cardWidth = maxWidth
                     val isSmall = cardWidth < Dimensions.Card.SmallCardThreshold
                     val cornerPadding = if (isSmall) 4.dp else 6.dp
 
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(cornerPadding)
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(cornerPadding)
                     ) {
                         CardCorner(
                             rank = card.rank.symbol,
@@ -155,9 +160,10 @@ fun DealerCard(
                                 suit = card.suit.symbol,
                                 color = card.suit.color,
                                 isSmall = false,
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .rotate(180f)
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .rotate(180f)
                             )
                         }
                     }

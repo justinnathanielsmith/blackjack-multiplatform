@@ -1,44 +1,39 @@
 # Lint Skill
 
 ## Description
-Run code linting tools to check formatting and code quality.
+Maintain high code quality and consistency using the unified project linting suite.
 
 ## Commands
 
-### Check Formatting Only
-```bash
-./ktlint
-```
-
-### Auto-fix Formatting
-```bash
-./ktlint --format
-```
-
-### Run Static Analysis
-```bash
-./detekt
-```
-
-### Run Full Lint Suite (CI)
+### Full Check (CI Style)
 ```bash
 ./lint.sh
 ```
 
-### Format Changed Files via jj
+### Auto-Fix Formatting & Basic Smells
+```bash
+./lint.sh --format
+```
+
+### Partial Formatting (jujutsu)
 ```bash
 jj fix
 ```
 
 ## When to Use
 
-- Before committing code changes
-- After generating or modifying Kotlin files
-- When CI reports linting failures
-- To clean up imports and formatting automatically
+- **Before Committing**: Run `./lint.sh --format` to ensure clean code.
+- **After UI Changes**: Check for hardcoded strings or layout-specific lint issues.
+- **After Logic Changes**: Verify that architectural complexity hasn't exceeded limits.
+- **On Test Failure**: Use linting to check for formatting-related test issues.
+
+## Handling Failures
+
+1. **ktlint**: Most errors are resolved with `--format`. Manually break lines exceeding 120 characters.
+2. **detekt (Complexity)**: If a method exceeds complexity (e.g., `handleGameAction`), decompose it into smaller, specialized functions.
+3. **detekt (TooManyFunctions)**: Delegate class logic to `BlackjackRules` or other domain helpers.
+4. **detekt (Exceptions)**: Prefer specific `catch` blocks. If a catch-all is necessary for a top-level loop, use `@Suppress("TooGenericExceptionCaught")`.
 
 ## Notes
-
-- ktlint can auto-fix most formatting issues
-- detekt findings may require manual code changes
-- The `jj fix` command only formats files changed in the current commit
+- `lint.sh` ignores generated code (`build/`, `.amper/`) automatically.
+- Always run the linter before pushing or submitting a task.

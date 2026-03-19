@@ -36,6 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.bet_chip_description
 import kotlin.math.PI
 
 @Composable
@@ -70,6 +73,8 @@ fun BetChip(
             else -> amount.toString()
         }
 
+    val chipDescription = stringResource(Res.string.bet_chip_description, displayAmount)
+
     Box(
         modifier =
             modifier
@@ -92,7 +97,7 @@ fun BetChip(
                                 role = Role.Button,
                                 onClick = onClick,
                             ).semantics {
-                                contentDescription = "Bet chip $displayAmount"
+                                contentDescription = chipDescription
                             }
                     } else {
                         Modifier

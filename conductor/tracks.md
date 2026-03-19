@@ -15,3 +15,4 @@ This file tracks the progress of various development streams.
 | `strategy-guide` | Blackjack Strategy Guide | ✅ Completed | [Link](./tracks/strategy-guide/index.md) |
 | `side-bets` | Side Bets (21+3, Perfect Pairs) | ✅ Completed | [Link](./tracks/side-bets/index.md) |
 | `ui-ux-modernization` | UI/UX Modernization & Refinement | ✅ Completed | [Link](./tracks/ui-ux-modernization/index.md) |
+| `code-quality-refinement` | Code Quality & Testing Refinement | ✅ Completed | [Link](./tracks/code-quality-refinement/index.md) |
