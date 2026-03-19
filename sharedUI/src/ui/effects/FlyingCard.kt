@@ -33,6 +33,8 @@ import io.github.smithjustinn.blackjack.ui.components.CardBack
 import io.github.smithjustinn.blackjack.ui.components.CardCorner
 import io.github.smithjustinn.blackjack.ui.components.CardFace
 import io.github.smithjustinn.blackjack.ui.components.CardShape
+import io.github.smithjustinn.blackjack.ui.components.CardSlotLayout
+import io.github.smithjustinn.blackjack.ui.components.TableLayout
 import io.github.smithjustinn.blackjack.ui.components.color
 import io.github.smithjustinn.blackjack.ui.components.symbol
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
@@ -53,27 +55,72 @@ data class FlyingCardInstance(
     val isDealer: Boolean,
 )
 
+class PositionedCardEntry(
+    slot: io.github.smithjustinn.blackjack.ui.components.CardSlotLayout
+) {
+    val card = slot.card
+    val handIndex = slot.handIndex // -1 = dealer
+    val isDealer = slot.isDealer
+    val isHoleCard = slot.isHoleCard
+    val scale = slot.scale
+    val animDelay = slot.animDelay
+    val animDurationMs = slot.animDuration
+    val rotationZ = slot.rotationZ
+    var targetOffset by mutableStateOf(slot.centerOffset)
+    var isFaceUp by mutableStateOf(slot.isFaceUp)
+}
+
 class DealAnimationRegistry {
     val flyingCards = mutableStateListOf<FlyingCardInstance>()
+    val positionedCards = mutableStateListOf<PositionedCardEntry>()
     private val landedCards = mutableStateMapOf<Card, Unit>()
     var overlayOffset by mutableStateOf(Offset.Zero)
+    var gameplayAreaOffset by mutableStateOf(Offset.Zero)
+    var tableLayout by mutableStateOf<TableLayout?>(null)
 
-    fun isLanded(card: Card): Boolean = card in landedCards
+    // Normalize card key: ignore isFaceDown so reveal doesn't break lookup
+    private fun cardKey(card: Card) = card.copy(isFaceDown = false)
+
+    internal fun samePhysicalCard(
+        a: Card,
+        b: Card
+    ) = cardKey(a) == cardKey(b)
+
+    fun isLanded(card: Card): Boolean = cardKey(card) in landedCards
+
+    fun isFlying(card: Card): Boolean = flyingCards.any { samePhysicalCard(it.card, card) }
 
     fun requestDeal(instance: FlyingCardInstance) {
-        if (!isLanded(instance.card) && flyingCards.none { it.card == instance.card }) {
+        if (!isLanded(instance.card) && !isFlying(instance.card)) {
             flyingCards.add(instance)
         }
     }
 
-    fun markLanded(card: Card) {
-        landedCards[card] = Unit
-        flyingCards.removeAll { it.card == card }
+    fun markLanded(
+        card: Card,
+        entry: PositionedCardEntry
+    ) {
+        landedCards[cardKey(card)] = Unit
+        flyingCards.removeAll { cardKey(it.card) == cardKey(card) }
+        positionedCards.add(entry)
+    }
+
+    fun repositionCards(newSlots: List<CardSlotLayout>) {
+        newSlots.forEach { slot ->
+            positionedCards
+                .find { cardKey(it.card) == cardKey(slot.card) }
+                ?.let {
+                    it.targetOffset = slot.centerOffset
+                    it.isFaceUp = slot.isFaceUp
+                }
+        }
     }
 
     fun reset() {
         flyingCards.clear()
+        positionedCards.clear()
         landedCards.clear()
+        tableLayout = null
     }
 }
 

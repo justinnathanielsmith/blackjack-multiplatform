@@ -16,10 +16,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,14 +29,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,57 +44,58 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.BlackjackRules
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.HandOutcome
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.ControlCenter
-import io.github.smithjustinn.blackjack.ui.components.DealerHand
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandResult
-import io.github.smithjustinn.blackjack.ui.components.HandStatus
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
-import io.github.smithjustinn.blackjack.ui.components.PlayerHand
+import io.github.smithjustinn.blackjack.ui.components.OverlayCardTable
 import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.components.Shoe
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
+import io.github.smithjustinn.blackjack.ui.components.computeTableLayout
+import io.github.smithjustinn.blackjack.ui.components.handResult
 import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.FlyingCard
+import io.github.smithjustinn.blackjack.ui.effects.FlyingCardInstance
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
+import io.github.smithjustinn.blackjack.ui.effects.PositionedCardEntry
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import io.github.smithjustinn.blackjack.ui.theme.LocalShoePosition
 import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.FeltWarmCenter
+import io.github.smithjustinn.blackjack.ui.theme.LocalShoePosition
+import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.dealer
-import sharedui.generated.resources.hand_number
 import sharedui.generated.resources.side_bet_colored_pair
 import sharedui.generated.resources.side_bet_flush
 import sharedui.generated.resources.side_bet_mixed_pair
@@ -110,16 +108,7 @@ import sharedui.generated.resources.side_bet_three_of_a_kind
 import kotlin.random.Random
 
 // GameStatus.isTerminal() is now in GameLogic.kt
-
-fun GameState.handResult(index: Int): HandResult {
-    if (!status.isTerminal()) return HandResult.NONE
-    val hand = playerHands.getOrNull(index) ?: return HandResult.NONE
-    return when (BlackjackRules.determineHandOutcome(hand, dealerHand.score, dealerHand.isBust)) {
-        HandOutcome.WIN, HandOutcome.NATURAL_WIN -> HandResult.WIN
-        HandOutcome.PUSH -> HandResult.PUSH
-        HandOutcome.LOSS -> HandResult.LOSS
-    }
-}
+// GameState.handResult() is defined in OverlayCardTable.kt
 
 @Composable
 fun BlackjackScreen(component: BlackjackComponent) {
@@ -164,22 +153,23 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val onDismissStrategy = remember { { showStrategy = false } }
 
     val activePayouts = remember { mutableStateListOf<PayoutInstance>() }
-    val handBetOffsets = remember { mutableStateMapOf<Int, Offset>() }
     val dealRegistry = remember { DealAnimationRegistry() }
 
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.BETTING) dealRegistry.reset()
     }
 
+    // handZones[0] = dealer, handZones[1..N] = player hands
     val activeHandHighlightPosition by animateOffsetAsState(
         targetValue =
             if (state.status == GameStatus.PLAYING) {
-                handBetOffsets[state.activeHandIndex] ?: Offset.Zero
+                val zone = dealRegistry.tableLayout?.handZones?.getOrNull(state.activeHandIndex + 1)
+                if (zone != null) zone.clusterCenter + dealRegistry.gameplayAreaOffset else Offset.Zero
             } else {
                 Offset.Zero
             },
         animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = "activeHandHighlight"
+        label = "activeHandHighlight",
     )
 
     // Trigger payout animations when results are calculated and it's a win
@@ -190,9 +180,14 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 if (result == HandResult.WIN) {
                     val bet = state.playerBets.getOrNull(index) ?: 0
                     if (bet > 0) {
-                        // Delay slightly so it doesn't happen instantly with the result badge
                         delay(200)
-                        val target = handBetOffsets[index] ?: Offset.Zero
+                        val zone = dealRegistry.tableLayout?.handZones?.getOrNull(index + 1)
+                        val target =
+                            if (zone != null) {
+                                zone.clusterCenter + dealRegistry.gameplayAreaOffset
+                            } else {
+                                Offset.Zero
+                            }
                         activePayouts.add(PayoutInstance(Random.nextLong(), bet, target))
                     }
                 }
@@ -342,7 +337,37 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             // 1. Base Felt Gradient (shifted up towards the dealer)
                             drawRect(brush = feltBrush)
 
-                            // 2. The Classic Table Arc (Betting Line)
+                            // 1b. Felt Texture (Subtle Noise / Fibers)
+                            val fiberSpacing = 2.dp.toPx()
+                            val fiberAlpha = 0.05f
+                            for (x in 0..(size.width / fiberSpacing).toInt()) {
+                                drawLine(
+                                    color = Color.Black.copy(alpha = fiberAlpha),
+                                    start = Offset(x * fiberSpacing, 0f),
+                                    end = Offset(x * fiberSpacing, size.height),
+                                    strokeWidth = 0.5.dp.toPx()
+                                )
+                            }
+                            for (y in 0..(size.height / fiberSpacing).toInt()) {
+                                drawLine(
+                                    color = Color.Black.copy(alpha = fiberAlpha),
+                                    start = Offset(0f, y * fiberSpacing),
+                                    end = Offset(size.width, y * fiberSpacing),
+                                    strokeWidth = 0.5.dp.toPx()
+                                )
+                            }
+
+                            // 2. The Classic Table Arc (Betting Line) - Embossed
+                            // Emboss shadow
+                            drawArc(
+                                color = Color.Black.copy(alpha = 0.25f),
+                                startAngle = 180f,
+                                sweepAngle = 180f,
+                                useCenter = false,
+                                topLeft = Offset(arcLeft, arcTop + 1.dp.toPx()),
+                                size = arcSize,
+                                style = arcStroke
+                            )
                             drawArc(
                                 color = PrimaryGold.copy(alpha = 0.15f),
                                 startAngle = 180f,
@@ -353,7 +378,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 style = arcStroke
                             )
 
-                            // 3. The Insurance Line (Fainter, above the main arc)
+                            // 3. The Insurance Line (Fainter, above the main arc) - Embossed
+                            drawArc(
+                                color = Color.Black.copy(alpha = 0.2f),
+                                startAngle = 180f,
+                                sweepAngle = 180f,
+                                useCenter = false,
+                                topLeft = Offset(arcLeft, (arcTop - insuranceOffset) + 1.dp.toPx()),
+                                size = arcSize,
+                                style = insuranceStroke
+                            )
                             drawArc(
                                 color = PrimaryGold.copy(alpha = 0.08f),
                                 startAngle = 180f,
@@ -366,6 +400,44 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
                             // 4. Heavy Vignette (Simulates the dark leather rail around the table)
                             drawRect(brush = vignetteBrush)
+
+                            // 4b. Physical Table Rail (Wood bumper)
+                            val railHeight = 20.dp.toPx()
+                            // Bottom Rail
+                            drawRect(
+                                brush =
+                                    Brush.verticalGradient(
+                                        colors = listOf(OakMedium, FeltDeepEdge),
+                                        startY = size.height - railHeight,
+                                        endY = size.height
+                                    ),
+                                topLeft = Offset(0f, size.height - railHeight),
+                                size = Size(size.width, railHeight)
+                            )
+                            // Top Rail
+                            drawRect(
+                                brush =
+                                    Brush.verticalGradient(
+                                        colors = listOf(FeltDeepEdge, OakMedium),
+                                        startY = 0f,
+                                        endY = railHeight
+                                    ),
+                                topLeft = Offset.Zero,
+                                size = Size(size.width, railHeight)
+                            )
+                            // Rail Highlights
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.1f),
+                                start = Offset(0f, railHeight),
+                                end = Offset(size.width, railHeight),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.1f),
+                                start = Offset(0f, size.height - railHeight),
+                                end = Offset(size.width, size.height - railHeight),
+                                strokeWidth = 1.dp.toPx()
+                            )
 
                             // 5. Active Hand Highlight — read in draw scope to avoid recomposition
                             val highlightPos = activeHandHighlightPosition
@@ -393,147 +465,169 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
             Box(modifier = gameModifier) {
                 CompositionLocalProvider(LocalDealAnimationRegistry provides dealRegistry) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Horizontal)),
-                ) {
-                    Box(
+                    Column(
                         modifier =
                             Modifier
-                                .fillMaxWidth()
-                                .onGloballyPositioned {
-                                    headerBalanceOffset = it.positionInRoot() + Offset(80.dp.value, 40.dp.value)
-                                }
+                                .fillMaxSize()
+                                .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Horizontal)),
                     ) {
-                        Header(
-                            isAutoDealEnabled = appSettings.isAutoDealEnabled,
-                            onAutoDealToggle = onAutoDealToggle,
-                            onSettingsClick = onSettingsClick,
-                            onStrategyClick = onStrategyClick,
-                            onRulesClick = onRulesClick
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .onGloballyPositioned {
+                                        headerBalanceOffset = it.positionInRoot() + Offset(80.dp.value, 40.dp.value)
+                                    }
+                        ) {
+                            Header(
+                                isAutoDealEnabled = appSettings.isAutoDealEnabled,
+                                onAutoDealToggle = onAutoDealToggle,
+                                onSettingsClick = onSettingsClick,
+                                onStrategyClick = onStrategyClick,
+                                onRulesClick = onRulesClick
+                            )
+                        }
+
+                        Box(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxSize()
+                                    .onGloballyPositioned { coords ->
+                                        dealRegistry.gameplayAreaOffset = coords.positionInRoot()
+                                    },
+                        ) {
+                            BlackjackLayout(
+                                state = state,
+                                component = component,
+                                dealRegistry = dealRegistry,
+                            )
+                        }
+
+                        ControlCenter(
+                            state = state,
+                            component = component,
+                            isCompact = isMultiHand,
                         )
                     }
 
+                    // Overlay layer (full-bleed within the game bounds)
                     Box(
                         modifier =
-                            Modifier
-                                .weight(1f)
-                                .fillMaxSize(),
+                            Modifier.fillMaxSize().onGloballyPositioned { coords ->
+                                dealRegistry.overlayOffset = coords.positionInRoot()
+                            }
                     ) {
-                        BlackjackLayout(
+                        // Cards + HUD rendered in overlay (below other overlays)
+                        OverlayCardTable(
                             state = state,
-                            component = component,
                             nearMissHandIndex = nearMissHandIndex,
-                            handBetOffsets = handBetOffsets,
+                            modifier = Modifier.zIndex(1f),
                         )
-                    }
 
-                    ControlCenter(
-                        state = state,
-                        component = component,
-                        isCompact = isMultiHand,
-                    )
-                }
+                        SideBetResultsOverlay(state = state)
 
-                // Overlay layer (full-bleed within the game bounds)
-                Box(modifier = Modifier.fillMaxSize().onGloballyPositioned { coords ->
-                    dealRegistry.overlayOffset = coords.positionInRoot()
-                }) {
-                    // Game Status Overlay (On top of hands)
-                    val showStatus by remember {
-                        derivedStateOf {
-                            state.status != GameStatus.PLAYING &&
-                                state.status != GameStatus.BETTING &&
-                                state.status != GameStatus.INSURANCE_OFFERED &&
-                                state.status != GameStatus.IDLE
+                        // Game Status Overlay (On top of hands)
+                        val showStatus by remember {
+                            derivedStateOf {
+                                state.status != GameStatus.PLAYING &&
+                                    state.status != GameStatus.BETTING &&
+                                    state.status != GameStatus.INSURANCE_OFFERED &&
+                                    state.status != GameStatus.IDLE
+                            }
                         }
-                    }
 
-                    // Game Overlays & Status
-                    BlackjackGameOverlay(
-                        status = state.status,
-                        playerHands = state.playerHands,
-                        isBlackjack = isBlackjack,
-                        component = component,
-                        flashAlphaProvider = { flashAlpha.value },
-                        flashColorProvider = { flashColor },
-                        showStatus = showStatus,
-                        modifier = Modifier.zIndex(5f),
-                    )
-
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = state.status == GameStatus.BETTING,
-                        modifier = Modifier.zIndex(5f),
-                        enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
-                        exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
-                    ) {
-                        BettingPhaseScreen(
-                            state = state,
+                        // Game Overlays & Status
+                        BlackjackGameOverlay(
+                            status = state.status,
+                            playerHands = state.playerHands,
+                            isBlackjack = isBlackjack,
                             component = component,
-                            audioService = audioService,
+                            flashAlphaProvider = { flashAlpha.value },
+                            flashColorProvider = { flashColor },
+                            showStatus = showStatus,
+                            modifier = Modifier.zIndex(5f),
                         )
-                    }
 
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = showSettings,
-                        modifier = Modifier.zIndex(10f),
-                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
-                    ) {
-                        SettingsOverlay(
-                            settings = appSettings,
-                            onUpdateSettings = component::updateSettings,
-                            onResetBalance = component::resetBalance,
-                            onDismiss = onDismissSettings
-                        )
-                    }
-
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = showRules,
-                        modifier = Modifier.zIndex(10f),
-                        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
-                    ) {
-                        RulesOverlay(
-                            onDismiss = onDismissRules
-                        )
-                    }
-
-                    chipEruptions.forEach { instance ->
-                        key(instance.id) {
-                            ChipEruptionEffect(
-                                amount = instance.amount,
-                                startOffset = instance.startOffset
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = state.status == GameStatus.BETTING,
+                            modifier = Modifier.zIndex(5f),
+                            enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
+                            exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
+                        ) {
+                            BettingPhaseScreen(
+                                state = state,
+                                component = component,
+                                audioService = audioService,
                             )
                         }
-                    }
-                    chipLosses.forEach { instance ->
-                        key(instance.id) {
-                            ChipLossEffect(amount = instance.amount)
-                        }
-                    }
 
-                    activePayouts.forEach { instance ->
-                        key(instance.id) {
-                            io.github.smithjustinn.blackjack.ui.effects.PayoutEffect(
-                                amount = instance.amount,
-                                targetOffset = instance.targetOffset,
-                                onAnimationEnd = { activePayouts.remove(instance) }
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = showSettings,
+                            modifier = Modifier.zIndex(10f),
+                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                        ) {
+                            SettingsOverlay(
+                                settings = appSettings,
+                                onUpdateSettings = component::updateSettings,
+                                onResetBalance = component::resetBalance,
+                                onDismiss = onDismissSettings
                             )
                         }
-                    }
 
-                    dealRegistry.flyingCards.forEach { instance ->
-                        key(instance.id) {
-                            FlyingCard(
-                                instance = instance,
-                                onAnimationEnd = { dealRegistry.markLanded(instance.card) },
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = showRules,
+                            modifier = Modifier.zIndex(10f),
+                            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
+                            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                        ) {
+                            RulesOverlay(
+                                onDismiss = onDismissRules
                             )
                         }
+
+                        chipEruptions.forEach { instance ->
+                            key(instance.id) {
+                                ChipEruptionEffect(
+                                    amount = instance.amount,
+                                    startOffset = instance.startOffset
+                                )
+                            }
+                        }
+                        chipLosses.forEach { instance ->
+                            key(instance.id) {
+                                ChipLossEffect(amount = instance.amount)
+                            }
+                        }
+
+                        activePayouts.forEach { instance ->
+                            key(instance.id) {
+                                io.github.smithjustinn.blackjack.ui.effects.PayoutEffect(
+                                    amount = instance.amount,
+                                    targetOffset = instance.targetOffset,
+                                    onAnimationEnd = { activePayouts.remove(instance) }
+                                )
+                            }
+                        }
+
+                        dealRegistry.flyingCards.forEach { instance ->
+                            key(instance.id) {
+                                FlyingCard(
+                                    instance = instance,
+                                    onAnimationEnd = {
+                                        val slot =
+                                            dealRegistry.tableLayout
+                                                ?.cardSlots
+                                                ?.find { dealRegistry.samePhysicalCard(it.card, instance.card) }
+                                        if (slot != null) {
+                                            dealRegistry.markLanded(instance.card, PositionedCardEntry(slot))
+                                        }
+                                    },
+                                )
+                            }
+                        }
                     }
-                }
                 } // CompositionLocalProvider
             }
 
@@ -616,85 +710,82 @@ private fun BlackjackGameOverlay(
 private fun BlackjackLayout(
     state: GameState,
     component: BlackjackComponent,
-    nearMissHandIndex: Int? = null,
-    handBetOffsets: MutableMap<Int, Offset>,
+    dealRegistry: DealAnimationRegistry,
 ) {
-    val hands = state.playerHands
-    val handCount = hands.size
-
-    val baseCardScale =
-        when (handCount) {
-            1 -> 1.0f
-            2 -> 0.80f
-            else -> 0.55f
-        }
-
     val shoePosition = remember { mutableStateOf<Offset?>(null) }
+    val density = LocalDensity.current
+
+    // Track all cards to detect additions and face-down changes
+    val allCards =
+        remember(state) {
+            state.dealerHand.cards + state.playerHands.flatMap { it.cards }
+        }
 
     CompositionLocalProvider(LocalShoePosition provides shoePosition) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // 1. The Shoe (Deck) in the top-right corner
-        Box(
-            modifier =
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .onGloballyPositioned { coords ->
-                        val pos = coords.positionInRoot()
-                        shoePosition.value = Offset(
-                            pos.x + coords.size.width / 2f,
-                            pos.y + coords.size.height / 2f
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val areaW = constraints.maxWidth.toFloat()
+            val areaH = constraints.maxHeight.toFloat()
+
+            // Recompute layout whenever cards change (deals or reveals)
+            LaunchedEffect(allCards) {
+                val layout = computeTableLayout(state, areaW, areaH, density)
+                dealRegistry.tableLayout = layout
+
+                // Reposition any already-landed cards (smooth animation)
+                dealRegistry.repositionCards(layout.cardSlots)
+
+                // Fly any new cards that haven't started animating yet
+                layout.cardSlots
+                    .filter { slot ->
+                        !dealRegistry.isLanded(slot.card) && !dealRegistry.isFlying(slot.card)
+                    }.forEach { slot ->
+                        val shoePos = shoePosition.value ?: return@forEach
+                        dealRegistry.requestDeal(
+                            FlyingCardInstance(
+                                id = kotlin.random.Random.nextLong(),
+                                card = slot.card,
+                                isFaceUp = slot.isFaceUp,
+                                scale = slot.scale,
+                                startOffset = shoePos,
+                                endOffset = slot.centerOffset + dealRegistry.gameplayAreaOffset,
+                                animationDelay = slot.animDelay,
+                                durationMs = slot.animDuration,
+                                targetRotationZ = slot.rotationZ,
+                                isDealer = slot.isDealer,
+                            )
                         )
                     }
-        ) {
-            Shoe(
-                state = state,
+            }
+
+            // Shoe widget in top-right corner
+            Box(
                 modifier =
                     Modifier
-                        .padding(top = 16.dp, end = 16.dp)
-                        .graphicsLayer {
-                            // Tilt the shoe slightly to fit the table's perspective
-                            rotationZ = -15f
-                            rotationX = 10f
-                            translationX = 20.dp.toPx()
-                            translationY = -10.dp.toPx()
+                        .align(Alignment.TopEnd)
+                        .onGloballyPositioned { coords ->
+                            val pos = coords.positionInRoot()
+                            shoePosition.value =
+                                Offset(
+                                    pos.x + coords.size.width / 2f,
+                                    pos.y + coords.size.height / 2f,
+                                )
                         }
-            )
-        }
-
-        Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            val dealerDisplayScore =
-                remember(state.status, state.dealerHand) {
-                    if (state.status == GameStatus.PLAYING) state.dealerHand.visibleScore else state.dealerHand.score
-                }
-
-            // Dealer Hand - Fixed size at the top
-            DealerHand(
-                hand = state.dealerHand,
-                score = dealerDisplayScore,
-                title = stringResource(Res.string.dealer),
-                isCompact = handCount > 1,
-                isExtraCompact = handCount > 2,
-                isSlowReveal = state.dealerDrawIsCritical,
-                scale = baseCardScale,
-            )
-
-            // Player Hands - Dynamic space between dealer and actions
-            DynamicPlayerHandsLayout(
-                state = state,
-                component = component,
-                baseCardScale = baseCardScale,
-                onBetPositioned = { index, offset ->
-                    handBetOffsets[index] = offset
-                }
-            )
-
-            // Action Bar moved to ControlCenter
+            ) {
+                Shoe(
+                    state = state,
+                    modifier =
+                        Modifier
+                            .padding(top = 16.dp, end = 16.dp)
+                            .graphicsLayer {
+                                rotationZ = -15f
+                                rotationX = 10f
+                                translationX = 20.dp.toPx()
+                                translationY = -10.dp.toPx()
+                            }
+                )
+            }
         }
     }
-    } // CompositionLocalProvider
 }
 
 data class PayoutInstance(
@@ -715,139 +806,42 @@ data class ChipLossInstance(
 )
 
 @Composable
-private fun ColumnScope.DynamicPlayerHandsLayout(
-    state: GameState,
-    component: BlackjackComponent,
-    baseCardScale: Float,
-    onBetPositioned: (Int, Offset) -> Unit,
-) {
-    val hands = state.playerHands
-    val handCount = hands.size
-
-    if (handCount == 1) {
-        // Single hand: Centered vertically and scaled up
-        Box(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            val hand = hands[0]
-            val isActive =
-                remember(state.activeHandIndex, state.status) {
-                    state.activeHandIndex == 0 && state.status == GameStatus.PLAYING
-                }
-            val status =
-                when {
-                    hand.isBust -> HandStatus.BUSTED
-                    isActive -> HandStatus.ACTIVE
-                    else -> HandStatus.WAITING
-                }
-
-            PlayerHand(
-                handTotal = hand.score,
-                status = status,
-                cards = hand.cards,
-                result = state.handResult(0),
-                modifier = Modifier,
-                scale = baseCardScale,
-                isCompact = false,
-                isExtraCompact = false,
-                showStatus = false,
-                onPositioned = { onBetPositioned(0, it) }
-            )
-
-            SideBetResultsOverlay(state = state)
-        }
-    } else {
-        // Multi-hand: Distribute visually with weight modifiers
-        Column(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            hands.forEachIndexed { index, hand ->
-                key(index) {
-                    val isActive =
-                        remember(state.activeHandIndex, state.status) {
-                            index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                        }
-                    val status =
-                        when {
-                            hand.isBust -> HandStatus.BUSTED
-                            isActive -> HandStatus.ACTIVE
-                            else -> HandStatus.WAITING
-                        }
-
-                    // Currently active hand gets slightly more vertical space
-                    val layoutWeight = if (isActive) 1.15f else 1.0f
-
-                    Box(
-                        modifier = Modifier.weight(layoutWeight),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        PlayerHand(
-                            handTotal = hand.score,
-                            status = status,
-                            cards = hand.cards,
-                            result = state.handResult(index),
-                            title = stringResource(Res.string.hand_number, index + 1),
-                            modifier = Modifier,
-                            scale = baseCardScale,
-                            isCompact = true,
-                            isExtraCompact = handCount > 2,
-                            onPositioned = { onBetPositioned(index, it) }
-                        )
-
-                        if (index == 0) {
-                            SideBetResultsOverlay(state = state)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun BoxScope.SideBetResultsOverlay(state: GameState) {
-    androidx.compose.animation.AnimatedVisibility(
+private fun SideBetResultsOverlay(state: GameState) {
+    AnimatedVisibility(
         visible = state.status == GameStatus.PLAYING && state.sideBetResults.isNotEmpty(),
         enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(200)),
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(150)),
         modifier =
             Modifier
-                .align(Alignment.BottomCenter)
-                .zIndex(4f)
-                .padding(bottom = 8.dp),
+                .fillMaxSize()
+                .padding(bottom = 8.dp)
+                .zIndex(4f),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            state.sideBetResults.forEach { (_, result) ->
-                Box(
-                    modifier =
-                        Modifier
-                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                            .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                ) {
-                    Text(
-                        text =
-                            stringResource(
-                                Res.string.side_bet_result_template,
-                                getLocalizedOutcomeName(result.outcomeName),
-                                result.payoutAmount
-                            ),
-                        color = PrimaryGold,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Black,
-                    )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                state.sideBetResults.forEach { (_, result) ->
+                    Box(
+                        modifier =
+                            Modifier
+                                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        Text(
+                            text =
+                                stringResource(
+                                    Res.string.side_bet_result_template,
+                                    getLocalizedOutcomeName(result.outcomeName),
+                                    result.payoutAmount,
+                                ),
+                            color = PrimaryGold,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Black,
+                        )
+                    }
                 }
             }
         }

@@ -3,6 +3,7 @@ package io.github.smithjustinn.blackjack.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
@@ -24,10 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -51,17 +48,12 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
-import io.github.smithjustinn.blackjack.ui.effects.FlyingCardInstance
-import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
-import io.github.smithjustinn.blackjack.ui.theme.LocalShoePosition
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 
 internal val CardShape = RoundedCornerShape(8.dp)
 
@@ -118,25 +110,30 @@ fun CardFace(
     BoxWithConstraints(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val cardWidth = maxWidth
 
-        // 1. Linen Texture Overlay
+        // 1. Linen Texture Overlay (Refined Crosshatch)
         Box(
             modifier =
                 Modifier.fillMaxSize().drawWithCache {
-                    val spacing = 2.dp.toPx()
+                    val spacing = 1.5.dp.toPx()
                     val strokeWidth = 0.5.dp.toPx()
-                    val textureColor = Color.Black.copy(alpha = 0.04f)
+                    val darkTexture = Color.Black.copy(alpha = 0.04f)
+                    val lightTexture = Color.White.copy(alpha = 0.02f)
                     onDrawBehind {
+                        // Horizontal threads
                         for (y in 0..(size.height / spacing).toInt()) {
+                            val color = if (y % 2 == 0) darkTexture else lightTexture
                             drawLine(
-                                color = textureColor,
+                                color = color,
                                 start = Offset(0f, y * spacing),
                                 end = Offset(size.width, y * spacing),
                                 strokeWidth = strokeWidth
                             )
                         }
+                        // Vertical threads
                         for (x in 0..(size.width / spacing).toInt()) {
+                            val color = if (x % 2 == 0) darkTexture else lightTexture
                             drawLine(
-                                color = textureColor,
+                                color = color,
                                 start = Offset(x * spacing, 0f),
                                 end = Offset(x * spacing, size.height),
                                 strokeWidth = strokeWidth
@@ -339,16 +336,11 @@ fun CardBack(modifier: Modifier = Modifier) {
 fun PlayingCard(
     card: io.github.smithjustinn.blackjack.Card,
     isFaceUp: Boolean,
-    isDealer: Boolean,
     modifier: Modifier = Modifier,
-    animationDelay: Int = 0,
-    animationDurationMs: Int = 300,
     scale: Float = 1f,
     isNearMiss: Boolean = false,
-    isActive: Boolean = false,
+    shadowElevation: androidx.compose.ui.unit.Dp = 6.dp,
 ) {
-    val registry = LocalDealAnimationRegistry.current
-    var isVisible by remember(card) { mutableStateOf(registry.isLanded(card)) }
     val baseRotation =
         remember(card) {
             val hash = card.hashCode()
@@ -356,44 +348,14 @@ fun PlayingCard(
         }
 
     val nearMissAlpha = remember { Animatable(0f) }
-    var cardRootCenter by remember { mutableStateOf<Offset?>(null) }
-    val shoePositionState = LocalShoePosition.current
 
     LaunchedEffect(isNearMiss) {
         if (isNearMiss) {
             nearMissAlpha.animateTo(1f, tween(durationMillis = AnimationConstants.NearMissInDuration))
-            delay(AnimationConstants.NearMissHoldDuration)
+            kotlinx.coroutines.delay(AnimationConstants.NearMissHoldDuration)
             nearMissAlpha.animateTo(0f, tween(durationMillis = AnimationConstants.NearMissOutDuration))
         } else {
             nearMissAlpha.snapTo(0f)
-        }
-    }
-
-    LaunchedEffect(card) {
-        isVisible = registry.isLanded(card)
-
-        if (!isVisible) {
-            snapshotFlow { Pair(cardRootCenter, shoePositionState.value) }
-                .first { (c, s) -> c != null && s != null }
-
-            registry.requestDeal(
-                FlyingCardInstance(
-                    id = System.nanoTime(),
-                    card = card,
-                    isFaceUp = isFaceUp,
-                    scale = scale,
-                    startOffset = shoePositionState.value!!,
-                    endOffset = cardRootCenter!!,
-                    animationDelay = animationDelay,
-                    durationMs = animationDurationMs,
-                    targetRotationZ = baseRotation,
-                    isDealer = isDealer,
-                )
-            )
-
-            snapshotFlow { registry.isLanded(card) }
-                .first { it }
-            isVisible = true
         }
     }
 
@@ -403,30 +365,33 @@ fun PlayingCard(
             tween(durationMillis = AnimationConstants.CardFlipDuration, easing = FastOutSlowInEasing)
         },
         label = "rotation",
-    ) { faceUp ->
-        if (faceUp) 180f else 0f
-    }
+    ) { faceUp -> if (faceUp) 180f else 0f }
+
+    // Subtle lift effect as the card is flipped
+    val liftScale by transition.animateFloat(
+        transitionSpec = {
+            keyframes {
+                durationMillis = AnimationConstants.CardFlipDuration
+                1.0f at 0
+                1.08f at AnimationConstants.CardFlipDuration / 2
+                1.0f at AnimationConstants.CardFlipDuration
+            }
+        },
+        label = "liftScale"
+    ) { 1.0f }
 
     val showBack = rotation < 90f
-
-    val animatedElevation by androidx.compose.animation.core.animateDpAsState(
-        targetValue = if (isActive) 24.dp else 12.dp,
-        label = "cardElevation"
-    )
 
     Box(
         modifier =
             modifier
                 .requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
-                .onGloballyPositioned { coords ->
-                    if (cardRootCenter == null) {
-                        cardRootCenter = coords.localToRoot(Offset(coords.size.width / 2f, coords.size.height / 2f))
-                    }
-                }.graphicsLayer {
-                    alpha = if (isVisible) 1f else 0f
+                .graphicsLayer {
                     rotationZ = baseRotation
                     rotationY = rotation
+                    scaleX = liftScale
+                    scaleY = liftScale
                     cameraDistance = 12f * density
                 },
     ) {
@@ -439,13 +404,7 @@ fun PlayingCard(
                         val alpha = nearMissAlpha.value
                         val borderWidth = if (alpha > 0f) 2.dp.toPx() else 0.5.dp.toPx()
                         val borderColor =
-                            if (alpha >
-                                0f
-                            ) {
-                                PrimaryGold.copy(alpha = alpha)
-                            } else {
-                                Color.Black.copy(alpha = 0.1f)
-                            }
+                            if (alpha > 0f) PrimaryGold.copy(alpha = alpha) else Color.Black.copy(alpha = 0.1f)
                         drawRoundRect(
                             color = borderColor,
                             size = size,
@@ -455,10 +414,9 @@ fun PlayingCard(
                     },
             shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = shadowElevation),
         ) {
             if (!showBack) {
-                // Face
                 BoxWithConstraints(
                     modifier =
                         Modifier
@@ -467,17 +425,10 @@ fun PlayingCard(
                 ) {
                     val cardWidth = maxWidth
                     val isSmall = cardWidth < Dimensions.Card.SmallCardThreshold
-
                     val cornerPadding = if (isSmall) 4.dp else 6.dp
 
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(cornerPadding)
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize().padding(cornerPadding)) {
                         if (isSmall) {
-                            // Compact: Only Top-Left Jumbo Index for maximum clarity
                             CardCorner(
                                 rank = card.rank.symbol,
                                 suit = card.suit.symbol,
@@ -486,7 +437,6 @@ fun PlayingCard(
                                 modifier = Modifier.align(Alignment.TopStart)
                             )
                         } else {
-                            // Normal: Top Left Corner
                             CardCorner(
                                 rank = card.rank.symbol,
                                 suit = card.suit.symbol,
@@ -494,33 +444,23 @@ fun PlayingCard(
                                 isSmall = false,
                                 modifier = Modifier.align(Alignment.TopStart)
                             )
-
-                            // Center slot-machine graphic
                             CardFace(
                                 rank = card.rank,
                                 suit = card.suit,
                                 modifier = Modifier.fillMaxSize()
                             )
-
-                            // Bottom Right Corner - Inverted and mirrored
                             CardCorner(
                                 rank = card.rank.symbol,
                                 suit = card.suit.symbol,
                                 color = card.suit.color,
                                 isSmall = false,
-                                modifier =
-                                    Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .rotate(180f)
+                                modifier = Modifier.align(Alignment.BottomEnd).rotate(180f)
                             )
                         }
                     }
                 }
             } else {
-                // Back
-                CardBack(
-                    modifier = Modifier.fillMaxSize()
-                )
+                CardBack(modifier = Modifier.fillMaxSize())
             }
         }
     }

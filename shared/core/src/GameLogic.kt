@@ -237,6 +237,7 @@ object BlackjackRules {
     const val DEALER_STAND_THRESHOLD = 17
     const val DEALER_STIFF_MIN = 12
     const val CARDS_PER_DECK = 52
+    const val RESHUFFLE_THRESHOLD_DIVISOR = 4
 
     fun shouldDealerDraw(
         hand: Hand,

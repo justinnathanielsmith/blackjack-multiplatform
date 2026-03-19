@@ -45,6 +45,7 @@ fun DealerCard(
     dealerScore: Int,
     modifier: Modifier = Modifier,
     scale: Float = 1f,
+    shadowElevation: androidx.compose.ui.unit.Dp = 6.dp,
 ) {
     val rotationY = remember { Animatable(0f) }
     val haptic = LocalHapticFeedback.current
@@ -118,7 +119,7 @@ fun DealerCard(
                     ),
             shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = shadowElevation),
         ) {
             if (!showBack) {
                 // Face
