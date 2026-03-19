@@ -138,6 +138,8 @@ enum class GameStatus {
     PUSH
 }
 
+fun GameStatus.isTerminal() = this == GameStatus.PLAYER_WON || this == GameStatus.DEALER_WON || this == GameStatus.PUSH
+
 @Serializable
 enum class SideBetType {
     TWENTY_ONE_PLUS_THREE,

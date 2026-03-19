@@ -60,6 +60,7 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.HandOutcome
 import io.github.smithjustinn.blackjack.determineHandOutcome
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
+import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.ControlCenter
@@ -101,7 +102,7 @@ import sharedui.generated.resources.side_bet_suited_triple
 import sharedui.generated.resources.side_bet_three_of_a_kind
 import kotlin.random.Random
 
-fun GameStatus.isTerminal() = this in setOf(GameStatus.PLAYER_WON, GameStatus.DEALER_WON, GameStatus.PUSH)
+// GameStatus.isTerminal() is now in GameLogic.kt
 
 fun GameState.handResult(index: Int): HandResult {
     if (!status.isTerminal()) return HandResult.NONE
