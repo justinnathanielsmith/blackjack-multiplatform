@@ -1,7 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -224,7 +223,6 @@ fun BlackjackHandContainer(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .animateContentSize()
                         .defaultMinSize(minHeight = minContentHeight)
                         .padding(
                             start = contentPadding,

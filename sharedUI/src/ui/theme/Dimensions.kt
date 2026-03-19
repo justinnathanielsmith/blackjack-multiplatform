@@ -1,5 +1,9 @@
 package io.github.smithjustinn.blackjack.ui.theme
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 
 object Dimensions {
@@ -35,6 +39,8 @@ object Dimensions {
         val NumberPipScale = 0.25f
     }
 }
+
+val LocalShoePosition = compositionLocalOf<State<Offset?>> { mutableStateOf(null) }
 
 object AnimationConstants {
     val CardDealDelay = 100

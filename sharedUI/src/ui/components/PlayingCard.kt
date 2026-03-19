@@ -2,9 +2,7 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
@@ -26,8 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -50,14 +51,17 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.ui.effects.FlyingCardInstance
+import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import io.github.smithjustinn.blackjack.ui.theme.LocalShoePosition
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 internal val CardShape = RoundedCornerShape(8.dp)
 
@@ -245,7 +249,6 @@ fun CardBack(modifier: Modifier = Modifier) {
             modifier
                 .requiredWidth(Dimensions.Card.StandardWidth)
                 .aspectRatio(Dimensions.Card.AspectRatio)
-                .shadow(elevation = 12.dp, shape = CardShape, clip = false)
                 .background(Color.White)
                 .padding(4.dp)
                 // 2. Rich casino red core
@@ -344,17 +347,17 @@ fun PlayingCard(
     isNearMiss: Boolean = false,
     isActive: Boolean = false,
 ) {
-    val offsetX = remember { Animatable(300f) }
-    val offsetY = remember { Animatable(-400f) }
-    val dealScale = remember { Animatable(0.5f) }
+    val registry = LocalDealAnimationRegistry.current
+    var isVisible by remember(card) { mutableStateOf(registry.isLanded(card)) }
     val baseRotation =
         remember(card) {
             val hash = card.hashCode()
             ((hash % 100) / 100f) * 4f - 2f
         }
-    val dealRotationZ = remember { Animatable(if (isDealer) -45f else 45f) }
 
     val nearMissAlpha = remember { Animatable(0f) }
+    var cardRootCenter by remember { mutableStateOf<Offset?>(null) }
+    val shoePositionState = LocalShoePosition.current
 
     LaunchedEffect(isNearMiss) {
         if (isNearMiss) {
@@ -367,34 +370,30 @@ fun PlayingCard(
     }
 
     LaunchedEffect(card) {
-        delay(animationDelay.toLong())
-        launch {
-            offsetX.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
+        isVisible = registry.isLanded(card)
+
+        if (!isVisible) {
+            snapshotFlow { Pair(cardRootCenter, shoePositionState.value) }
+                .first { (c, s) -> c != null && s != null }
+
+            registry.requestDeal(
+                FlyingCardInstance(
+                    id = System.nanoTime(),
+                    card = card,
+                    isFaceUp = isFaceUp,
+                    scale = scale,
+                    startOffset = shoePositionState.value!!,
+                    endOffset = cardRootCenter!!,
+                    animationDelay = animationDelay,
+                    durationMs = animationDurationMs,
+                    targetRotationZ = baseRotation,
+                    isDealer = isDealer,
+                )
             )
-        }
-        launch {
-            offsetY.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
-            )
-        }
-        launch {
-            dealRotationZ.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
-            )
-        }
-        launch {
-            dealScale.animateTo(
-                targetValue = 1.15f,
-                animationSpec = tween(durationMillis = 150, easing = FastOutSlowInEasing)
-            )
-            dealScale.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium)
-            )
+
+            snapshotFlow { registry.isLanded(card) }
+                .first { it }
+            isVisible = true
         }
     }
 
@@ -420,13 +419,13 @@ fun PlayingCard(
             modifier
                 .requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
-                .shadow(elevation = animatedElevation, shape = CardShape, clip = false)
-                .graphicsLayer {
-                    translationX = offsetX.value
-                    translationY = offsetY.value
-                    scaleX = dealScale.value
-                    scaleY = dealScale.value
-                    rotationZ = dealRotationZ.value + baseRotation
+                .onGloballyPositioned { coords ->
+                    if (cardRootCenter == null) {
+                        cardRootCenter = coords.localToRoot(Offset(coords.size.width / 2f, coords.size.height / 2f))
+                    }
+                }.graphicsLayer {
+                    alpha = if (isVisible) 1f else 0f
+                    rotationZ = baseRotation
                     rotationY = rotation
                     cameraDistance = 12f * density
                 },

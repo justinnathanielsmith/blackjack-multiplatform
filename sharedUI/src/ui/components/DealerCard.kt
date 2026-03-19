@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -103,7 +102,6 @@ fun DealerCard(
             modifier
                 .requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
-                .shadow(elevation = 12.dp, shape = CardShape, clip = false)
                 .graphicsLayer {
                     this.rotationY = rotationY.value
                     cameraDistance = 15f * density.density

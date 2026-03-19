@@ -1,6 +1,5 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -28,7 +27,7 @@ fun HandRow(
     val verticalStep = 8.dp * cardScale
 
     Layout(
-        modifier = Modifier.animateContentSize(),
+        modifier = Modifier,
         content = {
             val nCards = hand.cards.size
             val centerIndex = (nCards - 1) / 2f
@@ -107,12 +106,20 @@ fun HandRow(
             }
 
         val actualVerticalStepPx = verticalStep.roundToPx()
-        val totalWidth = if (n == 0) 0 else cardW + (n - 1) * actualStepPx
-        val totalHeight = if (n == 0) 0 else cardH + (n - 1) * actualVerticalStepPx
+
+        // Add padding to account for fanning rotation and translation
+        val hPadding = 12.dp.roundToPx()
+        val vPadding = 16.dp.roundToPx()
+
+        val totalWidth = if (n == 0) 0 else cardW + (n - 1) * actualStepPx + (hPadding * 2)
+        val totalHeight = if (n == 0) 0 else cardH + (n - 1) * actualVerticalStepPx + (vPadding * 2)
 
         layout(totalWidth.coerceAtLeast(0).coerceAtMost(maxAvailableW), totalHeight.coerceAtLeast(0)) {
             placeables.forEachIndexed { i, placeable ->
-                placeable.placeRelative(i * actualStepPx, i * actualVerticalStepPx)
+                placeable.placeRelative(
+                    x = i * actualStepPx + hPadding,
+                    y = i * actualVerticalStepPx + vPadding
+                )
             }
         }
     }

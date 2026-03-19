@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -79,10 +80,14 @@ import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
+import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
+import io.github.smithjustinn.blackjack.ui.effects.FlyingCard
+import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.LocalShoePosition
 import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.FeltWarmCenter
@@ -160,6 +165,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     val activePayouts = remember { mutableStateListOf<PayoutInstance>() }
     val handBetOffsets = remember { mutableStateMapOf<Int, Offset>() }
+    val dealRegistry = remember { DealAnimationRegistry() }
+
+    LaunchedEffect(state.status) {
+        if (state.status == GameStatus.BETTING) dealRegistry.reset()
+    }
 
     val activeHandHighlightPosition by animateOffsetAsState(
         targetValue =
@@ -382,6 +392,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 }
 
             Box(modifier = gameModifier) {
+                CompositionLocalProvider(LocalDealAnimationRegistry provides dealRegistry) {
                 Column(
                     modifier =
                         Modifier
@@ -427,7 +438,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 }
 
                 // Overlay layer (full-bleed within the game bounds)
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize().onGloballyPositioned { coords ->
+                    dealRegistry.overlayOffset = coords.positionInRoot()
+                }) {
                     // Game Status Overlay (On top of hands)
                     val showStatus by remember {
                         derivedStateOf {
@@ -511,7 +524,17 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             )
                         }
                     }
+
+                    dealRegistry.flyingCards.forEach { instance ->
+                        key(instance.id) {
+                            FlyingCard(
+                                instance = instance,
+                                onAnimationEnd = { dealRegistry.markLanded(instance.card) },
+                            )
+                        }
+                    }
                 }
+                } // CompositionLocalProvider
             }
 
             androidx.compose.animation.AnimatedVisibility(
@@ -606,22 +629,37 @@ private fun BlackjackLayout(
             else -> 0.55f
         }
 
+    val shoePosition = remember { mutableStateOf<Offset?>(null) }
+
+    CompositionLocalProvider(LocalShoePosition provides shoePosition) {
     Box(modifier = Modifier.fillMaxSize()) {
         // 1. The Shoe (Deck) in the top-right corner
-        Shoe(
-            state = state,
+        Box(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = 16.dp, end = 16.dp)
-                    .graphicsLayer {
-                        // Tilt the shoe slightly to fit the table's perspective
-                        rotationZ = -15f
-                        rotationX = 10f
-                        translationX = 20.dp.toPx()
-                        translationY = -10.dp.toPx()
+                    .onGloballyPositioned { coords ->
+                        val pos = coords.positionInRoot()
+                        shoePosition.value = Offset(
+                            pos.x + coords.size.width / 2f,
+                            pos.y + coords.size.height / 2f
+                        )
                     }
-        )
+        ) {
+            Shoe(
+                state = state,
+                modifier =
+                    Modifier
+                        .padding(top = 16.dp, end = 16.dp)
+                        .graphicsLayer {
+                            // Tilt the shoe slightly to fit the table's perspective
+                            rotationZ = -15f
+                            rotationX = 10f
+                            translationX = 20.dp.toPx()
+                            translationY = -10.dp.toPx()
+                        }
+            )
+        }
 
         Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -656,6 +694,7 @@ private fun BlackjackLayout(
             // Action Bar moved to ControlCenter
         }
     }
+    } // CompositionLocalProvider
 }
 
 data class PayoutInstance(
