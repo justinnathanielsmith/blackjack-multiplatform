@@ -108,13 +108,15 @@ private fun ActiveGlowLayer(
         modifier =
             modifier.drawBehind {
                 val radius = size.maxDimension * 0.7f * glowRadiusScale
-                drawRect(
+                val crPx = cornerRadius.topStart.toPx(size, this)
+                drawRoundRect(
                     brush =
                         Brush.radialGradient(
                             colors = listOf(PrimaryGold.copy(alpha = glowAlpha), Color.Transparent),
                             center = center,
                             radius = radius
                         ),
+                    cornerRadius = CornerRadius(crPx, crPx),
                     size = size
                 )
 
