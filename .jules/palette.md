@@ -1,3 +1,6 @@
 ## 2024-05-18 - Added Semantics and Button Roles to Custom Composables
 **Learning:** In Compose Multiplatform, using `.clickable { ... }` on a `Box` or `Canvas` to create a custom button does not automatically expose it as a button to screen readers. Elements like `BetSpot`, `BetChip`, and `CasinoButton` were functioning interactively but lacked correct accessibility roles and descriptions.
 **Action:** Always include `role = Role.Button` in `.clickable(role = Role.Button) { ... }` when creating custom button components. Additionally, for interactive elements that are essentially custom controls (like betting spots), ensure a `semantics { contentDescription = "..." }` is provided so screen readers describe the action (e.g., "Tap to place bet").
+## 2024-05-19 - Added Proper Semantic Roles to Interactive Header, Settings, and Strategy Elements
+**Learning:** In Compose Multiplatform, using `.clickable { ... }` on a `Box` to create custom tabs or buttons requires specific semantic roles for screen readers. Using `Role.Tab` for tab components (like Strategy Tabs) and `Role.Button` for header icons/settings rows properly informs screen readers of the component's interaction type.
+**Action:** Always assign the most specific semantic role (`Role.Button`, `Role.Tab`, etc.) in `.clickable(role = Role.X) { ... }` when building custom interactive components.
