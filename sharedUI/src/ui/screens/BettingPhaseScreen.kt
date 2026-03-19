@@ -40,8 +40,8 @@ import io.github.smithjustinn.blackjack.ui.components.BettingActions
 import io.github.smithjustinn.blackjack.ui.components.BettingSlot
 import io.github.smithjustinn.blackjack.ui.components.ChipSelector
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
-import io.github.smithjustinn.blackjack.ui.components.effects.FlyingChip
-import io.github.smithjustinn.blackjack.ui.components.effects.FlyingChipAnimation
+import io.github.smithjustinn.blackjack.ui.effects.FlyingChip
+import io.github.smithjustinn.blackjack.ui.effects.FlyingChipAnimation
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold

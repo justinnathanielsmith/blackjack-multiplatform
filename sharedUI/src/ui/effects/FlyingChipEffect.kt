@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.ui.components.effects
+package io.github.smithjustinn.blackjack.ui.effects
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -26,7 +26,7 @@ data class FlyingChip(
     val startOffset: Offset,
     val amount: Int,
     val color: Color,
-    val textColor: Color
+    val textColor: Color,
 )
 
 @Composable
