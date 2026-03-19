@@ -65,7 +65,8 @@ fun PlayerHand(
         HandRow(
             hand = hand,
             isCompact = isCompact || isExtraCompact,
-            scale = scale
+            scale = scale,
+            isActive = isActive
         )
     }
 }

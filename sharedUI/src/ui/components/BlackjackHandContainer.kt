@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -198,18 +199,6 @@ fun BlackjackHandContainer(
                 )
             }
 
-            Box(
-                modifier =
-                    Modifier
-                        .matchParentSize()
-                        .background(backgroundColor, cornerRadius)
-                        .border(
-                            width = 1.dp,
-                            color = Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f),
-                            shape = cornerRadius
-                        )
-            )
-
             // 2. Content box — drives the height of the background
             val contentPadding = if (isExtraCompact) 10.dp else 16.dp
             val topPadding =
@@ -358,6 +347,7 @@ private fun BoxScope.TitleBadge(
     Row(
         modifier =
             modifier
+                .shadow(6.dp, RoundedCornerShape(12.dp), spotColor = Color.Black, ambientColor = Color.Black)
                 .background(containerColor, RoundedCornerShape(12.dp))
                 .border(
                     1.dp,
@@ -403,6 +393,7 @@ private fun BoxScope.StatusBadge(
     Box(
         modifier =
             modifier
+                .shadow(6.dp, RoundedCornerShape(12.dp), spotColor = Color.Black, ambientColor = Color.Black)
                 .background(badgeColor, RoundedCornerShape(12.dp))
                 .padding(horizontal = 12.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center
@@ -463,7 +454,9 @@ internal fun BoxScope.HandOutcomeBadge(
                         onDrawBehind {
                             drawCircle(brush = glowBrush)
                         }
-                    }.background(containerColor, RoundedCornerShape(12.dp))
+                    }
+                    .shadow(16.dp, RoundedCornerShape(12.dp), spotColor = Color.Black, ambientColor = Color.Black)
+                    .background(containerColor, RoundedCornerShape(12.dp))
                     .border(
                         width = 2.dp,
                         color =

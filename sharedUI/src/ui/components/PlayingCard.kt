@@ -342,10 +342,15 @@ fun PlayingCard(
     animationDurationMs: Int = 300,
     scale: Float = 1f,
     isNearMiss: Boolean = false,
+    isActive: Boolean = false,
 ) {
     val offsetX = remember { Animatable(300f) }
     val offsetY = remember { Animatable(-400f) }
     val dealScale = remember { Animatable(0.5f) }
+    val baseRotation = remember(card) {
+        val hash = card.hashCode()
+        ((hash % 100) / 100f) * 4f - 2f
+    }
     val dealRotationZ = remember { Animatable(if (isDealer) -45f else 45f) }
 
     val nearMissAlpha = remember { Animatable(0f) }
@@ -404,18 +409,23 @@ fun PlayingCard(
 
     val showBack = rotation < 90f
 
+    val animatedElevation by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (isActive) 24.dp else 12.dp,
+        label = "cardElevation"
+    )
+
     Box(
         modifier =
             modifier
                 .requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
-                .shadow(elevation = 12.dp, shape = CardShape, clip = false)
+                .shadow(elevation = animatedElevation, shape = CardShape, clip = false)
                 .graphicsLayer {
                     translationX = offsetX.value
                     translationY = offsetY.value
                     scaleX = dealScale.value
                     scaleY = dealScale.value
-                    rotationZ = dealRotationZ.value
+                    rotationZ = dealRotationZ.value + baseRotation
                     rotationY = rotation
                     cameraDistance = 12f * density
                 },

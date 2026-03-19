@@ -1,16 +1,19 @@
-# Plan: UI Juice - Betting Phase & Turn Animations
+# Plan: UI Juice - Betting Phase, Turn Animations, & Hand Layout Redesign
 
 ## Objective
 Enhance the "Juice" and physical realism of the game UI.
-**Part 1: Betting Phase Integration (NEW)**: Upgrade the betting experience to feel like an integrated part of the physical casino table, rather than a floating modal menu.
-**Part 2: Player/Dealer Turns (PREVIOUS)**: Enhance the turn banners, hand badges, and card dealing animations (3D Casino Toss).
+**Part 1: Betting Phase Integration**: Upgrade the betting experience to feel like an integrated part of the physical casino table, rather than a floating modal menu.
+**Part 2: Player/Dealer Turns**: Enhance the turn banners, hand badges, and card dealing animations (3D Casino Toss).
+**Part 3: Hand Layout Redesign (NEW)**: Make the hand layout feel more like physical cards on a casino table with fanning, staggering, and borderless design.
 
 ## Key Files & Context
 - `sharedUI/src/ui/screens/BettingPhaseScreen.kt` (Betting layout, modal dimming)
 - `sharedUI/src/ui/components/BettingSlot.kt` (Betting spots on the table)
 - `sharedUI/src/ui/components/GameStatusMessage.kt` (Turn banners)
 - `sharedUI/src/ui/screens/BlackjackScreen.kt` (Transitions, table drawing)
-- `sharedUI/src/ui/components/PlayingCard.kt` (Card deal animations)
+- `sharedUI/src/ui/components/PlayingCard.kt` (Card deal animations, shadows)
+- `sharedUI/src/ui/components/HandRow.kt` (Card layout logic)
+- `sharedUI/src/ui/components/BlackjackHandContainer.kt` (Hand wrapper)
 
 ## Changes
 
@@ -31,7 +34,7 @@ Enhance the "Juice" and physical realism of the game UI.
    - In `BettingSlot.kt`, modify the stroke drawing so the spots look more like paint on felt rather than glowing UI rings when inactive. Ensure they look physically present on the table.
    - Lower the vertical offset of the central slots in `BettingPhaseScreen.kt` slightly if needed to align perfectly with the painted table arc in `BlackjackScreen.kt`.
 
-### Phase 2: Player/Dealer Turn & Card Dealing (Previous Scope)
+### Phase 2: Player/Dealer Turn & Card Dealing
 1. **Center Text in GameStatusMessage**:
    - Add `contentAlignment = Alignment.Center` to the root `Box` in `GameStatusMessage`.
    - Add `textAlign = TextAlign.Center` to the `Text` inside the message.
@@ -48,7 +51,23 @@ Enhance the "Juice" and physical realism of the game UI.
    - Deal from top-right (`offsetX = 300f`, `offsetY = -400f`).
    - Use `spring` for offset and rotation. Scale up to `1.2f` mid-air, then down to `1.0f`.
 
+### Phase 3: Hand Layout Redesign (NEW)
+1. **Felt-First (Borderless) Container**:
+   - In `BlackjackHandContainer.kt`, remove the background rounded rects (`GlassDark`, `PrimaryGold`) and borders. Let the cards sit directly on the table.
+   - Enhance the floating score and status badges with a distinct drop shadow so they remain legible against the table and cards.
+   - Keep the `ActiveGlowLayer` but adapt it to be a softer radial glow on the felt behind the cards instead of a hard rounded box.
+
+2. **Curved Fanning & Diagonal Staggering**:
+   - In `HandRow.kt`, update the custom `Layout` algorithm.
+   - Instead of pure horizontal layout, introduce a slight diagonal step (e.g., each card moves right by `actualStepPx` and down by a small `verticalStepPx`).
+   - Introduce a curved fanning effect: calculate a small angular rotation (`rotationZ`) and `y-offset` based on the card's index and the total number of cards to form a subtle arc.
+
+3. **Dynamic 3D Tangibility**:
+   - In `PlayingCard.kt`, introduce a tiny deterministic random rotation for each card (e.g., derived from its `hashCode()`) so the stack looks organic and less digitally perfect.
+   - Add dynamic drop shadows to the cards. When a hand is "active" (hovering/playing), slightly increase the drop shadow and scale of the cards to lift them off the table.
+
 ## Verification
 - Build the JVM target (`./amper build -p jvm`).
 - Launch the app and verify the betting phase feels like interacting with the physical table (no dimming, integrated rail controls).
 - Verify the cards deal with the new 3D toss animation and turn banners are bouncy and centered.
+- Play a few rounds to observe the new borderless hand layout, fanned/staggered card positioning, and organic 3D rotations on the table.
