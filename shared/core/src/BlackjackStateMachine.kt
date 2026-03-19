@@ -425,8 +425,10 @@ class BlackjackStateMachine(
         val state = _state.value
         val dealerScore = state.dealerHand.score
         val dealerBust = state.dealerHand.isBust
-        val (totalPayout, anyWin, allPush) =
-            BlackjackRules.calculateHandResults(state, dealerScore, dealerBust)
+        val results = BlackjackRules.calculateHandResults(state, dealerScore, dealerBust)
+        val totalPayout = results.totalPayout
+        val anyWin = results.anyWin
+        val allPush = results.allPush
 
         val finalStatus =
             when {

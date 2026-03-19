@@ -50,44 +50,30 @@ data class Hand(
     val wasSplit: Boolean = false,
     val isFromSplitAce: Boolean = false
 ) {
-    val score: Int
-        get() {
-            var s = 0
-            var aces = 0
-            for (card in cards) {
-                s += card.rank.value
-                if (card.rank == Rank.ACE) {
-                    aces++
-                }
-            }
-            while (s > 21 && aces > 0) {
-                s -= 10
-                aces -= 1
-            }
-            return s
+    // Shared ace-reduction logic. Accepts any Iterable so visibleScore can pre-filter face-down cards.
+    private fun calculateScore(cards: Iterable<Card>): Int {
+        var s = 0
+        var aces = 0
+        for (card in cards) {
+            s += card.rank.value
+            if (card.rank == Rank.ACE) aces++
         }
+        while (s > 21 && aces > 0) { s -= 10; aces-- }
+        return s
+    }
 
-    val visibleScore: Int
-        get() {
-            var s = 0
-            var aces = 0
-            for (card in cards) {
-                if (!card.isFaceDown) {
-                    s += card.rank.value
-                    if (card.rank == Rank.ACE) {
-                        aces++
-                    }
-                }
-            }
-            while (s > 21 && aces > 0) {
-                s -= 10
-                aces -= 1
-            }
-            return s
-        }
+    val score: Int get() = calculateScore(cards)
+
+    val visibleScore: Int get() = calculateScore(cards.filter { !it.isFaceDown })
 
     val isBust: Boolean get() = score > 21
 
+    /**
+     * True if at least one Ace is being counted as 11 (i.e. the hand is "soft").
+     *
+     * Note: iterates **all** cards, including face-down ones. Only call this after the
+     * dealer's hole card has been revealed (e.g. inside [BlackjackRules.shouldDealerDraw]).
+     */
     val isSoft: Boolean
         get() {
             var hasAce = false
@@ -101,9 +87,8 @@ data class Hand(
                 }
             }
             if (!hasAce) return false
-            // If the current score is different from the score where all aces are 1, it's soft.
-            // Actually, a hand is soft if it contains an Ace that is being counted as 11.
-            // Our score calculation already handles this.
+            // A hand is soft when the score (with at least one Ace as 11) differs
+            // from the hard score (all Aces as 1).
             return score != hardScore
         }
 }
@@ -124,11 +109,17 @@ data class GameRules(
     val allowSurrender: Boolean = false,
     val blackjackPayout: BlackjackPayout = BlackjackPayout.THREE_TO_TWO,
     val deckCount: Int = 6,
+    /**
+     * When true, any two cards with the same point value may be split (e.g. King + Jack).
+     * When false (default), only cards of the exact same [Rank] may be split.
+     */
+    val splitOnValueOnly: Boolean = false,
 )
 
 @Serializable
 enum class GameStatus {
     BETTING,
+    /** Transient state during the animated card deal. Never terminal; transitions to [PLAYING] or a terminal status immediately after. */
     DEALING,
     IDLE,
     PLAYING,
@@ -177,6 +168,11 @@ data class GameState(
     val dealerDrawIsCritical: Boolean = false,
 ) {
     companion object {
+        /**
+         * Maximum number of hands reachable via splits (up to 4).
+         * The initial deal is capped at 3 by `handleSelectHandCount` — the 4th hand
+         * is only ever reachable by splitting an existing hand during play.
+         */
         const val MAX_HANDS = 4
     }
 
@@ -208,14 +204,24 @@ data class GameState(
             balance >= activeBet &&
             (!activeHand.wasSplit || rules.allowDoubleAfterSplit)
 
-    fun canSplit(): Boolean =
-        playerHands.size < MAX_HANDS &&
-            activeHand.cards.size == 2 &&
-            activeHand.cards[0].rank == activeHand.cards[1].rank &&
-            balance >= activeBet
+    fun canSplit(): Boolean {
+        if (playerHands.size >= MAX_HANDS || activeHand.cards.size != 2 || balance < activeBet) return false
+        val c0 = activeHand.cards[0].rank
+        val c1 = activeHand.cards[1].rank
+        val rankMatch = if (rules.splitOnValueOnly) c0.value == c1.value else c0 == c1
+        return rankMatch
+    }
 }
 
 enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
+
+/**
+ * Aggregated result of all player hands at the end of a round.
+ * @param totalPayout sum of individual hand payouts (0 means all were lost)
+ * @param anyWin true if at least one hand won or had a natural BJ
+ * @param allPush true if every hand pushed (used to determine [GameStatus.PUSH])
+ */
+data class HandResults(val totalPayout: Int, val anyWin: Boolean, val allPush: Boolean)
 
 object BlackjackRules {
     const val BLACKJACK_SCORE = 21
@@ -247,6 +253,12 @@ object BlackjackRules {
         }
     }
 
+    /**
+     * Returns the chip payout for a single hand.
+     *
+     * Natural BJ payout uses integer division (casino convention): e.g. with 3:2,
+     * a $3 bet returns $7 (not $7.50). Odd-bet rounding is intentional and tested.
+     */
     fun resolveHand(
         hand: Hand,
         bet: Int,
@@ -265,7 +277,7 @@ object BlackjackRules {
         state: GameState,
         dealerScore: Int,
         dealerBust: Boolean,
-    ): Triple<Int, Boolean, Boolean> {
+    ): HandResults {
         var totalPayout = 0
         var anyWin = false
         var allPush = true
@@ -273,14 +285,23 @@ object BlackjackRules {
             val hand = state.playerHands[i]
             val bet = state.playerBets[i]
             totalPayout += resolveHand(hand, bet, dealerScore, dealerBust, state.rules)
-            val handWins = !hand.isBust && (dealerBust || hand.score > dealerScore)
-            val handPushes = !hand.isBust && !dealerBust && hand.score == dealerScore
-            if (handWins) anyWin = true
-            if (!handPushes) allPush = false
+            // Delegate to determineHandOutcome so NATURAL_WIN is correctly distinguished
+            // from a regular WIN (fixes: natural BJ vs dealer-21 was incorrectly anyWin=true).
+            val outcome = determineHandOutcome(hand, dealerScore, dealerBust)
+            if (outcome == HandOutcome.NATURAL_WIN || outcome == HandOutcome.WIN) anyWin = true
+            if (outcome != HandOutcome.PUSH) allPush = false
         }
-        return Triple(totalPayout, anyWin, allPush)
+        return HandResults(totalPayout, anyWin, allPush)
     }
 
+    /**
+     * Determines the game status immediately after the initial deal.
+     *
+     * **Multi-hand note:** if the dealer has a natural Blackjack the round ends as
+     * [GameStatus.DEALER_WON] for all player hands — even if an individual player hand
+     * is also a natural BJ. This is an intentional simplification for the multi-hand
+     * flow. Single-hand correctly resolves the BJ-vs-BJ case as [GameStatus.PUSH].
+     */
     fun determineInitialStatus(
         hands: List<Hand>,
         dealerHand: Hand,
@@ -298,12 +319,20 @@ object BlackjackRules {
             }
         }
 
-        // Multi-hand: If dealer has Blackjack, it's immediately terminal for simplicity
+        // Multi-hand: if dealer has Blackjack, all hands lose immediately.
+        // Individual player naturals are not compared in this path.
         if (dealerHasBJ) return GameStatus.DEALER_WON
 
         return GameStatus.PLAYING
     }
 
+    /**
+     * Computes the post-deal status, final dealer hand, and balance delta.
+     *
+     * **Insurance invariant:** insurance is only offered when the dealer's up-card is an Ace
+     * AND the player does NOT have a natural BJ (see `shouldOfferInsurance`). Therefore
+     * [GameState.insuranceBet] is guaranteed to be 0 at this point — no refund is needed here.
+     */
     fun resolveInitialOutcomeValues(
         current: GameState,
         playerHands: List<Hand>,

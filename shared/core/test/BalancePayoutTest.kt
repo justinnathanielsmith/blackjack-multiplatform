@@ -73,6 +73,36 @@ class BalancePayoutTest {
         }
 
     @Test
+    fun blackjackPayout_3to2_oddBet_truncates() =
+        runTest {
+            // Bet=3, 3:2 BJ payout: profit = (3 * 3) / 2 = 4 (not 4.5)
+            // balance=997, bet=3 → payout = 3 + 4 = 7 → balance=1004
+            val sm =
+                testMachine(
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 997,
+                        currentBet = 3,
+                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
+                        deck =
+                            persistentListOf(
+                                Card(Rank.ACE, Suit.SPADES),
+                                Card(Rank.TEN, Suit.HEARTS),
+                                Card(Rank.TEN, Suit.CLUBS),
+                                Card(Rank.EIGHT, Suit.DIAMONDS),
+                            ),
+                        handCount = 1,
+                    ),
+                )
+            sm.dispatch(GameAction.Deal)
+            advanceUntilIdle()
+
+            val state = sm.state.value
+            assertEquals(GameStatus.PLAYER_WON, state.status)
+            assertEquals(1004, state.balance) // 997 + 7 (3 + floor(3*3/2)=4)
+        }
+
+    @Test
     fun naturalBlackjack_3to2_multiHand() =
         runTest {
             // Hand0: BJ (ACE+TEN) → 3:2 payout = 250; Hand1: 20 (TEN+TEN) vs dealer 18 → 200

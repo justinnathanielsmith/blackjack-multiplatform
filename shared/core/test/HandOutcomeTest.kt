@@ -82,4 +82,23 @@ class HandOutcomeTest {
         val h = hand(Rank.TEN, Rank.SEVEN) // 17
         assertEquals(HandOutcome.LOSS, BlackjackRules.determineHandOutcome(h, dealerScore = 18, dealerBust = false))
     }
+
+    // ── calculateHandResults bug regression ───────────────────────────────────
+
+    @Test
+    fun calculateHandResults_naturalBJvsDealerBJ_anyWinIsFalse() {
+        // Natural BJ (ACE+KING) vs dealer 21 → PUSH, not WIN. anyWin must be false.
+        val playerHand = hand(Rank.ACE, Rank.KING)
+        val state = GameState(
+            status = GameStatus.DEALER_TURN,
+            balance = 900,
+            playerHands = kotlinx.collections.immutable.persistentListOf(playerHand),
+            playerBets = kotlinx.collections.immutable.persistentListOf(100),
+            dealerHand = hand(Rank.ACE, Rank.KING),
+        )
+        val results = BlackjackRules.calculateHandResults(state, dealerScore = 21, dealerBust = false)
+        assertEquals(false, results.anyWin, "Natural BJ vs dealer BJ should NOT be a win")
+        assertEquals(true, results.allPush, "Natural BJ vs dealer BJ should be a push")
+        assertEquals(100, results.totalPayout, "Push returns the original bet")
+    }
 }
