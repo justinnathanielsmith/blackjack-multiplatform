@@ -13,13 +13,7 @@ class BlackjackStateMachineShutdownTest {
     @Test
     fun shutdownCausesEffectsFlowToComplete() =
         runTest {
-            val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    )
-                )
+            val sm = testMachine()
 
             sm.shutdown()
             sm.effects.test {
@@ -30,13 +24,7 @@ class BlackjackStateMachineShutdownTest {
     @Test
     fun dispatchAfterShutdownThrowsException() =
         runTest {
-            val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    )
-                )
+            val sm = testMachine()
 
             sm.shutdown()
 

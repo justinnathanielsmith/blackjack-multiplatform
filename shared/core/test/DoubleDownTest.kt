@@ -17,11 +17,7 @@ class DoubleDownTest {
         runTest {
             // Player FIVE+SIX=11, draws TWO → 13
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.FIVE, Rank.SIX),
                         dealerHand = hand(Rank.TEN, Rank.NINE),
@@ -43,11 +39,7 @@ class DoubleDownTest {
         runTest {
             // Player FIVE+SIX=11, draws TWO → 13, dealer TEN+SEVEN=17 → DEALER_WON
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.FIVE, Rank.SIX),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN),
@@ -65,11 +57,7 @@ class DoubleDownTest {
         runTest {
             // Player NINE+SIX=15, draws TEN → 25 bust
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.NINE, Rank.SIX),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN),
@@ -95,11 +83,7 @@ class DoubleDownTest {
                     deck = deckOf(Rank.TWO),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.DoubleDown)
@@ -120,11 +104,7 @@ class DoubleDownTest {
                     deck = deckOf(Rank.TWO),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.DoubleDown)
@@ -147,11 +127,7 @@ class DoubleDownTest {
                     deck = deckOf(Rank.TWO),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.DoubleDown)
@@ -182,11 +158,7 @@ class DoubleDownTest {
                     deck = deckOf(Rank.TWO),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.DoubleDown)

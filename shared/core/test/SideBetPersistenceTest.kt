@@ -17,12 +17,7 @@ class SideBetPersistenceTest {
                 )
 
             val stateMachine =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    )
-                )
+                testMachine()
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 1000,
@@ -49,12 +44,7 @@ class SideBetPersistenceTest {
                 )
 
             val stateMachine =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    )
-                )
+                testMachine()
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 150,

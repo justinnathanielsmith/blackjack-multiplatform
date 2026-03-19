@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
     initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0),
-    private val isTest: Boolean = true,
+    private val isTest: Boolean = false,
     private val logger: Logger = Logger.withTag("BlackjackStateMachine")
 ) {
     companion object {
@@ -53,7 +53,7 @@ class BlackjackStateMachine(
             collectJob.cancelAndJoin()
         }
 
-    private val actionChannel = Channel<GameAction>(Channel.UNLIMITED)
+    private val actionChannel = Channel<GameAction>(Channel.BUFFERED)
 
     init {
         scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
@@ -188,7 +188,6 @@ class BlackjackStateMachine(
         if (current.status != GameStatus.BETTING || current.currentBet <= 0) return
         _state.value = current.copy(status = GameStatus.DEALING)
         val (playerHands, dealerHand) = dealCardsWithAnimation(current)
-        delay(dealCardDelayMs)
         applyInitialOutcome(current, playerHands, dealerHand)
     }
 
@@ -320,6 +319,7 @@ class BlackjackStateMachine(
         val refund = state.activeBet / 2
         _state.value = state.copy(balance = state.balance + refund, status = GameStatus.DEALER_WON)
         emitEffect(GameEffect.PlayLoseSound)
+        emitEffect(GameEffect.ChipLoss(state.activeBet - refund))
     }
 
     private suspend fun handleHit() {
@@ -510,7 +510,8 @@ class BlackjackStateMachine(
     }
 
     private fun emitEffect(effect: GameEffect) {
-        _effects.tryEmit(effect)
+        val emitted = _effects.tryEmit(effect)
+        if (!emitted) logger.w { "Effect dropped (buffer full): $effect" }
     }
 
     private fun isSlowRoll(hand: Hand): Boolean {

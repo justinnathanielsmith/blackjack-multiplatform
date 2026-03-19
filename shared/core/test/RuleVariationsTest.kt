@@ -2,6 +2,7 @@
 
 package io.github.smithjustinn.blackjack
 
+import app.cash.turbine.test
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -15,11 +16,7 @@ class RuleVariationsTest {
     fun testDealerStandsOnSoft17() =
         runTest {
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.SIX), // soft 17
@@ -40,11 +37,7 @@ class RuleVariationsTest {
     fun testDealerHitsSoft17() =
         runTest {
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.SIX), // soft 17
@@ -65,11 +58,7 @@ class RuleVariationsTest {
         runTest {
             // balance=900 (bet already deducted), deal player BJ (ACE+TEN) vs dealer 17
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -95,11 +84,7 @@ class RuleVariationsTest {
     fun testBlackjackPayout_sixToFive() =
         runTest {
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -125,11 +110,7 @@ class RuleVariationsTest {
     fun testSurrender() =
         runTest {
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         balance = 900,
                         playerHand = hand(Rank.TEN, Rank.SIX),
@@ -143,5 +124,26 @@ class RuleVariationsTest {
             // Refund half (50). Balance: 900 + 50 = 950.
             assertEquals(950, sm.state.value.balance)
             assertEquals(GameStatus.DEALER_WON, sm.state.value.status)
+        }
+
+    @Test
+    fun surrender_emitsChipLossForHalfBet() =
+        runTest {
+            val sm =
+                testMachine(
+                    playingState(
+                        balance = 900,
+                        bet = 100,
+                        playerHand = hand(Rank.TEN, Rank.SIX),
+                        dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+                        rules = GameRules(allowSurrender = true),
+                    ),
+                )
+            sm.effects.test {
+                sm.dispatch(GameAction.Surrender)
+                assertEquals(GameEffect.PlayLoseSound, awaitItem())
+                assertEquals(GameEffect.ChipLoss(50), awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 }

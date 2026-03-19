@@ -16,11 +16,7 @@ class InsuranceTest {
         runTest {
             // Construct directly in INSURANCE_OFFERED status — no random loop needed
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
@@ -44,11 +40,7 @@ class InsuranceTest {
         runTest {
             // Controlled deck: player NINE+TWO=11, dealer KING+SEVEN=17 (no ace upcard)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -69,11 +61,7 @@ class InsuranceTest {
         runTest {
             // INSURANCE_OFFERED, bet=100, balance=900 → TakeInsurance → balance=850, insuranceBet=50, PLAYING
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
@@ -97,11 +85,7 @@ class InsuranceTest {
     fun declineInsurance_noBalanceChange() =
         runTest {
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
@@ -127,11 +111,7 @@ class InsuranceTest {
             // Player TEN+SIX=16, dealer ACE+TEN=BJ, insurance taken: balance=850
             // Stand → dealer BJ revealed → insurance pays 50*3=150 → balance=1000; DEALER_WON
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 850,
@@ -157,11 +137,7 @@ class InsuranceTest {
             // Player TEN+NINE=19, dealer ACE+SIX=17, insurance taken: balance=850
             // Stand → dealer 17, no BJ → insurance forfeited; player wins regular
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 850,
@@ -195,11 +171,7 @@ class InsuranceTest {
                     deck = persistentListOf(),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.TakeInsurance)

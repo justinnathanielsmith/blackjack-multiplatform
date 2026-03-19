@@ -1,8 +1,32 @@
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package io.github.smithjustinn.blackjack
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+
+// ── State machine factory ─────────────────────────────────────────────────────
+
+/**
+ * Creates a [BlackjackStateMachine] with [isTest]=true, auto-wiring the test scheduler's
+ * scope so delays are skipped and the machine is cancelled when the test finishes.
+ */
+fun TestScope.testMachine(initialState: GameState,): BlackjackStateMachine =
+    BlackjackStateMachine(
+        CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
+        initialState,
+        isTest = true,
+    )
+
+fun TestScope.testMachine(): BlackjackStateMachine =
+    BlackjackStateMachine(
+        CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
+        isTest = true,
+    )
 
 // ── Card / Hand builders ──────────────────────────────────────────────────────
 

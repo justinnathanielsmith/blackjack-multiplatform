@@ -15,11 +15,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player EIGHT+THREE=11, draws FIVE → 16 (no bust, game continues)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -39,11 +35,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player TEN+KING=20 stands, dealer TEN+SEVEN=17 stands (no dealer draw)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.KING),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN),
@@ -64,11 +56,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player TEN+TEN=20, draws TEN → 30 (guaranteed bust)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -93,11 +81,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player EIGHT+THREE=11, draws KING → 21
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -118,11 +102,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player EIGHT+THREE=11, draws FOUR → 15
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -143,11 +123,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player EIGHT+THREE=11, draws KING → 21
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -168,11 +144,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player EIGHT+THREE=11, draws KING → 21
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -194,11 +166,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player TEN+TEN=20, draws TEN → 30 (guaranteed bust)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -222,11 +190,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player TEN+SIX=16 stands, dealer TEN+NINE=19 wins (no player bust → Vibrate emitted)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.SIX),
                         dealerHand = hand(Rank.TEN, Rank.NINE),
@@ -248,11 +212,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player EIGHT+THREE=11, draws FOUR → 15 (non-face card)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -274,11 +234,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player EIGHT+THREE=11, draws KING → 21 (face card)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.EIGHT, Rank.THREE),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -300,11 +256,7 @@ class GameEffectsFlowTest {
         runTest {
             // Player TEN+KING=20 stands, dealer TEN+SEVEN=17 (player wins)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     playingState(
                         playerHand = hand(Rank.TEN, Rank.KING),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN),

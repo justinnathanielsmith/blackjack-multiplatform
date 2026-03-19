@@ -26,11 +26,7 @@ class MultiHandTest {
                     Rank.SEVEN, // Dealer
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, deck = deck),
                 )
             sm.dispatch(GameAction.SelectHandCount(3))
@@ -65,11 +61,7 @@ class MultiHandTest {
                     deck = deckOf(Rank.TWO),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.Stand)
@@ -92,11 +84,7 @@ class MultiHandTest {
                     deck = deckOf(Rank.TEN), // bust card
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.Hit)
@@ -129,11 +117,7 @@ class MultiHandTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN), // dealer 17
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.Stand)
@@ -155,11 +139,7 @@ class MultiHandTest {
                     deck = deckOf(Rank.TEN, Rank.NINE, Rank.TWO),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.Split)
@@ -188,11 +168,7 @@ class MultiHandTest {
                     deck = deckOf(Rank.TEN, Rank.NINE, Rank.ACE),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.Split)

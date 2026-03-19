@@ -18,11 +18,7 @@ class DealTest {
     fun debug_channel_reading() =
         runTest {
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 100)
                 )
             sm.dispatch(GameAction.Deal)
@@ -34,11 +30,7 @@ class DealTest {
     fun deal_ignoredWhenNoBet() =
         runTest {
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
                 )
             sm.dispatch(GameAction.Deal)
@@ -56,11 +48,7 @@ class DealTest {
             // New round-robin order: P1, D1, P2, D2
             // player NINE+TWO=11 (no BJ), dealer TEN+SEVEN=17 (no BJ)
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -83,11 +71,7 @@ class DealTest {
         runTest {
             // Interleaved: P1(NINE), D1(TEN), P2(TWO), D2(SEVEN): hole card hidden
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -108,11 +92,7 @@ class DealTest {
         runTest {
             // Interleaved: P1(NINE), D1(KING), P2(TWO), D2(ACE): dealer wins immediately, hole card revealed
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
@@ -146,11 +126,7 @@ class DealTest {
                         ),
                 )
             val sm =
-                BlackjackStateMachine(
-                    kotlinx.coroutines.CoroutineScope(
-                        backgroundScope.coroutineContext +
-                            kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)
-                    ),
+                testMachine(
                     initialState
                 )
             sm.dispatch(GameAction.Deal)
