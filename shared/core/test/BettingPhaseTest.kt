@@ -62,6 +62,8 @@ class BettingPhaseTest {
                 expectNoEvents()
                 cancelAndIgnoreRemainingEvents()
             }
+            // Verify effect triggered (it's a SharedFlow, we can collect separately if needed, 
+            // but let's just check the SM's internal emission if possible or add a test for it)
         }
 
     @Test

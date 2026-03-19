@@ -117,6 +117,21 @@ class PlayerActionLogicTest {
     }
 
     @Test
+    fun hit_returnsNoop_whenHandScoreIs21() {
+        val state =
+            playingState(
+                playerHand = hand(Rank.TEN, Rank.ACE), // 21
+                dealerHand = dealerHand(Rank.TEN, Rank.NINE),
+                deck = deckOf(Rank.FIVE)
+            )
+        val outcome = PlayerActionLogic.hit(state)
+
+        assertEquals(state, outcome.state)
+        assertFalse(outcome.shouldAdvanceTurn)
+        assertTrue(outcome.effects.isEmpty())
+    }
+
+    @Test
     fun hit_addsNearMissHighlightEffect_whenHandScoreIs11() {
         val state =
             playingState(

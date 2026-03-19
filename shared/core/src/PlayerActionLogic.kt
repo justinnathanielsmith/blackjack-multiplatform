@@ -22,6 +22,11 @@ object PlayerActionLogic {
     fun hit(state: GameState): PlayerActionOutcome {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
 
+        // Block hits on 21 or higher.
+        if (state.activeHand.score >= BLACKJACK_SCORE) {
+            return PlayerActionOutcome.noop(state)
+        }
+
         // Block hits on split aces.
         if (state.activeHand.isFromSplitAce && state.activeHand.cards.size >= 2) {
             return PlayerActionOutcome.noop(state)

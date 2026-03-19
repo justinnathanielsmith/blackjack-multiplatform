@@ -1,0 +1,1560 @@
+00:01.648 INFO  :core:testJvm             Testing module 'core' for platform 'jvm'...
+[38;2;97;175;239;1mStarted[22m HandTest[39m
+[1mStarted[22m testVisibleScore_countsOnlyFaceUpCards()
+[38;2;152;195;121;1mPassed[22m testVisibleScore_countsOnlyFaceUpCards()[39m
+[1mStarted[22m testVisibleScore_allFaceDown_returnsZero()
+[38;2;152;195;121;1mPassed[22m testVisibleScore_allFaceDown_returnsZero()[39m
+[1mStarted[22m testVisibleScore_allFaceUp_matchesScore()
+[38;2;152;195;121;1mPassed[22m testVisibleScore_allFaceUp_matchesScore()[39m
+[1mStarted[22m testVisibleScore_softensAceCorrectly()
+[38;2;152;195;121;1mPassed[22m testVisibleScore_softensAceCorrectly()[39m
+[38;2;97;175;239;1mCompleted[22m HandTest[39m
+[38;2;97;175;239;1mStarted[22m SideBetPersistenceTest[39m
+[1mStarted[22m testNewGameRemembersSideBets_InsufficientBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#3
+Verbose: (BlackjackStateMachine) SM received action: NewGame(initialBalance=150, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=50, lastSideBets={PERFECT_PAIRS=100, TWENTY_ONE_PLUS_THREE=100})
+Verbose: (BlackjackStateMachine) SM action loop finished current item: NewGame(initialBalance=150, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=50, lastSideBets={PERFECT_PAIRS=100, TWENTY_ONE_PLUS_THREE=100})
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testNewGameRemembersSideBets_InsufficientBalance()[39m
+[1mStarted[22m testNewGameRemembersSideBets()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#6
+Verbose: (BlackjackStateMachine) SM received action: NewGame(initialBalance=1000, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={PERFECT_PAIRS=10, TWENTY_ONE_PLUS_THREE=25})
+Verbose: (BlackjackStateMachine) SM action loop finished current item: NewGame(initialBalance=1000, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={PERFECT_PAIRS=10, TWENTY_ONE_PLUS_THREE=25})
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testNewGameRemembersSideBets()[39m
+[38;2;97;175;239;1mCompleted[22m SideBetPersistenceTest[39m
+[38;2;97;175;239;1mStarted[22m SideBetLogicTest[39m
+[1mStarted[22m test21Plus3_NoMatch()
+[38;2;152;195;121;1mPassed[22m test21Plus3_NoMatch()[39m
+[1mStarted[22m test21Plus3_Flush()
+[38;2;152;195;121;1mPassed[22m test21Plus3_Flush()[39m
+[1mStarted[22m test21Plus3_Straight_AceHigh()
+[38;2;152;195;121;1mPassed[22m test21Plus3_Straight_AceHigh()[39m
+[1mStarted[22m testPerfectPairs_Perfect()
+[38;2;152;195;121;1mPassed[22m testPerfectPairs_Perfect()[39m
+[1mStarted[22m test21Plus3_Straight_AceLow()
+[38;2;152;195;121;1mPassed[22m test21Plus3_Straight_AceLow()[39m
+[1mStarted[22m test21Plus3_Straight_FaceCards()
+[38;2;152;195;121;1mPassed[22m test21Plus3_Straight_FaceCards()[39m
+[1mStarted[22m test21Plus3_SuitedTriple()
+[38;2;152;195;121;1mPassed[22m test21Plus3_SuitedTriple()[39m
+[1mStarted[22m testResolveSideBets_win()
+[38;2;152;195;121;1mPassed[22m testResolveSideBets_win()[39m
+[1mStarted[22m testResolveSideBets_loss()
+[38;2;152;195;121;1mPassed[22m testResolveSideBets_loss()[39m
+[1mStarted[22m test21Plus3_ThreeOfAKind()
+[38;2;152;195;121;1mPassed[22m test21Plus3_ThreeOfAKind()[39m
+[1mStarted[22m testPerfectPairs_Colored()
+[38;2;152;195;121;1mPassed[22m testPerfectPairs_Colored()[39m
+[1mStarted[22m test21Plus3_Straight_Regular()
+[38;2;152;195;121;1mPassed[22m test21Plus3_Straight_Regular()[39m
+[1mStarted[22m test21Plus3_StraightFlush()
+[38;2;152;195;121;1mPassed[22m test21Plus3_StraightFlush()[39m
+[1mStarted[22m testPerfectPairs_Mixed()
+[38;2;152;195;121;1mPassed[22m testPerfectPairs_Mixed()[39m
+[1mStarted[22m testPerfectPairs_NoMatch()
+[38;2;152;195;121;1mPassed[22m testPerfectPairs_NoMatch()[39m
+[38;2;97;175;239;1mCompleted[22m SideBetLogicTest[39m
+[38;2;97;175;239;1mStarted[22m LogicImprovementsTest[39m
+[1mStarted[22m selectHandCount_emitsVibrate_whenInvalidCount()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#9
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=4)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=4)
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=0)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=0)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_emitsVibrate_whenInvalidCount()[39m
+[1mStarted[22m handleDeal_reshuffles_whenDeckBelowThreshold()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#19
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m handleDeal_reshuffles_whenDeckBelowThreshold()[39m
+[1mStarted[22m selectHandCount_emitsVibrate_whenInsufficientBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#22
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=2)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=2)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_emitsVibrate_whenInsufficientBalance()[39m
+[1mStarted[22m placeBet_emitsVibrate_whenInsufficientBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#30
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=100)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_emitsVibrate_whenInsufficientBalance()[39m
+[38;2;97;175;239;1mCompleted[22m LogicImprovementsTest[39m
+[38;2;97;175;239;1mStarted[22m PlayerActionLogicTest[39m
+[1mStarted[22m split_updatesStateCorrectly_andAdvancesTurn_forAceSplit()
+[38;2;152;195;121;1mPassed[22m split_updatesStateCorrectly_andAdvancesTurn_forAceSplit()[39m
+[1mStarted[22m doubleDown_updatesStateCorrectly_andAdvancesTurn()
+[38;2;152;195;121;1mPassed[22m doubleDown_updatesStateCorrectly_andAdvancesTurn()[39m
+[1mStarted[22m hit_returnsNoop_whenGameNotPlaying()
+[38;2;152;195;121;1mPassed[22m hit_returnsNoop_whenGameNotPlaying()[39m
+[1mStarted[22m hit_addsCardToHand_removesFromDeck()
+[38;2;152;195;121;1mPassed[22m hit_addsCardToHand_removesFromDeck()[39m
+[1mStarted[22m stand_returnsNoop_whenGameNotPlaying()
+[38;2;152;195;121;1mPassed[22m stand_returnsNoop_whenGameNotPlaying()[39m
+[1mStarted[22m split_returnsNoop_whenGameNotPlaying()
+[38;2;152;195;121;1mPassed[22m split_returnsNoop_whenGameNotPlaying()[39m
+[1mStarted[22m hit_addsNearMissHighlightEffect_whenHandScoreIs11()
+[38;2;152;195;121;1mPassed[22m hit_addsNearMissHighlightEffect_whenHandScoreIs11()[39m
+[1mStarted[22m split_returnsNoop_whenCannotSplit_dueToDifferentRanks()
+[38;2;152;195;121;1mPassed[22m split_returnsNoop_whenCannotSplit_dueToDifferentRanks()[39m
+[1mStarted[22m hit_returnsNoop_whenHandIsSplitAceAndHasTwoCards()
+[38;2;152;195;121;1mPassed[22m hit_returnsNoop_whenHandIsSplitAceAndHasTwoCards()[39m
+[1mStarted[22m split_updatesStateCorrectly_andDoesNotAdvanceTurn_forNonAceSplit()
+[38;2;152;195;121;1mPassed[22m split_updatesStateCorrectly_andDoesNotAdvanceTurn_forNonAceSplit()[39m
+[1mStarted[22m split_returnsNoop_whenDeckHasLessThanTwoCards()
+[38;2;152;195;121;1mPassed[22m split_returnsNoop_whenDeckHasLessThanTwoCards()[39m
+[1mStarted[22m stand_returnsTrueForAdvanceTurn_whenGameIsPlaying()
+[38;2;152;195;121;1mPassed[22m stand_returnsTrueForAdvanceTurn_whenGameIsPlaying()[39m
+[1mStarted[22m hit_advancesTurn_whenHandBusts()
+[38;2;152;195;121;1mPassed[22m hit_advancesTurn_whenHandBusts()[39m
+[1mStarted[22m hit_returnsNoop_whenDeckIsEmpty()
+[38;2;152;195;121;1mPassed[22m hit_returnsNoop_whenDeckIsEmpty()[39m
+[1mStarted[22m doubleDown_addsCorrectEffects_whenHandBusts()
+[38;2;152;195;121;1mPassed[22m doubleDown_addsCorrectEffects_whenHandBusts()[39m
+[1mStarted[22m hit_returnsNoop_whenHandScoreIs21()
+[38;2;152;195;121;1mPassed[22m hit_returnsNoop_whenHandScoreIs21()[39m
+[1mStarted[22m doubleDown_returnsNoop_whenGameNotPlaying()
+[38;2;152;195;121;1mPassed[22m doubleDown_returnsNoop_whenGameNotPlaying()[39m
+[1mStarted[22m doubleDown_returnsNoop_whenCannotDoubleDown_dueToCardCount()
+[38;2;152;195;121;1mPassed[22m doubleDown_returnsNoop_whenCannotDoubleDown_dueToCardCount()[39m
+[1mStarted[22m hit_addsPulse21Effect_whenHandScoreIs21()
+[38;2;152;195;121;1mPassed[22m hit_addsPulse21Effect_whenHandScoreIs21()[39m
+[1mStarted[22m doubleDown_returnsNoop_whenCannotDoubleDown_dueToBalance()
+[38;2;152;195;121;1mPassed[22m doubleDown_returnsNoop_whenCannotDoubleDown_dueToBalance()[39m
+[1mStarted[22m hit_addsHeavyCardThudEffect_whenCardValueIsTenOrMore()
+[38;2;152;195;121;1mPassed[22m hit_addsHeavyCardThudEffect_whenCardValueIsTenOrMore()[39m
+[1mStarted[22m doubleDown_returnsNoop_whenDeckIsEmpty()
+[38;2;152;195;121;1mPassed[22m doubleDown_returnsNoop_whenDeckIsEmpty()[39m
+[1mStarted[22m doubleDown_addsCorrectEffects_whenDrawnCardIsTenOrMore()
+[38;2;152;195;121;1mPassed[22m doubleDown_addsCorrectEffects_whenDrawnCardIsTenOrMore()[39m
+[38;2;97;175;239;1mCompleted[22m PlayerActionLogicTest[39m
+[38;2;97;175;239;1mStarted[22m InsuranceTest[39m
+[1mStarted[22m insurance_offered_when_dealer_ace()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#38
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m insurance_offered_when_dealer_ace()[39m
+[1mStarted[22m insurance_paysOn_dealerBlackjack()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#41
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m insurance_paysOn_dealerBlackjack()[39m
+[1mStarted[22m insurance_not_offered_when_dealer_non_ace()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#44
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m insurance_not_offered_when_dealer_non_ace()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <PLAYING> but was: <INSURANCE_OFFERED>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.InsuranceTest$insurance_not_offered_when_dealer_non_ace$1.invokeSuspend(InsuranceTest.kt:55)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.InsuranceTest$insurance_not_offered_when_dealer_non_ace$1.invoke(InsuranceTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.InsuranceTest$insurance_not_offered_when_dealer_non_ace$1.invoke(InsuranceTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.InsuranceTest.insurance_not_offered_when_dealer_non_ace(InsuranceTest.kt:40)[39m
+[1mStarted[22m insurance_forfeitedOn_noDealerBlackjack()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#47
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m insurance_forfeitedOn_noDealerBlackjack()[39m
+[1mStarted[22m declineInsurance_noBalanceChange()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#50
+Verbose: (BlackjackStateMachine) SM received action: DeclineInsurance
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DeclineInsurance
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m declineInsurance_noBalanceChange()[39m
+[1mStarted[22m takeInsurance_deductsHalfBet()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#53
+Verbose: (BlackjackStateMachine) SM received action: TakeInsurance
+Verbose: (BlackjackStateMachine) SM action loop finished current item: TakeInsurance
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m takeInsurance_deductsHalfBet()[39m
+[1mStarted[22m insurance_invalidIn_wrongStatus()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#56
+Verbose: (BlackjackStateMachine) SM received action: TakeInsurance
+Verbose: (BlackjackStateMachine) SM action loop finished current item: TakeInsurance
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m insurance_invalidIn_wrongStatus()[39m
+[38;2;97;175;239;1mCompleted[22m InsuranceTest[39m
+[38;2;97;175;239;1mStarted[22m CanSplitTest[39m
+[1mStarted[22m canSplit_returnsFalse_whenInsufficientBalance()
+[38;2;152;195;121;1mPassed[22m canSplit_returnsFalse_whenInsufficientBalance()[39m
+[1mStarted[22m canSplit_returnsFalse_whenNotTwoCards()
+[38;2;152;195;121;1mPassed[22m canSplit_returnsFalse_whenNotTwoCards()[39m
+[1mStarted[22m canSplit_returnsFalse_whenMaxHandsReached()
+[38;2;152;195;121;1mPassed[22m canSplit_returnsFalse_whenMaxHandsReached()[39m
+[1mStarted[22m canSplit_respectsActiveHandIndex()
+[38;2;152;195;121;1mPassed[22m canSplit_respectsActiveHandIndex()[39m
+[1mStarted[22m canSplit_returnsTrue_whenConditionsAreMet()
+[38;2;152;195;121;1mPassed[22m canSplit_returnsTrue_whenConditionsAreMet()[39m
+[1mStarted[22m canSplit_returnsFalse_whenRanksHaveSameValueButDifferentRank()
+[38;2;152;195;121;1mPassed[22m canSplit_returnsFalse_whenRanksHaveSameValueButDifferentRank()[39m
+[1mStarted[22m canSplit_returnsFalse_whenRanksDoNotMatch()
+[38;2;152;195;121;1mPassed[22m canSplit_returnsFalse_whenRanksDoNotMatch()[39m
+[38;2;97;175;239;1mCompleted[22m CanSplitTest[39m
+[38;2;97;175;239;1mStarted[22m DealTest[39m
+[1mStarted[22m sideBetPayout_perfectPairs_integration()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#59
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m sideBetPayout_perfectPairs_integration()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <2300> but was: <1000>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$sideBetPayout_perfectPairs_integration$1.invokeSuspend(DealTest.kt:136)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$sideBetPayout_perfectPairs_integration$1.invoke(DealTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$sideBetPayout_perfectPairs_integration$1.invoke(DealTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest.sideBetPayout_perfectPairs_integration(DealTest.kt:113)[39m
+[1mStarted[22m debug_channel_reading()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#62
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m debug_channel_reading()[39m
+[1mStarted[22m deal_ignoredWhenNoBet()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#65
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m deal_ignoredWhenNoBet()[39m
+[1mStarted[22m initialDeal_deals2CardsToPlayerAnd2ToDealer()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#68
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m initialDeal_deals2CardsToPlayerAnd2ToDealer()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <0> but was: <308>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$initialDeal_deals2CardsToPlayerAnd2ToDealer$1.invokeSuspend(DealTest.kt:65)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$initialDeal_deals2CardsToPlayerAnd2ToDealer$1.invoke(DealTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$initialDeal_deals2CardsToPlayerAnd2ToDealer$1.invoke(DealTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest.initialDeal_deals2CardsToPlayerAnd2ToDealer(DealTest.kt:47)[39m
+[1mStarted[22m deal_dealerHoleCardIsFaceDown_whenPlaying()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#71
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m deal_dealerHoleCardIsFaceDown_whenPlaying()[39m
+[1mStarted[22m deal_dealerHoleCardRevealed_onDealerBlackjack()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#74
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m deal_dealerHoleCardRevealed_onDealerBlackjack()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: Expected value to be false.[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.fail(Assertions.java:143)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)[39m
+[38;2;224;108;117m                at kotlin.test.Asserter.assertTrue(Assertions.kt:694)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)[39m
+[38;2;224;108;117m                at kotlin.test.Asserter.assertTrue(Assertions.kt:704)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertFalse(Assertions.kt:58)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertFalse(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertFalse$default(Assertions.kt:56)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertFalse$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$deal_dealerHoleCardRevealed_onDealerBlackjack$1.invokeSuspend(DealTest.kt:108)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$deal_dealerHoleCardRevealed_onDealerBlackjack$1.invoke(DealTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest$deal_dealerHoleCardRevealed_onDealerBlackjack$1.invoke(DealTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.DealTest.deal_dealerHoleCardRevealed_onDealerBlackjack(DealTest.kt:92)[39m
+[38;2;97;175;239;1mCompleted[22m DealTest[39m
+[38;2;97;175;239;1mStarted[22m PlayerActionsTest[39m
+[1mStarted[22m bust_holeCardIsRevealed()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#77
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m bust_holeCardIsRevealed()[39m
+[1mStarted[22m stand_advancesToSplitHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#80
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_advancesToSplitHand()[39m
+[1mStarted[22m stand_push_returnsBet()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#83
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_push_returnsBet()[39m
+[1mStarted[22m stand_playerWin_rewardsBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#86
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_playerWin_rewardsBalance()[39m
+[1mStarted[22m hit_routesToActiveHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#89
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hit_routesToActiveHand()[39m
+[1mStarted[22m hitBust_advancesToNextHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#92
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitBust_advancesToNextHand()[39m
+[1mStarted[22m stand_revealsHoleCardBeforeDealerDraws()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#95
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_revealsHoleCardBeforeDealerDraws()[39m
+[1mStarted[22m stand_dealerWin_keepsBalanceUnchanged()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#98
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_dealerWin_keepsBalanceUnchanged()[39m
+[1mStarted[22m stand_advancesToNextMultiHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#101
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_advancesToNextMultiHand()[39m
+[1mStarted[22m stand_entersDealerTurnOnLastMultiHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#104
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_entersDealerTurnOnLastMultiHand()[39m
+[1mStarted[22m hit_bust_endsRoundWithDealerWon()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#107
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hit_bust_endsRoundWithDealerWon()[39m
+[1mStarted[22m stand_entersDealerTurnAfterLastSplitHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#110
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m stand_entersDealerTurnAfterLastSplitHand()[39m
+[1mStarted[22m hit_routesToSplitHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#113
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hit_routesToSplitHand()[39m
+[1mStarted[22m hit_addsCardToPlayerHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#116
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hit_addsCardToPlayerHand()[39m
+[38;2;97;175;239;1mCompleted[22m PlayerActionsTest[39m
+[38;2;97;175;239;1mStarted[22m HandOutcomeTest[39m
+[1mStarted[22m testPlayerHigherScore_isWin()
+[38;2;152;195;121;1mPassed[22m testPlayerHigherScore_isWin()[39m
+[1mStarted[22m testPlayer21_notNatural_dealerNoBlackjack_isWin()
+[38;2;152;195;121;1mPassed[22m testPlayer21_notNatural_dealerNoBlackjack_isWin()[39m
+[1mStarted[22m testPlayer21_notNatural_dealerHas21_isPush()
+[38;2;152;195;121;1mPassed[22m testPlayer21_notNatural_dealerHas21_isPush()[39m
+[1mStarted[22m calculateHandResults_naturalBJvsDealerBJ_anyWinIsFalse()
+[38;2;152;195;121;1mPassed[22m calculateHandResults_naturalBJvsDealerBJ_anyWinIsFalse()[39m
+[1mStarted[22m testNaturalBlackjack_dealerNoBlackjack_isNaturalWin()
+[38;2;152;195;121;1mPassed[22m testNaturalBlackjack_dealerNoBlackjack_isNaturalWin()[39m
+[1mStarted[22m testPlayerBust_isAlwaysLoss()
+[38;2;152;195;121;1mPassed[22m testPlayerBust_isAlwaysLoss()[39m
+[1mStarted[22m testPlayerEqualScore_isPush()
+[38;2;152;195;121;1mPassed[22m testPlayerEqualScore_isPush()[39m
+[1mStarted[22m testDealerBust_playerNotBust_isWin()
+[38;2;152;195;121;1mPassed[22m testDealerBust_playerNotBust_isWin()[39m
+[1mStarted[22m testNaturalBlackjack_dealerHasBlackjack_isPush()
+[38;2;152;195;121;1mPassed[22m testNaturalBlackjack_dealerHasBlackjack_isPush()[39m
+[1mStarted[22m testPlayerLowerScore_isLoss()
+[38;2;152;195;121;1mPassed[22m testPlayerLowerScore_isLoss()[39m
+[38;2;97;175;239;1mCompleted[22m HandOutcomeTest[39m
+[38;2;97;175;239;1mStarted[22m StrategyProviderTest[39m
+[1mStarted[22m testGetSoftStrategy_hasCorrectSizeAndContent()
+[38;2;152;195;121;1mPassed[22m testGetSoftStrategy_hasCorrectSizeAndContent()[39m
+[1mStarted[22m getSoftStrategy_hasCorrectDimensions()
+[38;2;152;195;121;1mPassed[22m getSoftStrategy_hasCorrectDimensions()[39m
+[1mStarted[22m getPairsStrategy_returnsCorrectStrategyCells()
+[38;2;152;195;121;1mPassed[22m getPairsStrategy_returnsCorrectStrategyCells()[39m
+[1mStarted[22m testGetHardStrategy_hasCorrectSizeAndContent()
+[38;2;152;195;121;1mPassed[22m testGetHardStrategy_hasCorrectSizeAndContent()[39m
+[1mStarted[22m getSoftStrategy_hasCorrectSpecificValues()
+[38;2;152;195;121;1mPassed[22m getSoftStrategy_hasCorrectSpecificValues()[39m
+[38;2;97;175;239;1mCompleted[22m StrategyProviderTest[39m
+[38;2;97;175;239;1mStarted[22m GameEffectsFlowTest[39m
+[1mStarted[22m hitToExactly21EmitsPulse21()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#119
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitToExactly21EmitsPulse21()[39m
+[1mStarted[22m hitKingToReach21EmitsBothHeavyCardThudAndPulse21()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#131
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitKingToReach21EmitsBothHeavyCardThudAndPulse21()[39m
+[1mStarted[22m hitFaceCardEmitsHeavyCardThud()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#143
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitFaceCardEmitsHeavyCardThud()[39m
+[1mStarted[22m playerBustEmitsPlayCardSoundThenLoseSoundAndBustThud()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#155
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m playerBustEmitsPlayCardSoundThenLoseSoundAndBustThud()[39m
+[1mStarted[22m hitFaceCardEmitsHeavyCardThudNotLightTick()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#171
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitFaceCardEmitsHeavyCardThudNotLightTick()[39m
+[1mStarted[22m hitNonFaceCardEmitsLightTick()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#183
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitNonFaceCardEmitsLightTick()[39m
+[1mStarted[22m playerWinEmitsWinPulse()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#193
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m playerWinEmitsWinPulse()[39m
+[1mStarted[22m hitLowCardDoesNotEmitHeavyCardThud()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#205
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitLowCardDoesNotEmitHeavyCardThud()[39m
+[1mStarted[22m dealerWinEmitsPlayLoseSoundAndVibrate()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#213
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m dealerWinEmitsPlayLoseSoundAndVibrate()[39m
+[1mStarted[22m playerWinEmitsPlayWinSound()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#225
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m playerWinEmitsPlayWinSound()[39m
+[1mStarted[22m hitEmitsPlayCardSound()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#235
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m hitEmitsPlayCardSound()[39m
+[1mStarted[22m playerBustEmitsChipAnimationAndBustThudAndLoseSound()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#243
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m playerBustEmitsChipAnimationAndBustThudAndLoseSound()[39m
+[38;2;97;175;239;1mCompleted[22m GameEffectsFlowTest[39m
+[38;2;97;175;239;1mStarted[22m SplitTest[39m
+[1mStarted[22m split_deductsBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#259
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_deductsBalance()[39m
+[1mStarted[22m split_invalid_afterHit()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#262
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_invalid_afterHit()[39m
+[1mStarted[22m split_invalid_insufficientBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#265
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_invalid_insufficientBalance()[39m
+[1mStarted[22m split_independentPayouts_primaryWinsSplitLoses()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#268
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_independentPayouts_primaryWinsSplitLoses()[39m
+[1mStarted[22m split_createsTwoHands()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#271
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_createsTwoHands()[39m
+[1mStarted[22m split_independentPayouts_bothWin()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#274
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_independentPayouts_bothWin()[39m
+[1mStarted[22m bust_onPrimaryHand_advancesToSplit()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#277
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m bust_onPrimaryHand_advancesToSplit()[39m
+[1mStarted[22m split_invalid_whenAlreadySplit()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#280
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_invalid_whenAlreadySplit()[39m
+[1mStarted[22m split_insertsHandAtActiveIndexPlusOne()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#283
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_insertsHandAtActiveIndexPlusOne()[39m
+[1mStarted[22m splitAce_autoStandsAfterDeal()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#286
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m splitAce_autoStandsAfterDeal()[39m
+[1mStarted[22m splitAce_noExtraHit()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#289
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m splitAce_noExtraHit()[39m
+[1mStarted[22m split_invalid_nonPair()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#292
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m split_invalid_nonPair()[39m
+[1mStarted[22m splitAce_turnProgression()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#295
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m splitAce_turnProgression()[39m
+[38;2;97;175;239;1mCompleted[22m SplitTest[39m
+[38;2;97;175;239;1mStarted[22m BlackjackStateMachineShutdownTest[39m
+[1mStarted[22m shutdownCausesEffectsFlowToComplete()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#298
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m shutdownCausesEffectsFlowToComplete()[39m
+[1mStarted[22m dispatchAfterShutdownThrowsException()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#306
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m dispatchAfterShutdownThrowsException()[39m
+[38;2;97;175;239;1mCompleted[22m BlackjackStateMachineShutdownTest[39m
+[38;2;97;175;239;1mStarted[22m MultiHandTest[39m
+[1mStarted[22m testMultiHandPayout_mixedOutcomes()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#309
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testMultiHandPayout_mixedOutcomes()[39m
+[1mStarted[22m testHandSwitching_onStand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#312
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testHandSwitching_onStand()[39m
+[1mStarted[22m testInitialDeal_threeHands()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#315
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=3)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=3)
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testInitialDeal_threeHands()[39m
+[1mStarted[22m testSplitAces_noNaturalBlackjack()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#318
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testSplitAces_noNaturalBlackjack()[39m
+[1mStarted[22m testHandSwitching_onBust()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#321
+Verbose: (BlackjackStateMachine) SM received action: Hit
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Hit
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testHandSwitching_onBust()[39m
+[1mStarted[22m testSplitAces_oneCardOnly()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#324
+Verbose: (BlackjackStateMachine) SM received action: Split
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Split
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testSplitAces_oneCardOnly()[39m
+[38;2;97;175;239;1mCompleted[22m MultiHandTest[39m
+[38;2;97;175;239;1mStarted[22m BalancePayoutTest[39m
+[1mStarted[22m blackjackPayout_3to2_oddBet_truncates()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#327
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m blackjackPayout_3to2_oddBet_truncates()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <PLAYER_WON> but was: <PLAYING>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_3to2_oddBet_truncates$1.invokeSuspend(BalancePayoutTest.kt:101)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_3to2_oddBet_truncates$1.invoke(BalancePayoutTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_3to2_oddBet_truncates$1.invoke(BalancePayoutTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest.blackjackPayout_3to2_oddBet_truncates(BalancePayoutTest.kt:77)[39m
+[1mStarted[22m blackjackPayout_3to2()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#330
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m blackjackPayout_3to2()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <PLAYER_WON> but was: <PLAYING>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_3to2$1.invokeSuspend(BalancePayoutTest.kt:41)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_3to2$1.invoke(BalancePayoutTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_3to2$1.invoke(BalancePayoutTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest.blackjackPayout_3to2(BalancePayoutTest.kt:17)[39m
+[1mStarted[22m blackjackPayout_6to5()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#333
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m blackjackPayout_6to5()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <PLAYER_WON> but was: <PLAYING>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_6to5$1.invokeSuspend(BalancePayoutTest.kt:71)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_6to5$1.invoke(BalancePayoutTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest$blackjackPayout_6to5$1.invoke(BalancePayoutTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BalancePayoutTest.blackjackPayout_6to5(BalancePayoutTest.kt:47)[39m
+[1mStarted[22m surrender_multiHand_allHandsSurrendered_dealerWon()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#336
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m surrender_multiHand_allHandsSurrendered_dealerWon()[39m
+[1mStarted[22m surrender_multiHand_lastHandGoesToDealerTurn()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#339
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m surrender_multiHand_lastHandGoesToDealerTurn()[39m
+[1mStarted[22m multiHand_dealerWonIfAllHandsLose()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#342
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m multiHand_dealerWonIfAllHandsLose()[39m
+[1mStarted[22m surrender_validOnFirstDecision()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#345
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m surrender_validOnFirstDecision()[39m
+[1mStarted[22m multiHand_playerWonIfAnyHandWins()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#348
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m multiHand_playerWonIfAnyHandWins()[39m
+[1mStarted[22m naturalBlackjack_3to2_multiHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#351
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m naturalBlackjack_3to2_multiHand()[39m
+[1mStarted[22m multiHand_pushIfAllHandsPush()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#354
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m multiHand_pushIfAllHandsPush()[39m
+[1mStarted[22m surrender_noOpWhenRuleDisabled()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#357
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m surrender_noOpWhenRuleDisabled()[39m
+[1mStarted[22m surrender_multiHand_firstHandAdvancesToSecondHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#360
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m surrender_multiHand_firstHandAdvancesToSecondHand()[39m
+[1mStarted[22m multiHand_independentPayouts()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#363
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m multiHand_independentPayouts()[39m
+[1mStarted[22m surrender_invalidAfterHit()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#366
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m surrender_invalidAfterHit()[39m
+[38;2;97;175;239;1mCompleted[22m BalancePayoutTest[39m
+[38;2;97;175;239;1mStarted[22m ScoringTest[39m
+[1mStarted[22m aceValuations()
+[38;2;152;195;121;1mPassed[22m aceValuations()[39m
+[1mStarted[22m isBust_falseWhenScoreEqualOrBelow21()
+[38;2;152;195;121;1mPassed[22m isBust_falseWhenScoreEqualOrBelow21()[39m
+[1mStarted[22m isBust_trueWhenScoreOver21()
+[38;2;152;195;121;1mPassed[22m isBust_trueWhenScoreOver21()[39m
+[38;2;97;175;239;1mCompleted[22m ScoringTest[39m
+[38;2;97;175;239;1mStarted[22m BenchmarkTest[39m
+[1mStarted[22m runHandBenchmark()
+===============================
+Old approach: 27 ms
+New approach: 10 ms
+Improvement: 62.96296296296296%
+===============================
+[38;2;152;195;121;1mPassed[22m runHandBenchmark()[39m
+[38;2;97;175;239;1mCompleted[22m BenchmarkTest[39m
+[38;2;97;175;239;1mStarted[22m DoubleDownTest[39m
+[1mStarted[22m doubleDown_invalid_if_insufficient_balance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#369
+Verbose: (BlackjackStateMachine) SM received action: DoubleDown
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DoubleDown
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m doubleDown_invalid_if_insufficient_balance()[39m
+[1mStarted[22m doubleAfterSplit_disallowed()
+[38;2;152;195;121;1mPassed[22m doubleAfterSplit_disallowed()[39m
+[1mStarted[22m doubleDown_doublesbet_and_deals_one_card()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#374
+Verbose: (BlackjackStateMachine) SM received action: DoubleDown
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DoubleDown
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m doubleDown_doublesbet_and_deals_one_card()[39m
+[1mStarted[22m doubleDown_invalid_in_wrong_status()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#377
+Verbose: (BlackjackStateMachine) SM received action: DoubleDown
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DoubleDown
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m doubleDown_invalid_in_wrong_status()[39m
+[1mStarted[22m doubleDown_transitions_to_DEALER_WON()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#380
+Verbose: (BlackjackStateMachine) SM received action: DoubleDown
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DoubleDown
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m doubleDown_transitions_to_DEALER_WON()[39m
+[1mStarted[22m canDoubleDown_true_when_two_cards_and_sufficient_balance_and_not_split()
+[38;2;152;195;121;1mPassed[22m canDoubleDown_true_when_two_cards_and_sufficient_balance_and_not_split()[39m
+[1mStarted[22m canDoubleDown_false_when_insufficient_balance()
+[38;2;152;195;121;1mPassed[22m canDoubleDown_false_when_insufficient_balance()[39m
+[1mStarted[22m doubleAfterSplit_respectsRules()
+[38;2;152;195;121;1mPassed[22m doubleAfterSplit_respectsRules()[39m
+[1mStarted[22m doubleDown_updatesActiveBetOnly()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#385
+Verbose: (BlackjackStateMachine) SM received action: DoubleDown
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DoubleDown
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m doubleDown_updatesActiveBetOnly()[39m
+[1mStarted[22m doubleDown_invalid_after_hit()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#388
+Verbose: (BlackjackStateMachine) SM received action: DoubleDown
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DoubleDown
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m doubleDown_invalid_after_hit()[39m
+[1mStarted[22m doubleDown_allowedOnNonFirstHandInMultiHandGame()
+[38;2;152;195;121;1mPassed[22m doubleDown_allowedOnNonFirstHandInMultiHandGame()[39m
+[1mStarted[22m canDoubleDown_false_when_more_than_two_cards()
+[38;2;152;195;121;1mPassed[22m canDoubleDown_false_when_more_than_two_cards()[39m
+[1mStarted[22m canDoubleDown_false_when_less_than_two_cards()
+[38;2;152;195;121;1mPassed[22m canDoubleDown_false_when_less_than_two_cards()[39m
+[1mStarted[22m doubleAfterSplit_allowed()
+[38;2;152;195;121;1mPassed[22m doubleAfterSplit_allowed()[39m
+[1mStarted[22m doubleDown_bust_is_DEALER_WON()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#395
+Verbose: (BlackjackStateMachine) SM received action: DoubleDown
+Verbose: (BlackjackStateMachine) SM action loop finished current item: DoubleDown
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m doubleDown_bust_is_DEALER_WON()[39m
+[1mStarted[22m canDoubleDown_uses_active_hand_and_bet()
+[38;2;152;195;121;1mPassed[22m canDoubleDown_uses_active_hand_and_bet()[39m
+[38;2;97;175;239;1mCompleted[22m DoubleDownTest[39m
+[38;2;97;175;239;1mStarted[22m DealerBehaviorTest[39m
+[1mStarted[22m testDealerMultiHitTo17()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#398
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerMultiHitTo17()[39m
+[1mStarted[22m testDealerNaturalBlackjackResolution()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#401
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerNaturalBlackjackResolution()[39m
+[1mStarted[22m testDealerBusts()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#404
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerBusts()[39m
+[1mStarted[22m testDealerHitsSoft17EdgeCase()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#407
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerHitsSoft17EdgeCase()[39m
+[1mStarted[22m testDealerStandsOnHard17()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#410
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerStandsOnHard17()[39m
+[1mStarted[22m testDealerHoleCardRevealNoHit()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#413
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerHoleCardRevealNoHit()[39m
+[38;2;97;175;239;1mCompleted[22m DealerBehaviorTest[39m
+[38;2;97;175;239;1mStarted[22m BettingPhaseTest[39m
+[1mStarted[22m placeBet_ignoredWhenNotInBettingPhase()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#416
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=50)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=50)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_ignoredWhenNotInBettingPhase()[39m
+[1mStarted[22m resetBet_ignoredWhenNotInBettingPhase()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#422
+Verbose: (BlackjackStateMachine) SM received action: ResetBet
+Verbose: (BlackjackStateMachine) SM action loop finished current item: ResetBet
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m resetBet_ignoredWhenNotInBettingPhase()[39m
+[1mStarted[22m deal_createsTwoHandsWhenHandCount2()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#428
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m deal_createsTwoHandsWhenHandCount2()[39m
+[1mStarted[22m selectHandCount_refundsBalanceWhenReducingHands()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#434
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=2)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=2)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_refundsBalanceWhenReducingHands()[39m
+[1mStarted[22m deal_doesNotDeductBalanceForMultiHand()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#442
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m deal_doesNotDeductBalanceForMultiHand()[39m
+[1mStarted[22m selectHandCount_noBalanceChangeWhenNoBet()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#448
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=3)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=3)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_noBalanceChangeWhenNoBet()[39m
+[1mStarted[22m resetBet_refundsTotalCost()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#456
+Verbose: (BlackjackStateMachine) SM received action: ResetBet
+Verbose: (BlackjackStateMachine) SM action loop finished current item: ResetBet
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m resetBet_refundsTotalCost()[39m
+[1mStarted[22m newGame_resetsHandCountTo1()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#464
+Verbose: (BlackjackStateMachine) SM received action: NewGame(initialBalance=null, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={})
+Verbose: (BlackjackStateMachine) SM action loop finished current item: NewGame(initialBalance=null, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={})
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m newGame_resetsHandCountTo1()[39m
+[1mStarted[22m selectHandCount_rejectedIfInsufficientBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#472
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=2)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=2)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_rejectedIfInsufficientBalance()[39m
+[1mStarted[22m placeBet_rejectedWhenAmountExceedsBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#478
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=200)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=200)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_rejectedWhenAmountExceedsBalance()[39m
+[1mStarted[22m newGame_usesRulesDeckCount()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#484
+Verbose: (BlackjackStateMachine) SM received action: NewGame(initialBalance=null, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=2, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={})
+Verbose: (BlackjackStateMachine) SM action loop finished current item: NewGame(initialBalance=null, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=2, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={})
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m newGame_usesRulesDeckCount()[39m
+[1mStarted[22m selectHandCount_adjustsBalanceWhenBetPlaced()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#487
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=3)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=3)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_adjustsBalanceWhenBetPlaced()[39m
+[1mStarted[22m placeBet_deductsTotalCostForAllHands()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#495
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=10)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=10)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_deductsTotalCostForAllHands()[39m
+[1mStarted[22m placeBet_decreasesBalanceAndIncreasesCurrentBet()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#503
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=100)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_decreasesBalanceAndIncreasesCurrentBet()[39m
+[1mStarted[22m updateRules_updatesGameRules()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#511
+Verbose: (BlackjackStateMachine) SM received action: UpdateRules(rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=SIX_TO_FIVE, deckCount=6, splitOnValueOnly=false))
+Verbose: (BlackjackStateMachine) SM action loop finished current item: UpdateRules(rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=SIX_TO_FIVE, deckCount=6, splitOnValueOnly=false))
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m updateRules_updatesGameRules()[39m
+[1mStarted[22m placeBet_rejectedWhenTotalCostExceedsBalance()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#519
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=10)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=10)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_rejectedWhenTotalCostExceedsBalance()[39m
+[1mStarted[22m selectHandCount_ignoresInvalidValues()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#525
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=0)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=0)
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=4)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=4)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_ignoresInvalidValues()[39m
+[1mStarted[22m selectHandCount_ignoredOutsideBetting()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#531
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=2)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=2)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_ignoredOutsideBetting()[39m
+[1mStarted[22m newGame_defaultDeckCountIs6()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#537
+Verbose: (BlackjackStateMachine) SM received action: NewGame(initialBalance=null, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={})
+Verbose: (BlackjackStateMachine) SM action loop finished current item: NewGame(initialBalance=null, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, lastBet=0, lastSideBets={})
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m newGame_defaultDeckCountIs6()[39m
+[1mStarted[22m placeBet_multipleChipsAccumulate()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#540
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=50)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=50)
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=100)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=100)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_multipleChipsAccumulate()[39m
+[1mStarted[22m placeBet_rejectedWhenAmountZeroOrNegative()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#550
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=0)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=0)
+Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=-50)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=-50)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m placeBet_rejectedWhenAmountZeroOrNegative()[39m
+[1mStarted[22m selectHandCount_updatesHandCount()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#556
+Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=3)
+Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=3)
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m selectHandCount_updatesHandCount()[39m
+[1mStarted[22m resetBet_restoresBalanceAndClearsCurrentBet()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#564
+Verbose: (BlackjackStateMachine) SM received action: ResetBet
+Verbose: (BlackjackStateMachine) SM action loop finished current item: ResetBet
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m resetBet_restoresBalanceAndClearsCurrentBet()[39m
+[38;2;97;175;239;1mCompleted[22m BettingPhaseTest[39m
+[38;2;97;175;239;1mStarted[22m RuleVariationsTest[39m
+[1mStarted[22m testSurrender()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#572
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testSurrender()[39m
+[1mStarted[22m testBlackjackPayout_sixToFive()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#575
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m testBlackjackPayout_sixToFive()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <1120> but was: <900>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest$testBlackjackPayout_sixToFive$1.invokeSuspend(RuleVariationsTest.kt:106)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest$testBlackjackPayout_sixToFive$1.invoke(RuleVariationsTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest$testBlackjackPayout_sixToFive$1.invoke(RuleVariationsTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest.testBlackjackPayout_sixToFive(RuleVariationsTest.kt:85)[39m
+[1mStarted[22m testBlackjackPayout_threeToTwo()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#578
+Verbose: (BlackjackStateMachine) SM received action: Deal
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;224;108;117;1mFailed[22m testBlackjackPayout_threeToTwo()[39m
+[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <1150> but was: <900>[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
+[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
+[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
+[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest$testBlackjackPayout_threeToTwo$1.invokeSuspend(RuleVariationsTest.kt:80)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest$testBlackjackPayout_threeToTwo$1.invoke(RuleVariationsTest.kt)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest$testBlackjackPayout_threeToTwo$1.invoke(RuleVariationsTest.kt)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
+[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
+[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
+[38;2;224;108;117m                at io.github.smithjustinn.blackjack.RuleVariationsTest.testBlackjackPayout_threeToTwo(RuleVariationsTest.kt:58)[39m
+[1mStarted[22m testDealerHitsSoft17()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#581
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerHitsSoft17()[39m
+[1mStarted[22m testDealerStandsOnSoft17()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#584
+Verbose: (BlackjackStateMachine) SM received action: Stand
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Stand
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m testDealerStandsOnSoft17()[39m
+[1mStarted[22m surrender_emitsChipLossForHalfBet()
+Debug: (BlackjackStateMachine) SM init block launched on main @coroutine#587
+Verbose: (BlackjackStateMachine) SM received action: Surrender
+Verbose: (BlackjackStateMachine) SM action loop finished current item: Surrender
+Debug: (BlackjackStateMachine) SM action loop cancelled
+Debug: (BlackjackStateMachine) SM init block finally
+[38;2;152;195;121;1mPassed[22m surrender_emitsChipLossForHalfBet()[39m
+[38;2;97;175;239;1mCompleted[22m RuleVariationsTest[39m
+[38;2;97;175;239;1mStarted[22m SecureRandomTest[39m
+[1mStarted[22m testSecureRandomGeneratesDifferentValues()
+[38;2;152;195;121;1mPassed[22m testSecureRandomGeneratesDifferentValues()[39m
+[1mStarted[22m testSecureRandomInRange()
+[38;2;152;195;121;1mPassed[22m testSecureRandomInRange()[39m
+[38;2;97;175;239;1mCompleted[22m SecureRandomTest[39m
+[38;2;97;175;239;1mStarted[22m GameStateTest[39m
+[1mStarted[22m totalBet_calculatesCorrectly_inBettingPhase()
+[38;2;152;195;121;1mPassed[22m totalBet_calculatesCorrectly_inBettingPhase()[39m
+[1mStarted[22m totalBet_excludesSideBets_whenSettled()
+[38;2;152;195;121;1mPassed[22m totalBet_excludesSideBets_whenSettled()[39m
+[1mStarted[22m totalBet_calculatesCorrectly_inPlayingPhase()
+[38;2;152;195;121;1mPassed[22m totalBet_calculatesCorrectly_inPlayingPhase()[39m
+[1mStarted[22m totalBet_isZero_whenNoBets()
+[38;2;152;195;121;1mPassed[22m totalBet_isZero_whenNoBets()[39m
+[38;2;97;175;239;1mCompleted[22m GameStateTest[39m
+
+Failures (9):
+  JUnit Jupiter:InsuranceTest:insurance_not_offered_when_dealer_non_ace()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.InsuranceTest', methodName = 'insurance_not_offered_when_dealer_non_ace', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <PLAYING> but was: <INSURANCE_OFFERED>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+  JUnit Jupiter:DealTest:sideBetPayout_perfectPairs_integration()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.DealTest', methodName = 'sideBetPayout_perfectPairs_integration', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <2300> but was: <1000>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+  JUnit Jupiter:DealTest:initialDeal_deals2CardsToPlayerAnd2ToDealer()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.DealTest', methodName = 'initialDeal_deals2CardsToPlayerAnd2ToDealer', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <0> but was: <308>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+  JUnit Jupiter:DealTest:deal_dealerHoleCardRevealed_onDealerBlackjack()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.DealTest', methodName = 'deal_dealerHoleCardRevealed_onDealerBlackjack', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: Expected value to be false.
+       org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)
+       org.junit.jupiter.api.Assertions.fail(Assertions.java:143)
+       kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)
+       kotlin.test.Asserter.assertTrue(Assertions.kt:694)
+       kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
+       kotlin.test.Asserter.assertTrue(Assertions.kt:704)
+       kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
+       kotlin.test.AssertionsKt__AssertionsKt.assertFalse(Assertions.kt:58)
+       kotlin.test.AssertionsKt.assertFalse(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertFalse$default(Assertions.kt:56)
+       [...]
+  JUnit Jupiter:BalancePayoutTest:blackjackPayout_3to2_oddBet_truncates()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.BalancePayoutTest', methodName = 'blackjackPayout_3to2_oddBet_truncates', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <PLAYER_WON> but was: <PLAYING>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+  JUnit Jupiter:BalancePayoutTest:blackjackPayout_3to2()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.BalancePayoutTest', methodName = 'blackjackPayout_3to2', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <PLAYER_WON> but was: <PLAYING>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+  JUnit Jupiter:BalancePayoutTest:blackjackPayout_6to5()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.BalancePayoutTest', methodName = 'blackjackPayout_6to5', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <PLAYER_WON> but was: <PLAYING>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+  JUnit Jupiter:RuleVariationsTest:testBlackjackPayout_sixToFive()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.RuleVariationsTest', methodName = 'testBlackjackPayout_sixToFive', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <1120> but was: <900>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+  JUnit Jupiter:RuleVariationsTest:testBlackjackPayout_threeToTwo()
+    MethodSource [className = 'io.github.smithjustinn.blackjack.RuleVariationsTest', methodName = 'testBlackjackPayout_threeToTwo', methodParameterTypes = '']
+    => org.opentest4j.AssertionFailedError: expected: <1150> but was: <900>
+       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
+       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
+       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
+       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
+       [...]
+
+Test run finished after 570 ms
+[        27 containers found      ]
+[         0 containers skipped    ]
+[        27 containers started    ]
+[         0 containers aborted    ]
+[        27 containers successful ]
+[         0 containers failed     ]
+[       205 tests found           ]
+[         0 tests skipped         ]
+[       205 tests started         ]
+[         0 tests aborted         ]
+[       196 tests successful      ]
+[         9 tests failed          ]
+
+
+[38;2;224;108;117mERROR: JVM tests failed for module 'core' with exit code 1 (see errors above)[39m

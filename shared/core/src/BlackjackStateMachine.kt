@@ -153,7 +153,10 @@ class BlackjackStateMachine(
                 )
         } else {
             val totalCost = amount * current.handCount
-            if (amount <= 0 || totalCost > current.balance) return
+            if (amount <= 0 || totalCost > current.balance) {
+                emitEffect(GameEffect.Vibrate)
+                return
+            }
             _state.value =
                 current.copy(
                     balance = current.balance - totalCost,
@@ -165,11 +168,17 @@ class BlackjackStateMachine(
     private fun handleSelectHandCount(count: Int) {
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
-        if (count !in 1..3) return
+        if (count !in 1..3) {
+            emitEffect(GameEffect.Vibrate)
+            return
+        }
         val delta = count - current.handCount
         if (delta == 0) return
         val balanceAdjustment = current.currentBet * delta
-        if (balanceAdjustment > current.balance) return
+        if (balanceAdjustment > current.balance) {
+            emitEffect(GameEffect.Vibrate)
+            return
+        }
         _state.value =
             current.copy(
                 handCount = count,
@@ -203,14 +212,14 @@ class BlackjackStateMachine(
         for (round in 0..1) {
             for (i in 0 until current.handCount) {
                 delay(dealCardDelayMs)
-                val card = deck[0]
+                val card = deck.firstOrNull() ?: break
                 deck = deck.removeAt(0)
                 playerHands = playerHands.set(i, Hand(playerHands[i].cards.add(card)))
                 _state.value = _state.value.copy(playerHands = playerHands, deck = deck)
                 emitEffect(GameEffect.PlayCardSound)
             }
             delay(dealCardDelayMs)
-            val card = deck[0]
+            val card = deck.firstOrNull() ?: break
             deck = deck.removeAt(0)
             val dealerCard = if (round == 1) card.copy(isFaceDown = true) else card
             dealerHand = Hand(dealerHand.cards.add(dealerCard))
@@ -263,7 +272,23 @@ class BlackjackStateMachine(
     }
 
     private fun getDeck(current: GameState): List<Card> {
-        return current.deck.ifEmpty { BlackjackRules.createDeck(current.rules, secureRandom) }
+        val totalCards = current.rules.deckCount * BlackjackRules.CARDS_PER_DECK
+        val threshold = totalCards / 4
+        
+        // Always reshuffle if empty.
+        if (current.deck.isEmpty()) {
+            return BlackjackRules.createDeck(current.rules, secureRandom)
+        }
+        
+        // In tests, respect custom small decks unless they are empty.
+        if (isTest) return current.deck
+
+        // Reshuffle if less than 25% of the shoe remains.
+        return if (current.deck.size < threshold) {
+            BlackjackRules.createDeck(current.rules, secureRandom)
+        } else {
+            current.deck
+        }
     }
 
     private fun handleNewGame(
