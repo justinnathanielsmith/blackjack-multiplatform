@@ -19,15 +19,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameStatus
@@ -54,11 +57,11 @@ fun GameStatusMessage(
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by
         infiniteTransition.animateFloat(
-            initialValue = 1f,
-            targetValue = if (isBlackjack) 1.15f else 1.05f,
+            initialValue = 0.98f,
+            targetValue = if (isBlackjack) 1.15f else 1.04f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(if (isBlackjack) 800 else 1200, easing = FastOutSlowInEasing),
+                    animation = tween(if (isBlackjack) 600 else 1000, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "pulseScale",
@@ -70,10 +73,10 @@ fun GameStatusMessage(
             while (true) {
                 shimmerX.animateTo(
                     targetValue = 1.5f,
-                    animationSpec = tween(if (isBlackjack) 1000 else 1500, easing = LinearEasing)
+                    animationSpec = tween(if (isBlackjack) 800 else 1200, easing = LinearEasing)
                 )
                 shimmerX.snapTo(-0.5f)
-                kotlinx.coroutines.delay(if (isBlackjack) 200 else 500)
+                kotlinx.coroutines.delay(if (isBlackjack) 200 else 400)
             }
         }
     }
@@ -113,7 +116,10 @@ fun GameStatusMessage(
                             radius = size.maxDimension * 0.8f
                         )
                     onDrawBehind {
-                        drawRect(brush = glowBrush)
+                        drawRoundRect(
+                            brush = glowBrush,
+                            cornerRadius = CornerRadius(32.dp.toPx(), 32.dp.toPx())
+                        )
                     }
                 }.clip(RoundedCornerShape(32.dp))
                 .background(
@@ -128,6 +134,7 @@ fun GameStatusMessage(
                         ),
                     shape = RoundedCornerShape(32.dp),
                 ).padding(horizontal = 48.dp, vertical = 20.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = statusText.uppercase(),
@@ -139,6 +146,7 @@ fun GameStatusMessage(
                 }.copy(letterSpacing = 4.sp),
             color = Color.White,
             fontWeight = FontWeight.Black,
+            textAlign = TextAlign.Center,
             modifier =
                 Modifier.drawWithCache {
                     val shimmerBrush =

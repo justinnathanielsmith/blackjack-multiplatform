@@ -536,8 +536,10 @@ private fun BlackjackGameOverlay(
 
         androidx.compose.animation.AnimatedVisibility(
             visible = showStatus,
-            enter = fadeIn() + scaleIn(initialScale = 0.8f),
-            exit = fadeOut() + scaleOut(targetScale = 0.8f),
+            enter =
+                fadeIn(animationSpec = tween(200)) +
+                    scaleIn(initialScale = 0.5f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f)),
+            exit = fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.8f),
         ) {
             GameStatusMessage(status = status, isBlackjack = isBlackjack)
         }

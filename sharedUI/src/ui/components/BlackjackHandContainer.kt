@@ -15,6 +15,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -362,6 +364,7 @@ private fun BoxScope.TitleBadge(
                     finalBorderColor,
                     RoundedCornerShape(12.dp),
                 ).padding(horizontal = 10.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (isDealer) {
@@ -377,6 +380,7 @@ private fun BoxScope.TitleBadge(
             color = contentColor,
             fontWeight = FontWeight.Black,
             letterSpacing = 2.sp,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -401,6 +405,7 @@ private fun BoxScope.StatusBadge(
             modifier
                 .background(badgeColor, RoundedCornerShape(12.dp))
                 .padding(horizontal = 12.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = badgeText.uppercase(),
@@ -408,6 +413,7 @@ private fun BoxScope.StatusBadge(
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
             letterSpacing = 1.sp,
+            textAlign = TextAlign.Center
         )
     }
 }
