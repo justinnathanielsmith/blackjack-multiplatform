@@ -87,6 +87,14 @@ GameState(
 > 2. Read the domain model in `shared/core/src/` to verify property names and sealed class values.
 > 3. Pass `state` as an **explicit typed parameter** to all extracted private composables — Kotlin closures do NOT capture the outer `state` variable. Failure causes `Unresolved reference` errors.
 
+### Compose Previews
+- **Dependencies**: Ensure `$libs.compose.ui.tooling.preview` is included in the module's `dependencies`.
+- **Annotations**: Use `@Preview` for component variants.
+- **Imports**:
+    - For Android (`src@android`): Use `import androidx.compose.ui.tooling.preview.Preview`.
+    - For Common/JVM (when applicable): Use `import org.jetbrains.compose.ui.tooling.preview.Preview`.
+- **Data**: Use `PreviewAppGraph` (in `sharedUI/src/di/AppGraph.kt`) to provide mock services to previews if needed.
+
 ## Compose String Resources
 - **Never hardcode UI strings.** Use `stringResource(Res.string.xxx)`.
 - Add to `sharedUI/composeResources/values/strings.xml`.

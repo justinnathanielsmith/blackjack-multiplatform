@@ -344,12 +344,11 @@ fun PlayingCard(
     scale: Float = 1f,
     isNearMiss: Boolean = false,
 ) {
-    val offsetY =
-        remember {
-            Animatable(
-                if (isDealer) AnimationConstants.CardDealOffsetDealer else AnimationConstants.CardDealOffsetPlayer
-            )
-        }
+    val offsetX = remember { Animatable(300f) }
+    val offsetY = remember { Animatable(-400f) }
+    val dealScale = remember { Animatable(0.5f) }
+    val dealRotationZ = remember { Animatable(if (isDealer) -45f else 45f) }
+
     val nearMissAlpha = remember { Animatable(0f) }
 
     LaunchedEffect(isNearMiss) {
@@ -364,10 +363,34 @@ fun PlayingCard(
 
     LaunchedEffect(card) {
         delay(animationDelay.toLong())
-        offsetY.animateTo(
-            targetValue = 0f,
-            animationSpec = tween(durationMillis = animationDurationMs, easing = LinearOutSlowInEasing),
-        )
+        launch {
+            offsetX.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
+            )
+        }
+        launch {
+            offsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessLow)
+            )
+        }
+        launch {
+            dealRotationZ.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
+            )
+        }
+        launch {
+            dealScale.animateTo(
+                targetValue = 1.15f,
+                animationSpec = tween(durationMillis = 150, easing = FastOutSlowInEasing)
+            )
+            dealScale.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium)
+            )
+        }
     }
 
     val transition = updateTransition(targetState = isFaceUp, label = "cardFlip")
@@ -389,7 +412,11 @@ fun PlayingCard(
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .shadow(elevation = 12.dp, shape = CardShape, clip = false)
                 .graphicsLayer {
+                    translationX = offsetX.value
                     translationY = offsetY.value
+                    scaleX = dealScale.value
+                    scaleY = dealScale.value
+                    rotationZ = dealRotationZ.value
                     rotationY = rotation
                     cameraDistance = 12f * density
                 },
