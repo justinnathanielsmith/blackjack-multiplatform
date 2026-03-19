@@ -18,6 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -90,8 +92,15 @@ private fun FinancialData(
         targetValue = amount,
         animationSpec = tween(durationMillis = 500)
     )
+    val formattedAmount = stringResource(Res.string.currency_template, animatedAmount.formatWithCommas())
 
-    Column(horizontalAlignment = alignment) {
+    Column(
+        modifier =
+            Modifier.semantics(mergeDescendants = true) {
+                contentDescription = "$label: $formattedAmount"
+            },
+        horizontalAlignment = alignment,
+    ) {
         Text(
             text = label.uppercase(),
             style = MaterialTheme.typography.labelSmall,

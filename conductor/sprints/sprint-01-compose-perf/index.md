@@ -8,14 +8,14 @@ Bug fixes and performance hardening sprint. No new features. Closes `compose-bes
 
 ## Status
 
-**Overall:** 🟨 In Progress
+**Overall:** ✅ Complete
 
 | Epic | Description | Status |
 | :--- | :--- | :--- |
 | Epic 1 | Fix lint regressions (ktlint violations from recent commits) | ✅ Complete |
 | Epic 2 | Compose recomposition hotspots (shake + pulse + lambda stability) | ✅ Complete |
-| Epic 3 | Stability, API convention, accessibility, string localization | 🔲 Pending |
-| Epic 4 | Final verification + close compose-best-practices track | 🔲 Pending |
+| Epic 3 | Stability, API convention, accessibility, string localization | ✅ Complete |
+| Epic 4 | Final verification + close compose-best-practices track | ✅ Complete |
 
 ## Tracks Closed by This Sprint
 - `compose-best-practices` — 6 remaining phases (Phase 1 in-progress, Phases 2–7 pending)

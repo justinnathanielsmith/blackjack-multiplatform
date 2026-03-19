@@ -8,15 +8,15 @@ Audit and harden `sharedUI` against `COMPOSE_BEST_PRACTICES.md`. Eliminates unne
 
 ## Status
 
-**Overall:** 🟨 In Progress
+**Overall:** ✅ Complete
 
-- **Phase 1: Defer shake animation to draw phase** (`BlackjackScreen.kt`): 🟨 In Progress
-- **Phase 2: Contain pulse animation recomposition scope** (`GameStatusMessage.kt`): 🔲 Pending
-- **Phase 3: Wrap event lambdas in `remember`** (`GameActions.kt`): 🔲 Pending
-- **Phase 4: Annotate `GameState` + `Hand` as `@Immutable`** (`GameLogic.kt`): 🔲 Pending
-- **Phase 5: Add `modifier` parameter to `ActionIcon`**: 🔲 Pending
-- **Phase 6: Accessibility semantics on `ActionIcon` + Header balance**: 🔲 Pending
-- **Phase 7: Localize remaining hardcoded strings**: 🔲 Pending
+- **Phase 1: Defer shake animation to draw phase** (`BlackjackScreen.kt`): ✅ Complete
+- **Phase 2: Contain pulse animation recomposition scope** (`GameStatusMessage.kt`): ✅ Complete
+- **Phase 3: Wrap event lambdas in `remember`** (`GameActions.kt`): ✅ Complete
+- **Phase 4: Annotate `GameState` + `Hand` as `@Immutable`** (`GameLogic.kt`): ✅ Complete
+- **Phase 5: Add `modifier` parameter to `ActionIcon`**: ✅ Complete (N/A — `ActionIcon` superseded by `ModernActionButton` which already has `modifier` param)
+- **Phase 6: Accessibility semantics on `ActionIcon` + balance display**: ✅ Complete (`ControlCenter.FinancialData` Column carries merged semantics; `ModernActionButton` uses Button composable with text label)
+- **Phase 7: Localize remaining hardcoded strings**: ✅ Complete
 
 ## Prerequisites
 
