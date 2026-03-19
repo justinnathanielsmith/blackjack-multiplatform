@@ -274,12 +274,12 @@ class BlackjackStateMachine(
     private fun getDeck(current: GameState): List<Card> {
         val totalCards = current.rules.deckCount * BlackjackRules.CARDS_PER_DECK
         val threshold = totalCards / 4
-        
+
         // Always reshuffle if empty.
         if (current.deck.isEmpty()) {
             return BlackjackRules.createDeck(current.rules, secureRandom)
         }
-        
+
         // In tests, respect custom small decks unless they are empty.
         if (isTest) return current.deck
 

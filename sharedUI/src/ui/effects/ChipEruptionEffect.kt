@@ -63,16 +63,12 @@ fun ChipEruptionEffect(
         while (chips.isNotEmpty()) {
             withFrameNanos { time ->
                 frameState.longValue = time
-                var i = 0
-                while (i < chips.size) {
-                    val chip = chips[i]
-                    chip.update()
-                    if (chip.isDone) {
-                        chips.removeAt(i)
-                    } else {
-                        i++
-                    }
+                // Performance Optimization: Update in O(N) then use removeAll which maps to
+                // an efficient single-pass O(N) removal, rather than O(N^2) backward while loops with removeAt.
+                for (i in 0 until chips.size) {
+                    chips[i].update()
                 }
+                chips.removeAll { it.isDone }
             }
         }
     }
