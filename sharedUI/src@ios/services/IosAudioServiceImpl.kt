@@ -7,6 +7,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -18,7 +19,6 @@ import platform.AVFAudio.AVAudioSessionCategoryAmbient
 import platform.AVFAudio.AVAudioSessionModeDefault
 import platform.AVFAudio.setActive
 import platform.Foundation.NSData
-import platform.Foundation.NSError
 import platform.Foundation.create
 import sharedui.generated.resources.Res
 
@@ -26,7 +26,8 @@ import sharedui.generated.resources.Res
 class IosAudioServiceImpl(
     private val logger: Logger,
 ) : AudioService {
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.Default + job)
 
     // Player pool for each sound effect to allow simultaneous playback
     private val soundPools = mutableMapOf<StringResource, MutableList<AVAudioPlayer>>()
@@ -41,9 +42,11 @@ class IosAudioServiceImpl(
             AudioService.SoundEffect.entries.forEach { effect ->
                 val resource = effect.toResource()
                 loadAudioData(resource)?.let { data ->
-                    audioDataMap[resource] = data
-                    // Pre-warm a player for each sound
-                    createPlayerForPool(resource, data)
+                    withContext(Dispatchers.Main) {
+                        audioDataMap[resource] = data
+                        // Pre-warm a player for each sound
+                        createPlayerForPool(resource, data)
+                    }
                 }
             }
         }
@@ -73,7 +76,6 @@ class IosAudioServiceImpl(
 
         try {
             val session = AVAudioSession.sharedInstance()
-            var error: NSError? = null
 
             // Use Ambient category so we don't silence other apps' audio
             session.setCategory(
@@ -87,7 +89,7 @@ class IosAudioServiceImpl(
             if (success) {
                 isSessionActive = true
             } else {
-                logger.e { "Failed to activate audio session: ${error?.localizedDescription}" }
+                logger.e { "Failed to activate audio session" }
             }
         } catch (e: Exception) {
             logger.e(e) { "Error setting up audio session" }
@@ -99,7 +101,6 @@ class IosAudioServiceImpl(
         data: NSData,
     ): AVAudioPlayer? {
         try {
-            var error: NSError? = null
             val player = AVAudioPlayer(data, error = null)
 
             if (player != null) {
@@ -117,7 +118,7 @@ class IosAudioServiceImpl(
                 }
                 return player
             } else {
-                logger.e { "Failed to create player: ${error?.localizedDescription}" }
+                logger.e { "Failed to create AVAudioPlayer" }
             }
         } catch (e: Exception) {
             logger.e(e) { "Exception creating player for pool" }
@@ -155,10 +156,12 @@ class IosAudioServiceImpl(
     }
 
     override fun release() {
+        job.cancel()
         soundPools.values.forEach { pool ->
             pool.forEach { it.stop() }
         }
         soundPools.clear()
+        audioDataMap.clear()
     }
 
     companion object {

@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.services.AudioService.Companion.toResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -18,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap
 class JvmAudioServiceImpl(
     private val logger: Logger,
 ) : AudioService {
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
     override var isMuted: Boolean = false
     private val tempAudioDir = Files.createTempDirectory("blackjack_audio").toFile()
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
@@ -69,6 +71,7 @@ class JvmAudioServiceImpl(
     }
 
     override fun release() {
-        // Nothing to forcefully release currently
+        job.cancel()
+        tempAudioDir.deleteRecursively()
     }
 }

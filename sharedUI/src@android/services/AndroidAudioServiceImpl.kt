@@ -8,6 +8,7 @@ import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.services.AudioService.Companion.toResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,7 +25,8 @@ class AndroidAudioServiceImpl(
     private val context: Context,
     private val logger: Logger,
 ) : AudioService {
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
 
     private val soundPool =
         SoundPool
@@ -164,9 +166,13 @@ class AndroidAudioServiceImpl(
     }
 
     override fun release() {
+        job.cancel()
         soundPool.release()
         fallbackPlayers.values.forEach { it.release() }
         fallbackPlayers.clear()
+        soundMap.clear()
+        resourceToName.clear()
+        loadedSounds.clear()
     }
 
     companion object {
