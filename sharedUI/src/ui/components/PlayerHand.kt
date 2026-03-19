@@ -3,6 +3,7 @@ package io.github.smithjustinn.blackjack.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -60,8 +61,9 @@ fun PlayerHand(
                 .then(scaleModifier)
                 .alpha(alpha)
     ) {
+        val hand = remember(cards) { Hand(cards.toPersistentList()) }
         HandRow(
-            hand = Hand(cards.toPersistentList()),
+            hand = hand,
             isCompact = isCompact || isExtraCompact,
             scale = scale
         )

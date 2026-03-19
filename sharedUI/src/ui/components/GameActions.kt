@@ -203,9 +203,7 @@ fun GameActions(
                 }
             }
 
-            if (status != GameStatus.PLAYING && status != GameStatus.INSURANCE_OFFERED) {
-                Spacer(modifier = Modifier.height(buttonHeight))
-            } else if (status == GameStatus.INSURANCE_OFFERED) {
+            if (status != GameStatus.PLAYING) {
                 Spacer(modifier = Modifier.height(buttonHeight))
             }
         }
@@ -224,37 +222,33 @@ private fun ModernActionButton(
     borderColor: Color? = null,
     tension: Float = 0f,
 ) {
-    val isGlowing = tension > 0f
+    val isGlowing = tension > 0f && enabled
+    val pulseDuration = if (isGlowing) (1200 - (tension * 600)).toInt() else 1200
+
+    val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f * tension,
+        targetValue = 0.9f * tension,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(pulseDuration, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+        label = "glowAlpha"
+    )
+    val glowScale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 1.0f + (0.4f * tension),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(pulseDuration, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+        label = "glowScale"
+    )
 
     val glowModifier =
-        if (isGlowing && enabled) {
-            val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
-
-            // Faster pulsing at higher tension
-            val pulseDuration = (1200 - (tension * 600)).toInt()
-
-            val glowAlpha by infiniteTransition.animateFloat(
-                initialValue = 0.4f * tension,
-                targetValue = 0.9f * tension,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(pulseDuration, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                label = "glowAlpha"
-            )
-
-            val glowScale by infiniteTransition.animateFloat(
-                initialValue = 1.0f,
-                targetValue = 1.0f + (0.4f * tension),
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(pulseDuration, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                label = "glowScale"
-            )
-
+        if (isGlowing) {
             Modifier
                 .drawBehind {
                     val extraGlow = 8.dp.toPx() * tension * glowScale
@@ -273,7 +267,6 @@ private fun ModernActionButton(
                         cornerRadius = CornerRadius(glowSize.height / 2)
                     )
                 }.graphicsLayer {
-                    // Subtle breathing scale for the whole button at high tension
                     if (tension > 0.8f) {
                         scaleX = 0.98f + (0.04f * glowScale)
                         scaleY = 0.98f + (0.04f * glowScale)

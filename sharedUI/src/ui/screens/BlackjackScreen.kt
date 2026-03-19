@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -129,14 +130,14 @@ fun BlackjackScreen(component: BlackjackComponent) {
     var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
     // List of active chip eruption instances
     val chipEruptions = remember { mutableStateListOf<ChipEruptionInstance>() }
-    val chipLosses = remember { mutableStateListOf<Int>() }
+    val chipLosses = remember { mutableStateListOf<ChipLossInstance>() }
 
     LaunchedEffect(appSettings.isSoundMuted) {
         audioService.isMuted = appSettings.isSoundMuted
     }
 
-    val isTerminal by remember(state.status) { derivedStateOf { state.status.isTerminal() } }
-    val isMultiHand by remember(state.playerHands.size) { derivedStateOf { state.playerHands.size > 1 } }
+    val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
+    val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
     var autoDealPending by remember { mutableStateOf(false) }
 
     val onAutoDealToggle =
@@ -248,9 +249,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
             }
             if (effect is GameEffect.ChipLoss) {
                 launch {
-                    chipLosses.add(effect.amount)
+                    val instance = ChipLossInstance(id = Random.nextLong(), amount = effect.amount)
+                    chipLosses.add(instance)
                     delay(3000L) // Duration of effect
-                    chipLosses.remove(effect.amount)
+                    chipLosses.remove(instance)
                 }
             }
         }
@@ -276,95 +278,74 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
-    // Update the background brush to center the light source slightly higher (where the dealer is)
-    val backgroundBrush =
-        remember(FeltWarmCenter, FeltGreen, FeltDeepEdge) {
-            Brush.radialGradient(
-                0.0f to FeltWarmCenter,
-                0.6f to FeltGreen,
-                1.0f to FeltDeepEdge,
-                center = Offset.Unspecified // defaults to center; tweaked in canvas below
-            )
-        }
-
     BlackjackTheme {
         BoxWithConstraints(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .background(FeltDeepEdge) // Fallback deep color
-                    .drawBehind {
-                        // 1. Base Felt Gradient (shifted up towards the dealer)
-                        drawRect(
-                            brush =
-                                Brush.radialGradient(
-                                    colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
-                                    center = Offset(size.width / 2, size.height * 0.35f),
-                                    radius = size.maxDimension * 0.6f
-                                )
+                    .drawWithCache {
+                        // Static size-dependent brushes — recreated only when size changes
+                        val feltBrush = Brush.radialGradient(
+                            colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
+                            center = Offset(size.width / 2, size.height * 0.35f),
+                            radius = size.maxDimension * 0.6f
                         )
-
-                        // 2. The Classic Table Arc (Betting Line)
+                        val vignetteBrush = Brush.radialGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                            center = Offset(size.width / 2, size.height / 2),
+                            radius = size.maxDimension * 0.55f
+                        )
                         val arcWidth = size.width * 1.5f
                         val arcHeight = size.height * 0.6f
                         val arcLeft = (size.width - arcWidth) / 2
-                        val arcTop = size.height * 0.35f // Starts below the dealer
+                        val arcTop = size.height * 0.35f
+                        val arcSize = androidx.compose.ui.geometry.Size(arcWidth, arcHeight)
+                        val arcStroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.dp.toPx())
+                        val insuranceStroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5.dp.toPx())
+                        val insuranceOffset = 40.dp.toPx()
+                        val highlightRadius = size.maxDimension * 0.4f
 
-                        drawArc(
-                            color = PrimaryGold.copy(alpha = 0.15f),
-                            startAngle = 180f,
-                            sweepAngle = 180f,
-                            useCenter = false,
-                            topLeft = Offset(arcLeft, arcTop),
-                            size =
-                                androidx.compose.ui.geometry
-                                    .Size(arcWidth, arcHeight),
-                            style =
-                                androidx.compose.ui.graphics.drawscope.Stroke(
-                                    width = 3.dp.toPx()
-                                )
-                        )
+                        onDrawBehind {
+                            // 1. Base Felt Gradient (shifted up towards the dealer)
+                            drawRect(brush = feltBrush)
 
-                        // 3. The Insurance Line (Fainter, above the main arc)
-                        drawArc(
-                            color = PrimaryGold.copy(alpha = 0.08f),
-                            startAngle = 180f,
-                            sweepAngle = 180f,
-                            useCenter = false,
-                            topLeft = Offset(arcLeft, arcTop - 40.dp.toPx()),
-                            size =
-                                androidx.compose.ui.geometry
-                                    .Size(arcWidth, arcHeight),
-                            style =
-                                androidx.compose.ui.graphics.drawscope.Stroke(
-                                    width = 1.5.dp.toPx()
-                                )
-                        )
-
-                        // 4. Heavy Vignette (Simulates the dark leather rail around the table)
-                        drawRect(
-                            brush =
-                                Brush.radialGradient(
-                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
-                                    center = Offset(size.width / 2, size.height / 2),
-                                    radius = size.maxDimension * 0.55f
-                                )
-                        )
-
-                        // 5. Active Hand Highlight (Subtle)
-                        if (activeHandHighlightPosition != Offset.Zero) {
-                            drawRect(
-                                brush =
-                                    Brush.radialGradient(
-                                        colors =
-                                            listOf(
-                                                PrimaryGold.copy(alpha = 0.08f),
-                                                Color.Transparent
-                                            ),
-                                        center = activeHandHighlightPosition,
-                                        radius = size.maxDimension * 0.4f
-                                    )
+                            // 2. The Classic Table Arc (Betting Line)
+                            drawArc(
+                                color = PrimaryGold.copy(alpha = 0.15f),
+                                startAngle = 180f,
+                                sweepAngle = 180f,
+                                useCenter = false,
+                                topLeft = Offset(arcLeft, arcTop),
+                                size = arcSize,
+                                style = arcStroke
                             )
+
+                            // 3. The Insurance Line (Fainter, above the main arc)
+                            drawArc(
+                                color = PrimaryGold.copy(alpha = 0.08f),
+                                startAngle = 180f,
+                                sweepAngle = 180f,
+                                useCenter = false,
+                                topLeft = Offset(arcLeft, arcTop - insuranceOffset),
+                                size = arcSize,
+                                style = insuranceStroke
+                            )
+
+                            // 4. Heavy Vignette (Simulates the dark leather rail around the table)
+                            drawRect(brush = vignetteBrush)
+
+                            // 5. Active Hand Highlight — read in draw scope to avoid recomposition
+                            val highlightPos = activeHandHighlightPosition
+                            if (highlightPos != Offset.Zero) {
+                                drawRect(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
+                                        center = highlightPos,
+                                        radius = highlightRadius
+                                    )
+                                )
+                            }
                         }
                     }.graphicsLayer { translationX = shakeOffset.value * density },
         ) {
@@ -425,7 +406,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 // Overlay layer (full-bleed within the game bounds)
                 Box(modifier = Modifier.fillMaxSize()) {
                     // Game Status Overlay (On top of hands)
-                    val showStatus by remember(state.status) {
+                    val showStatus by remember {
                         derivedStateOf {
                             state.status != GameStatus.PLAYING &&
                                 state.status != GameStatus.BETTING &&
@@ -490,8 +471,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             )
                         }
                     }
-                    chipLosses.forEach { amount ->
-                        ChipLossEffect(amount = amount)
+                    chipLosses.forEach { instance ->
+                        key(instance.id) {
+                            ChipLossEffect(amount = instance.amount)
+                        }
                     }
 
                     activePayouts.forEach { instance ->
@@ -656,6 +639,8 @@ data class ChipEruptionInstance(
     val startOffset: Offset?
 )
 
+data class ChipLossInstance(val id: Long, val amount: Int)
+
 @Composable
 private fun ColumnScope.DynamicPlayerHandsLayout(
     state: GameState,
@@ -713,39 +698,41 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
             verticalArrangement = Arrangement.Center
         ) {
             hands.forEachIndexed { index, hand ->
-                val isActive =
-                    remember(index, state.activeHandIndex, state.status) {
-                        index == state.activeHandIndex && state.status == GameStatus.PLAYING
-                    }
-                val status =
-                    when {
-                        hand.isBust -> HandStatus.BUSTED
-                        isActive -> HandStatus.ACTIVE
-                        else -> HandStatus.WAITING
-                    }
+                key(index) {
+                    val isActive =
+                        remember(state.activeHandIndex, state.status) {
+                            index == state.activeHandIndex && state.status == GameStatus.PLAYING
+                        }
+                    val status =
+                        when {
+                            hand.isBust -> HandStatus.BUSTED
+                            isActive -> HandStatus.ACTIVE
+                            else -> HandStatus.WAITING
+                        }
 
-                // Currently active hand gets slightly more vertical space
-                val layoutWeight = if (isActive) 1.15f else 1.0f
+                    // Currently active hand gets slightly more vertical space
+                    val layoutWeight = if (isActive) 1.15f else 1.0f
 
-                Box(
-                    modifier = Modifier.weight(layoutWeight),
-                    contentAlignment = Alignment.Center
-                ) {
-                    PlayerHand(
-                        handTotal = hand.score,
-                        status = status,
-                        cards = hand.cards,
-                        result = state.handResult(index),
-                        title = stringResource(Res.string.hand_number, index + 1),
-                        modifier = Modifier,
-                        scale = baseCardScale,
-                        isCompact = true,
-                        isExtraCompact = handCount > 2,
-                        onPositioned = { onBetPositioned(index, it) }
-                    )
+                    Box(
+                        modifier = Modifier.weight(layoutWeight),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        PlayerHand(
+                            handTotal = hand.score,
+                            status = status,
+                            cards = hand.cards,
+                            result = state.handResult(index),
+                            title = stringResource(Res.string.hand_number, index + 1),
+                            modifier = Modifier,
+                            scale = baseCardScale,
+                            isCompact = true,
+                            isExtraCompact = handCount > 2,
+                            onPositioned = { onBetPositioned(index, it) }
+                        )
 
-                    if (index == 0) {
-                        SideBetResultsOverlay(state = state)
+                        if (index == 0) {
+                            SideBetResultsOverlay(state = state)
+                        }
                     }
                 }
             }

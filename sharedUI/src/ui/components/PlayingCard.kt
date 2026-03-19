@@ -39,7 +39,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
@@ -113,31 +113,32 @@ fun CardFace(
     BoxWithConstraints(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val cardWidth = maxWidth
 
-        // 1. Linen Texture Overlay (Draw Behind)
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val spacing = 2.dp.toPx()
-            val strokeWidth = 0.5.dp.toPx()
-            val textureColor = Color.Black.copy(alpha = 0.04f)
-
-            // Horizontal lines
-            for (y in 0..(size.height / spacing).toInt()) {
-                drawLine(
-                    color = textureColor,
-                    start = Offset(0f, y * spacing),
-                    end = Offset(size.width, y * spacing),
-                    strokeWidth = strokeWidth
-                )
+        // 1. Linen Texture Overlay
+        Box(
+            modifier = Modifier.fillMaxSize().drawWithCache {
+                val spacing = 2.dp.toPx()
+                val strokeWidth = 0.5.dp.toPx()
+                val textureColor = Color.Black.copy(alpha = 0.04f)
+                onDrawBehind {
+                    for (y in 0..(size.height / spacing).toInt()) {
+                        drawLine(
+                            color = textureColor,
+                            start = Offset(0f, y * spacing),
+                            end = Offset(size.width, y * spacing),
+                            strokeWidth = strokeWidth
+                        )
+                    }
+                    for (x in 0..(size.width / spacing).toInt()) {
+                        drawLine(
+                            color = textureColor,
+                            start = Offset(x * spacing, 0f),
+                            end = Offset(x * spacing, size.height),
+                            strokeWidth = strokeWidth
+                        )
+                    }
+                }
             }
-            // Vertical lines
-            for (x in 0..(size.width / spacing).toInt()) {
-                drawLine(
-                    color = textureColor,
-                    start = Offset(x * spacing, 0f),
-                    end = Offset(x * spacing, size.height),
-                    strokeWidth = strokeWidth
-                )
-            }
-        }
+        )
 
         // 2. Elegant Inner Frame
         Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
@@ -158,23 +159,23 @@ fun CardFace(
             Box(
                 modifier = Modifier
                     .size((cardWidth.value * 0.7f).dp)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(PrimaryGold, PrimaryGold.copy(alpha = 0.7f)),
-                                center = center,
-                                radius = size.minDimension / 2
-                            ),
-                            style = Stroke(width = 1.5.dp.toPx())
+                    .drawWithCache {
+                        val brushCenter = Offset(size.width / 2, size.height / 2)
+                        val ringBrush = Brush.radialGradient(
+                            colors = listOf(PrimaryGold, PrimaryGold.copy(alpha = 0.7f)),
+                            center = brushCenter,
+                            radius = size.minDimension / 2
                         )
-                        // Inner "foil" shine
-                        drawCircle(
-                            brush = Brush.linearGradient(
-                                colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.3f), Color.Transparent),
-                                start = Offset.Zero,
-                                end = Offset(size.width, size.height)
-                            )
+                        val shineBrush = Brush.linearGradient(
+                            colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.3f), Color.Transparent),
+                            start = Offset.Zero,
+                            end = Offset(size.width, size.height)
                         )
+                        val strokeWidth = 1.5.dp.toPx()
+                        onDrawBehind {
+                            drawCircle(brush = ringBrush, center = brushCenter, style = Stroke(width = strokeWidth))
+                            drawCircle(brush = shineBrush, center = brushCenter)
+                        }
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -385,16 +386,18 @@ fun PlayingCard(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .border(
-                        width = if (nearMissAlpha.value > 0f) 2.dp else 0.5.dp,
-                        color =
-                            if (nearMissAlpha.value > 0f) {
-                                PrimaryGold.copy(alpha = nearMissAlpha.value)
-                            } else {
-                                Color.Black.copy(alpha = 0.1f)
-                            },
-                        shape = CardShape
-                    ),
+                    .drawWithContent {
+                        drawContent()
+                        val alpha = nearMissAlpha.value
+                        val borderWidth = if (alpha > 0f) 2.dp.toPx() else 0.5.dp.toPx()
+                        val borderColor = if (alpha > 0f) PrimaryGold.copy(alpha = alpha) else Color.Black.copy(alpha = 0.1f)
+                        drawRoundRect(
+                            color = borderColor,
+                            size = size,
+                            cornerRadius = CornerRadius(8.dp.toPx()),
+                            style = Stroke(width = borderWidth)
+                        )
+                    },
             shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),

@@ -30,7 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -106,20 +106,24 @@ private fun ActiveGlowLayer(
 
     Box(
         modifier =
-            modifier.drawBehind {
-                val radius = size.maxDimension * 0.7f * glowRadiusScale
-                // Pulsating gold radial gradient
-                drawCircle(
-                    brush =
-                        Brush.radialGradient(
-                            colors = listOf(PrimaryGold.copy(alpha = glowAlpha), Color.Transparent),
-                            center = center,
-                            radius = radius
-                        ),
-                    center = center,
-                    radius = radius
-                )
-            }
+            modifier
+                .graphicsLayer {
+                    alpha = glowAlpha
+                    scaleX = glowRadiusScale
+                    scaleY = glowRadiusScale
+                }
+                .drawWithCache {
+                    val radius = size.maxDimension * 0.7f
+                    val brushCenter = Offset(size.width / 2, size.height / 2)
+                    val brush = Brush.radialGradient(
+                        colors = listOf(PrimaryGold, Color.Transparent),
+                        center = brushCenter,
+                        radius = radius
+                    )
+                    onDrawBehind {
+                        drawCircle(brush = brush, center = brushCenter, radius = radius)
+                    }
+                }
     )
 }
 
@@ -270,7 +274,6 @@ fun BlackjackHandContainer(
             if (showStatus && (isActive || isPending)) {
                 StatusBadge(
                     isActive = isActive,
-                    isPending = isPending,
                     isCompact = isAnyCompact,
                     modifier =
                         Modifier
@@ -377,7 +380,6 @@ private fun BoxScope.TitleBadge(
 @Composable
 private fun BoxScope.StatusBadge(
     isActive: Boolean,
-    isPending: Boolean,
     isCompact: Boolean,
     modifier: Modifier = Modifier,
 ) {
