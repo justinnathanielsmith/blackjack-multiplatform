@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
@@ -77,17 +78,16 @@ private val ExtraCompactContainerShape = RoundedCornerShape(8.dp)
 @Composable
 private fun ActiveGlowLayer(
     cornerRadius: RoundedCornerShape,
-    backgroundColor: Color,
     modifier: Modifier = Modifier,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
     val glowAlpha by
         infiniteTransition.animateFloat(
-            initialValue = 0.3f, // Subtle start
-            targetValue = 0.8f, // Brighter peak
+            initialValue = 0.4f,
+            targetValue = 0.8f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(1400, easing = FastOutSlowInEasing),
+                    animation = tween(1500, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse
                 ),
             label = "glowAlpha"
@@ -95,10 +95,10 @@ private fun ActiveGlowLayer(
     val glowRadiusScale by
         infiniteTransition.animateFloat(
             initialValue = 0.8f,
-            targetValue = 1.2f,
+            targetValue = 1.1f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(1400, easing = FastOutSlowInEasing),
+                    animation = tween(1500, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse
                 ),
             label = "glowRadiusScale"
@@ -108,22 +108,16 @@ private fun ActiveGlowLayer(
         modifier =
             modifier.drawBehind {
                 val radius = size.maxDimension * 0.7f * glowRadiusScale
-                val crPx = cornerRadius.topStart.toPx(size, this)
-                drawRoundRect(
+                // Pulsating gold radial gradient
+                drawCircle(
                     brush =
                         Brush.radialGradient(
                             colors = listOf(PrimaryGold.copy(alpha = glowAlpha), Color.Transparent),
                             center = center,
                             radius = radius
                         ),
-                    cornerRadius = CornerRadius(crPx, crPx),
-                    size = size
-                )
-
-                // Keep the original rounded background
-                drawRoundRect(
-                    color = backgroundColor,
-                    cornerRadius = CornerRadius(cornerRadius.topStart.toPx(size, this)),
+                    center = center,
+                    radius = radius
                 )
             }
     )
@@ -186,26 +180,25 @@ fun BlackjackHandContainer(
                     .fillMaxWidth()
                     .padding(vertical = verticalSafeArea)
         ) {
-            // 1. Background layer
+            // 1. Background layer (Glow behind if active)
             if (isActive) {
                 ActiveGlowLayer(
                     cornerRadius = cornerRadius,
-                    backgroundColor = backgroundColor,
                     modifier = Modifier.matchParentSize(),
                 )
-            } else {
-                Box(
-                    modifier =
-                        Modifier
-                            .matchParentSize()
-                            .background(backgroundColor, cornerRadius)
-                            .border(
-                                width = 1.dp,
-                                color = Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f),
-                                shape = cornerRadius
-                            )
-                )
             }
+
+            Box(
+                modifier =
+                    Modifier
+                        .matchParentSize()
+                        .background(backgroundColor, cornerRadius)
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = if (isDealer) 0.15f else 0.08f),
+                            shape = cornerRadius
+                        )
+            )
 
             // 2. Content box — drives the height of the background
             val contentPadding = if (isExtraCompact) 10.dp else 16.dp

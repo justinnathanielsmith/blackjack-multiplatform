@@ -39,8 +39,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -110,45 +113,78 @@ fun CardFace(
     BoxWithConstraints(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val cardWidth = maxWidth
 
-        // 1. Elegant Inner Frame
+        // 1. Linen Texture Overlay (Draw Behind)
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val spacing = 2.dp.toPx()
+            val strokeWidth = 0.5.dp.toPx()
+            val textureColor = Color.Black.copy(alpha = 0.04f)
+
+            // Horizontal lines
+            for (y in 0..(size.height / spacing).toInt()) {
+                drawLine(
+                    color = textureColor,
+                    start = Offset(0f, y * spacing),
+                    end = Offset(size.width, y * spacing),
+                    strokeWidth = strokeWidth
+                )
+            }
+            // Vertical lines
+            for (x in 0..(size.width / spacing).toInt()) {
+                drawLine(
+                    color = textureColor,
+                    start = Offset(x * spacing, 0f),
+                    end = Offset(x * spacing, size.height),
+                    strokeWidth = strokeWidth
+                )
+            }
+        }
+
+        // 2. Elegant Inner Frame
         Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
             val strokeWidth = 1.dp.toPx()
 
             // Outer fine line
             drawRoundRect(
-                color = suit.color.copy(alpha = 0.2f),
+                color = if (isCourt) PrimaryGold.copy(alpha = 0.6f) else suit.color.copy(alpha = 0.2f),
                 size = size,
                 cornerRadius = CornerRadius(4.dp.toPx()),
                 style = Stroke(width = strokeWidth)
             )
-            // Inner bounding box
-            drawRoundRect(
-                color = suit.color.copy(alpha = 0.1f),
-                size = size.copy(width = size.width - 8f, height = size.height - 8f),
-                topLeft = Offset(4f, 4f),
-                cornerRadius = CornerRadius(2.dp.toPx()),
-                style = Stroke(width = strokeWidth)
-            )
         }
 
-        // 2. Centerpiece Design
+        // 3. Centerpiece Design
         if (isCourt) {
-            // Court Cards: Emblem layout
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+            // Court Cards: Gold Foil Medallion
+            Box(
+                modifier = Modifier
+                    .size((cardWidth.value * 0.7f).dp)
+                    .drawBehind {
+                        drawCircle(
+                            brush = Brush.radialGradient(
+                                colors = listOf(PrimaryGold, PrimaryGold.copy(alpha = 0.7f)),
+                                center = center,
+                                radius = size.minDimension / 2
+                            ),
+                            style = Stroke(width = 1.5.dp.toPx())
+                        )
+                        // Inner "foil" shine
+                        drawCircle(
+                            brush = Brush.linearGradient(
+                                colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.3f), Color.Transparent),
+                                start = Offset.Zero,
+                                end = Offset(size.width, size.height)
+                            )
+                        )
+                    },
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "👑",
-                    fontSize = (cardWidth.value * Dimensions.Card.CourtCrownScale).sp,
-                    modifier = Modifier.padding(bottom = 2.dp)
-                )
-                Text(
                     text = rank.symbol,
-                    color = suit.color,
+                    color = PrimaryGold,
+                    fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Black,
                     fontSize = (cardWidth.value * Dimensions.Card.CourtRankScale).sp,
-                    style = shadowStyle(Color.Black.copy(alpha = 0.2f), Offset(2f, 2f), 4f)
+                    style = shadowStyle(Color.Black.copy(alpha = 0.4f), Offset(2f, 2f), 6f)
                 )
             }
         } else if (isAce) {
@@ -169,11 +205,15 @@ fun CardFace(
                 Text(
                     text = rank.symbol,
                     color = suit.color,
+                    fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Black,
                     fontSize = (cardWidth.value * scaleFactor).sp,
                     style = shadowStyle(Color.Black.copy(alpha = 0.15f), Offset(2f, 2f), 4f),
-                    letterSpacing = if (isTen) (-0.5).sp else 0.sp,
-                    softWrap = false
+                    letterSpacing = if (isTen) (-2).sp else 0.sp,
+                    softWrap = false,
+                    modifier = Modifier.graphicsLayer {
+                        if (isTen) scaleX = 0.85f
+                    }
                 )
                 Text(
                     text = suit.symbol,
@@ -441,7 +481,7 @@ internal fun CardCorner(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy((-4).dp)
     ) {
-        // Fixed width ensures '10' vs 'J' doesn't cause suit jumping/collisions
+        // Art Deco condensed effect for '10'
         Box(
             modifier = Modifier.width(if (isSmall) 26.dp else 28.dp),
             contentAlignment = Alignment.Center
@@ -449,11 +489,15 @@ internal fun CardCorner(
             Text(
                 text = rank,
                 color = color,
+                fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Black,
                 fontSize = if (isSmall) 22.sp else 24.sp,
                 maxLines = 1,
-                letterSpacing = if (rank == "10") (-0.5).sp else 0.sp,
-                softWrap = false
+                letterSpacing = if (rank == "10") (-1.5).sp else 0.sp,
+                softWrap = false,
+                modifier = Modifier.graphicsLayer {
+                    if (rank == "10") scaleX = 0.8f
+                }
             )
         }
         Text(

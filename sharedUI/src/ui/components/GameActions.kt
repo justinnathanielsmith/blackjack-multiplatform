@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -13,7 +14,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -150,8 +156,9 @@ fun GameActions(
                         label = stringResource(Res.string.action_double),
                         onClick = onDoubleDown,
                         enabled = canDouble,
-                        containerColor = PrimaryGold,
-                        contentColor = BackgroundDark,
+                        containerColor = GlassDark,
+                        contentColor = PrimaryGold,
+                        borderColor = PrimaryGold.copy(alpha = 0.5f),
                         modifier = buttonModifier
                     )
 
@@ -161,8 +168,9 @@ fun GameActions(
                             label = stringResource(Res.string.action_split),
                             onClick = onSplit,
                             enabled = true,
-                            containerColor = PrimaryGold,
-                            contentColor = BackgroundDark,
+                            containerColor = GlassDark,
+                            contentColor = PrimaryGold,
+                            borderColor = PrimaryGold.copy(alpha = 0.5f),
                             modifier = buttonModifier
                         )
                     }
@@ -250,15 +258,15 @@ private fun ModernActionButton(
             Modifier
                 .drawBehind {
                     val extraGlow = 8.dp.toPx() * tension * glowScale
-                    val glowSize = Size(size.width + extraGlow * 2, size.height + extraGlow * 2)
+                    val glowSize = Size(this.size.width + extraGlow * 2, this.size.height + extraGlow * 2)
                     val glowTopLeft = Offset(-extraGlow, -extraGlow)
 
-                    drawRoundRect(
+                    this.drawRoundRect(
                         brush =
                             Brush.radialGradient(
                                 colors = listOf(contentColor.copy(alpha = glowAlpha), Color.Transparent),
                                 center = center,
-                                radius = size.maxDimension * 0.8f * glowScale
+                                radius = this.size.maxDimension * 0.8f * glowScale
                             ),
                         topLeft = glowTopLeft,
                         size = glowSize,
@@ -276,42 +284,91 @@ private fun ModernActionButton(
             Modifier
         }
 
+    val buttonInteractionSource = remember { MutableInteractionSource() }
+    val isPressed by buttonInteractionSource.collectIsPressedAsState()
+    val buttonScale by animateFloatAsState(if (isPressed) 0.96f else 1f)
+
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.then(glowModifier),
-        shape = RoundedCornerShape(percent = 50),
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = containerColor,
-                contentColor = contentColor,
-                disabledContainerColor = containerColor.copy(alpha = 0.3f),
-                disabledContentColor = contentColor.copy(alpha = 0.3f)
-            ),
-        border =
-            borderColor?.let {
-                BorderStroke(1.dp, if (enabled) it else it.copy(alpha = 0.3f))
+        modifier = modifier
+            .then(glowModifier)
+            .graphicsLayer {
+                scaleX = buttonScale
+                scaleY = buttonScale
             },
-        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+        interactionSource = buttonInteractionSource,
+        shape = RoundedCornerShape(percent = 50),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent, // We draw our own background
+            contentColor = contentColor,
+            disabledContainerColor = Color.Transparent,
+            disabledContentColor = contentColor.copy(alpha = 0.3f)
+        ),
+        contentPadding = PaddingValues(0.dp) // Manual padding in content
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 44.dp)
+                .background(
+                    brush = if (enabled) {
+                        Brush.verticalGradient(
+                            0.0f to containerColor.copy(alpha = 0.9f),
+                            0.45f to containerColor,
+                            0.55f to containerColor.copy(alpha = 0.8f),
+                            1.0f to containerColor.copy(alpha = 0.7f)
+                        )
+                    } else {
+                        Brush.verticalGradient(colors = listOf(GlassDark, GlassDark))
+                    },
+                    shape = RoundedCornerShape(percent = 50)
+                )
+                .border(
+                    width = 1.5.dp,
+                    brush = Brush.linearGradient(
+                        0.0f to PrimaryGold.copy(alpha = 0.8f),
+                        0.5f to PrimaryGold.copy(alpha = 0.2f),
+                        1.0f to PrimaryGold.copy(alpha = 0.6f)
+                    ),
+                    shape = RoundedCornerShape(percent = 50)
+                )
+                .drawBehind {
+                    // Top highlight for metallic feel
+                    if (enabled) {
+                        val highlightHeight = 1.5.dp.toPx()
+                        this.drawRoundRect(
+                            color = Color.White.copy(alpha = 0.25f),
+                            topLeft = Offset(8.dp.toPx(), 2.dp.toPx()),
+                            size = this.size.copy(width = this.size.width - 16.dp.toPx(), height = highlightHeight),
+                            cornerRadius = CornerRadius(highlightHeight / 2)
+                        )
+                    }
+                }
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Text(
-                text = label.uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                fontSize = 9.sp,
-                letterSpacing = 0.5.sp,
-                maxLines = 1,
-                modifier = Modifier.padding(top = 2.dp)
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = if (enabled) contentColor else contentColor.copy(alpha = 0.4f)
+                )
+                Text(
+                    text = label.uppercase(),
+                    color = if (enabled) contentColor else contentColor.copy(alpha = 0.4f),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 9.sp,
+                    letterSpacing = 1.sp,
+                    maxLines = 1,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
         }
     }
 }

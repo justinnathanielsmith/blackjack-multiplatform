@@ -692,7 +692,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                 status = status,
                 cards = hand.cards,
                 result = state.handResult(0),
-                modifier = Modifier, // no fillMaxHeight, allowing natural centering
+                modifier = Modifier, 
                 scale = baseCardScale,
                 isCompact = false,
                 isExtraCompact = false,
