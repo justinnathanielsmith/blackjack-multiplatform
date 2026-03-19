@@ -8,7 +8,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -32,15 +31,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -115,29 +114,30 @@ fun CardFace(
 
         // 1. Linen Texture Overlay
         Box(
-            modifier = Modifier.fillMaxSize().drawWithCache {
-                val spacing = 2.dp.toPx()
-                val strokeWidth = 0.5.dp.toPx()
-                val textureColor = Color.Black.copy(alpha = 0.04f)
-                onDrawBehind {
-                    for (y in 0..(size.height / spacing).toInt()) {
-                        drawLine(
-                            color = textureColor,
-                            start = Offset(0f, y * spacing),
-                            end = Offset(size.width, y * spacing),
-                            strokeWidth = strokeWidth
-                        )
-                    }
-                    for (x in 0..(size.width / spacing).toInt()) {
-                        drawLine(
-                            color = textureColor,
-                            start = Offset(x * spacing, 0f),
-                            end = Offset(x * spacing, size.height),
-                            strokeWidth = strokeWidth
-                        )
+            modifier =
+                Modifier.fillMaxSize().drawWithCache {
+                    val spacing = 2.dp.toPx()
+                    val strokeWidth = 0.5.dp.toPx()
+                    val textureColor = Color.Black.copy(alpha = 0.04f)
+                    onDrawBehind {
+                        for (y in 0..(size.height / spacing).toInt()) {
+                            drawLine(
+                                color = textureColor,
+                                start = Offset(0f, y * spacing),
+                                end = Offset(size.width, y * spacing),
+                                strokeWidth = strokeWidth
+                            )
+                        }
+                        for (x in 0..(size.width / spacing).toInt()) {
+                            drawLine(
+                                color = textureColor,
+                                start = Offset(x * spacing, 0f),
+                                end = Offset(x * spacing, size.height),
+                                strokeWidth = strokeWidth
+                            )
+                        }
                     }
                 }
-            }
         )
 
         // 2. Elegant Inner Frame
@@ -157,26 +157,34 @@ fun CardFace(
         if (isCourt) {
             // Court Cards: Gold Foil Medallion
             Box(
-                modifier = Modifier
-                    .size((cardWidth.value * 0.7f).dp)
-                    .drawWithCache {
-                        val brushCenter = Offset(size.width / 2, size.height / 2)
-                        val ringBrush = Brush.radialGradient(
-                            colors = listOf(PrimaryGold, PrimaryGold.copy(alpha = 0.7f)),
-                            center = brushCenter,
-                            radius = size.minDimension / 2
-                        )
-                        val shineBrush = Brush.linearGradient(
-                            colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.3f), Color.Transparent),
-                            start = Offset.Zero,
-                            end = Offset(size.width, size.height)
-                        )
-                        val strokeWidth = 1.5.dp.toPx()
-                        onDrawBehind {
-                            drawCircle(brush = ringBrush, center = brushCenter, style = Stroke(width = strokeWidth))
-                            drawCircle(brush = shineBrush, center = brushCenter)
-                        }
-                    },
+                modifier =
+                    Modifier
+                        .size((cardWidth.value * 0.7f).dp)
+                        .drawWithCache {
+                            val brushCenter = Offset(size.width / 2, size.height / 2)
+                            val ringBrush =
+                                Brush.radialGradient(
+                                    colors = listOf(PrimaryGold, PrimaryGold.copy(alpha = 0.7f)),
+                                    center = brushCenter,
+                                    radius = size.minDimension / 2
+                                )
+                            val shineBrush =
+                                Brush.linearGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            Color.White.copy(alpha = 0.3f),
+                                            Color.Transparent
+                                        ),
+                                    start = Offset.Zero,
+                                    end = Offset(size.width, size.height)
+                                )
+                            val strokeWidth = 1.5.dp.toPx()
+                            onDrawBehind {
+                                drawCircle(brush = ringBrush, center = brushCenter, style = Stroke(width = strokeWidth))
+                                drawCircle(brush = shineBrush, center = brushCenter)
+                            }
+                        },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -212,9 +220,10 @@ fun CardFace(
                     style = shadowStyle(Color.Black.copy(alpha = 0.15f), Offset(2f, 2f), 4f),
                     letterSpacing = if (isTen) (-2).sp else 0.sp,
                     softWrap = false,
-                    modifier = Modifier.graphicsLayer {
-                        if (isTen) scaleX = 0.85f
-                    }
+                    modifier =
+                        Modifier.graphicsLayer {
+                            if (isTen) scaleX = 0.85f
+                        }
                 )
                 Text(
                     text = suit.symbol,
@@ -390,7 +399,14 @@ fun PlayingCard(
                         drawContent()
                         val alpha = nearMissAlpha.value
                         val borderWidth = if (alpha > 0f) 2.dp.toPx() else 0.5.dp.toPx()
-                        val borderColor = if (alpha > 0f) PrimaryGold.copy(alpha = alpha) else Color.Black.copy(alpha = 0.1f)
+                        val borderColor =
+                            if (alpha >
+                                0f
+                            ) {
+                                PrimaryGold.copy(alpha = alpha)
+                            } else {
+                                Color.Black.copy(alpha = 0.1f)
+                            }
                         drawRoundRect(
                             color = borderColor,
                             size = size,
@@ -498,9 +514,10 @@ internal fun CardCorner(
                 maxLines = 1,
                 letterSpacing = if (rank == "10") (-1.5).sp else 0.sp,
                 softWrap = false,
-                modifier = Modifier.graphicsLayer {
-                    if (rank == "10") scaleX = 0.8f
-                }
+                modifier =
+                    Modifier.graphicsLayer {
+                        if (rank == "10") scaleX = 0.8f
+                    }
             )
         }
         Text(

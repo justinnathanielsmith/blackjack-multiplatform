@@ -111,15 +111,15 @@ private fun ActiveGlowLayer(
                     alpha = glowAlpha
                     scaleX = glowRadiusScale
                     scaleY = glowRadiusScale
-                }
-                .drawWithCache {
+                }.drawWithCache {
                     val radius = size.maxDimension * 0.5f
                     val brushCenter = Offset(size.width / 2, size.height / 2)
-                    val brush = Brush.radialGradient(
-                        colors = listOf(PrimaryGold.copy(alpha = 0.4f), Color.Transparent),
-                        center = brushCenter,
-                        radius = radius
-                    )
+                    val brush =
+                        Brush.radialGradient(
+                            colors = listOf(PrimaryGold.copy(alpha = 0.4f), Color.Transparent),
+                            center = brushCenter,
+                            radius = radius
+                        )
                     val pxRadius = cornerRadius.topStart.toPx(size, this)
                     onDrawBehind {
                         drawRoundRect(

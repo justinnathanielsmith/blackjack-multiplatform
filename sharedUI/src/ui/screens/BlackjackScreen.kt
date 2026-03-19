@@ -286,23 +286,31 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     .background(FeltDeepEdge) // Fallback deep color
                     .drawWithCache {
                         // Static size-dependent brushes — recreated only when size changes
-                        val feltBrush = Brush.radialGradient(
-                            colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
-                            center = Offset(size.width / 2, size.height * 0.35f),
-                            radius = size.maxDimension * 0.6f
-                        )
-                        val vignetteBrush = Brush.radialGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
-                            center = Offset(size.width / 2, size.height / 2),
-                            radius = size.maxDimension * 0.55f
-                        )
+                        val feltBrush =
+                            Brush.radialGradient(
+                                colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
+                                center = Offset(size.width / 2, size.height * 0.35f),
+                                radius = size.maxDimension * 0.6f
+                            )
+                        val vignetteBrush =
+                            Brush.radialGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                                center = Offset(size.width / 2, size.height / 2),
+                                radius = size.maxDimension * 0.55f
+                            )
                         val arcWidth = size.width * 1.5f
                         val arcHeight = size.height * 0.6f
                         val arcLeft = (size.width - arcWidth) / 2
                         val arcTop = size.height * 0.35f
-                        val arcSize = androidx.compose.ui.geometry.Size(arcWidth, arcHeight)
-                        val arcStroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.dp.toPx())
-                        val insuranceStroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5.dp.toPx())
+                        val arcSize =
+                            androidx.compose.ui.geometry
+                                .Size(arcWidth, arcHeight)
+                        val arcStroke =
+                            androidx.compose.ui.graphics.drawscope
+                                .Stroke(width = 3.dp.toPx())
+                        val insuranceStroke =
+                            androidx.compose.ui.graphics.drawscope
+                                .Stroke(width = 1.5.dp.toPx())
                         val insuranceOffset = 40.dp.toPx()
                         val highlightRadius = size.maxDimension * 0.4f
 
@@ -339,11 +347,12 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             val highlightPos = activeHandHighlightPosition
                             if (highlightPos != Offset.Zero) {
                                 drawRect(
-                                    brush = Brush.radialGradient(
-                                        colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
-                                        center = highlightPos,
-                                        radius = highlightRadius
-                                    )
+                                    brush =
+                                        Brush.radialGradient(
+                                            colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
+                                            center = highlightPos,
+                                            radius = highlightRadius
+                                        )
                                 )
                             }
                         }
@@ -639,7 +648,10 @@ data class ChipEruptionInstance(
     val startOffset: Offset?
 )
 
-data class ChipLossInstance(val id: Long, val amount: Int)
+data class ChipLossInstance(
+    val id: Long,
+    val amount: Int
+)
 
 @Composable
 private fun ColumnScope.DynamicPlayerHandsLayout(
@@ -677,7 +689,7 @@ private fun ColumnScope.DynamicPlayerHandsLayout(
                 status = status,
                 cards = hand.cards,
                 result = state.handResult(0),
-                modifier = Modifier, 
+                modifier = Modifier,
                 scale = baseCardScale,
                 isCompact = false,
                 isExtraCompact = false,

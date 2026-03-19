@@ -18,8 +18,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -57,7 +57,6 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
-import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
@@ -284,61 +283,63 @@ private fun ModernActionButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier
-            .then(glowModifier)
-            .graphicsLayer {
-                scaleX = buttonScale
-                scaleY = buttonScale
-            },
+        modifier =
+            modifier
+                .then(glowModifier)
+                .graphicsLayer {
+                    scaleX = buttonScale
+                    scaleY = buttonScale
+                },
         interactionSource = buttonInteractionSource,
         shape = RoundedCornerShape(percent = 50),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent, // We draw our own background
-            contentColor = contentColor,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor = contentColor.copy(alpha = 0.3f)
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent, // We draw our own background
+                contentColor = contentColor,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = contentColor.copy(alpha = 0.3f)
+            ),
         contentPadding = PaddingValues(0.dp) // Manual padding in content
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 44.dp)
-                .background(
-                    brush = if (enabled) {
-                        Brush.verticalGradient(
-                            0.0f to containerColor.copy(alpha = 0.9f),
-                            0.45f to containerColor,
-                            0.55f to containerColor.copy(alpha = 0.8f),
-                            1.0f to containerColor.copy(alpha = 0.7f)
-                        )
-                    } else {
-                        Brush.verticalGradient(colors = listOf(GlassDark, GlassDark))
-                    },
-                    shape = RoundedCornerShape(percent = 50)
-                )
-                .border(
-                    width = 1.5.dp,
-                    brush = Brush.linearGradient(
-                        0.0f to PrimaryGold.copy(alpha = 0.8f),
-                        0.5f to PrimaryGold.copy(alpha = 0.2f),
-                        1.0f to PrimaryGold.copy(alpha = 0.6f)
-                    ),
-                    shape = RoundedCornerShape(percent = 50)
-                )
-                .drawBehind {
-                    // Top highlight for metallic feel
-                    if (enabled) {
-                        val highlightHeight = 1.5.dp.toPx()
-                        this.drawRoundRect(
-                            color = Color.White.copy(alpha = 0.25f),
-                            topLeft = Offset(8.dp.toPx(), 2.dp.toPx()),
-                            size = this.size.copy(width = this.size.width - 16.dp.toPx(), height = highlightHeight),
-                            cornerRadius = CornerRadius(highlightHeight / 2)
-                        )
-                    }
-                }
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 44.dp)
+                    .background(
+                        brush =
+                            if (enabled) {
+                                Brush.verticalGradient(
+                                    0.0f to containerColor.copy(alpha = 0.9f),
+                                    0.45f to containerColor,
+                                    0.55f to containerColor.copy(alpha = 0.8f),
+                                    1.0f to containerColor.copy(alpha = 0.7f)
+                                )
+                            } else {
+                                Brush.verticalGradient(colors = listOf(GlassDark, GlassDark))
+                            },
+                        shape = RoundedCornerShape(percent = 50)
+                    ).border(
+                        width = 1.5.dp,
+                        brush =
+                            Brush.linearGradient(
+                                0.0f to PrimaryGold.copy(alpha = 0.8f),
+                                0.5f to PrimaryGold.copy(alpha = 0.2f),
+                                1.0f to PrimaryGold.copy(alpha = 0.6f)
+                            ),
+                        shape = RoundedCornerShape(percent = 50)
+                    ).drawBehind {
+                        // Top highlight for metallic feel
+                        if (enabled) {
+                            val highlightHeight = 1.5.dp.toPx()
+                            this.drawRoundRect(
+                                color = Color.White.copy(alpha = 0.25f),
+                                topLeft = Offset(8.dp.toPx(), 2.dp.toPx()),
+                                size = this.size.copy(width = this.size.width - 16.dp.toPx(), height = highlightHeight),
+                                cornerRadius = CornerRadius(highlightHeight / 2)
+                            )
+                        }
+                    }.padding(horizontal = 8.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
