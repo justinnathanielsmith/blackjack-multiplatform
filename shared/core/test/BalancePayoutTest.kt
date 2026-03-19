@@ -207,6 +207,87 @@ class BalancePayoutTest {
             assertEquals(GameStatus.PLAYING, state.status)
         }
 
+    @Test
+    fun surrender_multiHand_firstHandAdvancesToSecondHand() =
+        runTest {
+            // Hand0 surrenders (bet=100, refund=50) → advance to Hand1
+            // Hand1 (TEN+TEN=20) stands vs dealer 18 → payout=200
+            // balance=800 → after surrender: 850 → after Hand1 win: 1050
+            val sm =
+                testMachine(
+                    multiHandPlayingState(
+                        balance = 800,
+                        hands = listOf(hand(Rank.TEN, Rank.SEVEN), hand(Rank.TEN, Rank.TEN)),
+                        bets = listOf(100, 100),
+                        activeHandIndex = 0,
+                        dealerHand = dealerHand(Rank.TEN, Rank.EIGHT),
+                    ).copy(rules = GameRules(allowSurrender = true)),
+                )
+            sm.dispatch(GameAction.Surrender)
+            advanceUntilIdle()
+
+            // Hand0 surrendered: refund applied, now on Hand1
+            assertEquals(GameStatus.PLAYING, sm.state.value.status)
+            assertEquals(1, sm.state.value.activeHandIndex)
+            assertEquals(850, sm.state.value.balance)
+
+            sm.dispatch(GameAction.Stand)
+            advanceUntilIdle()
+
+            assertEquals(GameStatus.PLAYER_WON, sm.state.value.status)
+            assertEquals(1050, sm.state.value.balance)
+        }
+
+    @Test
+    fun surrender_multiHand_lastHandGoesToDealerTurn() =
+        runTest {
+            // Hand0 already played (TEN+TEN=20); Hand1 surrenders (bet=100, refund=50)
+            // Dealer TEN+EIGHT=18. Hand0 wins (payout=200); Hand1 surrendered (payout=0).
+            // balance=800 → after surrender: 850 → after Hand0 win: 850 + 200 = 1050
+            val sm =
+                testMachine(
+                    multiHandPlayingState(
+                        balance = 800,
+                        hands = listOf(hand(Rank.TEN, Rank.TEN), hand(Rank.TEN, Rank.SEVEN)),
+                        bets = listOf(100, 100),
+                        activeHandIndex = 1,
+                        dealerHand = dealerHand(Rank.TEN, Rank.EIGHT),
+                    ).copy(rules = GameRules(allowSurrender = true)),
+                )
+            sm.dispatch(GameAction.Surrender)
+            advanceUntilIdle()
+
+            val state = sm.state.value
+            assertEquals(GameStatus.PLAYER_WON, state.status)
+            assertEquals(1050, state.balance)
+        }
+
+    @Test
+    fun surrender_multiHand_allHandsSurrendered_dealerWon() =
+        runTest {
+            // Hand0 surrenders, Hand1 surrenders → no non-surrendered hands → DEALER_WON
+            // balance=800, bets=[100,100] → surrender Hand0: +50 → advance to Hand1 → surrender Hand1: +50
+            // → dealer turn → payout=0 → balance=900, status=DEALER_WON
+            val sm =
+                testMachine(
+                    multiHandPlayingState(
+                        balance = 800,
+                        hands = listOf(hand(Rank.TEN, Rank.SEVEN), hand(Rank.TEN, Rank.SEVEN)),
+                        bets = listOf(100, 100),
+                        activeHandIndex = 0,
+                        dealerHand = dealerHand(Rank.TEN, Rank.EIGHT),
+                    ).copy(rules = GameRules(allowSurrender = true)),
+                )
+            sm.dispatch(GameAction.Surrender)
+            advanceUntilIdle()
+            sm.dispatch(GameAction.Surrender)
+            advanceUntilIdle()
+
+            val state = sm.state.value
+            assertEquals(GameStatus.DEALER_WON, state.status)
+            assertEquals(900, state.balance)
+        }
+
     // ── Multi-hand status & payouts ───────────────────────────────────────────
 
     @Test

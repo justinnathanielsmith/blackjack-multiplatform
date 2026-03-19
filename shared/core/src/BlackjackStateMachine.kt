@@ -307,7 +307,7 @@ class BlackjackStateMachine(
             )
     }
 
-    private fun handleSurrender() {
+    private suspend fun handleSurrender() {
         val state = _state.value
         if (state.status != GameStatus.PLAYING ||
             state.activeHand.cards.size != 2 ||
@@ -317,9 +317,16 @@ class BlackjackStateMachine(
         }
 
         val refund = state.activeBet / 2
-        _state.value = state.copy(balance = state.balance + refund, status = GameStatus.DEALER_WON)
+        val surrenderedHand = state.activeHand.copy(isSurrendered = true)
+        val updatedHands = state.playerHands.set(state.activeHandIndex, surrenderedHand)
+        _state.value =
+            state.copy(
+                balance = state.balance + refund,
+                playerHands = updatedHands,
+            )
         emitEffect(GameEffect.PlayLoseSound)
         emitEffect(GameEffect.ChipLoss(state.activeBet - refund))
+        advanceOrEndTurn(_state.value)
     }
 
     private suspend fun handleHit() {

@@ -454,8 +454,7 @@ internal fun BoxScope.HandOutcomeBadge(
                         onDrawBehind {
                             drawCircle(brush = glowBrush)
                         }
-                    }
-                    .shadow(16.dp, RoundedCornerShape(12.dp), spotColor = Color.Black, ambientColor = Color.Black)
+                    }.shadow(16.dp, RoundedCornerShape(12.dp), spotColor = Color.Black, ambientColor = Color.Black)
                     .background(containerColor, RoundedCornerShape(12.dp))
                     .border(
                         width = 2.dp,

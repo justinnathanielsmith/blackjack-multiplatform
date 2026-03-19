@@ -48,7 +48,8 @@ data class Card(
 data class Hand(
     val cards: PersistentList<Card> = persistentListOf(),
     val wasSplit: Boolean = false,
-    val isFromSplitAce: Boolean = false
+    val isFromSplitAce: Boolean = false,
+    val isSurrendered: Boolean = false,
 ) {
     // Shared ace-reduction logic. Accepts any Iterable so visibleScore can pre-filter face-down cards.
     private fun calculateScore(cards: Iterable<Card>): Int {
@@ -273,13 +274,16 @@ object BlackjackRules {
         dealerScore: Int,
         dealerBust: Boolean,
         rules: GameRules,
-    ): Int =
-        when (determineHandOutcome(hand, dealerScore, dealerBust)) {
+    ): Int {
+        // Surrendered hands were already refunded at surrender time; return 0 here.
+        if (hand.isSurrendered) return 0
+        return when (determineHandOutcome(hand, dealerScore, dealerBust)) {
             HandOutcome.NATURAL_WIN -> bet + (bet * rules.blackjackPayout.numerator) / rules.blackjackPayout.denominator
             HandOutcome.WIN -> bet * 2
             HandOutcome.PUSH -> bet
             HandOutcome.LOSS -> 0
         }
+    }
 
     fun calculateHandResults(
         state: GameState,
@@ -293,6 +297,11 @@ object BlackjackRules {
             val hand = state.playerHands[i]
             val bet = state.playerBets[i]
             totalPayout += resolveHand(hand, bet, dealerScore, dealerBust, state.rules)
+            if (hand.isSurrendered) {
+                // Surrendered hands are not wins or pushes; payout was already refunded at surrender time.
+                allPush = false
+                continue
+            }
             // Delegate to determineHandOutcome so NATURAL_WIN is correctly distinguished
             // from a regular WIN (fixes: natural BJ vs dealer-21 was incorrectly anyWin=true).
             val outcome = determineHandOutcome(hand, dealerScore, dealerBust)

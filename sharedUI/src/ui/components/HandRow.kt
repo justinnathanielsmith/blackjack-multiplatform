@@ -1,14 +1,14 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Hand
-import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.graphics.graphicsLayer
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 
@@ -32,7 +32,7 @@ fun HandRow(
         content = {
             val nCards = hand.cards.size
             val centerIndex = (nCards - 1) / 2f
-            
+
             hand.cards.forEachIndexed { index, card ->
                 key(card) {
                     // Curved Fanning
@@ -41,10 +41,11 @@ fun HandRow(
                     val fanVerticalOffset = kotlin.math.abs(distanceFromCenter) * 2f // Slight dip on edges
 
                     Box(
-                        modifier = Modifier.graphicsLayer {
-                            rotationZ = fanAngle
-                            translationY = fanVerticalOffset.dp.toPx()
-                        }
+                        modifier =
+                            Modifier.graphicsLayer {
+                                rotationZ = fanAngle
+                                translationY = fanVerticalOffset.dp.toPx()
+                            }
                     ) {
                         val isHoleCard = isDealer && index == 1
                         if (isHoleCard) {

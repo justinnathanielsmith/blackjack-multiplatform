@@ -347,10 +347,11 @@ fun PlayingCard(
     val offsetX = remember { Animatable(300f) }
     val offsetY = remember { Animatable(-400f) }
     val dealScale = remember { Animatable(0.5f) }
-    val baseRotation = remember(card) {
-        val hash = card.hashCode()
-        ((hash % 100) / 100f) * 4f - 2f
-    }
+    val baseRotation =
+        remember(card) {
+            val hash = card.hashCode()
+            ((hash % 100) / 100f) * 4f - 2f
+        }
     val dealRotationZ = remember { Animatable(if (isDealer) -45f else 45f) }
 
     val nearMissAlpha = remember { Animatable(0f) }
