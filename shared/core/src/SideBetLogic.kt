@@ -42,7 +42,7 @@ object SideBetLogic {
                 }
 
             if (result != null) {
-                val payout = amount * result.payoutMultiplier
+                val payout = amount * result.payoutMultiplier + amount
                 totalPayout += payout
                 results[type] = result.copy(payoutAmount = payout)
             }
@@ -97,9 +97,7 @@ object SideBetLogic {
         return (s1 in RED_SUITS && s2 in RED_SUITS) || (s1 in BLACK_SUITS && s2 in BLACK_SUITS)
     }
 
-    private fun isSuitedTriple(cards: List<Card>): Boolean {
-        return cards.all { it.rank == cards[0].rank && it.suit == cards[0].suit }
-    }
+    private fun isSuitedTriple(cards: List<Card>): Boolean = isThreeOfAKind(cards) && isFlush(cards)
 
     private fun isFlush(cards: List<Card>): Boolean {
         return cards.all { it.suit == cards[0].suit }

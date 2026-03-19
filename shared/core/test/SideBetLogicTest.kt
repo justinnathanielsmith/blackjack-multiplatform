@@ -3,6 +3,9 @@ package io.github.smithjustinn.blackjack
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlinx.collections.immutable.persistentMapOf
 
 class SideBetLogicTest {
     @Test
@@ -158,5 +161,99 @@ class SideBetLogicTest {
         assertNotNull(result)
         assertEquals(30, result.payoutMultiplier)
         assertEquals("Three of a Kind", result.outcomeName)
+    }
+
+    @Test
+    fun testResolveSideBets_win() {
+        val sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 10)
+        val playerHand = Hand(
+            kotlinx.collections.immutable.persistentListOf(
+                card(Rank.TEN, Suit.SPADES),
+                card(Rank.TEN, Suit.SPADES),
+            )
+        )
+        val resolution = SideBetLogic.resolveSideBets(sideBets, playerHand, card(Rank.FIVE, Suit.CLUBS))
+        // Perfect Pair = 25x multiplier; payout = 10 * 25 + 10 = 260
+        assertEquals(260, resolution.payoutTotal)
+        assertTrue(resolution.results.containsKey(SideBetType.PERFECT_PAIRS))
+    }
+
+    @Test
+    fun testResolveSideBets_loss() {
+        val sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 10)
+        val playerHand = Hand(
+            kotlinx.collections.immutable.persistentListOf(
+                card(Rank.TEN, Suit.SPADES),
+                card(Rank.FIVE, Suit.HEARTS),
+            )
+        )
+        val resolution = SideBetLogic.resolveSideBets(sideBets, playerHand, card(Rank.KING, Suit.CLUBS))
+        assertEquals(0, resolution.payoutTotal)
+        assertTrue(resolution.results.isEmpty())
+    }
+
+    @Test
+    fun testPerfectPairs_NoMatch() {
+        val result =
+            SideBetLogic.evaluatePerfectPairs(
+                Hand(
+                    kotlinx.collections.immutable.persistentListOf(
+                        card(Rank.TEN, Suit.SPADES),
+                        card(Rank.FIVE, Suit.HEARTS),
+                    )
+                )
+            )
+        assertNull(result)
+    }
+
+    @Test
+    fun test21Plus3_Straight_AceHigh() {
+        // Q-K-A straight
+        val result =
+            SideBetLogic.evaluateTwentyOnePlusThree(
+                Hand(
+                    kotlinx.collections.immutable.persistentListOf(
+                        card(Rank.QUEEN, Suit.SPADES),
+                        card(Rank.KING, Suit.HEARTS),
+                    )
+                ),
+                card(Rank.ACE, Suit.CLUBS),
+            )
+        assertNotNull(result)
+        assertEquals(10, result.payoutMultiplier)
+        assertEquals("Straight", result.outcomeName)
+    }
+
+    @Test
+    fun test21Plus3_Straight_FaceCards() {
+        // J-Q-K straight
+        val result =
+            SideBetLogic.evaluateTwentyOnePlusThree(
+                Hand(
+                    kotlinx.collections.immutable.persistentListOf(
+                        card(Rank.JACK, Suit.SPADES),
+                        card(Rank.QUEEN, Suit.HEARTS),
+                    )
+                ),
+                card(Rank.KING, Suit.CLUBS),
+            )
+        assertNotNull(result)
+        assertEquals(10, result.payoutMultiplier)
+        assertEquals("Straight", result.outcomeName)
+    }
+
+    @Test
+    fun test21Plus3_NoMatch() {
+        val result =
+            SideBetLogic.evaluateTwentyOnePlusThree(
+                Hand(
+                    kotlinx.collections.immutable.persistentListOf(
+                        card(Rank.TWO, Suit.SPADES),
+                        card(Rank.SEVEN, Suit.HEARTS),
+                    )
+                ),
+                card(Rank.KING, Suit.CLUBS),
+            )
+        assertNull(result)
     }
 }
