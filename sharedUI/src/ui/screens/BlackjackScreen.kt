@@ -79,6 +79,7 @@ import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
+import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -138,6 +139,12 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
+    val isBlackjack by remember {
+        derivedStateOf {
+            state.status == GameStatus.PLAYER_WON && state.playerHands.any { it.cards.size == 2 && it.score == 21 }
+        }
+    }
+    var flashColor by remember { mutableStateOf(Color.White) }
     var autoDealPending by remember { mutableStateOf(false) }
 
     val onAutoDealToggle =
@@ -185,8 +192,15 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.PLAYER_WON) {
-            flashAlpha.animateTo(0.15f, tween(100))
-            flashAlpha.animateTo(0f, tween(400))
+            if (isBlackjack) {
+                flashColor = PrimaryGold
+                flashAlpha.animateTo(0.25f, tween(100))
+                flashAlpha.animateTo(0f, tween(300))
+            } else {
+                flashColor = Color.White
+                flashAlpha.animateTo(0.15f, tween(100))
+                flashAlpha.animateTo(0f, tween(400))
+            }
         }
     }
 
@@ -428,8 +442,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     BlackjackGameOverlay(
                         status = state.status,
                         playerHands = state.playerHands,
+                        isBlackjack = isBlackjack,
                         component = component,
                         flashAlphaProvider = { flashAlpha.value },
+                        flashColorProvider = { flashColor },
                         showStatus = showStatus,
                         modifier = Modifier.zIndex(5f),
                     )
@@ -516,8 +532,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
 private fun BlackjackGameOverlay(
     status: GameStatus,
     playerHands: List<io.github.smithjustinn.blackjack.Hand>,
+    isBlackjack: Boolean,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
+    flashColorProvider: () -> Color,
     showStatus: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -528,12 +546,6 @@ private fun BlackjackGameOverlay(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        val isBlackjack by remember(playerHands, status) {
-            derivedStateOf {
-                status == GameStatus.PLAYER_WON && playerHands.any { it.cards.size == 2 && it.score == 21 }
-            }
-        }
-
         androidx.compose.animation.AnimatedVisibility(
             visible = showStatus,
             enter =
@@ -554,7 +566,12 @@ private fun BlackjackGameOverlay(
         if (status == GameStatus.PLAYER_WON) {
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
+                isBlackjack = isBlackjack,
             )
+        }
+
+        if (status == GameStatus.PLAYER_WON && isBlackjack) {
+            SparkleEffect()
         }
         // ChipEruption is handled via chipEruptions state list triggered by GameEffect
 
@@ -565,7 +582,7 @@ private fun BlackjackGameOverlay(
                     Modifier
                         .fillMaxSize()
                         .drawBehind {
-                            drawRect(Color.White.copy(alpha = flashAlphaProvider()))
+                            drawRect(flashColorProvider().copy(alpha = flashAlphaProvider()))
                         },
             )
         }

@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +38,7 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.status_betting
@@ -81,6 +83,38 @@ fun GameStatusMessage(
         }
     }
 
+    val ring1Radius = remember { Animatable(0f) }
+    val ring1Alpha = remember { Animatable(0f) }
+    val ring2Radius = remember { Animatable(0f) }
+    val ring2Alpha = remember { Animatable(0f) }
+    val ring3Radius = remember { Animatable(0f) }
+    val ring3Alpha = remember { Animatable(0f) }
+
+    LaunchedEffect(status, isBlackjack) {
+        if (status == GameStatus.PLAYER_WON) {
+            ring1Radius.snapTo(0f)
+            ring1Alpha.snapTo(1f)
+            ring2Radius.snapTo(0f)
+            ring2Alpha.snapTo(1f)
+            ring3Radius.snapTo(0f)
+            ring3Alpha.snapTo(1f)
+            launch {
+                launch { ring1Radius.animateTo(1f, tween(600)) }
+                ring1Alpha.animateTo(0f, tween(600))
+            }
+            launch {
+                kotlinx.coroutines.delay(250)
+                launch { ring2Radius.animateTo(1f, tween(600)) }
+                ring2Alpha.animateTo(0f, tween(600))
+            }
+            launch {
+                kotlinx.coroutines.delay(500)
+                launch { ring3Radius.animateTo(1f, tween(600)) }
+                ring3Alpha.animateTo(0f, tween(600))
+            }
+        }
+    }
+
     val statusText =
         when {
             isBlackjack -> "Blackjack!"
@@ -116,6 +150,21 @@ fun GameStatusMessage(
                             radius = size.maxDimension * 0.8f
                         )
                     onDrawBehind {
+                        drawCircle(
+                            color = accentColor.copy(alpha = ring1Alpha.value * 0.55f),
+                            radius = ring1Radius.value * size.maxDimension * 0.7f,
+                            style = Stroke(2.dp.toPx()),
+                        )
+                        drawCircle(
+                            color = accentColor.copy(alpha = ring2Alpha.value * 0.45f),
+                            radius = ring2Radius.value * size.maxDimension * 0.7f,
+                            style = Stroke(1.5.dp.toPx()),
+                        )
+                        drawCircle(
+                            color = accentColor.copy(alpha = ring3Alpha.value * 0.35f),
+                            radius = ring3Radius.value * size.maxDimension * 0.7f,
+                            style = Stroke(1.dp.toPx()),
+                        )
                         drawRoundRect(
                             brush = glowBrush,
                             cornerRadius = CornerRadius(32.dp.toPx(), 32.dp.toPx())
