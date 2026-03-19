@@ -62,7 +62,11 @@ class StrategyProviderTest {
         // A,8
         val a8Strategy = strategy.first { it.playerValue == "A,8" }
         for (dealerUpcard in 2..11) {
-            assertEquals(StrategyAction.STAND, a8Strategy.actions[dealerUpcard])
+            if (dealerUpcard == 6) {
+                assertEquals(StrategyAction.DOUBLE, a8Strategy.actions[dealerUpcard])
+            } else {
+                assertEquals(StrategyAction.STAND, a8Strategy.actions[dealerUpcard])
+            }
         }
 
         // A,7
