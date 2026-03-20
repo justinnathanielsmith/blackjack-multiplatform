@@ -118,7 +118,7 @@ fun OverlayCardTable(
     Box(modifier = modifier.fillMaxSize()) {
         // 1. Active hand glow behind the cluster
         if (state.status == GameStatus.PLAYING) {
-            val activeZone = tableLayout.handZones.getOrNull(state.activeHandIndex + 1)
+            val activeZone = tableLayout.handZones.firstOrNull { it.handIndex == state.activeHandIndex }
             if (activeZone != null) {
                 ActiveHandGlow(
                     zone = activeZone,
@@ -134,7 +134,6 @@ fun OverlayCardTable(
             val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
             val isDealer = slot.handIndex == -1
             val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
-            val elevationScale = if (isActive) 1.05f else 1f
 
             androidx.compose.runtime.key(slot.handIndex, slot.cardIndex) {
                 PositionedCardItem(
@@ -148,7 +147,6 @@ fun OverlayCardTable(
                     density = density,
                     isActive = isActive,
                     alpha = alpha,
-                    elevationScale = elevationScale,
                 )
             }
         }
@@ -186,7 +184,6 @@ private fun PositionedCardItem(
     density: Density,
     isActive: Boolean,
     alpha: Float,
-    elevationScale: Float,
 ) {
     val currentX = remember { Animatable(slot.startOffset.x) }
     val currentY = remember { Animatable(slot.startOffset.y) }
@@ -247,37 +244,56 @@ private fun PositionedCardItem(
         label = "shadowElevation"
     )
 
-    val scaledHalfW = baseCardW * slot.scale * elevationScale / 2f
-    val scaledHalfH = baseCardH * slot.scale * elevationScale / 2f
+    val targetScale =
+        if (isActive &&
+            state.playerHands.size > 1 &&
+            !slot.isDealer
+        ) {
+            1.1f
+        } else if (isActive) {
+            1.05f
+        } else {
+            1f
+        }
+    val animatedScale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = targetScale,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow),
+        label = "activeScale"
+    )
+
+    val scaledHalfW = baseCardW * slot.scale / 2f
+    val scaledHalfH = baseCardH * slot.scale / 2f
+
+    val wasFaceDown = remember(slot.card) { slot.card.isFaceDown }
 
     Box(
         modifier =
             Modifier
-                .requiredWidth(Dimensions.Card.StandardWidth * slot.scale * elevationScale)
+                .requiredWidth(Dimensions.Card.StandardWidth * slot.scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
                     translationX = currentX.value - scaledHalfW + coordOffsetX
                     translationY = currentY.value - scaledHalfH + coordOffsetY
                     rotationZ = currentRotation.value
                     this.alpha = alpha
-                    this.scaleX = currentScale.value * elevationScale
-                    this.scaleY = currentScale.value * elevationScale
+                    this.scaleX = currentScale.value * animatedScale
+                    this.scaleY = currentScale.value * animatedScale
                 }
     ) {
-        if (slot.isHoleCard) {
+        if (wasFaceDown) {
             DealerCard(
                 card = slot.card,
                 isFaceUp = slot.isFaceUp,
                 dealerUpcard = state.dealerHand.cards.getOrNull(0),
                 dealerScore = state.dealerHand.score,
-                scale = slot.scale * elevationScale,
+                scale = slot.scale,
                 shadowElevation = shadowElevation,
             )
         } else {
             PlayingCard(
                 card = slot.card,
                 isFaceUp = slot.isFaceUp,
-                scale = slot.scale * elevationScale,
+                scale = slot.scale,
                 isNearMiss = isNearMiss,
                 shadowElevation = shadowElevation,
                 spotColor = if (isActive) PrimaryGold else Color.Black
@@ -361,17 +377,21 @@ private fun HandZoneHud(
     val clusterW = with(density) { zone.clusterSize.width.toDp() }
     val clusterH = with(density) { zone.clusterSize.height.toDp() }
 
-    val borderTransition = rememberInfiniteTransition(label = "borderGlowTransition")
-    val borderGlowAlpha by borderTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "borderGlowAlpha",
-    )
+    val borderGlowAlpha = if (isActive) {
+        val t = rememberInfiniteTransition(label = "borderGlowTransition")
+        t.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.7f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "borderGlowAlpha",
+        ).value
+    } else {
+        0f
+    }
 
     // Transparent cluster-sized box positioned over the cluster — used for badge anchoring
     Box(
@@ -406,7 +426,7 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = (-40).dp)
+                        .offset(y = (-40).dp * zone.scale)
             )
         }
 
@@ -422,7 +442,7 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = (-18).dp),
+                        .offset(y = (-18).dp * zone.scale),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -434,12 +454,19 @@ private fun HandZoneHud(
                 ScoreBadge(
                     score = displayScore,
                     state = ScoreBadgeState.DEALER,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = zone.scale
+                        scaleY = zone.scale
+                    }
                 )
             }
 
             HandStatusOverlay(
                 hand = state.dealerHand,
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier.align(Alignment.Center).graphicsLayer {
+                    scaleX = zone.scale
+                    scaleY = zone.scale
+                },
             )
         } else {
             val handIndex = zone.handIndex
@@ -458,7 +485,7 @@ private fun HandZoneHud(
                     modifier =
                         Modifier
                             .align(Alignment.TopStart)
-                            .offset(x = (-8).dp, y = (-16).dp),
+                            .offset(x = (-8).dp * zone.scale, y = (-16).dp * zone.scale),
                 )
             }
 
@@ -467,7 +494,7 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = 20.dp),
+                        .offset(y = 20.dp * zone.scale),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -478,8 +505,8 @@ private fun HandZoneHud(
                             isActive = isActive,
                             modifier =
                                 Modifier.graphicsLayer {
-                                    scaleX = 0.75f
-                                    scaleY = 0.75f
+                                    scaleX = 0.75f * zone.scale
+                                    scaleY = 0.75f * zone.scale
                                 }
                         )
                     }
@@ -487,6 +514,10 @@ private fun HandZoneHud(
                 ScoreBadge(
                     score = hand.score,
                     state = badgeState,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = zone.scale
+                        scaleY = zone.scale
+                    }
                 )
             }
 
@@ -496,13 +527,22 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.Center)
-                        .graphicsLayer { rotationZ = -6f },
+                        .graphicsLayer {
+                            rotationZ = -6f
+                            scaleX = zone.scale
+                            scaleY = zone.scale
+                        },
             )
 
-            HandStatusOverlay(
-                hand = hand,
-                modifier = Modifier.align(Alignment.Center),
-            )
+            if (!state.status.isTerminal()) {
+                HandStatusOverlay(
+                    hand = hand,
+                    modifier = Modifier.align(Alignment.Center).graphicsLayer {
+                        scaleX = zone.scale
+                        scaleY = zone.scale
+                    },
+                )
+            }
         }
     }
 }

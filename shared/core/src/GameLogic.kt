@@ -40,8 +40,10 @@ enum class Rank(
 data class Card(
     val rank: Rank,
     val suit: Suit,
-    val isFaceDown: Boolean = false
-)
+    val isFaceDown: Boolean = false,
+) {
+    val isFaceUp: Boolean get() = !isFaceDown
+}
 
 @Immutable
 @Serializable

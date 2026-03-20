@@ -1,38 +1,32 @@
 # Objective
-Fix the bug where the dealing animation repeats unintentionally, such as when new cards are added to a hand or when the dealer's hole card flips.
+Fix the repeating deal animation bug and address architectural, performance, and maintainability issues in the card table layout logic.
 
 # Root Cause Analysis
-The issue stems from two problems in `sharedUI/src/ui/components/OverlayCardTable.kt`:
-
-1. **Missing Stable Keys**: The `OverlayCardTable` iterates over `tableLayout.cardSlots` using a `forEach` loop without providing a Compose `key`. When a new card is dealt (e.g., to the first player hand), the number of cards in that hand increases, shifting the sequence of all subsequent cards in the `cardSlots` list. Without a key, Compose matches components by their positional order, causing subsequent cards to receive the `Card` data of their new sequence index. 
-2. **Fragile `remember` Blocks**: Inside `PositionedCardItem`, the `Animatable` instances for X, Y, scale, and rotation use `slot.card` as their `remember` key (e.g., `remember(slot.card) { Animatable(...) }`). When `slot.card` changes—either because of the list shift described above or because the dealer's hole card toggles its `isFaceDown` state—the `remember` block resets. This throws away the card's current visual state on the table and creates a new `Animatable` starting back at the shoe (`slot.startOffset`), resulting in a repeated dealing animation.
+1. **Repeating Animations (OverlayCardTable.kt)**: Missing Compose `key`s in `forEach` loops and fragile `remember` blocks tied to `slot.card` cause `Animatable` instances to reset when new cards are added or when the dealer's hole card flips.
+2. **Layout Scale Anti-Pattern (CardTablePositioner.kt)**: Baking the `1.1f` active scale multiplier directly into the coordinate and size math causes the entire cluster to jump instantly when the active hand changes.
+3. **Simultaneous Animation Delays (CardTablePositioner.kt)**: The `animDelay` is calculated purely based on the local card index within a hand, causing all hands' first cards to deal concurrently.
+4. **Performance & Magic Numbers (CardTablePositioner.kt)**: `Density` conversions are performed inside the `forEachIndexed` loop, and the file uses magic numbers instead of named constants.
 
 # Implementation Steps
 
-1. **Add Stable Keys**:
-   - In `sharedUI/src/ui/components/OverlayCardTable.kt`, wrap the `PositionedCardItem` call inside the `forEach` loop with a `key` block using the hand and card indices:
-     ```kotlin
-     key(slot.handIndex, slot.cardIndex) {
-         PositionedCardItem(
-             slot = slot,
-             // ...
-         )
-     }
-     ```
-   - This ensures each physical card slot on the table retains its identity regardless of how many new slots are inserted before it.
+1. **Add Stable Keys (OverlayCardTable.kt)**:
+   - Wrap the `PositionedCardItem` call inside the `forEach` loop with a `key(slot.handIndex, slot.cardIndex)` block.
 
-2. **Decouple Animatable State from Card Value**:
-   - Inside the `PositionedCardItem` composable, remove `slot.card` from the `remember` blocks. Since a specific physical slot (identified by the key above) doesn't change its starting origin once it enters the composition, we only need to initialize the animatables once:
-     ```kotlin
-     val currentX = remember { Animatable(slot.startOffset.x) }
-     val currentY = remember { Animatable(slot.startOffset.y) }
-     val currentScale = remember { Animatable(0.5f) }
-     val currentRotation = remember { Animatable(if (slot.isDealer) -45f else 45f) }
-     ```
+2. **Decouple Animatable State from Card Value (OverlayCardTable.kt)**:
+   - Inside `PositionedCardItem`, remove `slot.card` from the `remember` blocks for `currentX`, `currentY`, `currentScale`, and `currentRotation`. Initialize them once.
 
-3. **Preserve Reveal & Movement Dynamics**:
-   - The `LaunchedEffect(slot.card, slot.centerOffset)` remains appropriate. Because the `Animatable` instances are no longer reset, when `slot.card` changes (e.g., `isFaceDown` becomes false), the `LaunchedEffect` will seamlessly animate from the card's *current* resting position rather than teleporting back to the shoe. This properly preserves the scale "pop" and rotation fix when the dealer hole card is revealed.
+3. **Refactor Table Layout Math (CardTablePositioner.kt)**:
+   - **Extract Constants**: Move magic numbers (`0.22f`, `0.72f`, `0.12f`, `0.06f`, `6f`, etc.) into a private `TableMetrics` object at the top of the file.
+   - **Hoist Density Math**: Move `with(density) { Dimensions.Card.StandardWidth.toPx() }` and `6.dp.toPx()` outside the player hands loop to avoid recalculating them per hand.
+   - **Remove Active Scale from Math**: Remove the `if (isActive && nPlayerHands > 1) cardScale * 1.1f else cardScale` logic from `computeTableLayout`. Always use the base `cardScale` for layout calculations.
+   - **Fix Animation Delays**: Pass a `globalCardIndex` into `computeZone` so that `animDelay` is staggered sequentially across all hands on the table.
+   - **Simplify Hole Card Logic**: Remove the explicit `isHoleCard = isDealer && index == 1` flag and rely purely on the domain model's `isFaceDown` state.
+
+4. **Apply Active Scale in Compose**:
+   - Apply the `1.1f` scale boost dynamically in the `@Composable` layer (e.g., using `Modifier.scale(animateFloatAsState(...).value)`) for the currently active hand to ensure a smooth, animated transition.
 
 # Verification & Testing
-- **Multi-Hand Play**: Play a game with multiple hands. Hit on the first hand and verify that cards in the second hand do not animate from the shoe again.
-- **Hole Card Reveal**: Complete a player turn and observe the dealer's hidden card. When it flips face-up, verify that it scales and rotates in place without flying from the shoe again.
+- **Multi-Hand Play**: Hit on a hand and verify cards in subsequent hands do not animate from the shoe again.
+- **Hole Card Reveal**: Verify the dealer's hole card scales and rotates in place without flying from the shoe.
+- **Active Hand Transition**: Verify that switching the active hand animates the scale smoothly without causing the hand's base coordinates to snap or jump.
+- **Initial Deal**: Verify that cards are dealt sequentially rather than all at once.
