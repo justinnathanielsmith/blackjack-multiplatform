@@ -49,10 +49,14 @@ import sharedui.generated.resources.status_idle
 import sharedui.generated.resources.status_player_won
 import sharedui.generated.resources.status_playing
 import sharedui.generated.resources.status_push
+import sharedui.generated.resources.net_result_won
+import sharedui.generated.resources.net_result_lost
+import sharedui.generated.resources.net_result_push
 
 @Composable
 fun GameStatusMessage(
     status: GameStatus,
+    netPayout: Int? = null,
     isCompact: Boolean = false,
     isBlackjack: Boolean = false,
 ) {
@@ -185,42 +189,75 @@ fun GameStatusMessage(
                 ).padding(horizontal = 48.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = statusText.uppercase(),
-            style =
-                if (isCompact) {
-                    MaterialTheme.typography.displaySmall
-                } else {
-                    MaterialTheme.typography.displayMedium
-                }.copy(letterSpacing = 4.sp),
-            color = Color.White,
-            fontWeight = FontWeight.Black,
-            textAlign = TextAlign.Center,
-            modifier =
-                Modifier.drawWithCache {
-                    val shimmerBrush =
-                        Brush.linearGradient(
-                            colors =
-                                listOf(
-                                    Color.Transparent,
-                                    accentColor.copy(alpha = 0.3f),
-                                    accentColor,
-                                    accentColor.copy(alpha = 0.3f),
-                                    Color.Transparent
-                                ),
-                            start = Offset(size.width * shimmerX.value, 0f),
-                            end = Offset(size.width * (shimmerX.value + 0.3f), size.height)
-                        )
-                    onDrawWithContent {
-                        drawContent()
-                        if (status == GameStatus.PLAYER_WON || status == GameStatus.PUSH) {
-                            drawRect(
-                                brush = shimmerBrush,
-                                blendMode = BlendMode.SrcAtop
+        val isTerminal = status == GameStatus.PLAYER_WON ||
+            status == GameStatus.DEALER_WON ||
+            status == GameStatus.PUSH
+
+        val netLabel: String? =
+            if (isTerminal && netPayout != null) {
+                when {
+                    netPayout > 0 -> stringResource(Res.string.net_result_won, netPayout)
+                    netPayout < 0 -> stringResource(Res.string.net_result_lost, -netPayout)
+                    else -> stringResource(Res.string.net_result_push)
+                }
+            } else null
+
+        val netLabelColor =
+            when {
+                netPayout != null && netPayout > 0 -> PrimaryGold
+                netPayout != null && netPayout < 0 -> TacticalRed
+                else -> Color.White.copy(alpha = 0.7f)
+            }
+
+        androidx.compose.foundation.layout.Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = statusText.uppercase(),
+                style =
+                    if (isCompact) {
+                        MaterialTheme.typography.displaySmall
+                    } else {
+                        MaterialTheme.typography.displayMedium
+                    }.copy(letterSpacing = 4.sp),
+                color = Color.White,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center,
+                modifier =
+                    Modifier.drawWithCache {
+                        val shimmerBrush =
+                            Brush.linearGradient(
+                                colors =
+                                    listOf(
+                                        Color.Transparent,
+                                        accentColor.copy(alpha = 0.3f),
+                                        accentColor,
+                                        accentColor.copy(alpha = 0.3f),
+                                        Color.Transparent
+                                    ),
+                                start = Offset(size.width * shimmerX.value, 0f),
+                                end = Offset(size.width * (shimmerX.value + 0.3f), size.height)
                             )
+                        onDrawWithContent {
+                            drawContent()
+                            if (status == GameStatus.PLAYER_WON || status == GameStatus.PUSH) {
+                                drawRect(
+                                    brush = shimmerBrush,
+                                    blendMode = BlendMode.SrcAtop
+                                )
+                            }
                         }
-                    }
-                },
-        )
+                    },
+            )
+            if (netLabel != null) {
+                Text(
+                    text = netLabel,
+                    color = netLabelColor,
+                    fontWeight = FontWeight.Black,
+                    style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 2.sp),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
     }
 }

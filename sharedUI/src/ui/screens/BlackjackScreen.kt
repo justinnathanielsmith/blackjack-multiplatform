@@ -74,6 +74,7 @@ import io.github.smithjustinn.blackjack.ui.components.Shoe
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.components.computeTableLayout
 import io.github.smithjustinn.blackjack.ui.components.handResult
+import io.github.smithjustinn.blackjack.ui.components.totalNetPayout
 import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
@@ -541,6 +542,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         BlackjackGameOverlay(
                             status = state.status,
                             playerHands = state.playerHands,
+                            netPayout = state.totalNetPayout(),
                             isBlackjack = isBlackjack,
                             component = component,
                             flashAlphaProvider = { flashAlpha.value },
@@ -649,6 +651,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 private fun BlackjackGameOverlay(
     status: GameStatus,
     playerHands: List<io.github.smithjustinn.blackjack.Hand>,
+    netPayout: Int?,
     isBlackjack: Boolean,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
@@ -670,7 +673,7 @@ private fun BlackjackGameOverlay(
                     scaleIn(initialScale = 0.5f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f)),
             exit = fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.8f),
         ) {
-            GameStatusMessage(status = status, isBlackjack = isBlackjack)
+            GameStatusMessage(status = status, netPayout = netPayout, isBlackjack = isBlackjack)
         }
 
         if (status == GameStatus.INSURANCE_OFFERED) {

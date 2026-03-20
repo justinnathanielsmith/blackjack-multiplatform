@@ -60,13 +60,12 @@ fun computeTableLayout(
     val cardW = with(density) { Dimensions.Card.StandardWidth.toPx() } * cardScale
     val cardH = cardW / Dimensions.Card.AspectRatio
 
-    // Tighter Splaying: Cards overlap more in multi-hand to save horizontal space
-    val overlapFactor = if (nPlayerHands > 1) 0.35f else 0.45f
-    val overlapOffsetPx = cardW * overlapFactor
-    val defaultStepX = overlapOffsetPx
+    // Casino-authentic overlap: only the index strip is visible (~22–25%)
+    val dealerOverlapFactor = 0.22f
+    val playerOverlapFactor = if (nPlayerHands > 1) 0.25f else 0.30f
     val stepYPx = with(density) { 6.dp.toPx() } * cardScale // Slightly flatter stacks
 
-    val sharedParams = SlotParams(cardW, cardH, defaultStepX, stepYPx, cardScale)
+    val sharedParams = SlotParams(cardW, cardH, cardW * dealerOverlapFactor, stepYPx, cardScale)
 
     val cardSlots = mutableListOf<CardSlotLayout>()
     val handZones = mutableListOf<HandZone>()
@@ -113,7 +112,7 @@ fun computeTableLayout(
             SlotParams(
                 cardW = handCardW,
                 cardH = handCardH,
-                defaultStepX = handCardW * overlapFactor,
+                defaultStepX = handCardW * playerOverlapFactor,
                 stepYPx = with(density) { 6.dp.toPx() } * handScale,
                 cardScale = handScale,
             )
@@ -158,10 +157,14 @@ private fun computeZone(
     val totalW = clusterWidth(n, cardW, actualStepX)
     val totalH = clusterHeight(n, cardH, stepYPx)
 
+    val smileRadius = cardH * 0.06f // 6% of card height — subtle intra-hand arc
+
     val slots =
         cards.mapIndexed { index, card ->
             val cx = zoneCenter.x - totalW / 2f + index * actualStepX + cardW / 2f
-            val cy = zoneCenter.y - totalH / 2f + index * stepYPx + cardH / 2f
+            val relPos = if (n > 1) (index / (n - 1f)) * 2f - 1f else 0f
+            val smileYOffset = relPos * relPos * smileRadius
+            val cy = zoneCenter.y - totalH / 2f + index * stepYPx + cardH / 2f + smileYOffset
             val fanAngle = (index - (n - 1) / 2f) * 6f
             CardSlotLayout(
                 card = card,

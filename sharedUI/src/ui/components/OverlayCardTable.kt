@@ -74,6 +74,27 @@ internal fun GameState.handResult(index: Int): HandResult {
     }
 }
 
+/**
+ * Net profit/loss for a single hand: positive = win, negative = loss, zero = push.
+ * Returns null while the round is not yet terminal.
+ */
+internal fun GameState.handNetPayout(index: Int): Int? {
+    if (!status.isTerminal()) return null
+    val hand = playerHands.getOrNull(index) ?: return null
+    val bet = playerBets.getOrNull(index) ?: return null
+    val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
+    return payout - bet
+}
+
+/**
+ * Total net across all hands: sum of per-hand net payouts.
+ * Returns null while the round is not yet terminal.
+ */
+internal fun GameState.totalNetPayout(): Int? {
+    if (!status.isTerminal()) return null
+    return playerHands.indices.sumOf { handNetPayout(it) ?: 0 }
+}
+
 @Composable
 fun OverlayCardTable(
     state: GameState,
@@ -171,15 +192,15 @@ private fun PositionedCardItem(
     )
 
     // Dynamic shadow based on flying state, active state, and card stack position
-    val stackBoost = (entry.cardIndex * 2).dp
+    val stackBoost = (entry.cardIndex * 3).dp
     val shadowElevation by androidx.compose.animation.core.animateDpAsState(
         targetValue =
             if (isFlying) {
                 16.dp
             } else if (isActive) {
-                (8.dp + stackBoost)
+                (10.dp + stackBoost)
             } else {
-                (2.dp + stackBoost)
+                (5.dp + stackBoost)
             },
         animationSpec = tween(300),
         label = "shadowElevation"
@@ -383,6 +404,7 @@ private fun HandZoneHud(
             val handIndex = zone.handIndex
             val hand = state.playerHands.getOrNull(handIndex) ?: return@Box
             val result = state.handResult(handIndex)
+            val netPayout = state.handNetPayout(handIndex)
             val multiHand = state.playerHands.size > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
             val bet = state.playerBets.getOrNull(handIndex) ?: 0
@@ -429,6 +451,7 @@ private fun HandZoneHud(
 
             HandOutcomeBadge(
                 result = result,
+                netPayout = netPayout,
                 modifier =
                     Modifier
                         .align(Alignment.Center)

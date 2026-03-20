@@ -10,15 +10,19 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
@@ -27,6 +31,8 @@ import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.result_loss
+import sharedui.generated.resources.result_payout_negative
+import sharedui.generated.resources.result_payout_positive
 import sharedui.generated.resources.result_push
 import sharedui.generated.resources.result_win
 
@@ -46,6 +52,7 @@ enum class HandStatus {
 @Composable
 internal fun HandOutcomeBadge(
     result: HandResult,
+    netPayout: Int? = null,
     modifier: Modifier = Modifier,
 ) {
     val containerColor =
@@ -60,12 +67,24 @@ internal fun HandOutcomeBadge(
             HandResult.WIN -> BackgroundDark
             else -> Color.White
         }
-    val text =
+    val badgeText =
         when (result) {
             HandResult.WIN -> stringResource(Res.string.result_win)
             HandResult.LOSS -> stringResource(Res.string.result_loss)
             HandResult.PUSH -> stringResource(Res.string.result_push)
             HandResult.NONE -> ""
+        }
+
+    // Payout sub-label: only show when we have a non-zero net and the result is terminal.
+    val payoutLabel: String? =
+        when {
+            netPayout == null -> null
+            result == HandResult.WIN && netPayout > 0 ->
+                stringResource(Res.string.result_payout_positive, netPayout)
+            result == HandResult.LOSS && netPayout < 0 ->
+                stringResource(Res.string.result_payout_negative, -netPayout)
+            // PUSH: net is 0, no annotation needed
+            else -> null
         }
 
     AnimatedVisibility(
@@ -98,14 +117,26 @@ internal fun HandOutcomeBadge(
                             },
                         shape = RoundedCornerShape(12.dp),
                     ).padding(horizontal = 24.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = text.uppercase(),
-                color = contentColor,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
-                fontSize = 24.sp,
-                letterSpacing = 4.sp,
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = badgeText.uppercase(),
+                    color = contentColor,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 24.sp,
+                    letterSpacing = 4.sp,
+                )
+                if (payoutLabel != null) {
+                    Text(
+                        text = payoutLabel,
+                        color = contentColor.copy(alpha = 0.85f),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelLarge,
+                        letterSpacing = 1.sp,
+                    )
+                }
+            }
         }
     }
 }

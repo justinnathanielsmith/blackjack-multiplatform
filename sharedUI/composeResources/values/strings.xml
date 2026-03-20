@@ -54,6 +54,13 @@
     <string name="result_win">Win</string>
     <string name="result_loss">Loss</string>
     <string name="result_push">Push</string>
+    <!-- Per-hand payout annotations on the outcome badge -->
+    <string name="result_payout_positive">+$%1$d</string>
+    <string name="result_payout_negative">-$%1$d</string>
+    <!-- Net result sub-header in the round-end status message -->
+    <string name="net_result_won">+$%1$d</string>
+    <string name="net_result_lost">-$%1$d</string>
+    <string name="net_result_push">EVEN</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
