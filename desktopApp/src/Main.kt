@@ -9,8 +9,9 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import io.github.smithjustinn.blackjack.presentation.DefaultRootComponent
 import io.github.smithjustinn.blackjack.ui.screens.RootScreen
 
-fun main() =
-    application {
+fun main() {
+    System.setProperty("skiko.renderApi", "SOFTWARE")
+    return application {
         val lifecycle = LifecycleRegistry()
         val appGraph = DesktopAppGraph()
         val root =
@@ -32,3 +33,4 @@ fun main() =
             RootScreen(root, appGraph)
         }
     }
+}

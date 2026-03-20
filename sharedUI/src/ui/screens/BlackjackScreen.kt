@@ -619,9 +619,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                         val slot =
                                             dealRegistry.tableLayout
                                                 ?.cardSlots
-                                                ?.find { dealRegistry.samePhysicalCard(it.card, instance.card) }
+                                                ?.find { it.handIndex == instance.handIndex && it.cardIndex == instance.cardIndex }
                                         if (slot != null) {
-                                            dealRegistry.markLanded(instance.card, PositionedCardEntry(slot))
+                                            dealRegistry.markLanded(instance.handIndex, instance.cardIndex, PositionedCardEntry(slot))
                                         }
                                     },
                                 )
@@ -737,13 +737,15 @@ private fun BlackjackLayout(
                 // Fly any new cards that haven't started animating yet
                 layout.cardSlots
                     .filter { slot ->
-                        !dealRegistry.isLanded(slot.card) && !dealRegistry.isFlying(slot.card)
+                        !dealRegistry.isLanded(slot.handIndex, slot.cardIndex) && !dealRegistry.isFlying(slot.handIndex, slot.cardIndex)
                     }.forEach { slot ->
                         val shoePos = shoePosition.value ?: return@forEach
                         dealRegistry.requestDeal(
                             FlyingCardInstance(
                                 id = kotlin.random.Random.nextLong(),
                                 card = slot.card,
+                                handIndex = slot.handIndex,
+                                cardIndex = slot.cardIndex,
                                 isFaceUp = slot.isFaceUp,
                                 scale = slot.scale,
                                 startOffset = shoePos,

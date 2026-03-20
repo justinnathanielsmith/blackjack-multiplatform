@@ -139,7 +139,7 @@ private fun PositionedCardItem(
     density: Density,
 ) {
     val registry = LocalDealAnimationRegistry.current
-    val isFlying = registry.isFlying(entry.card)
+    val isFlying = registry.isFlying(entry.handIndex, entry.cardIndex)
 
     val animatedOffset by animateOffsetAsState(
         targetValue = entry.targetOffset,

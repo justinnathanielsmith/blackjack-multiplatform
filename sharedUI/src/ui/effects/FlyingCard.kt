@@ -45,6 +45,8 @@ import kotlinx.coroutines.launch
 data class FlyingCardInstance(
     val id: Long,
     val card: Card,
+    val handIndex: Int,
+    val cardIndex: Int,
     val isFaceUp: Boolean,
     val scale: Float,
     val startOffset: Offset,
@@ -60,6 +62,7 @@ class PositionedCardEntry(
 ) {
     val card = slot.card
     val handIndex = slot.handIndex // -1 = dealer
+    val cardIndex = slot.cardIndex
     val isDealer = slot.isDealer
     val isHoleCard = slot.isHoleCard
     val scale = slot.scale
@@ -73,42 +76,37 @@ class PositionedCardEntry(
 class DealAnimationRegistry {
     val flyingCards = mutableStateListOf<FlyingCardInstance>()
     val positionedCards = mutableStateListOf<PositionedCardEntry>()
-    private val landedCards = mutableStateMapOf<Card, Unit>()
+    private val landedCards = mutableStateListOf<Pair<Int, Int>>() // Pair(handIndex, cardIndex)
     var overlayOffset by mutableStateOf(Offset.Zero)
     var gameplayAreaOffset by mutableStateOf(Offset.Zero)
     var tableLayout by mutableStateOf<TableLayout?>(null)
 
-    // Normalize card key: ignore isFaceDown so reveal doesn't break lookup
-    private fun cardKey(card: Card) = card.copy(isFaceDown = false)
+    fun isLanded(handIndex: Int, cardIndex: Int): Boolean =
+        landedCards.any { it.first == handIndex && it.second == cardIndex }
 
-    internal fun samePhysicalCard(
-        a: Card,
-        b: Card
-    ) = cardKey(a) == cardKey(b)
-
-    fun isLanded(card: Card): Boolean = cardKey(card) in landedCards
-
-    fun isFlying(card: Card): Boolean = flyingCards.any { samePhysicalCard(it.card, card) }
+    fun isFlying(handIndex: Int, cardIndex: Int): Boolean =
+        flyingCards.any { it.handIndex == handIndex && it.cardIndex == cardIndex }
 
     fun requestDeal(instance: FlyingCardInstance) {
-        if (!isLanded(instance.card) && !isFlying(instance.card)) {
+        if (!isLanded(instance.handIndex, instance.cardIndex) && !isFlying(instance.handIndex, instance.cardIndex)) {
             flyingCards.add(instance)
         }
     }
 
     fun markLanded(
-        card: Card,
+        handIndex: Int,
+        cardIndex: Int,
         entry: PositionedCardEntry
     ) {
-        landedCards[cardKey(card)] = Unit
-        flyingCards.removeAll { cardKey(it.card) == cardKey(card) }
+        landedCards.add(handIndex to cardIndex)
+        flyingCards.removeAll { it.handIndex == handIndex && it.cardIndex == cardIndex }
         positionedCards.add(entry)
     }
 
     fun repositionCards(newSlots: List<CardSlotLayout>) {
         newSlots.forEach { slot ->
             positionedCards
-                .find { cardKey(it.card) == cardKey(slot.card) }
+                .find { it.handIndex == slot.handIndex && it.cardIndex == slot.cardIndex }
                 ?.let {
                     it.targetOffset = slot.centerOffset
                     it.isFaceUp = slot.isFaceUp
