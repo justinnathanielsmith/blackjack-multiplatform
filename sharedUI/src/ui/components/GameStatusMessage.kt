@@ -41,6 +41,9 @@ import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.net_result_lost
+import sharedui.generated.resources.net_result_push
+import sharedui.generated.resources.net_result_won
 import sharedui.generated.resources.status_betting
 import sharedui.generated.resources.status_dealer_turn
 import sharedui.generated.resources.status_dealer_won
@@ -49,9 +52,6 @@ import sharedui.generated.resources.status_idle
 import sharedui.generated.resources.status_player_won
 import sharedui.generated.resources.status_playing
 import sharedui.generated.resources.status_push
-import sharedui.generated.resources.net_result_won
-import sharedui.generated.resources.net_result_lost
-import sharedui.generated.resources.net_result_push
 
 @Composable
 fun GameStatusMessage(
@@ -189,9 +189,10 @@ fun GameStatusMessage(
                 ).padding(horizontal = 48.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
-        val isTerminal = status == GameStatus.PLAYER_WON ||
-            status == GameStatus.DEALER_WON ||
-            status == GameStatus.PUSH
+        val isTerminal =
+            status == GameStatus.PLAYER_WON ||
+                status == GameStatus.DEALER_WON ||
+                status == GameStatus.PUSH
 
         val netLabel: String? =
             if (isTerminal && netPayout != null) {
@@ -200,7 +201,9 @@ fun GameStatusMessage(
                     netPayout < 0 -> stringResource(Res.string.net_result_lost, -netPayout)
                     else -> stringResource(Res.string.net_result_push)
                 }
-            } else null
+            } else {
+                null
+            }
 
         val netLabelColor =
             when {

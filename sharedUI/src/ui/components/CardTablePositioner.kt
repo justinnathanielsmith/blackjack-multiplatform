@@ -13,6 +13,7 @@ data class CardSlotLayout(
     val card: Card,
     val handIndex: Int, // -1 = dealer
     val cardIndex: Int,
+    val startOffset: Offset,
     val centerOffset: Offset, // gameplay-area local coords
     val rotationZ: Float,
     val isFaceUp: Boolean,
@@ -46,6 +47,7 @@ fun computeTableLayout(
     areaWidth: Float,
     areaHeight: Float,
     density: Density,
+    shoePosition: Offset,
 ): TableLayout {
     val nPlayerHands = state.playerHands.size.coerceAtLeast(1)
 
@@ -77,6 +79,7 @@ fun computeTableLayout(
             cards = state.dealerHand.cards,
             handIndex = -1,
             zoneCenter = dealerZoneCenter,
+            shoePosition = shoePosition,
             availableWidth = areaWidth * 0.4f, // Dealer has less horizontal space constraint
             params = sharedParams,
             isDealer = true,
@@ -122,6 +125,7 @@ fun computeTableLayout(
                 cards = hand.cards,
                 handIndex = handIdx,
                 zoneCenter = playerZoneCenter,
+                shoePosition = shoePosition,
                 availableWidth = zoneWidth * 0.95f,
                 params = handParams,
                 isDealer = false,
@@ -146,6 +150,7 @@ private fun computeZone(
     cards: List<Card>,
     handIndex: Int,
     zoneCenter: Offset,
+    shoePosition: Offset,
     availableWidth: Float,
     params: SlotParams,
     isDealer: Boolean,
@@ -170,6 +175,7 @@ private fun computeZone(
                 card = card,
                 handIndex = handIndex,
                 cardIndex = index,
+                startOffset = shoePosition,
                 centerOffset = Offset(cx, cy),
                 rotationZ = fanAngle,
                 isFaceUp = !card.isFaceDown,

@@ -1,10 +1,10 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -24,7 +24,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -50,11 +52,12 @@ import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.HandOutcome
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
-import io.github.smithjustinn.blackjack.ui.effects.PositionedCardEntry
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.dealer
@@ -126,20 +129,20 @@ fun OverlayCardTable(
         }
 
         // 2. Positioned (landed) cards
-        registry.positionedCards.forEach { entry ->
-            val isActive = state.status == GameStatus.PLAYING && entry.handIndex == state.activeHandIndex
-            val isDealer = entry.handIndex == -1
+        tableLayout.cardSlots.forEach { slot ->
+            val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
+            val isDealer = slot.handIndex == -1
             val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
             val elevationScale = if (isActive) 1.05f else 1f
 
             PositionedCardItem(
-                entry = entry,
+                slot = slot,
                 state = state,
                 baseCardW = baseCardW,
                 baseCardH = baseCardH,
                 coordOffsetX = coordOffsetX,
                 coordOffsetY = coordOffsetY,
-                isNearMiss = entry.handIndex == nearMissHandIndex,
+                isNearMiss = slot.handIndex == nearMissHandIndex,
                 density = density,
                 isActive = isActive,
                 alpha = alpha,
@@ -170,7 +173,7 @@ fun OverlayCardTable(
 
 @Composable
 private fun PositionedCardItem(
-    entry: PositionedCardEntry,
+    slot: CardSlotLayout,
     state: GameState,
     baseCardW: Float,
     baseCardH: Float,
@@ -182,17 +185,52 @@ private fun PositionedCardItem(
     alpha: Float,
     elevationScale: Float,
 ) {
-    val registry = LocalDealAnimationRegistry.current
-    val isFlying = registry.isFlying(entry.handIndex, entry.cardIndex)
+    val currentX = remember(slot.card) { Animatable(slot.startOffset.x) }
+    val currentY = remember(slot.card) { Animatable(slot.startOffset.y) }
+    val currentScale = remember(slot.card) { Animatable(0.5f) }
+    val currentRotation = remember(slot.card) { Animatable(if (slot.isDealer) -45f else 45f) }
 
-    val animatedOffset by animateOffsetAsState(
-        targetValue = entry.targetOffset,
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = "cardPos",
-    )
+    LaunchedEffect(slot.card, slot.centerOffset) {
+        delay(slot.animDelay.toLong())
 
-    // Dynamic shadow based on flying state, active state, and card stack position
-    val stackBoost = (entry.cardIndex * 3).dp
+        val zeta = 0.65f
+        val durationSec = slot.animDuration / 1000f
+        val stiffness =
+            if (durationSec > 0) {
+                val omegaN = 6.9f / (zeta * durationSec)
+                (omegaN * omegaN).coerceIn(10f, 2000f)
+            } else {
+                Spring.StiffnessMedium
+            }
+
+        launch {
+            currentX.animateTo(
+                targetValue = slot.centerOffset.x,
+                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
+            )
+        }
+        launch {
+            currentY.animateTo(
+                targetValue = slot.centerOffset.y,
+                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
+            )
+        }
+        launch {
+            currentRotation.animateTo(
+                targetValue = slot.rotationZ,
+                animationSpec = spring(dampingRatio = 0.6f, stiffness = stiffness)
+            )
+        }
+        launch {
+            if (currentScale.value < 1f) {
+                currentScale.animateTo(1.15f, tween(150))
+            }
+            currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
+        }
+    }
+
+    val isFlying = currentX.isRunning || currentY.isRunning
+    val stackBoost = (slot.cardIndex * 3).dp
     val shadowElevation by androidx.compose.animation.core.animateDpAsState(
         targetValue =
             if (isFlying) {
@@ -206,37 +244,37 @@ private fun PositionedCardItem(
         label = "shadowElevation"
     )
 
-    val scaledHalfW = baseCardW * entry.scale * elevationScale / 2f
-    val scaledHalfH = baseCardH * entry.scale * elevationScale / 2f
+    val scaledHalfW = baseCardW * slot.scale * elevationScale / 2f
+    val scaledHalfH = baseCardH * slot.scale * elevationScale / 2f
 
     Box(
         modifier =
             Modifier
-                .requiredWidth(Dimensions.Card.StandardWidth * entry.scale * elevationScale)
+                .requiredWidth(Dimensions.Card.StandardWidth * slot.scale * elevationScale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
-                    translationX = animatedOffset.x - scaledHalfW + coordOffsetX
-                    translationY = animatedOffset.y - scaledHalfH + coordOffsetY
-                    rotationZ = entry.rotationZ
+                    translationX = currentX.value - scaledHalfW + coordOffsetX
+                    translationY = currentY.value - scaledHalfH + coordOffsetY
+                    rotationZ = currentRotation.value
                     this.alpha = alpha
-                    this.scaleX = elevationScale
-                    this.scaleY = elevationScale
+                    this.scaleX = currentScale.value * elevationScale
+                    this.scaleY = currentScale.value * elevationScale
                 }
     ) {
-        if (entry.isHoleCard) {
+        if (slot.isHoleCard) {
             DealerCard(
-                card = entry.card,
-                isFaceUp = entry.isFaceUp,
+                card = slot.card,
+                isFaceUp = slot.isFaceUp,
                 dealerUpcard = state.dealerHand.cards.getOrNull(0),
                 dealerScore = state.dealerHand.score,
-                scale = entry.scale * elevationScale,
+                scale = slot.scale * elevationScale,
                 shadowElevation = shadowElevation,
             )
         } else {
             PlayingCard(
-                card = entry.card,
-                isFaceUp = entry.isFaceUp,
-                scale = entry.scale * elevationScale,
+                card = slot.card,
+                isFaceUp = slot.isFaceUp,
+                scale = slot.scale * elevationScale,
                 isNearMiss = isNearMiss,
                 shadowElevation = shadowElevation,
                 spotColor = if (isActive) PrimaryGold else Color.Black

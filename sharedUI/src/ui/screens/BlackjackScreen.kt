@@ -79,10 +79,7 @@ import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
-import io.github.smithjustinn.blackjack.ui.effects.FlyingCard
-import io.github.smithjustinn.blackjack.ui.effects.FlyingCardInstance
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
-import io.github.smithjustinn.blackjack.ui.effects.PositionedCardEntry
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
@@ -157,7 +154,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val dealRegistry = remember { DealAnimationRegistry() }
 
     LaunchedEffect(state.status) {
-        if (state.status == GameStatus.BETTING) dealRegistry.reset()
+        if (state.status == GameStatus.BETTING) {
+            dealRegistry.tableLayout = null
+        }
     }
 
     // handZones[0] = dealer, handZones[1..N] = player hands
@@ -612,23 +611,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 )
                             }
                         }
-
-                        dealRegistry.flyingCards.forEach { instance ->
-                            key(instance.id) {
-                                FlyingCard(
-                                    instance = instance,
-                                    onAnimationEnd = {
-                                        val slot =
-                                            dealRegistry.tableLayout
-                                                ?.cardSlots
-                                                ?.find { it.handIndex == instance.handIndex && it.cardIndex == instance.cardIndex }
-                                        if (slot != null) {
-                                            dealRegistry.markLanded(instance.handIndex, instance.cardIndex, PositionedCardEntry(slot))
-                                        }
-                                    },
-                                )
-                            }
-                        }
                     }
                 } // CompositionLocalProvider
             }
@@ -729,37 +711,11 @@ private fun BlackjackLayout(
             val areaW = constraints.maxWidth.toFloat()
             val areaH = constraints.maxHeight.toFloat()
 
-            // Recompute layout whenever cards change (deals or reveals)
-            LaunchedEffect(allCards) {
-                val layout = computeTableLayout(state, areaW, areaH, density)
+            // Recompute layout whenever cards change (deals or reveals) or layout bounds change
+            LaunchedEffect(allCards, areaW, areaH, density, shoePosition.value) {
+                val currentShoePos = shoePosition.value ?: Offset(areaW, -100f)
+                val layout = computeTableLayout(state, areaW, areaH, density, currentShoePos)
                 dealRegistry.tableLayout = layout
-
-                // Reposition any already-landed cards (smooth animation)
-                dealRegistry.repositionCards(layout.cardSlots)
-
-                // Fly any new cards that haven't started animating yet
-                layout.cardSlots
-                    .filter { slot ->
-                        !dealRegistry.isLanded(slot.handIndex, slot.cardIndex) && !dealRegistry.isFlying(slot.handIndex, slot.cardIndex)
-                    }.forEach { slot ->
-                        val shoePos = shoePosition.value ?: return@forEach
-                        dealRegistry.requestDeal(
-                            FlyingCardInstance(
-                                id = kotlin.random.Random.nextLong(),
-                                card = slot.card,
-                                handIndex = slot.handIndex,
-                                cardIndex = slot.cardIndex,
-                                isFaceUp = slot.isFaceUp,
-                                scale = slot.scale,
-                                startOffset = shoePos,
-                                endOffset = slot.centerOffset + dealRegistry.gameplayAreaOffset,
-                                animationDelay = slot.animDelay,
-                                durationMs = slot.animDuration,
-                                targetRotationZ = slot.rotationZ,
-                                isDealer = slot.isDealer,
-                            )
-                        )
-                    }
             }
 
             // Shoe widget in top-right corner
