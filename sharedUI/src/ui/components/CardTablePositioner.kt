@@ -48,22 +48,23 @@ fun computeTableLayout(
     density: Density,
 ): TableLayout {
     val nPlayerHands = state.playerHands.size.coerceAtLeast(1)
+
+    // Dynamic Scaling: Reduced for 3 hands to save space
     val cardScale =
         when (nPlayerHands) {
             1 -> 1.0f
-            2 -> 0.80f
-            else -> 0.55f
+            2 -> 0.82f
+            else -> 0.52f // Optimized from 0.55f for 3 hands
         }
 
     val cardW = with(density) { Dimensions.Card.StandardWidth.toPx() } * cardScale
     val cardH = cardW / Dimensions.Card.AspectRatio
-    val overlapOffsetPx =
-        with(density) {
-            Dimensions.Card.OverlapOffsetRaw.dp
-                .toPx()
-        } * cardScale
-    val defaultStepX = overlapOffsetPx + cardW
-    val stepYPx = with(density) { 8.dp.toPx() } * cardScale
+
+    // Tighter Splaying: Cards overlap more in multi-hand to save horizontal space
+    val overlapFactor = if (nPlayerHands > 1) 0.35f else 0.45f
+    val overlapOffsetPx = cardW * overlapFactor
+    val defaultStepX = overlapOffsetPx
+    val stepYPx = with(density) { 6.dp.toPx() } * cardScale // Slightly flatter stacks
 
     val sharedParams = SlotParams(cardW, cardH, defaultStepX, stepYPx, cardScale)
 
@@ -77,26 +78,55 @@ fun computeTableLayout(
             cards = state.dealerHand.cards,
             handIndex = -1,
             zoneCenter = dealerZoneCenter,
-            availableWidth = areaWidth,
+            availableWidth = areaWidth * 0.4f, // Dealer has less horizontal space constraint
             params = sharedParams,
             isDealer = true,
         )
     cardSlots.addAll(dealerSlots)
     handZones.add(dealerZone)
 
-    // Player zones
+    // Player zones: implement a "smiling" radial arc
     val zoneWidth = areaWidth / nPlayerHands
+    val arcRadius = areaHeight * 0.12f // The "depth" of the smile
+    val activeHandIndex = state.activeHandIndex
+
     state.playerHands.forEachIndexed { handIdx, hand ->
+        // Normalize hand index to -1.0 to 1.0 range
+        val relativePos =
+            if (nPlayerHands > 1) {
+                (handIdx / (nPlayerHands - 1f)) * 2f - 1f
+            } else {
+                0f
+            }
+
         val zoneCenterX = (handIdx + 0.5f) * zoneWidth
-        val playerZoneCenter = Offset(zoneCenterX, areaHeight * 0.68f)
+        // Parabolic arc: y = x^2 * radius
+        val arcYOffset = relativePos * relativePos * arcRadius
+        val playerZoneCenter = Offset(zoneCenterX, areaHeight * 0.72f + arcYOffset)
+
+        // Active hand gets a slight scale boost to reinforce the spotlight effect
+        val isActive = handIdx == activeHandIndex
+        val handScale = if (isActive && nPlayerHands > 1) cardScale * 1.1f else cardScale
+        val handCardW = with(density) { Dimensions.Card.StandardWidth.toPx() } * handScale
+        val handCardH = handCardW / Dimensions.Card.AspectRatio
+        val handParams =
+            SlotParams(
+                cardW = handCardW,
+                cardH = handCardH,
+                defaultStepX = handCardW * overlapFactor,
+                stepYPx = with(density) { 6.dp.toPx() } * handScale,
+                cardScale = handScale,
+            )
+
         val (playerSlots, playerZone) =
             computeZone(
                 cards = hand.cards,
                 handIndex = handIdx,
                 zoneCenter = playerZoneCenter,
-                availableWidth = zoneWidth,
-                params = sharedParams,
+                availableWidth = zoneWidth * 0.95f,
+                params = handParams,
                 isDealer = false,
+                nPlayerHands = nPlayerHands,
             )
         cardSlots.addAll(playerSlots)
         handZones.add(playerZone)
@@ -120,10 +150,11 @@ private fun computeZone(
     availableWidth: Float,
     params: SlotParams,
     isDealer: Boolean,
+    nPlayerHands: Int = 1,
 ): Pair<List<CardSlotLayout>, HandZone> {
     val (cardW, cardH, defaultStepX, stepYPx, cardScale) = params
     val n = cards.size
-    val actualStepX = squeezedStep(n, cardW, defaultStepX, availableWidth)
+    val actualStepX = squeezedStep(n, cardW, defaultStepX, availableWidth, nPlayerHands)
     val totalW = clusterWidth(n, cardW, actualStepX)
     val totalH = clusterHeight(n, cardH, stepYPx)
 
@@ -163,13 +194,16 @@ private fun squeezedStep(
     n: Int,
     cardW: Float,
     defaultStepX: Float,
-    availableWidth: Float
+    availableWidth: Float,
+    nPlayerHands: Int = 1,
 ): Float {
     if (n <= 1) return defaultStepX
     val requiredW = cardW + (n - 1) * defaultStepX
     return if (requiredW > availableWidth) {
         val squeezed = (availableWidth - cardW) / (n - 1)
-        squeezed.coerceAtLeast(cardW * 0.32f)
+        // Allow tighter overlap when multiple hands share the screen
+        val minVisibleWidth = if (nPlayerHands > 1) cardW * 0.20f else cardW * 0.32f
+        squeezed.coerceAtLeast(minVisibleWidth)
     } else {
         defaultStepX
     }

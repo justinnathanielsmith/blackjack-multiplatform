@@ -54,7 +54,7 @@ fun ScoreBadge(
             isBust -> TacticalRed
             is21 -> PrimaryGold
             state == ScoreBadgeState.ACTIVE -> PrimaryGold
-            state == ScoreBadgeState.DEALER -> Color.White
+            state == ScoreBadgeState.DEALER -> BackgroundDark
             else -> Color(0xFF1A1A1A) // Deep dark for waiting
         }
 
@@ -62,7 +62,7 @@ fun ScoreBadge(
         when {
             isBust -> Color.White.copy(alpha = 0.6f)
             is21 || state == ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.5f)
-            state == ScoreBadgeState.DEALER -> PrimaryGold.copy(alpha = 0.5f)
+            state == ScoreBadgeState.DEALER -> PrimaryGold
             else -> Color.White.copy(alpha = 0.15f)
         }
 
@@ -70,7 +70,7 @@ fun ScoreBadge(
         when {
             isBust -> Color.White
             is21 || state == ScoreBadgeState.ACTIVE -> BackgroundDark
-            state == ScoreBadgeState.DEALER -> BackgroundDark
+            state == ScoreBadgeState.DEALER -> PrimaryGold
             else -> Color.White.copy(alpha = 0.7f)
         }
 
@@ -121,12 +121,18 @@ fun ScoreBadge(
                                 is21 ||
                                 isBust
                             ) {
-                                8.dp
+                                12.dp
                             } else {
                                 4.dp
                             },
                         shape = BadgeShape,
-                        spotColor = backgroundColor
+                        spotColor = if (state == ScoreBadgeState.ACTIVE) PrimaryGold else backgroundColor
+                    ).then(
+                        if (state == ScoreBadgeState.ACTIVE) {
+                            Modifier.border(2.dp, PrimaryGold.copy(alpha = 0.8f), BadgeShape)
+                        } else {
+                            Modifier
+                        }
                     ).background(backgroundColor, BadgeShape)
                     .border(1.5.dp, borderColor, BadgeShape)
                     .padding(horizontal = 16.dp, vertical = 6.dp),

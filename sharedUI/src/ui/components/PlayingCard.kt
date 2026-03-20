@@ -340,6 +340,7 @@ fun PlayingCard(
     scale: Float = 1f,
     isNearMiss: Boolean = false,
     shadowElevation: androidx.compose.ui.unit.Dp = 6.dp,
+    spotColor: Color = Color.Black,
 ) {
     val baseRotation =
         remember(card) {
@@ -399,6 +400,7 @@ fun PlayingCard(
             modifier =
                 Modifier
                     .fillMaxSize()
+                    .shadow(elevation = shadowElevation, shape = CardShape, spotColor = spotColor)
                     .drawWithContent {
                         drawContent()
                         val alpha = nearMissAlpha.value
@@ -414,7 +416,7 @@ fun PlayingCard(
                     },
             shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = shadowElevation),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             if (!showBack) {
                 BoxWithConstraints(

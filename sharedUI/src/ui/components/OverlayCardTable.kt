@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.BlackjackRules
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.HandOutcome
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
@@ -51,13 +51,14 @@ import io.github.smithjustinn.blackjack.ui.effects.PositionedCardEntry
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.dealer
 import sharedui.generated.resources.emoji_crown
 import sharedui.generated.resources.hand_number
-import sharedui.generated.resources.status_active
-import sharedui.generated.resources.status_waiting
+import sharedui.generated.resources.status_blackjack
+import sharedui.generated.resources.status_bust
 import kotlin.math.roundToInt
 
 internal fun GameState.handResult(index: Int): HandResult {
@@ -102,6 +103,11 @@ fun OverlayCardTable(
 
         // 2. Positioned (landed) cards
         registry.positionedCards.forEach { entry ->
+            val isActive = state.status == GameStatus.PLAYING && entry.handIndex == state.activeHandIndex
+            val isDealer = entry.handIndex == -1
+            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.6f else 1f
+            val elevationScale = if (isActive) 1.05f else 1f
+
             PositionedCardItem(
                 entry = entry,
                 state = state,
@@ -111,17 +117,28 @@ fun OverlayCardTable(
                 coordOffsetY = coordOffsetY,
                 isNearMiss = entry.handIndex == nearMissHandIndex,
                 density = density,
+                isActive = isActive,
+                alpha = alpha,
+                elevationScale = elevationScale,
             )
         }
 
         // 3. HUD badges per zone, positioned using cluster bounds as anchor
         tableLayout.handZones.forEach { zone ->
+            val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
+            val isDealer = zone.handIndex == -1
+            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.6f else 1f
+            val scale = if (isActive) 1.05f else 1f
+
             HandZoneHud(
                 zone = zone,
                 state = state,
                 coordOffsetX = coordOffsetX,
                 coordOffsetY = coordOffsetY,
                 density = density,
+                isActive = isActive,
+                alpha = alpha,
+                scale = scale,
             )
         }
     }
@@ -137,6 +154,9 @@ private fun PositionedCardItem(
     coordOffsetY: Float,
     isNearMiss: Boolean,
     density: Density,
+    isActive: Boolean,
+    alpha: Float,
+    elevationScale: Float,
 ) {
     val registry = LocalDealAnimationRegistry.current
     val isFlying = registry.isFlying(entry.handIndex, entry.cardIndex)
@@ -149,23 +169,33 @@ private fun PositionedCardItem(
 
     // Dynamic shadow based on flying state (height simulation)
     val shadowElevation by androidx.compose.animation.core.animateDpAsState(
-        targetValue = if (isFlying) 16.dp else 4.dp,
+        targetValue =
+            if (isFlying) {
+                16.dp
+            } else if (isActive) {
+                12.dp
+            } else {
+                4.dp
+            },
         animationSpec = tween(300),
         label = "shadowElevation"
     )
 
-    val scaledHalfW = baseCardW * entry.scale / 2f
-    val scaledHalfH = baseCardH * entry.scale / 2f
+    val scaledHalfW = baseCardW * entry.scale * elevationScale / 2f
+    val scaledHalfH = baseCardH * entry.scale * elevationScale / 2f
 
     Box(
         modifier =
             Modifier
-                .requiredWidth(Dimensions.Card.StandardWidth * entry.scale)
+                .requiredWidth(Dimensions.Card.StandardWidth * entry.scale * elevationScale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
                     translationX = animatedOffset.x - scaledHalfW + coordOffsetX
                     translationY = animatedOffset.y - scaledHalfH + coordOffsetY
                     rotationZ = entry.rotationZ
+                    this.alpha = alpha
+                    this.scaleX = elevationScale
+                    this.scaleY = elevationScale
                 }
     ) {
         if (entry.isHoleCard) {
@@ -174,16 +204,17 @@ private fun PositionedCardItem(
                 isFaceUp = entry.isFaceUp,
                 dealerUpcard = state.dealerHand.cards.getOrNull(0),
                 dealerScore = state.dealerHand.score,
-                scale = entry.scale,
+                scale = entry.scale * elevationScale,
                 shadowElevation = shadowElevation,
             )
         } else {
             PlayingCard(
                 card = entry.card,
                 isFaceUp = entry.isFaceUp,
-                scale = entry.scale,
+                scale = entry.scale * elevationScale,
                 isNearMiss = isNearMiss,
                 shadowElevation = shadowElevation,
+                spotColor = if (isActive) PrimaryGold else Color.Black
             )
         }
     }
@@ -198,28 +229,28 @@ private fun ActiveHandGlow(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 0.8f,
+        initialValue = 0.2f,
+        targetValue = 0.5f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(1500, easing = FastOutSlowInEasing),
+                animation = tween(1200, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
         label = "glowAlpha",
     )
     val glowScale by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1.1f,
+        initialValue = 1.0f,
+        targetValue = 1.3f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(1500, easing = FastOutSlowInEasing),
+                animation = tween(1200, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
         label = "glowScale",
     )
 
-    val glowW = zone.clusterSize.width * 1.4f
-    val glowH = zone.clusterSize.height * 1.4f
+    val glowW = zone.clusterSize.width * 1.6f
+    val glowH = zone.clusterSize.height * 1.6f
 
     Box(
         modifier =
@@ -238,12 +269,12 @@ private fun ActiveHandGlow(
                     val center = Offset(size.width / 2, size.height / 2)
                     val brush =
                         Brush.radialGradient(
-                            colors = listOf(PrimaryGold.copy(alpha = 0.4f), Color.Transparent),
+                            colors = listOf(PrimaryGold.copy(alpha = 0.6f), Color.Transparent),
                             center = center,
                             radius = radius,
                         )
                     onDrawBehind {
-                        drawRoundRect(brush = brush, cornerRadius = CornerRadius(radius * 0.3f))
+                        drawCircle(brush = brush, center = center, radius = radius)
                     }
                 }
     )
@@ -256,6 +287,9 @@ private fun HandZoneHud(
     coordOffsetX: Float,
     coordOffsetY: Float,
     density: Density,
+    isActive: Boolean,
+    alpha: Float,
+    scale: Float,
 ) {
     val isDealer = zone.handIndex == -1
     val clusterW = with(density) { zone.clusterSize.width.toDp() }
@@ -265,14 +299,31 @@ private fun HandZoneHud(
     Box(
         modifier =
             Modifier
-                .requiredSize(clusterW, clusterH)
+                .requiredSize(clusterW * scale, clusterH * scale)
                 .offset {
                     IntOffset(
-                        x = (zone.clusterTopLeft.x + coordOffsetX).roundToInt(),
-                        y = (zone.clusterTopLeft.y + coordOffsetY).roundToInt(),
+                        x =
+                            ((zone.clusterTopLeft.x + coordOffsetX) - (clusterW.toPx() * (scale - 1f) / 2f))
+                                .roundToInt(),
+                        y =
+                            ((zone.clusterTopLeft.y + coordOffsetY) - (clusterH.toPx() * (scale - 1f) / 2f))
+                                .roundToInt(),
                     )
+                }.graphicsLayer {
+                    this.alpha = alpha
+                    this.scaleX = scale
+                    this.scaleY = scale
                 }
     ) {
+        if (isActive) {
+            ActiveHandIndicator(
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .offset(y = (-40).dp)
+            )
+        }
+
         if (isDealer) {
             val displayScore =
                 if (state.status == GameStatus.PLAYING) {
@@ -298,14 +349,18 @@ private fun HandZoneHud(
                         .align(Alignment.TopCenter)
                         .offset(y = (-18).dp),
             )
+
+            HandStatusOverlay(
+                hand = state.dealerHand,
+                modifier = Modifier.align(Alignment.Center),
+            )
         } else {
             val handIndex = zone.handIndex
             val hand = state.playerHands.getOrNull(handIndex) ?: return@Box
-            val isActive = handIndex == state.activeHandIndex && state.status == GameStatus.PLAYING
-            val isPending = !isActive && state.status == GameStatus.PLAYING
             val result = state.handResult(handIndex)
             val multiHand = state.playerHands.size > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
+            val bet = state.playerBets.getOrNull(handIndex) ?: 0
 
             if (multiHand) {
                 HudTitleBadge(
@@ -319,24 +374,33 @@ private fun HandZoneHud(
                 )
             }
 
-            if (isActive || isPending) {
-                HudStatusBadge(
-                    isActive = isActive,
-                    modifier =
-                        Modifier
-                            .align(Alignment.TopEnd)
-                            .offset(x = 8.dp, y = (-16).dp),
-                )
-            }
-
-            ScoreBadge(
-                score = hand.score,
-                state = badgeState,
+            // Tightly clustered ScoreBadge + Bet (as a Chip)
+            Row(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = 14.dp),
-            )
+                        .offset(y = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (bet > 0) {
+                    Box(modifier = Modifier.requiredSize(44.dp), contentAlignment = Alignment.Center) {
+                        BetChip(
+                            amount = bet,
+                            isActive = isActive,
+                            modifier =
+                                Modifier.graphicsLayer {
+                                    scaleX = 0.75f
+                                    scaleY = 0.75f
+                                }
+                        )
+                    }
+                }
+                ScoreBadge(
+                    score = hand.score,
+                    state = badgeState,
+                )
+            }
 
             HandOutcomeBadge(
                 result = result,
@@ -345,7 +409,81 @@ private fun HandZoneHud(
                         .align(Alignment.Center)
                         .graphicsLayer { rotationZ = -6f },
             )
+
+            HandStatusOverlay(
+                hand = hand,
+                modifier = Modifier.align(Alignment.Center),
+            )
         }
+    }
+}
+
+@Composable
+private fun HandStatusOverlay(
+    hand: Hand,
+    modifier: Modifier = Modifier,
+) {
+    val isBust = hand.isBust
+    val isBlackjack = hand.score == 21 && hand.cards.size == 2
+
+    if (isBust || isBlackjack) {
+        val (text, color) =
+            if (isBust) {
+                stringResource(Res.string.status_bust) to TacticalRed
+            } else {
+                stringResource(Res.string.status_blackjack) to PrimaryGold
+            }
+
+        Box(
+            modifier =
+                modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .background(color, RoundedCornerShape(8.dp))
+                    .border(1.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = text,
+                color = if (isBust) Color.White else BackgroundDark,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp),
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
+    val infiniteTransition = rememberInfiniteTransition(label = "indicatorTransition")
+    val bounceOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 10f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "bounceOffset",
+    )
+
+    Box(
+        modifier =
+            modifier
+                .offset(y = bounceOffset.dp)
+                .graphicsLayer {
+                    shadowElevation = 8.dp.toPx()
+                    shape = RoundedCornerShape(4.dp)
+                    clip = true
+                }.background(PrimaryGold)
+                .padding(4.dp)
+    ) {
+        Text(
+            text = "▼", // Simple chevron
+            color = BackgroundDark,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Black,
+        )
     }
 }
 
@@ -398,40 +536,6 @@ internal fun HudTitleBadge(
             color = contentColor,
             fontWeight = FontWeight.Black,
             letterSpacing = 2.sp,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-internal fun HudStatusBadge(
-    isActive: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val badgeColor = if (isActive) PrimaryGold.copy(alpha = 0.9f) else Color.White.copy(alpha = 0.15f)
-    val badgeTextColor = if (isActive) BackgroundDark else Color.White.copy(alpha = 0.9f)
-    val badgeText =
-        if (isActive) {
-            stringResource(Res.string.status_active)
-        } else {
-            stringResource(Res.string.status_waiting)
-        }
-
-    Box(
-        modifier =
-            modifier
-                .shadow(8.dp, RoundedCornerShape(12.dp), spotColor = Color.Black, ambientColor = Color.Black)
-                .background(badgeColor, RoundedCornerShape(12.dp))
-                .border(0.5.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = badgeText.uppercase(),
-            color = badgeTextColor,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 1.sp,
             textAlign = TextAlign.Center,
         )
     }

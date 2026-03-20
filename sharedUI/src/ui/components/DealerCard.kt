@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -46,6 +47,7 @@ fun DealerCard(
     modifier: Modifier = Modifier,
     scale: Float = 1f,
     shadowElevation: androidx.compose.ui.unit.Dp = 6.dp,
+    spotColor: Color = Color.Black,
 ) {
     val rotationY = remember { Animatable(0f) }
     val haptic = LocalHapticFeedback.current
@@ -112,6 +114,7 @@ fun DealerCard(
             modifier =
                 Modifier
                     .fillMaxSize()
+                    .shadow(elevation = shadowElevation, shape = CardShape, spotColor = spotColor)
                     .border(
                         width = 0.5.dp,
                         color = Color.Black.copy(alpha = 0.1f),
@@ -119,7 +122,7 @@ fun DealerCard(
                     ),
             shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = shadowElevation),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             if (!showBack) {
                 // Face
