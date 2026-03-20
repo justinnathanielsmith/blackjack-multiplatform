@@ -53,11 +53,13 @@ data class Hand(
     val isFromSplitAce: Boolean = false,
     val isSurrendered: Boolean = false,
 ) {
-    // Shared ace-reduction logic. Accepts any Iterable so visibleScore can pre-filter face-down cards.
-    private fun calculateScore(cards: Iterable<Card>): Int {
+    // Shared ace-reduction logic. Accepts boolean to optionally ignore face-down cards.
+    private fun calculateScore(ignoreFaceDown: Boolean): Int {
         var s = 0
         var aces = 0
-        for (card in cards) {
+        for (i in 0 until cards.size) {
+            val card = cards[i]
+            if (ignoreFaceDown && card.isFaceDown) continue
             s += card.rank.value
             if (card.rank == Rank.ACE) aces++
         }
@@ -68,9 +70,9 @@ data class Hand(
         return s
     }
 
-    val score: Int get() = calculateScore(cards)
+    val score: Int get() = calculateScore(ignoreFaceDown = false)
 
-    val visibleScore: Int get() = calculateScore(cards.filter { !it.isFaceDown })
+    val visibleScore: Int get() = calculateScore(ignoreFaceDown = true)
 
     val isBust: Boolean get() = score > 21
 
@@ -84,7 +86,8 @@ data class Hand(
         get() {
             var hasAce = false
             var hardScore = 0
-            for (card in cards) {
+            for (i in 0 until cards.size) {
+                val card = cards[i]
                 if (card.rank == Rank.ACE) {
                     hasAce = true
                     hardScore += 1
@@ -189,13 +192,21 @@ data class GameState(
                 if (status == GameStatus.BETTING) {
                     currentBet * handCount
                 } else {
-                    playerBets.sum()
+                    var sum = 0
+                    for (i in 0 until playerBets.size) {
+                        sum += playerBets[i]
+                    }
+                    sum
                 }
 
             // Only count active side bets (before they are settled)
             val sideBetsTotal =
                 if (sideBetResults.isEmpty()) {
-                    sideBets.values.sum()
+                    var sum = 0
+                    for ((_, bet) in sideBets) {
+                        sum += bet
+                    }
+                    sum
                 } else {
                     0
                 }

@@ -10,3 +10,7 @@
 ## $(date +%Y-%m-%d) - Optimize Collection Iterations in GameLogic
 **Learning:** When calculating properties from immutable collections in Kotlin (like `PersistentList` in `Hand`), chained higher-order functions (`filter`, `sumOf`, `count`) allocate intermediate lists and loop over elements multiple times.
 **Action:** Replace chained functions with a single `for` pass when performance is critical (e.g., UI rendering updates), combining conditions and accumulating values simultaneously.
+
+## $(date +%Y-%m-%d) - Optimize Collection Iterations in GameLogic
+**Learning:** When calculating properties from immutable collections in Kotlin (like `PersistentList` in `Hand`), chained higher-order functions (`filter`, `sumOf`, `count`) allocate intermediate lists and loop over elements multiple times.
+**Action:** Replace chained functions with a single `for` pass when performance is critical (e.g., UI rendering updates), combining conditions and accumulating values simultaneously.
