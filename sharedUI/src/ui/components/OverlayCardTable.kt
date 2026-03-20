@@ -27,11 +27,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -105,7 +108,7 @@ fun OverlayCardTable(
         registry.positionedCards.forEach { entry ->
             val isActive = state.status == GameStatus.PLAYING && entry.handIndex == state.activeHandIndex
             val isDealer = entry.handIndex == -1
-            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.6f else 1f
+            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
             val elevationScale = if (isActive) 1.05f else 1f
 
             PositionedCardItem(
@@ -127,7 +130,7 @@ fun OverlayCardTable(
         tableLayout.handZones.forEach { zone ->
             val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
             val isDealer = zone.handIndex == -1
-            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.6f else 1f
+            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
             val scale = if (isActive) 1.05f else 1f
 
             HandZoneHud(
@@ -167,15 +170,16 @@ private fun PositionedCardItem(
         label = "cardPos",
     )
 
-    // Dynamic shadow based on flying state (height simulation)
+    // Dynamic shadow based on flying state, active state, and card stack position
+    val stackBoost = (entry.cardIndex * 2).dp
     val shadowElevation by androidx.compose.animation.core.animateDpAsState(
         targetValue =
             if (isFlying) {
                 16.dp
             } else if (isActive) {
-                12.dp
+                (8.dp + stackBoost)
             } else {
-                4.dp
+                (2.dp + stackBoost)
             },
         animationSpec = tween(300),
         label = "shadowElevation"
@@ -295,6 +299,18 @@ private fun HandZoneHud(
     val clusterW = with(density) { zone.clusterSize.width.toDp() }
     val clusterH = with(density) { zone.clusterSize.height.toDp() }
 
+    val borderTransition = rememberInfiniteTransition(label = "borderGlowTransition")
+    val borderGlowAlpha by borderTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.7f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "borderGlowAlpha",
+    )
+
     // Transparent cluster-sized box positioned over the cluster — used for badge anchoring
     Box(
         modifier =
@@ -313,6 +329,14 @@ private fun HandZoneHud(
                     this.alpha = alpha
                     this.scaleX = scale
                     this.scaleY = scale
+                }.drawBehind {
+                    if (isActive) {
+                        drawRoundRect(
+                            color = PrimaryGold.copy(alpha = borderGlowAlpha),
+                            cornerRadius = CornerRadius(12.dp.toPx()),
+                            style = Stroke(width = 2.dp.toPx()),
+                        )
+                    }
                 }
     ) {
         if (isActive) {
@@ -332,23 +356,24 @@ private fun HandZoneHud(
                     state.dealerHand.score
                 }
 
-            HudTitleBadge(
-                title = stringResource(Res.string.dealer),
-                isDealer = true,
-                isActive = false,
-                modifier =
-                    Modifier
-                        .align(Alignment.TopStart)
-                        .offset(x = (-8).dp, y = (-16).dp),
-            )
-            ScoreBadge(
-                score = displayScore,
-                state = ScoreBadgeState.DEALER,
+            Row(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
                         .offset(y = (-18).dp),
-            )
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HudTitleBadge(
+                    title = stringResource(Res.string.dealer),
+                    isDealer = true,
+                    isActive = false,
+                )
+                ScoreBadge(
+                    score = displayScore,
+                    state = ScoreBadgeState.DEALER,
+                )
+            }
 
             HandStatusOverlay(
                 hand = state.dealerHand,

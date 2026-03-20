@@ -162,7 +162,7 @@ private fun computeZone(
         cards.mapIndexed { index, card ->
             val cx = zoneCenter.x - totalW / 2f + index * actualStepX + cardW / 2f
             val cy = zoneCenter.y - totalH / 2f + index * stepYPx + cardH / 2f
-            val fanAngle = (index - (n - 1) / 2f) * 3f
+            val fanAngle = (index - (n - 1) / 2f) * 6f
             CardSlotLayout(
                 card = card,
                 handIndex = handIndex,
