@@ -151,6 +151,20 @@ fun OverlayCardTable(
             }
         }
 
+        // 2.5 Positioned (landed) chips
+        tableLayout.chipSlots.forEach { slot ->
+            val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
+            androidx.compose.runtime.key(slot.handIndex) {
+                PositionedChipItem(
+                    slot = slot,
+                    coordOffsetX = coordOffsetX,
+                    coordOffsetY = coordOffsetY,
+                    density = density,
+                    isActive = isActive,
+                )
+            }
+        }
+
         // 3. HUD badges per zone, positioned using cluster bounds as anchor
         tableLayout.handZones.forEach { zone ->
             val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
@@ -299,6 +313,59 @@ private fun PositionedCardItem(
                 spotColor = if (isActive) PrimaryGold else Color.Black
             )
         }
+    }
+}
+
+@Composable
+private fun PositionedChipItem(
+    slot: ChipSlotLayout,
+    coordOffsetX: Float,
+    coordOffsetY: Float,
+    density: Density,
+    isActive: Boolean,
+) {
+    val currentX = remember { Animatable(slot.startOffset.x) }
+    val currentY = remember { Animatable(slot.startOffset.y) }
+    val currentScale = remember { Animatable(0f) }
+
+    LaunchedEffect(slot.amount, slot.centerOffset) {
+        val zeta = 0.65f
+        val stiffness = Spring.StiffnessMedium
+
+        launch {
+            currentX.animateTo(
+                targetValue = slot.centerOffset.x,
+                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness),
+            )
+        }
+        launch {
+            currentY.animateTo(
+                targetValue = slot.centerOffset.y,
+                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness),
+            )
+        }
+        launch {
+            currentScale.animateTo(1.15f, tween(150))
+            currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
+        }
+    }
+
+    val chipSizeDp = 48.dp * slot.scale
+    val chipHalfW = with(density) { chipSizeDp.toPx() / 2f }
+    val chipHalfH = chipHalfW
+
+    Box(
+        modifier = Modifier
+            .requiredSize(chipSizeDp)
+            .graphicsLayer {
+                translationX = currentX.value - chipHalfW + coordOffsetX
+                translationY = currentY.value - chipHalfH + coordOffsetY
+                scaleX = currentScale.value
+                scaleY = currentScale.value
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        ChipStack(amount = slot.amount, isActive = isActive)
     }
 }
 
@@ -475,7 +542,6 @@ private fun HandZoneHud(
             val netPayout = state.handNetPayout(handIndex)
             val multiHand = state.playerHands.size > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
-            val bet = state.playerBets.getOrNull(handIndex) ?: 0
 
             if (multiHand) {
                 HudTitleBadge(
@@ -489,37 +555,17 @@ private fun HandZoneHud(
                 )
             }
 
-            // Tightly clustered ScoreBadge + Bet (as a Chip)
-            Row(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .offset(y = 20.dp * zone.scale),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (bet > 0) {
-                    Box(modifier = Modifier.requiredSize(44.dp), contentAlignment = Alignment.Center) {
-                        BetChip(
-                            amount = bet,
-                            isActive = isActive,
-                            modifier =
-                                Modifier.graphicsLayer {
-                                    scaleX = 0.75f * zone.scale
-                                    scaleY = 0.75f * zone.scale
-                                }
-                        )
-                    }
-                }
-                ScoreBadge(
-                    score = hand.score,
-                    state = badgeState,
-                    modifier = Modifier.graphicsLayer {
+            ScoreBadge(
+                score = hand.score,
+                state = badgeState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .offset(y = 20.dp * zone.scale)
+                    .graphicsLayer {
                         scaleX = zone.scale
                         scaleY = zone.scale
                     }
-                )
-            }
+            )
 
             HandOutcomeBadge(
                 result = result,

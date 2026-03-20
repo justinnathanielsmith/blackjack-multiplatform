@@ -31,9 +31,18 @@ data class HandZone(
     val scale: Float,
 )
 
+data class ChipSlotLayout(
+    val handIndex: Int,
+    val amount: Int,
+    val startOffset: Offset, // below screen — chips rise up into place
+    val centerOffset: Offset, // below the card cluster
+    val scale: Float,
+)
+
 data class TableLayout(
     val cardSlots: List<CardSlotLayout>,
     val handZones: List<HandZone>, // index 0 = dealer, 1..N = player hands
+    val chipSlots: List<ChipSlotLayout>,
 )
 
 private object TableMetrics {
@@ -107,6 +116,7 @@ fun computeTableLayout(
 
     val cardSlots = mutableListOf<CardSlotLayout>()
     val handZones = mutableListOf<HandZone>()
+    val chipSlots = mutableListOf<ChipSlotLayout>()
 
     // Dealer cards are indexed first so they animate before player cards.
     // This is intentional: the declarative animation system keys on composition
@@ -162,9 +172,25 @@ fun computeTableLayout(
         cardSlots.addAll(playerSlots)
         handZones.add(playerZone)
         globalCardIndex += playerSlots.size
+
+        val bet = state.playerBets.getOrNull(handIdx) ?: 0
+        if (bet > 0) {
+            chipSlots.add(
+                ChipSlotLayout(
+                    handIndex = handIdx,
+                    amount = bet,
+                    startOffset = Offset(areaWidth / 2f, areaHeight + 80f),
+                    centerOffset = Offset(
+                        playerZone.clusterCenter.x,
+                        playerZone.clusterTopLeft.y + playerZone.clusterSize.height + with(density) { 20.dp.toPx() },
+                    ),
+                    scale = cardScale,
+                )
+            )
+        }
     }
 
-    return TableLayout(cardSlots = cardSlots, handZones = handZones)
+    return TableLayout(cardSlots = cardSlots, handZones = handZones, chipSlots = chipSlots)
 }
 
 private data class SlotParams(
