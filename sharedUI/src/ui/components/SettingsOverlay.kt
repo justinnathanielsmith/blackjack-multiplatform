@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -189,14 +190,19 @@ private fun SettingsToggle(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .clip(RoundedCornerShape(8.dp))
+                .toggleable(
+                    value = checked,
+                    role = Role.Switch,
+                    onValueChange = onCheckedChange
+                ).padding(vertical = 8.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = title, color = Color.White)
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = null,
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = PrimaryGold,
@@ -219,7 +225,9 @@ private fun SettingsDropdown(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(role = Role.DropdownList) { expanded = true }
+                .padding(vertical = 8.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -228,8 +236,7 @@ private fun SettingsDropdown(
             Surface(
                 modifier =
                     Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable(role = Role.Button) { expanded = true },
+                        .clip(RoundedCornerShape(8.dp)),
                 color = Color.White.copy(alpha = 0.1f)
             ) {
                 Text(

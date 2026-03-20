@@ -4,3 +4,6 @@
 ## 2024-05-19 - Added Proper Semantic Roles to Interactive Header, Settings, and Strategy Elements
 **Learning:** In Compose Multiplatform, using `.clickable { ... }` on a `Box` to create custom tabs or buttons requires specific semantic roles for screen readers. Using `Role.Tab` for tab components (like Strategy Tabs) and `Role.Button` for header icons/settings rows properly informs screen readers of the component's interaction type.
 **Action:** Always assign the most specific semantic role (`Role.Button`, `Role.Tab`, etc.) in `.clickable(role = Role.X) { ... }` when building custom interactive components.
+## 2024-05-20 - Enlarge Touch Targets and Semantic Grouping for Form Rows
+**Learning:** When using controls like `Switch` or dropdown triggers inside a `Row`, placing the click/toggle listener only on the small control creates a poor UX for touch users and fragments semantics for screen readers (they read the text label separately from the switch).
+**Action:** Always apply `Modifier.toggleable` or `Modifier.clickable` to the entire `Row` containing the label and the control. For `Switch`, pass `null` to its `onCheckedChange` to prevent duplicate semantic reading and let the Row handle the interaction.
