@@ -65,6 +65,7 @@ import sharedui.generated.resources.emoji_crown
 import sharedui.generated.resources.hand_number
 import sharedui.generated.resources.status_blackjack
 import sharedui.generated.resources.status_bust
+import sharedui.generated.resources.status_twenty_one
 import kotlin.math.roundToInt
 
 internal fun GameState.handResult(index: Int): HandResult {
@@ -135,19 +136,21 @@ fun OverlayCardTable(
             val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
             val elevationScale = if (isActive) 1.05f else 1f
 
-            PositionedCardItem(
-                slot = slot,
-                state = state,
-                baseCardW = baseCardW,
-                baseCardH = baseCardH,
-                coordOffsetX = coordOffsetX,
-                coordOffsetY = coordOffsetY,
-                isNearMiss = slot.handIndex == nearMissHandIndex,
-                density = density,
-                isActive = isActive,
-                alpha = alpha,
-                elevationScale = elevationScale,
-            )
+            androidx.compose.runtime.key(slot.handIndex, slot.cardIndex) {
+                PositionedCardItem(
+                    slot = slot,
+                    state = state,
+                    baseCardW = baseCardW,
+                    baseCardH = baseCardH,
+                    coordOffsetX = coordOffsetX,
+                    coordOffsetY = coordOffsetY,
+                    isNearMiss = slot.handIndex == nearMissHandIndex,
+                    density = density,
+                    isActive = isActive,
+                    alpha = alpha,
+                    elevationScale = elevationScale,
+                )
+            }
         }
 
         // 3. HUD badges per zone, positioned using cluster bounds as anchor
@@ -185,10 +188,10 @@ private fun PositionedCardItem(
     alpha: Float,
     elevationScale: Float,
 ) {
-    val currentX = remember(slot.card) { Animatable(slot.startOffset.x) }
-    val currentY = remember(slot.card) { Animatable(slot.startOffset.y) }
-    val currentScale = remember(slot.card) { Animatable(0.5f) }
-    val currentRotation = remember(slot.card) { Animatable(if (slot.isDealer) -45f else 45f) }
+    val currentX = remember { Animatable(slot.startOffset.x) }
+    val currentY = remember { Animatable(slot.startOffset.y) }
+    val currentScale = remember { Animatable(0.5f) }
+    val currentRotation = remember { Animatable(if (slot.isDealer) -45f else 45f) }
 
     LaunchedEffect(slot.card, slot.centerOffset) {
         delay(slot.animDelay.toLong())
@@ -511,13 +514,14 @@ private fun HandStatusOverlay(
 ) {
     val isBust = hand.isBust
     val isBlackjack = hand.score == 21 && hand.cards.size == 2
+    val isTwentyOne = hand.score == 21 && hand.cards.size > 2
 
-    if (isBust || isBlackjack) {
+    if (isBust || isBlackjack || isTwentyOne) {
         val (text, color) =
-            if (isBust) {
-                stringResource(Res.string.status_bust) to TacticalRed
-            } else {
-                stringResource(Res.string.status_blackjack) to PrimaryGold
+            when {
+                isBust -> stringResource(Res.string.status_bust) to TacticalRed
+                isBlackjack -> stringResource(Res.string.status_blackjack) to PrimaryGold
+                else -> stringResource(Res.string.status_twenty_one) to PrimaryGold
             }
 
         Box(
