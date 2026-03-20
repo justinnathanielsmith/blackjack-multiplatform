@@ -36,3 +36,4 @@ dependencies:
 test-dependencies:
   - $kotlin.test
   - $libs.turbine
+  - $libs.kotlinx.coroutines.test
