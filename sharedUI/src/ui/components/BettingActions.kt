@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
@@ -71,4 +72,14 @@ fun BettingActions(
             contentColor = BackgroundDark,
         )
     }
+}
+
+@Preview
+@Composable
+private fun BettingActionsPreview() {
+    BettingActions(
+        canDeal = true,
+        onReset = {},
+        onDeal = {}
+    )
 }

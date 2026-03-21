@@ -9,13 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.withTransform
-import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawChipVisual
+import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.ui.components.ChipUtils
+import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawParticleChip
 import kotlin.random.Random
 
 private class ChipParticle(
-    val color: Color,
+    val amount: Int,
     val controlXFraction: Float,
     val controlYFraction: Float,
     val speed: Float,
@@ -44,11 +44,11 @@ fun ChipEruptionEffect(
 ) {
     val chips =
         remember(amount) {
-            val calculatedChips = ChipVisuals.breakdownAmount(amount)
+            val calculatedChips = ChipVisuals.breakdownAmountValues(amount)
             calculatedChips
-                .mapIndexed { i, color ->
+                .mapIndexed { i, chipAmount ->
                     ChipParticle(
-                        color = color,
+                        amount = chipAmount,
                         controlXFraction = Random.nextFloat() * 0.6f + 0.2f,
                         controlYFraction = Random.nextFloat() * 0.25f,
                         speed = Random.nextFloat() * 0.008f + 0.010f,
@@ -74,25 +74,22 @@ fun ChipEruptionEffect(
     }
 
     Canvas(modifier = modifier.fillMaxSize()) {
-        frameState.longValue
-
-        val width = size.width
-        val height = size.height
-
-        val srcX = startOffset?.x ?: (width * 0.5f)
-        val srcY = startOffset?.y ?: (height * 0.4f)
-        val dstY = height * 1.1f
+        frameState.longValue // draw-only invalidation, not recomposition
+        val chipRadius = 24.dp.toPx()
+        val srcX = startOffset?.x ?: (size.width * 0.5f)
+        val srcY = startOffset?.y ?: (size.height * 0.4f)
+        val dstY = size.height * 1.1f
 
         for (i in 0 until chips.size) {
             val chip = chips[i]
             if (chip.t <= 0f) continue
 
             val t = chip.t
-            val cx = chip.controlXFraction * width
-            val cy = chip.controlYFraction * height
+            val cx = chip.controlXFraction * size.width
+            val cy = chip.controlYFraction * size.height
 
             // Spread the destination X based on control X so they fan out
-            val dstX = width * 0.5f + (chip.controlXFraction - 0.5f) * width * 2f
+            val dstX = size.width * 0.5f + (chip.controlXFraction - 0.5f) * size.width * 2f
 
             val inv = 1f - t
             val x = inv * inv * srcX + 2f * inv * t * cx + t * t * dstX
@@ -101,17 +98,12 @@ fun ChipEruptionEffect(
             val alpha = if (t > 0.8f) 1f - (t - 0.8f) / 0.2f else 1f
             val scale = 1.2f - 0.5f * t
 
-            withTransform({
-                translate(x, y)
-                scale(scale, scale, Offset.Zero)
-            }) {
-                drawChipVisual(
-                    color = chip.color,
-                    alpha = alpha.coerceIn(0f, 1f),
-                    radius = ChipVisuals.STANDARD_RADIUS,
-                    center = Offset.Zero
-                )
-            }
+            drawParticleChip(
+                color = ChipUtils.chipColor(chip.amount),
+                alpha = alpha.coerceIn(0f, 1f),
+                radius = chipRadius * scale,
+                center = Offset(x, y),
+            )
         }
     }
 }

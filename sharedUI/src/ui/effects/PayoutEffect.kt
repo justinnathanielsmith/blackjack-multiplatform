@@ -1,21 +1,21 @@
 package io.github.smithjustinn.blackjack.ui.effects
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.withTransform
-import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawChipVisual
-import kotlin.math.PI
-import kotlin.random.Random
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.ui.components.ChipStack
 
 /**
  * An animation where a stack of chips slides from the house/dealer to a specific player hand.
@@ -27,26 +27,7 @@ fun PayoutEffect(
     onAnimationEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val chips =
-        remember(amount) {
-            ChipVisuals.breakdownAmount(amount, maxParticles = 8).reversed()
-        }
-
-    // Stable random offsets for the stack
-    val stackVisualOffsets =
-        remember(chips.size) {
-            List(chips.size) { index ->
-                val angle = (index * 137.5f) * (PI / 180f).toFloat()
-                val jitter = 1.0f + (Random.nextFloat() * 1.5f)
-                Offset(
-                    x = (Math.cos(angle.toDouble()).toFloat() * jitter),
-                    y = -index * 4.5f
-                )
-            }
-        }
-
     var progress by remember { mutableStateOf(0f) }
-    val frameState = remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
         val duration = 600L // 600ms for the slide
@@ -54,7 +35,6 @@ fun PayoutEffect(
 
         while (progress < 1f) {
             withFrameNanos { time ->
-                frameState.longValue = time
                 val elapsed = (time - startTime) / 1_000_000L
                 progress = (elapsed.toFloat() / duration).coerceIn(0f, 1f)
             }
@@ -62,11 +42,11 @@ fun PayoutEffect(
         onAnimationEnd()
     }
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        frameState.longValue // Recompose trigger
-
-        val width = size.width
-        val height = size.height
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val chipHalfPx = with(density) { 24.dp.toPx() }
+        val width = constraints.maxWidth.toFloat()
+        val height = constraints.maxHeight.toFloat()
 
         // Start from house (top centerish)
         val startX = width * 0.5f
@@ -95,20 +75,18 @@ fun PayoutEffect(
         // Scaling effect (slight pop)
         val scale = if (progress < 0.5f) 1.0f + (progress * 0.4f) else 1.2f - ((progress - 0.5f) * 0.4f)
 
-        withTransform({
-            translate(currentX, currentY)
-            scale(scale, scale, Offset.Zero)
-        }) {
-            for (i in 0 until chips.size) {
-                val color = chips[i]
-                val offset = stackVisualOffsets[i]
-                drawChipVisual(
-                    color = color,
-                    alpha = alpha,
-                    radius = ChipVisuals.STANDARD_RADIUS, // Standard radius for effects
-                    center = offset
-                )
-            }
+        Box(
+            modifier =
+                Modifier
+                    .graphicsLayer {
+                        translationX = currentX - chipHalfPx
+                        translationY = currentY - chipHalfPx
+                        scaleX = scale
+                        scaleY = scale
+                        this.alpha = alpha
+                    }
+        ) {
+            ChipStack(amount = amount)
         }
     }
 }

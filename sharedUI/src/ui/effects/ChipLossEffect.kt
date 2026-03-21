@@ -9,13 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.withTransform
-import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawChipVisual
+import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.ui.components.ChipUtils
+import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawParticleChip
 import kotlin.random.Random
 
 private class ChipLossParticle(
-    val color: Color,
+    val amount: Int,
     val controlXFraction: Float,
     val controlYFraction: Float,
     val speed: Float,
@@ -43,11 +43,11 @@ fun ChipLossEffect(
 ) {
     val chips =
         remember(amount) {
-            val calculatedChips = ChipVisuals.breakdownAmount(amount, maxParticles = 20)
+            val calculatedChips = ChipVisuals.breakdownAmountValues(amount, maxParticles = 20)
             calculatedChips
-                .mapIndexed { i, color ->
+                .mapIndexed { i, chipAmount ->
                     ChipLossParticle(
-                        color = color,
+                        amount = chipAmount,
                         controlXFraction = Random.nextFloat() * 0.4f + 0.3f,
                         controlYFraction = Random.nextFloat() * 0.2f + 0.1f,
                         speed = Random.nextFloat() * 0.010f + 0.012f,
@@ -73,24 +73,21 @@ fun ChipLossEffect(
     }
 
     Canvas(modifier = modifier.fillMaxSize()) {
-        frameState.longValue
-
-        val width = size.width
-        val height = size.height
-
-        val srcX = width * 0.5f // Pot area
-        val srcY = height * 0.65f
-        val dstY = -height * 0.1f // Fly off-screen top
+        frameState.longValue // draw-only invalidation, not recomposition
+        val chipRadius = 24.dp.toPx()
+        val srcX = size.width * 0.5f // Pot area
+        val srcY = size.height * 0.65f
+        val dstY = -size.height * 0.1f // Fly off-screen top
 
         for (i in 0 until chips.size) {
             val chip = chips[i]
             if (chip.t <= 0f) continue
 
             val t = chip.t
-            val cx = chip.controlXFraction * width
-            val cy = chip.controlYFraction * height
+            val cx = chip.controlXFraction * size.width
+            val cy = chip.controlYFraction * size.height
 
-            val dstX = width * 0.5f + (chip.controlXFraction - 0.5f) * width * 1.5f // Dealer area, spread out
+            val dstX = size.width * 0.5f + (chip.controlXFraction - 0.5f) * size.width * 1.5f // Dealer area, spread out
 
             val inv = 1f - t
             val x = inv * inv * srcX + 2f * inv * t * cx + t * t * dstX
@@ -99,17 +96,12 @@ fun ChipLossEffect(
             val alpha = if (t > 0.7f) 1f - (t - 0.7f) / 0.3f else 1f
             val scale = 1.0f + 0.5f * t
 
-            withTransform({
-                translate(x, y)
-                scale(scale, scale, Offset.Zero)
-            }) {
-                drawChipVisual(
-                    color = chip.color,
-                    alpha = alpha.coerceIn(0f, 1f),
-                    radius = ChipVisuals.STANDARD_RADIUS,
-                    center = Offset.Zero
-                )
-            }
+            drawParticleChip(
+                color = ChipUtils.chipColor(chip.amount),
+                alpha = alpha.coerceIn(0f, 1f),
+                radius = chipRadius * scale,
+                center = Offset(x, y),
+            )
         }
     }
 }

@@ -10,11 +10,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +38,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
@@ -233,6 +237,24 @@ fun BetChip(
                         .clip(CircleShape)
                         .background(Color.Black.copy(alpha = 0.5f))
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun BetChipPreview() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            BetChip(5, onClick = {})
+            Spacer(Modifier.width(8.dp))
+            BetChip(25, onClick = {})
+            Spacer(Modifier.width(8.dp))
+            BetChip(100, isActive = true, onClick = {})
+            Spacer(Modifier.width(8.dp))
+            BetChip(500, onClick = {})
+            Spacer(Modifier.width(8.dp))
+            BetChip(1000, enabled = false)
         }
     }
 }

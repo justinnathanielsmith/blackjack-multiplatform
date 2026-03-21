@@ -64,6 +64,54 @@ object ChipVisuals {
         return result.shuffled()
     }
 
+    fun breakdownAmountValues(
+        amount: Int,
+        maxParticles: Int = 30
+    ): List<Int> {
+        val result = mutableListOf<Int>()
+        var remaining = amount
+
+        val denominations =
+            listOf(
+                500 to ChipPurple,
+                100 to PokerBlack,
+                25 to ChipGreen,
+                10 to ChipBlue,
+                5 to PokerRed,
+                1 to WhiteSoft
+            )
+
+        for ((value, _) in denominations) {
+            val count = remaining / value
+            if (count > 0) {
+                val toAdd = minOf(count, maxParticles - result.size)
+                repeat(toAdd) { result.add(value) }
+                remaining -= count * value
+            }
+            if (result.size >= maxParticles) break
+        }
+
+        if (remaining > 0 && result.size < maxParticles) result.add(1)
+
+        return result.shuffled()
+    }
+
+    fun DrawScope.drawParticleChip(
+        color: Color,
+        alpha: Float,
+        radius: Float,
+        center: Offset
+    ) {
+        drawCircle(Color.Black.copy(alpha = alpha * 0.3f), radius, center + Offset(0f, radius * 0.08f))
+        drawCircle(color.copy(alpha = alpha), radius, center)
+        drawCircle(
+            Color.White.copy(alpha = alpha * 0.5f),
+            radius * 0.92f,
+            center,
+            style = Stroke(width = radius * 0.1f)
+        )
+    }
+
     fun DrawScope.drawChipVisual(
         color: Color,
         alpha: Float,
