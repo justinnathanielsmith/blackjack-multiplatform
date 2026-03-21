@@ -2,8 +2,8 @@ package io.github.smithjustinn.blackjack.presentation
 
 import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.ComponentContext
+import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
-import io.github.smithjustinn.blackjack.services.BalanceService
 
 interface RootComponent {
     val blackjackComponent: BlackjackComponent

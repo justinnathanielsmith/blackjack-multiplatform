@@ -57,7 +57,6 @@ class BlackjackStateMachine(
 
     init {
         scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
-            logger.d { "SM init block launched on ${Thread.currentThread().name}" }
             try {
                 for (action in actionChannel) {
                     processAction(action)
@@ -303,7 +302,7 @@ class BlackjackStateMachine(
         val maxAffordableMainBet = if (handCount > 0) newBalance / handCount else newBalance
         val clampedBet = lastBet.coerceIn(0, maxAffordableMainBet)
 
-        var remainingBalance = newBalance - clampedBet * handCount
+        val remainingBalance = newBalance - clampedBet * handCount
         var totalSideBetCost = 0
         for ((_, betAmount) in lastSideBets) {
             totalSideBetCost += betAmount
