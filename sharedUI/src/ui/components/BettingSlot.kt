@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.utils.DropTarget
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_multiplier
@@ -58,7 +60,8 @@ fun BettingSlot(
     slotSize: Dp = 124.dp,
     isSideBet: Boolean = false,
     handCount: Int = 1,
-    onPositioned: (Offset) -> Unit = {}
+    onPositioned: (Offset) -> Unit = {},
+    onDrop: (Int) -> Unit = {}
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "bettingSlotGlow")
     val glowAlpha by infiniteTransition.animateFloat(
@@ -100,77 +103,83 @@ fun BettingSlot(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(if (isSideBet) 4.dp else 10.dp)
     ) {
-        Box(
-            modifier =
-                Modifier
-                    .size(slotSize)
-                    .drawBehind {
-                        val strokeWidth =
-                            if (isSideBet &&
-                                amount > 0
-                            ) {
-                                2.dp.toPx()
-                            } else {
-                                (if (isSideBet) 1.dp.toPx() else 2.dp.toPx())
-                            }
+        DropTarget(
+            onDrop = { item -> if (item is Int) onDrop(item) }
+        ) { isHovered ->
+            Box(
+                modifier =
+                    Modifier
+                        .size(slotSize)
+                        .drawBehind {
+                            val strokeWidth =
+                                if (isSideBet &&
+                                    amount > 0
+                                ) {
+                                    2.dp.toPx()
+                                } else {
+                                    (if (isSideBet) 1.dp.toPx() else 2.dp.toPx())
+                                }
 
-                        // Outer Dashed Circle
-                        drawCircle(
-                            color = primaryColor.copy(alpha = glowAlpha),
-                            style = Stroke(width = strokeWidth, pathEffect = dashEffect),
-                            radius = size.minDimension / 2f
-                        )
+                            val activeColor = if (isHovered) Color.White else primaryColor
 
-                        if (!isSideBet) {
-                            // Inner Thin Circle for main bet
+                            // Outer Dashed Circle
                             drawCircle(
-                                color = primaryColor.copy(alpha = 0.15f),
-                                style = Stroke(width = 1.dp.toPx()),
-                                radius = size.minDimension / 2.3f
+                                color = activeColor.copy(alpha = if (isHovered) 0.8f else glowAlpha),
+                                style = Stroke(width = strokeWidth + (if (isHovered) 2.dp.toPx() else 0f), pathEffect = dashEffect),
+                                radius = size.minDimension / 2f
                             )
-                        }
-                    }.clip(CircleShape)
-                    .clickable(role = Role.Button) { onClick() }
-                    .semantics {
-                        contentDescription = currentDescription
-                    }.onGloballyPositioned {
-                        val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                        onPositioned(center)
-                    },
-            contentAlignment = Alignment.Center
-        ) {
-            if (amount > 0) {
-                if (isSideBet) {
-                    BetChip(
-                        amount = amount,
-                        chipColor = ChipUtils.chipColor(amount),
-                        textColor = ChipUtils.chipTextColor(amount),
-                    )
+
+                            if (!isSideBet) {
+                                // Inner Thin Circle for main bet
+                                drawCircle(
+                                    color = activeColor.copy(alpha = if (isHovered) 0.3f else 0.15f),
+                                    style = Stroke(width = 1.dp.toPx()),
+                                    radius = size.minDimension / 2.3f
+                                )
+                            }
+                        }.clip(CircleShape)
+                        .clickable(role = Role.Button) { onClick() }
+                        .semantics {
+                            contentDescription = currentDescription
+                        }.onGloballyPositioned {
+                            val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                            onPositioned(center)
+                        },
+                contentAlignment = Alignment.Center
+            ) {
+                if (amount > 0) {
+                    if (isSideBet) {
+                        BetChip(
+                            amount = amount,
+                            chipColor = ChipUtils.chipColor(amount),
+                            textColor = ChipUtils.chipTextColor(amount),
+                        )
+                    } else {
+                        ChipStack(amount = amount, isActive = true)
+                    }
                 } else {
-                    ChipStack(amount = amount, isActive = true)
+                    Text(
+                        text =
+                            if (isSideBet) {
+                                label.replace(
+                                    " ",
+                                    "\n"
+                                )
+                            } else {
+                                stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
+                            },
+                        color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
+                        style =
+                            if (isSideBet) {
+                                MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                            } else {
+                                MaterialTheme.typography.labelMedium
+                            },
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = if (isSideBet) 0.sp else 2.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
-            } else {
-                Text(
-                    text =
-                        if (isSideBet) {
-                            label.replace(
-                                " ",
-                                "\n"
-                            )
-                        } else {
-                            stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
-                        },
-                    color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
-                    style =
-                        if (isSideBet) {
-                            MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
-                        } else {
-                            MaterialTheme.typography.labelMedium
-                        },
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = if (isSideBet) 0.sp else 2.sp,
-                    textAlign = TextAlign.Center
-                )
             }
         }
 

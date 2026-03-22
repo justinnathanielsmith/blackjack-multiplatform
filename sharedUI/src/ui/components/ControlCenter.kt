@@ -1,7 +1,12 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameState
+import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
@@ -40,6 +46,10 @@ import sharedui.generated.resources.currency_template
 fun ControlCenter(
     state: GameState,
     component: BlackjackComponent,
+    selectedAmount: Int,
+    onChipSelected: (Int) -> Unit,
+    onResetBet: () -> Unit,
+    onDeal: () -> Unit,
     isCompact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -52,6 +62,28 @@ fun ControlCenter(
             state = state,
             component = component,
             isCompact = isCompact
+        )
+
+        // Actions for BETTING
+        AnimatedVisibility(
+            visible = state.status == GameStatus.BETTING,
+            enter = fadeIn(tween(300)) + expandVertically(tween(300), expandFrom = Alignment.Top),
+            exit = fadeOut(tween(300)) + shrinkVertically(tween(300), shrinkTowards = Alignment.Top),
+        ) {
+            BettingActions(
+                canDeal = state.currentBet > 0,
+                onReset = onResetBet,
+                onDeal = onDeal,
+                modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+            )
+        }
+
+        // Persistent Chip Rack
+        ChipRack(
+            balance = state.balance,
+            selectedAmount = selectedAmount,
+            onChipSelected = onChipSelected,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
         // Footer Bar

@@ -32,9 +32,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -48,8 +50,6 @@ import sharedui.generated.resources.emoji_bulb
 import sharedui.generated.resources.emoji_clock
 import sharedui.generated.resources.emoji_gear
 import sharedui.generated.resources.emoji_lightning
-import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import androidx.compose.ui.tooling.preview.Preview
 import sharedui.generated.resources.emoji_scroll
 
 @Composable
@@ -256,4 +256,3 @@ private fun HeaderAutoDealPreview() {
         )
     }
 }
-

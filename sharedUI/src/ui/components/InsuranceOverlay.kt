@@ -19,8 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -29,8 +31,6 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.insurance_message
 import sharedui.generated.resources.insurance_title
 import sharedui.generated.resources.insure
-import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import androidx.compose.ui.tooling.preview.Preview
 import sharedui.generated.resources.no_thanks
 
 @Composable
@@ -97,4 +97,3 @@ private fun InsuranceOverlayPreview() {
         )
     }
 }
-

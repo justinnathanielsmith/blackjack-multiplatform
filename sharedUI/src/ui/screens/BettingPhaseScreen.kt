@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,9 +26,7 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
-import io.github.smithjustinn.blackjack.ui.components.BettingActions
 import io.github.smithjustinn.blackjack.ui.components.BettingSlot
-import io.github.smithjustinn.blackjack.ui.components.ChipSelector
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.effects.FlyingChip
 import io.github.smithjustinn.blackjack.ui.effects.FlyingChipAnimation
@@ -44,11 +41,11 @@ fun BettingPhaseScreen(
     state: GameState,
     component: BlackjackComponent,
     audioService: AudioService,
+    selectedAmount: Int,
     modifier: Modifier = Modifier,
 ) {
     val flyingChips = remember { mutableStateListOf<FlyingChip>() }
     var betDisplayOffset by remember { mutableStateOf(Offset.Zero) }
-    var selectedAmount by remember { mutableStateOf(10) }
     val sideBetOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
 
     // Remove the dimming felt to bring focus to the betting layer while keeping the table visible
@@ -81,31 +78,6 @@ fun BettingPhaseScreen(
                 }
             }
 
-        val onResetBet =
-            remember(audioService, component) {
-                {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onAction(GameAction.ResetBet)
-                    component.onAction(GameAction.ResetSideBets)
-                }
-            }
-
-        val onDeal =
-            remember(audioService, component) {
-                {
-                    audioService.playEffect(AudioService.SoundEffect.FLIP)
-                    component.onAction(GameAction.Deal)
-                }
-            }
-
-        val onChipSelected =
-            remember(audioService) {
-                { amount: Int ->
-                    selectedAmount = amount
-                    audioService.playEffect(AudioService.SoundEffect.PLINK)
-                }
-            }
-
         // --- Center: Betting Spots floating directly on the table ---
         Column(
             modifier =
@@ -134,7 +106,14 @@ fun BettingPhaseScreen(
                             selectedAmount
                         )
                     },
-                    onPositioned = { sideBetOffsets[SideBetType.PERFECT_PAIRS] = it }
+                    onPositioned = { sideBetOffsets[SideBetType.PERFECT_PAIRS] = it },
+                    onDrop = { amount ->
+                        placeBetOnArea(
+                            GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, amount),
+                            sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero,
+                            amount
+                        )
+                    }
                 )
 
                 BettingSlot(
@@ -148,7 +127,14 @@ fun BettingPhaseScreen(
                             selectedAmount
                         )
                     },
-                    onPositioned = { betDisplayOffset = it }
+                    onPositioned = { betDisplayOffset = it },
+                    onDrop = { amount ->
+                        placeBetOnArea(
+                            GameAction.PlaceBet(amount),
+                            betDisplayOffset,
+                            amount
+                        )
+                    }
                 )
 
                 BettingSlot(
@@ -163,33 +149,16 @@ fun BettingPhaseScreen(
                             selectedAmount
                         )
                     },
-                    onPositioned = { sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it }
+                    onPositioned = { sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it },
+                    onDrop = { amount ->
+                        placeBetOnArea(
+                            GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, amount),
+                            sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero,
+                            amount
+                        )
+                    }
                 )
             }
-        }
-
-        // --- Bottom: Controls integrated into the table rail ---
-        Column(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 40.dp) // Lowered to sit on the rail
-                    .zIndex(2f)
-                    .fillMaxWidth(0.9f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-        ) {
-            ChipSelector(
-                balance = state.balance,
-                selectedAmount = selectedAmount,
-                onChipSelected = onChipSelected,
-            )
-
-            BettingActions(
-                canDeal = state.currentBet > 0,
-                onReset = onResetBet,
-                onDeal = onDeal,
-            )
         }
 
         // Flying chip animations layer
