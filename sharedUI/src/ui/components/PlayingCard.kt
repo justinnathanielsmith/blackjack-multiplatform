@@ -341,6 +341,7 @@ fun PlayingCard(
     modifier: Modifier = Modifier,
     scale: Float = 1f,
     isNearMiss: Boolean = false,
+    isDimmed: Boolean = false,
     shadowElevation: androidx.compose.ui.unit.Dp = 6.dp,
     spotColor: Color = Color.Black,
 ) {
@@ -461,6 +462,13 @@ fun PlayingCard(
                                 modifier = Modifier.align(Alignment.BottomEnd).rotate(180f)
                             )
                         }
+                    }
+                    if (isDimmed) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.3f))
+                        )
                     }
                 }
             } else {

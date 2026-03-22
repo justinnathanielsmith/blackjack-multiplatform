@@ -73,7 +73,7 @@ fun computeTableLayout(
         when (nPlayerHands) {
             1 -> 1.0f
             2 -> 0.82f
-            else -> 0.52f // Optimized from 0.55f for 3 hands
+            else -> 0.42f // Optimized from 0.52f for 3 hands
         }
 
     val baseCardWPx = with(density) { Dimensions.Card.StandardWidth.toPx() }

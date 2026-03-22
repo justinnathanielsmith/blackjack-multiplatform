@@ -145,7 +145,7 @@ fun OverlayCardTable(
             val slot = tableLayout.cardSlots[i]
             val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
             val isDealer = slot.handIndex == -1
-            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
+            val isDimmed = state.status == GameStatus.PLAYING && !isDealer && !isActive
 
             androidx.compose.runtime.key(slot.handIndex, slot.cardIndex) {
                 PositionedCardItem(
@@ -158,7 +158,8 @@ fun OverlayCardTable(
                     isNearMiss = slot.handIndex == nearMissHandIndex,
                     density = density,
                     isActive = isActive,
-                    alpha = alpha,
+                    alpha = 1f,
+                    isDimmed = isDimmed,
                 )
             }
         }
@@ -212,6 +213,7 @@ private fun PositionedCardItem(
     density: Density,
     isActive: Boolean,
     alpha: Float,
+    isDimmed: Boolean = false,
 ) {
     val currentX = remember { Animatable(slot.startOffset.x) }
     val currentY = remember { Animatable(slot.startOffset.y) }
@@ -323,6 +325,7 @@ private fun PositionedCardItem(
                 isFaceUp = slot.isFaceUp,
                 scale = slot.scale,
                 isNearMiss = isNearMiss,
+                isDimmed = isDimmed,
                 shadowElevation = shadowElevation,
                 spotColor = if (isActive) PrimaryGold else Color.Black
             )
@@ -573,8 +576,8 @@ private fun HandZoneHud(
                     isActive = isActive,
                     modifier =
                         Modifier
-                            .align(Alignment.TopStart)
-                            .offset(x = (-8).dp * hudScale, y = (-20).dp * hudScale),
+                            .align(Alignment.TopCenter)
+                            .offset(y = (-32).dp * hudScale),
                 )
             }
 
