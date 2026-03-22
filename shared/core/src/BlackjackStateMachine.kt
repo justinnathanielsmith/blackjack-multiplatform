@@ -304,7 +304,10 @@ class BlackjackStateMachine(
         val clampedBet = lastBet.coerceIn(0, maxAffordableMainBet)
 
         var remainingBalance = newBalance - clampedBet * handCount
-        val totalSideBetCost = lastSideBets.values.sum()
+        var totalSideBetCost = 0
+        for ((_, betAmount) in lastSideBets) {
+            totalSideBetCost += betAmount
+        }
 
         val finalSideBets: PersistentMap<SideBetType, Int>
         val postSideBetBalance: Int
@@ -472,7 +475,10 @@ class BlackjackStateMachine(
         _state.value = state.copy(status = finalStatus, balance = state.balance + totalPayout)
 
         if (totalPayout > 0) emitEffect(GameEffect.ChipEruption(totalPayout))
-        val totalBet = state.playerBets.sum()
+        var totalBet = 0
+        for (i in 0 until state.playerBets.size) {
+            totalBet += state.playerBets[i]
+        }
         if (totalPayout < totalBet) emitEffect(GameEffect.ChipLoss(totalBet - totalPayout))
 
         when (finalStatus) {
@@ -527,7 +533,10 @@ class BlackjackStateMachine(
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
         if (type == null) {
-            val totalRefund = current.sideBets.values.sum()
+            var totalRefund = 0
+            for ((_, betAmount) in current.sideBets) {
+                totalRefund += betAmount
+            }
             _state.value =
                 current.copy(
                     balance = current.balance + totalRefund,

@@ -94,25 +94,30 @@ fun computeTableLayout(
     val stepYPx = baseStepYPx * cardScale // Slightly flatter stacks
 
     val minVisibleWidthFactor =
-        if (nPlayerHands > 1) TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_MULTI
-        else TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE
+        if (nPlayerHands > 1) {
+            TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_MULTI
+        } else {
+            TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE
+        }
 
-    val dealerParams = SlotParams(
-        cardW = cardW,
-        cardH = cardH,
-        defaultStepX = cardW * TableMetrics.DEALER_OVERLAP_FACTOR,
-        stepYPx = stepYPx,
-        cardScale = cardScale,
-        minVisibleWidthFactor = TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE,
-    )
-    val playerParams = SlotParams(
-        cardW = cardW,
-        cardH = cardH,
-        defaultStepX = cardW * playerOverlapFactor,
-        stepYPx = stepYPx,
-        cardScale = cardScale,
-        minVisibleWidthFactor = minVisibleWidthFactor,
-    )
+    val dealerParams =
+        SlotParams(
+            cardW = cardW,
+            cardH = cardH,
+            defaultStepX = cardW * TableMetrics.DEALER_OVERLAP_FACTOR,
+            stepYPx = stepYPx,
+            cardScale = cardScale,
+            minVisibleWidthFactor = TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE,
+        )
+    val playerParams =
+        SlotParams(
+            cardW = cardW,
+            cardH = cardH,
+            defaultStepX = cardW * playerOverlapFactor,
+            stepYPx = stepYPx,
+            cardScale = cardScale,
+            minVisibleWidthFactor = minVisibleWidthFactor,
+        )
 
     val cardSlots = mutableListOf<CardSlotLayout>()
     val handZones = mutableListOf<HandZone>()
@@ -131,7 +136,7 @@ fun computeTableLayout(
             handIndex = -1,
             zoneCenter = dealerZoneCenter,
             shoePosition = shoePosition,
-            availableWidth = areaWidth * TableMetrics.DEALER_AVAILABLE_WIDTH_RATIO, // Dealer is constrained to a centered strip; player zones own the horizontal spread
+            availableWidth = areaWidth * TableMetrics.DEALER_AVAILABLE_WIDTH_RATIO,
             params = dealerParams,
             isDealer = true,
             startIndex = globalCardIndex,
@@ -180,10 +185,12 @@ fun computeTableLayout(
                     handIndex = handIdx,
                     amount = bet,
                     startOffset = Offset(areaWidth / 2f, areaHeight + 80f),
-                    centerOffset = Offset(
-                        playerZone.clusterCenter.x,
-                        playerZone.clusterTopLeft.y + playerZone.clusterSize.height + with(density) { 20.dp.toPx() },
-                    ),
+                    centerOffset =
+                        Offset(
+                            playerZone.clusterCenter.x,
+                            playerZone.clusterTopLeft.y + playerZone.clusterSize.height +
+                                with(density) { 20.dp.toPx() },
+                        ),
                     scale = cardScale,
                 )
             )
