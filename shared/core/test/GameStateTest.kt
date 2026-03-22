@@ -28,7 +28,7 @@ class GameStateTest {
         val state =
             GameState(
                 status = GameStatus.PLAYING,
-                playerBets = persistentListOf(100, 200),
+                playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100), hand(Rank.TEN, Rank.NINE).copy(bet = 200)),
                 sideBets =
                     persistentMapOf(
                         SideBetType.PERFECT_PAIRS to 50
@@ -44,7 +44,7 @@ class GameStateTest {
         val state =
             GameState(
                 status = GameStatus.PLAYING,
-                playerBets = persistentListOf(100),
+                playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                 sideBets =
                     persistentMapOf(
                         SideBetType.PERFECT_PAIRS to 50

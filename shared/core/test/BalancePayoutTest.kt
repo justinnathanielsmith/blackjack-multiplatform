@@ -114,10 +114,9 @@ class BalancePayoutTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.ACE, Rank.TEN),
-                            hand(Rank.TEN, Rank.TEN),
+                            hand(Rank.ACE, Rank.TEN).copy(bet = 100),
+                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.EIGHT),
                     deck = persistentListOf(),
@@ -144,8 +143,7 @@ class BalancePayoutTest {
                         status = GameStatus.PLAYING,
                         balance = 800,
                         currentBets = persistentListOf(100),
-                        playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN)),
-                        playerBets = persistentListOf(100),
+                        playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN).copy(bet = 100)),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
                         rules = GameRules(allowSurrender = true),
                     ),
@@ -169,9 +167,8 @@ class BalancePayoutTest {
                         currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
-                                Hand(persistentListOf(card(Rank.TEN), card(Rank.TWO), card(Rank.FIVE))),
+                                Hand(persistentListOf(card(Rank.TEN), card(Rank.TWO), card(Rank.FIVE)), bet = 100),
                             ),
-                        playerBets = persistentListOf(100),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
                         rules = GameRules(allowSurrender = true),
                     ),
@@ -193,8 +190,7 @@ class BalancePayoutTest {
                         status = GameStatus.PLAYING,
                         balance = 800,
                         currentBets = persistentListOf(100),
-                        playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN)),
-                        playerBets = persistentListOf(100),
+                        playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN).copy(bet = 100)),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
                         rules = GameRules(allowSurrender = false),
                     ),
@@ -302,10 +298,9 @@ class BalancePayoutTest {
                         currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
-                                hand(Rank.TEN, Rank.TEN),
-                                Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN), card(Rank.SIX))),
+                                hand(Rank.TEN, Rank.TEN).copy(bet = 100),
+                                Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN), card(Rank.SIX)), bet = 100),
                             ),
-                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
                         dealerHand = hand(Rank.TEN, Rank.EIGHT),
                         deck = persistentListOf(),
@@ -329,10 +324,9 @@ class BalancePayoutTest {
                         currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
-                                hand(Rank.TEN, Rank.TEN),
-                                Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN), card(Rank.SIX))),
+                                hand(Rank.TEN, Rank.TEN).copy(bet = 100),
+                                Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN), card(Rank.SIX)), bet = 100),
                             ),
-                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
                         dealerHand = hand(Rank.TEN, Rank.EIGHT),
                         deck = persistentListOf(),
@@ -356,10 +350,9 @@ class BalancePayoutTest {
                         currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
-                                hand(Rank.TEN, Rank.FIVE),
-                                hand(Rank.NINE, Rank.FOUR),
+                                hand(Rank.TEN, Rank.FIVE).copy(bet = 100),
+                                hand(Rank.NINE, Rank.FOUR).copy(bet = 100),
                             ),
-                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
                         dealerHand = hand(Rank.TEN, Rank.TEN),
                         deck = persistentListOf(),
@@ -383,10 +376,9 @@ class BalancePayoutTest {
                         currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
-                                hand(Rank.TEN, Rank.NINE),
-                                hand(Rank.NINE, Rank.TEN),
+                                hand(Rank.TEN, Rank.NINE).copy(bet = 100),
+                                hand(Rank.NINE, Rank.TEN).copy(bet = 100),
                             ),
-                        playerBets = persistentListOf(100, 100),
                         activeHandIndex = 1,
                         dealerHand = hand(Rank.TEN, Rank.NINE),
                         deck = persistentListOf(),

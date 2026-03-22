@@ -206,7 +206,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
             state.playerHands.forEachIndexed { index, _ ->
                 val result = state.handResult(index)
                 if (result == HandResult.WIN) {
-                    val bet = state.playerBets.getOrNull(index) ?: 0
+                    val bet = state.playerHands.getOrNull(index)?.bet ?: 0
                     if (bet > 0) {
                         delay(200)
                         val zone = dealRegistry.tableLayout?.handZones?.getOrNull(index + 1)

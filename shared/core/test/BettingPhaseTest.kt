@@ -91,8 +91,7 @@ class BettingPhaseTest {
                         status = GameStatus.PLAYING,
                         balance = 1000,
                         currentBets = persistentListOf(100),
-                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
-                        playerBets = persistentListOf(100),
+                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                     )
                 )
             sm.state.test {
@@ -132,8 +131,7 @@ class BettingPhaseTest {
                         status = GameStatus.PLAYING,
                         balance = 900,
                         currentBets = persistentListOf(100),
-                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
-                        playerBets = persistentListOf(100),
+                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                     )
                 )
             sm.state.test {
@@ -172,9 +170,8 @@ class BettingPhaseTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         kotlinx.collections.immutable.persistentListOf(
-                            hand(Rank.FIVE, Rank.SIX)
+                            hand(Rank.FIVE, Rank.SIX).copy(bet = 100)
                         ),
-                    playerBets = kotlinx.collections.immutable.persistentListOf(100),
                     handCount = 1,
                 )
             val sm =
@@ -299,7 +296,7 @@ class BettingPhaseTest {
             }
             val state = sm.state.value
             assertEquals(2, state.playerHands.size)
-            assertEquals(persistentListOf(100, 100), state.playerBets)
+            assertEquals(listOf(100, 100), state.playerHands.map { it.bet })
         }
 
     @Test

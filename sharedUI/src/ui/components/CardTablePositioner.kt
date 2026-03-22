@@ -178,7 +178,7 @@ fun computeTableLayout(
         handZones.add(playerZone)
         globalCardIndex += playerSlots.size
 
-        val bet = state.playerBets.getOrNull(handIdx) ?: 0
+        val bet = state.playerHands.getOrNull(handIdx)?.bet ?: 0
         if (bet > 0) {
             chipSlots.add(
                 ChipSlotLayout(

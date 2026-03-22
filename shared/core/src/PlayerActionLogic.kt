@@ -56,7 +56,9 @@ object PlayerActionLogic {
 
     fun stand(state: GameState): PlayerActionOutcome {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
-        return PlayerActionOutcome(state = state, shouldAdvanceTurn = true)
+        val standingHand = state.activeHand.copy(isStanding = true)
+        val updatedHands = state.playerHands.set(state.activeHandIndex, standingHand)
+        return PlayerActionOutcome(state = state.copy(playerHands = updatedHands), shouldAdvanceTurn = true)
     }
 
     fun doubleDown(state: GameState): PlayerActionOutcome {
@@ -66,18 +68,17 @@ object PlayerActionLogic {
 
         val drawnCard = state.deck.firstOrNull() ?: return PlayerActionOutcome.noop(state)
         val remainingDeck = state.deck.drop(1).toPersistentList()
-        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(drawnCard))
+        val originalBet = state.activeHand.bet
+        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(drawnCard), bet = originalBet * 2)
         val updatedHands = state.playerHands.set(state.activeHandIndex, newHand)
 
-        // Double the bet for this hand; deduct the extra (original activeBet) from balance.
-        val newBets = state.playerBets.set(state.activeHandIndex, state.activeBet * 2)
-        val newBalance = state.balance - state.activeBet
+        // Double the bet for this hand; deduct the extra (original bet) from balance.
+        val newBalance = state.balance - originalBet
 
         val updatedState =
             state.copy(
                 deck = remainingDeck,
                 playerHands = updatedHands,
-                playerBets = newBets,
                 balance = newBalance,
             )
 
@@ -89,7 +90,7 @@ object PlayerActionLogic {
                 if (newHand.isBust) {
                     add(GameEffect.PlayLoseSound)
                     add(GameEffect.BustThud)
-                    add(GameEffect.ChipLoss(state.activeBet * 2))
+                    add(GameEffect.ChipLoss(newHand.bet))
                 }
             }
 
@@ -113,8 +114,9 @@ object PlayerActionLogic {
         val cardFromDeck1 = state.deck[0]
         val cardFromDeck2 = state.deck[1]
 
-        val newPrimaryHand = Hand(persistentListOf(card1, cardFromDeck1))
-        val newSplitHand = Hand(persistentListOf(card2, cardFromDeck2))
+        val splitBet = state.activeHand.bet
+        val newPrimaryHand = Hand(persistentListOf(card1, cardFromDeck1), bet = splitBet)
+        val newSplitHand = Hand(persistentListOf(card2, cardFromDeck2), bet = splitBet)
         val isAceSplit = card1.rank == Rank.ACE
 
         val updatedHands =
@@ -126,16 +128,12 @@ object PlayerActionLogic {
                     state.activeHandIndex + 1,
                     newSplitHand.copy(wasSplit = true, isFromSplitAce = isAceSplit)
                 )
-        val updatedBets =
-            state.playerBets
-                .add(state.activeHandIndex + 1, state.activeBet)
 
         val updatedState =
             state.copy(
                 deck = state.deck.drop(CARDS_TO_DEAL_ON_SPLIT).toPersistentList(),
                 playerHands = updatedHands,
-                playerBets = updatedBets,
-                balance = state.balance - state.activeBet,
+                balance = state.balance - splitBet,
             )
 
         val finalState =

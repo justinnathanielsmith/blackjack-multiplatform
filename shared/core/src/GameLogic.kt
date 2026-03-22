@@ -49,6 +49,8 @@ data class Card(
 @Serializable
 data class Hand(
     val cards: PersistentList<Card> = persistentListOf(),
+    val bet: Int = 0,
+    val isStanding: Boolean = false,
     val wasSplit: Boolean = false,
     val isFromSplitAce: Boolean = false,
     val isSurrendered: Boolean = false,
@@ -163,7 +165,6 @@ data class SideBetResult(
 data class GameState(
     val deck: PersistentList<Card> = persistentListOf(),
     val playerHands: PersistentList<Hand> = persistentListOf(Hand()),
-    val playerBets: PersistentList<Int> = persistentListOf(0),
     val activeHandIndex: Int = 0,
     val handCount: Int = 1,
     val dealerHand: Hand = Hand(),
@@ -195,11 +196,7 @@ data class GameState(
                 if (status == GameStatus.BETTING) {
                     currentBets.fold(0) { acc, b -> acc + b }
                 } else {
-                    var sum = 0
-                    for (i in 0 until playerBets.size) {
-                        sum += playerBets[i]
-                    }
-                    sum
+                    playerHands.fold(0) { acc, h -> acc + h.bet }
                 }
 
             // Only count active side bets (before they are settled)
@@ -218,7 +215,7 @@ data class GameState(
         }
 
     val activeHand: Hand get() = playerHands[activeHandIndex]
-    val activeBet: Int get() = playerBets[activeHandIndex]
+    val activeBet: Int get() = activeHand.bet
 
     fun canDoubleDown(): Boolean =
         activeHand.cards.size == 2 &&
@@ -312,7 +309,7 @@ object BlackjackRules {
         var allPush = true
         for (i in state.playerHands.indices) {
             val hand = state.playerHands[i]
-            val bet = state.playerBets[i]
+            val bet = hand.bet
             totalPayout += resolveHand(hand, bet, dealerScore, dealerBust, state.rules)
             if (hand.isSurrendered) {
                 // Surrendered hands are not wins or pushes; payout was already refunded at surrender time.

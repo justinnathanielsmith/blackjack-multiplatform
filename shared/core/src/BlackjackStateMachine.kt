@@ -234,18 +234,17 @@ class BlackjackStateMachine(
     private suspend fun dealCardsWithAnimation(
         current: GameState,
     ): Pair<kotlinx.collections.immutable.PersistentList<Hand>, Hand> {
-        val bets = current.currentBets
         var deck = getDeck(current).toPersistentList()
-        var playerHands = List(current.handCount) { Hand() }.toPersistentList()
+        var playerHands = List(current.handCount) { i -> Hand(bet = current.currentBets[i]) }.toPersistentList()
         var dealerHand = Hand()
         _state.value =
-            _state.value.copy(playerHands = playerHands, dealerHand = dealerHand, playerBets = bets, deck = deck)
+            _state.value.copy(playerHands = playerHands, dealerHand = dealerHand, deck = deck)
         for (round in 0..1) {
             for (i in 0 until current.handCount) {
                 delay(dealCardDelayMs)
                 val card = deck.firstOrNull() ?: break
                 deck = deck.removeAt(0)
-                playerHands = playerHands.set(i, Hand(playerHands[i].cards.add(card)))
+                playerHands = playerHands.set(i, playerHands[i].copy(cards = playerHands[i].cards.add(card)))
                 _state.value = _state.value.copy(playerHands = playerHands, deck = deck)
                 emitEffect(GameEffect.PlayCardSound)
             }
@@ -358,7 +357,6 @@ class BlackjackStateMachine(
                 sideBets = finalSideBets,
                 lastSideBets = lastSideBets,
                 playerHands = persistentListOf(Hand()),
-                playerBets = persistentListOf(0),
                 activeHandIndex = 0,
                 handCount = handCount,
                 rules = rules,
@@ -505,10 +503,7 @@ class BlackjackStateMachine(
         _state.value = state.copy(status = finalStatus, balance = state.balance + totalPayout)
 
         if (totalPayout > 0) emitEffect(GameEffect.ChipEruption(totalPayout))
-        var totalBet = 0
-        for (i in 0 until state.playerBets.size) {
-            totalBet += state.playerBets[i]
-        }
+        val totalBet = state.playerHands.fold(0) { acc, h -> acc + h.bet }
         if (totalPayout < totalBet) emitEffect(GameEffect.ChipLoss(totalBet - totalPayout))
 
         when (finalStatus) {

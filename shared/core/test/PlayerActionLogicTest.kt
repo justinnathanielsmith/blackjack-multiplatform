@@ -164,7 +164,8 @@ class PlayerActionLogicTest {
             )
         val outcome = PlayerActionLogic.stand(state)
 
-        assertEquals(state, outcome.state)
+        val expectedHand = state.activeHand.copy(isStanding = true)
+        assertEquals(state.copy(playerHands = state.playerHands.set(state.activeHandIndex, expectedHand)), outcome.state)
         assertTrue(outcome.shouldAdvanceTurn)
         assertTrue(outcome.effects.isEmpty())
     }
@@ -242,7 +243,7 @@ class PlayerActionLogicTest {
 
         val newState = outcome.state
         assertEquals(400, newState.balance)
-        assertEquals(200, newState.playerBets[0])
+        assertEquals(200, newState.playerHands[0].bet)
         assertEquals(3, newState.playerHands[0].cards.size)
         assertEquals(Rank.EIGHT, newState.playerHands[0].cards[2].rank)
         assertEquals(1, newState.deck.size)
@@ -359,8 +360,8 @@ class PlayerActionLogicTest {
         assertTrue(hand2.wasSplit)
         assertFalse(hand2.isFromSplitAce)
 
-        assertEquals(100, newState.playerBets[0])
-        assertEquals(100, newState.playerBets[1])
+        assertEquals(100, newState.playerHands[0].bet)
+        assertEquals(100, newState.playerHands[1].bet)
 
         assertEquals(1, newState.deck.size)
         assertEquals(Rank.FOUR, newState.deck[0].rank)
@@ -401,8 +402,8 @@ class PlayerActionLogicTest {
         assertTrue(hand2.wasSplit)
         assertTrue(hand2.isFromSplitAce)
 
-        assertEquals(100, newState.playerBets[0])
-        assertEquals(100, newState.playerBets[1])
+        assertEquals(100, newState.playerHands[0].bet)
+        assertEquals(100, newState.playerHands[1].bet)
 
         assertEquals(1, newState.deck.size)
         assertEquals(Rank.JACK, newState.deck[0].rank)

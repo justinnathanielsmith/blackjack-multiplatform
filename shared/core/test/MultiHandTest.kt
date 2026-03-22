@@ -51,7 +51,7 @@ class MultiHandTest {
 
             val state = sm.state.value
             assertEquals(3, state.playerHands.size)
-            assertEquals(3, state.playerBets.size)
+            assertEquals(3, state.playerHands.size)
             state.playerHands.forEach { hand -> assertEquals(2, hand.cards.size) }
             assertEquals(0, state.activeHandIndex)
             assertEquals(GameStatus.PLAYING, state.status)

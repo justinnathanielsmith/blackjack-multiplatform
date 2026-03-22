@@ -85,7 +85,7 @@ internal fun GameState.handResult(index: Int): HandResult {
 internal fun GameState.handNetPayout(index: Int): Int? {
     if (!status.isTerminal()) return null
     val hand = playerHands.getOrNull(index) ?: return null
-    val bet = playerBets.getOrNull(index) ?: return null
+    val bet = hand.bet
     val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
     return payout - bet
 }

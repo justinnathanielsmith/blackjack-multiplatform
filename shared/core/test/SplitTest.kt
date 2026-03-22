@@ -64,7 +64,7 @@ class SplitTest {
 
             val state = sm.state.value
             assertEquals(800, state.balance)
-            assertEquals(100, state.playerBets.getOrNull(1))
+            assertEquals(100, state.playerHands.getOrNull(1)?.bet)
         }
 
     @Test
@@ -135,10 +135,9 @@ class SplitTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.EIGHT, Rank.TWO),
-                            hand(Rank.EIGHT, Rank.THREE),
+                            hand(Rank.EIGHT, Rank.TWO).copy(bet = 100),
+                            hand(Rank.EIGHT, Rank.THREE).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FOUR, Rank.FIVE),
                 )
@@ -165,16 +164,17 @@ class SplitTest {
                         persistentListOf(
                             Hand(
                                 persistentListOf(card(Rank.ACE), card(Rank.FIVE)),
+                                bet = 100,
                                 wasSplit = true,
                                 isFromSplitAce = true
                             ),
                             Hand(
                                 persistentListOf(card(Rank.ACE), card(Rank.THREE)),
+                                bet = 100,
                                 wasSplit = true,
                                 isFromSplitAce = true
                             ),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO),
@@ -225,10 +225,9 @@ class SplitTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.TEN, Rank.TEN),
-                            Hand(persistentListOf(card(Rank.EIGHT), card(Rank.EIGHT), card(Rank.SIX))),
+                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
+                            Hand(persistentListOf(card(Rank.EIGHT), card(Rank.EIGHT), card(Rank.SIX)), bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.EIGHT),
                     deck = persistentListOf(),
@@ -257,10 +256,9 @@ class SplitTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.TEN, Rank.TEN),
-                            hand(Rank.TEN, Rank.NINE),
+                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
+                            hand(Rank.TEN, Rank.NINE).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.SIX),
                     deck = deckOf(Rank.KING),
@@ -288,10 +286,9 @@ class SplitTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.EIGHT, Rank.EIGHT),
-                            hand(Rank.SEVEN, Rank.THREE),
+                            hand(Rank.EIGHT, Rank.EIGHT).copy(bet = 100),
+                            hand(Rank.SEVEN, Rank.THREE).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE, Rank.FOUR),
@@ -319,10 +316,9 @@ class SplitTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.ACE, Rank.ACE),
-                            hand(Rank.TEN, Rank.TEN),
+                            hand(Rank.ACE, Rank.ACE).copy(bet = 100),
+                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FIVE, Rank.THREE),
@@ -353,10 +349,9 @@ class SplitTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.TEN, Rank.FIVE),
-                            hand(Rank.TEN, Rank.THREE),
+                            hand(Rank.TEN, Rank.FIVE).copy(bet = 100),
+                            hand(Rank.TEN, Rank.THREE).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.SEVEN, Rank.SEVEN),
                     deck = deckOf(Rank.TEN),

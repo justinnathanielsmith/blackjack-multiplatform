@@ -93,8 +93,7 @@ class HandOutcomeTest {
             GameState(
                 status = GameStatus.DEALER_TURN,
                 balance = 900,
-                playerHands = kotlinx.collections.immutable.persistentListOf(playerHand),
-                playerBets = kotlinx.collections.immutable.persistentListOf(100),
+                playerHands = kotlinx.collections.immutable.persistentListOf(playerHand.copy(bet = 100)),
                 dealerHand = hand(Rank.ACE, Rank.KING),
             )
         val results = BlackjackRules.calculateHandResults(state, dealerScore = 21, dealerBust = false)

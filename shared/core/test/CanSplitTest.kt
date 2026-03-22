@@ -10,8 +10,7 @@ class CanSplitTest {
     fun canSplit_returnsTrue_whenConditionsAreMet() {
         val state =
             GameState(
-                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.EIGHT)),
-                playerBets = persistentListOf(100),
+                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.EIGHT).copy(bet = 100)),
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
@@ -24,12 +23,11 @@ class CanSplitTest {
             GameState(
                 playerHands =
                     persistentListOf(
-                        hand(Rank.EIGHT, Rank.EIGHT),
-                        hand(Rank.TWO, Rank.THREE),
-                        hand(Rank.FOUR, Rank.FIVE),
-                        hand(Rank.SIX, Rank.SEVEN)
+                        hand(Rank.EIGHT, Rank.EIGHT).copy(bet = 100),
+                        hand(Rank.TWO, Rank.THREE).copy(bet = 100),
+                        hand(Rank.FOUR, Rank.FIVE).copy(bet = 100),
+                        hand(Rank.SIX, Rank.SEVEN).copy(bet = 100),
                     ),
-                playerBets = persistentListOf(100, 100, 100, 100),
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
@@ -40,8 +38,7 @@ class CanSplitTest {
     fun canSplit_returnsFalse_whenInsufficientBalance() {
         val state =
             GameState(
-                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.EIGHT)),
-                playerBets = persistentListOf(100),
+                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.EIGHT).copy(bet = 100)),
                 balance = 50,
                 status = GameStatus.PLAYING
             )
@@ -52,8 +49,7 @@ class CanSplitTest {
     fun canSplit_returnsFalse_whenRanksDoNotMatch() {
         val state =
             GameState(
-                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.NINE)),
-                playerBets = persistentListOf(100),
+                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.NINE).copy(bet = 100)),
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
@@ -66,8 +62,7 @@ class CanSplitTest {
         // canSplit logic: activeHand.cards[0].rank == activeHand.cards[1].rank
         val state =
             GameState(
-                playerHands = persistentListOf(hand(Rank.KING, Rank.QUEEN)),
-                playerBets = persistentListOf(100),
+                playerHands = persistentListOf(hand(Rank.KING, Rank.QUEEN).copy(bet = 100)),
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
@@ -78,8 +73,7 @@ class CanSplitTest {
     fun canSplit_returnsFalse_whenNotTwoCards() {
         val state1 =
             GameState(
-                playerHands = persistentListOf(hand(Rank.EIGHT)),
-                playerBets = persistentListOf(100),
+                playerHands = persistentListOf(hand(Rank.EIGHT).copy(bet = 100)),
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
@@ -87,8 +81,7 @@ class CanSplitTest {
 
         val state3 =
             GameState(
-                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.EIGHT, Rank.EIGHT)),
-                playerBets = persistentListOf(100),
+                playerHands = persistentListOf(hand(Rank.EIGHT, Rank.EIGHT, Rank.EIGHT).copy(bet = 100)),
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
@@ -101,10 +94,9 @@ class CanSplitTest {
             GameState(
                 playerHands =
                     persistentListOf(
-                        hand(Rank.TEN, Rank.TEN), // Hand 0: splitable
-                        hand(Rank.FIVE, Rank.SIX) // Hand 1: not splitable
+                        hand(Rank.TEN, Rank.TEN).copy(bet = 100), // Hand 0: splitable
+                        hand(Rank.FIVE, Rank.SIX).copy(bet = 100), // Hand 1: not splitable
                     ),
-                playerBets = persistentListOf(100, 100),
                 activeHandIndex = 1,
                 balance = 1000,
                 status = GameStatus.PLAYING

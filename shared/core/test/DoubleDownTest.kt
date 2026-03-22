@@ -28,7 +28,7 @@ class DoubleDownTest {
             advanceUntilIdle()
 
             val state = sm.state.value
-            assertEquals(200, state.playerBets[0])
+            assertEquals(200, state.playerHands[0].bet)
             assertEquals(800, state.balance)
             assertEquals(3, state.playerHands[0].cards.size)
             assertEquals(0, state.deck.size)
@@ -121,8 +121,7 @@ class DoubleDownTest {
                     status = GameStatus.BETTING,
                     balance = 900,
                     currentBets = persistentListOf(100),
-                    playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
-                    playerBets = persistentListOf(100),
+                    playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO),
                 )
@@ -148,11 +147,10 @@ class DoubleDownTest {
                     handCount = 3,
                     playerHands =
                         persistentListOf(
-                            hand(Rank.TEN, Rank.NINE),
-                            hand(Rank.FIVE, Rank.SIX),
-                            hand(Rank.EIGHT, Rank.SEVEN),
+                            hand(Rank.TEN, Rank.NINE).copy(bet = 100),
+                            hand(Rank.FIVE, Rank.SIX).copy(bet = 100),
+                            hand(Rank.EIGHT, Rank.SEVEN).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100, 100),
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO),
@@ -165,9 +163,9 @@ class DoubleDownTest {
             advanceUntilIdle()
 
             val state = sm.state.value
-            assertEquals(100, state.playerBets[0])
-            assertEquals(200, state.playerBets[1])
-            assertEquals(100, state.playerBets[2])
+            assertEquals(100, state.playerHands[0].bet)
+            assertEquals(200, state.playerHands[1].bet)
+            assertEquals(100, state.playerHands[2].bet)
         }
 
     @Test
@@ -182,11 +180,10 @@ class DoubleDownTest {
                     handCount = 3,
                     playerHands =
                         persistentListOf(
-                            hand(Rank.TEN, Rank.NINE),
-                            hand(Rank.TEN, Rank.EIGHT),
-                            hand(Rank.FIVE, Rank.SIX),
+                            hand(Rank.TEN, Rank.NINE).copy(bet = 100),
+                            hand(Rank.TEN, Rank.EIGHT).copy(bet = 100),
+                            hand(Rank.FIVE, Rank.SIX).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100, 100),
                     activeHandIndex = 2,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO),
@@ -205,10 +202,9 @@ class DoubleDownTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            hand(Rank.TEN, Rank.TEN),
-                            hand(Rank.FIVE, Rank.SIX),
+                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
+                            hand(Rank.FIVE, Rank.SIX).copy(bet = 100),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
                     rules = GameRules(allowDoubleAfterSplit = true),
                 )
@@ -225,10 +221,9 @@ class DoubleDownTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN)), wasSplit = true),
-                            Hand(persistentListOf(card(Rank.FIVE), card(Rank.SIX)), wasSplit = true),
+                            Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN)), bet = 100, wasSplit = true),
+                            Hand(persistentListOf(card(Rank.FIVE), card(Rank.SIX)), bet = 100, wasSplit = true),
                         ),
-                    playerBets = persistentListOf(100, 100),
                     activeHandIndex = 1,
                     rules = GameRules(allowDoubleAfterSplit = false),
                 )
@@ -245,9 +240,8 @@ class DoubleDownTest {
                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
-                            Hand(persistentListOf(card(Rank.TEN), card(Rank.FIVE)), wasSplit = true),
+                            Hand(persistentListOf(card(Rank.TEN), card(Rank.FIVE)), bet = 100, wasSplit = true),
                         ),
-                    playerBets = persistentListOf(100),
                     rules = GameRules(allowDoubleAfterSplit = true),
                 )
             assertTrue(state1.canDoubleDown(), "Should allow double after split when rules permit")
@@ -260,8 +254,7 @@ class DoubleDownTest {
     fun canDoubleDown_true_when_two_cards_and_sufficient_balance_and_not_split() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX)),
-                playerBets = kotlinx.collections.immutable.persistentListOf(100),
+                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                 balance = 100
             )
         assertTrue(state.canDoubleDown())
@@ -271,8 +264,7 @@ class DoubleDownTest {
     fun canDoubleDown_false_when_more_than_two_cards() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX, Rank.TWO)),
-                playerBets = kotlinx.collections.immutable.persistentListOf(100),
+                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX, Rank.TWO).copy(bet = 100)),
                 balance = 100
             )
         assertFalse(state.canDoubleDown())
@@ -282,8 +274,7 @@ class DoubleDownTest {
     fun canDoubleDown_false_when_less_than_two_cards() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE)),
-                playerBets = kotlinx.collections.immutable.persistentListOf(100),
+                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE).copy(bet = 100)),
                 balance = 100
             )
         assertFalse(state.canDoubleDown())
@@ -293,8 +284,7 @@ class DoubleDownTest {
     fun canDoubleDown_false_when_insufficient_balance() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX)),
-                playerBets = kotlinx.collections.immutable.persistentListOf(100),
+                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                 balance = 99
             )
         assertFalse(state.canDoubleDown())
@@ -307,8 +297,7 @@ class DoubleDownTest {
 
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand, validHand),
-                playerBets = kotlinx.collections.immutable.persistentListOf(100, 200),
+                playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand.copy(bet = 100), validHand.copy(bet = 200)),
                 balance = 200,
                 activeHandIndex = 1
             )
@@ -316,8 +305,7 @@ class DoubleDownTest {
 
         val stateInsufficientBalanceForActive =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand, validHand),
-                playerBets = kotlinx.collections.immutable.persistentListOf(100, 200),
+                playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand.copy(bet = 100), validHand.copy(bet = 200)),
                 balance = 150,
                 activeHandIndex = 1
             )
