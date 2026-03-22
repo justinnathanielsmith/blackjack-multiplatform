@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -455,6 +456,9 @@ private fun HandZoneHud(
     scale: Float,
 ) {
     val isDealer = zone.handIndex == -1
+    // HUD elements (labels, score badges) use a gentler scale than cards so they stay readable in
+    // 3-hand mode (zone.scale = 0.52 → hudScale ≈ 0.73 instead of shrinking to 52%).
+    val hudScale = (zone.scale * 1.4f).coerceAtMost(1.0f)
     val clusterW = with(density) { zone.clusterSize.width.toDp() }
     val clusterH = with(density) { zone.clusterSize.height.toDp() }
 
@@ -525,7 +529,8 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = (-18).dp * zone.scale),
+                        .wrapContentWidth(unbounded = true)
+                        .offset(y = (-24).dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -539,8 +544,8 @@ private fun HandZoneHud(
                     state = ScoreBadgeState.DEALER,
                     modifier =
                         Modifier.graphicsLayer {
-                            scaleX = zone.scale
-                            scaleY = zone.scale
+                            scaleX = hudScale
+                            scaleY = hudScale
                         }
                 )
             }
@@ -549,8 +554,8 @@ private fun HandZoneHud(
                 hand = state.dealerHand,
                 modifier =
                     Modifier.align(Alignment.Center).graphicsLayer {
-                        scaleX = zone.scale
-                        scaleY = zone.scale
+                        scaleX = hudScale
+                        scaleY = hudScale
                     },
             )
         } else {
@@ -569,7 +574,7 @@ private fun HandZoneHud(
                     modifier =
                         Modifier
                             .align(Alignment.TopStart)
-                            .offset(x = (-8).dp * zone.scale, y = (-16).dp * zone.scale),
+                            .offset(x = (-8).dp * hudScale, y = (-20).dp * hudScale),
                 )
             }
 
@@ -579,10 +584,10 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = 20.dp * zone.scale)
+                        .offset(y = 20.dp * hudScale)
                         .graphicsLayer {
-                            scaleX = zone.scale
-                            scaleY = zone.scale
+                            scaleX = hudScale
+                            scaleY = hudScale
                         }
             )
 
@@ -594,8 +599,8 @@ private fun HandZoneHud(
                         .align(Alignment.Center)
                         .graphicsLayer {
                             rotationZ = -6f
-                            scaleX = zone.scale
-                            scaleY = zone.scale
+                            scaleX = hudScale
+                            scaleY = hudScale
                         },
             )
 
@@ -604,8 +609,8 @@ private fun HandZoneHud(
                     hand = hand,
                     modifier =
                         Modifier.align(Alignment.Center).graphicsLayer {
-                            scaleX = zone.scale
-                            scaleY = zone.scale
+                            scaleX = hudScale
+                            scaleY = hudScale
                         },
                 )
             }
