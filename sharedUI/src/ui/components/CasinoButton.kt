@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -53,6 +54,7 @@ fun CasinoButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+    val isFocused by interactionSource.collectIsFocusedAsState()
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.93f else 1f,
@@ -129,7 +131,13 @@ fun CasinoButton(
                         )
                     }
                 ).then(
-                    if (enabled) {
+                    if (isFocused) {
+                        Modifier.border(
+                            width = 2.dp,
+                            color = Color.White,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                    } else if (enabled) {
                         Modifier.border(
                             width = 1.dp,
                             brush =
