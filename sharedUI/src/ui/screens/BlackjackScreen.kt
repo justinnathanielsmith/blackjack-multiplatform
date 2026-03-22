@@ -249,7 +249,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 GameAction.NewGame(
                     rules = rules,
                     handCount = handCount,
-                    lastBet = bet,
+                    lastBets = state.currentBets,
                     lastSideBets = sideBets,
                 )
             )

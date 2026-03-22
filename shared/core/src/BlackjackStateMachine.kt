@@ -103,7 +103,7 @@ class BlackjackStateMachine(
             action.initialBalance,
             action.rules,
             action.handCount,
-            action.lastBet,
+            action.lastBets,
             action.lastSideBets
         )
     }
@@ -325,14 +325,36 @@ class BlackjackStateMachine(
         initialBalance: Int? = null,
         rules: GameRules = GameRules(),
         handCount: Int = 1,
-        lastBet: Int = 0,
+        lastBets: kotlinx.collections.immutable.PersistentList<Int> = persistentListOf(0),
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) {
         val currentState = _state.value
         val newBalance = initialBalance ?: currentState.balance
-        val clampedBet = lastBet.coerceIn(0, newBalance)
 
-        val remainingBalance = newBalance - clampedBet
+        // Normalize lastBets list length if it doesn't match current seat selection
+        // (but usually they should match if coming from round end)
+        val normalizedLastBets =
+            if (lastBets.size >= handCount) {
+                lastBets.subList(0, handCount).toPersistentList()
+            } else {
+                lastBets.toMutableList().apply { repeat(handCount - lastBets.size) { add(0) } }.toPersistentList()
+            }
+
+        val totalLastBet = normalizedLastBets.sumOf { it }
+        val allAffordable = totalLastBet <= newBalance
+
+        val finalBets: kotlinx.collections.immutable.PersistentList<Int>
+        val afterMainBetBalance: Int
+
+        if (allAffordable) {
+            finalBets = normalizedLastBets
+            afterMainBetBalance = newBalance - totalLastBet
+        } else {
+            // If they can't afford exactly the previous bets, they start at zero to be safe
+            finalBets = List(handCount) { 0 }.toPersistentList()
+            afterMainBetBalance = newBalance
+        }
+
         var totalSideBetCost = 0
         for ((_, betAmount) in lastSideBets) {
             totalSideBetCost += betAmount
@@ -341,20 +363,21 @@ class BlackjackStateMachine(
         val finalSideBets: PersistentMap<SideBetType, Int>
         val postSideBetBalance: Int
 
-        if (totalSideBetCost <= remainingBalance) {
+        if (totalSideBetCost <= afterMainBetBalance) {
             finalSideBets = lastSideBets
-            postSideBetBalance = remainingBalance - totalSideBetCost
+            postSideBetBalance = afterMainBetBalance - totalSideBetCost
         } else {
             finalSideBets = persistentMapOf()
-            postSideBetBalance = remainingBalance
+            postSideBetBalance = afterMainBetBalance
         }
 
         _state.value =
             GameState(
                 status = GameStatus.BETTING,
                 balance = postSideBetBalance,
-                currentBets = (listOf(clampedBet) + List(handCount - 1) { 0 }).toPersistentList(),
+                currentBets = finalBets,
                 sideBets = finalSideBets,
+                lastBets = normalizedLastBets,
                 lastSideBets = lastSideBets,
                 playerHands = persistentListOf(Hand()),
                 activeHandIndex = 0,

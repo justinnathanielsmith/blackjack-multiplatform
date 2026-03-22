@@ -52,7 +52,12 @@ class DefaultBlackjackComponent(
             _appSettings.value = settings
             val savedBalance = balanceService.balanceFlow.first()
             stateMachine.dispatch(
-                GameAction.NewGame(savedBalance, rules = settings.gameRules, handCount = settings.defaultHandCount)
+                GameAction.NewGame(
+                    savedBalance,
+                    rules = settings.gameRules,
+                    handCount = settings.defaultHandCount,
+                    lastBets = kotlinx.collections.immutable.persistentListOf(0)
+                )
             )
 
             launch {
@@ -97,6 +102,7 @@ class DefaultBlackjackComponent(
                     initialBalance = BalanceService.DEFAULT_BALANCE,
                     rules = _appSettings.value.gameRules,
                     handCount = _appSettings.value.defaultHandCount,
+                    lastBets = kotlinx.collections.immutable.persistentListOf(0),
                 )
             )
         }

@@ -58,7 +58,7 @@ class HandCountPersistenceTest {
                 GameAction.NewGame(
                     initialBalance = 1000,
                     handCount = 3,
-                    lastBet = 100
+                    lastBets = kotlinx.collections.immutable.persistentListOf(100)
                 )
             )
             testScheduler.advanceUntilIdle()
