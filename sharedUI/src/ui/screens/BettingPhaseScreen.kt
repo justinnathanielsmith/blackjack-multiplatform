@@ -130,9 +130,10 @@ fun BettingPhaseScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             // ── Side bets + seat arc ──────────────────────────────────────────
+            // ── Side bets ────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(outerSpacing, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Perfect Pairs side bet
@@ -159,46 +160,6 @@ fun BettingPhaseScreen(
                     }
                 )
 
-                // Seat betting circles (arc layout)
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(innerSpacing, Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    for (seatIndex in 0 until handCount) {
-                        // Parabolic arc: outer seats dip lower, echoing the card table arc
-                        val relPos =
-                            if (handCount > 1) {
-                                (seatIndex / (handCount - 1f)) * 2f - 1f
-                            } else {
-                                0f
-                            }
-                        val arcYOffset = (relPos * relPos * (if (isNarrow) 10 else 14)).dp
-
-                        BettingSlot(
-                            amount = state.currentBets.getOrElse(seatIndex) { 0 },
-                            label = "",
-                            modifier = Modifier.offset(y = arcYOffset),
-                            slotSize = seatSize,
-                            onClick = {
-                                val offset = betDisplayOffsets[seatIndex] ?: Offset.Zero
-                                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                                component.onAction(GameAction.PlaceBet(selectedAmount, seatIndex))
-                                launchChip(offset, offset, selectedAmount)
-                            },
-                            onPositioned = { betDisplayOffsets[seatIndex] = it },
-                            onDrop = { amount ->
-                                val offset = betDisplayOffsets[seatIndex] ?: Offset.Zero
-                                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                                component.onAction(GameAction.PlaceBet(amount, seatIndex))
-                                launchChip(offset, offset, amount)
-                            },
-                            onHoverChange = { isHovered ->
-                                if (isHovered) audioService.playEffect(AudioService.SoundEffect.PLINK)
-                            }
-                        )
-                    }
-                }
-
                 // 21+3 side bet
                 BettingSlot(
                     amount = state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: 0,
@@ -222,6 +183,47 @@ fun BettingPhaseScreen(
                         if (isHovered) audioService.playEffect(AudioService.SoundEffect.PLINK)
                     }
                 )
+            }
+
+            // ── Seat betting circles (arc layout) ────────────────────────────
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(innerSpacing, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                for (seatIndex in 0 until handCount) {
+                    // Parabolic arc: outer seats dip lower, echoing the card table arc
+                    val relPos =
+                        if (handCount > 1) {
+                            (seatIndex / (handCount - 1f)) * 2f - 1f
+                        } else {
+                            0f
+                        }
+                    val arcYOffset = (relPos * relPos * (if (isNarrow) 10 else 14)).dp
+
+                    BettingSlot(
+                        amount = state.currentBets.getOrElse(seatIndex) { 0 },
+                        label = "",
+                        modifier = Modifier.offset(y = arcYOffset),
+                        slotSize = seatSize,
+                        onClick = {
+                            val offset = betDisplayOffsets[seatIndex] ?: Offset.Zero
+                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onAction(GameAction.PlaceBet(selectedAmount, seatIndex))
+                            launchChip(offset, offset, selectedAmount)
+                        },
+                        onPositioned = { betDisplayOffsets[seatIndex] = it },
+                        onDrop = { amount ->
+                            val offset = betDisplayOffsets[seatIndex] ?: Offset.Zero
+                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onAction(GameAction.PlaceBet(amount, seatIndex))
+                            launchChip(offset, offset, amount)
+                        },
+                        onHoverChange = { isHovered ->
+                            if (isHovered) audioService.playEffect(AudioService.SoundEffect.PLINK)
+                        }
+                    )
+                }
             }
 
             // ── Seat count selector ───────────────────────────────────────────
