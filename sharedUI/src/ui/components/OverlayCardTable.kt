@@ -96,7 +96,11 @@ internal fun GameState.handNetPayout(index: Int): Int? {
  */
 internal fun GameState.totalNetPayout(): Int? {
     if (!status.isTerminal()) return null
-    return playerHands.indices.sumOf { handNetPayout(it) ?: 0 }
+    var total = 0
+    for (i in 0 until playerHands.size) {
+        total += handNetPayout(i) ?: 0
+    }
+    return total
 }
 
 @Composable
@@ -355,14 +359,15 @@ private fun PositionedChipItem(
     val chipHalfH = chipHalfW
 
     Box(
-        modifier = Modifier
-            .requiredSize(chipSizeDp)
-            .graphicsLayer {
-                translationX = currentX.value - chipHalfW + coordOffsetX
-                translationY = currentY.value - chipHalfH + coordOffsetY
-                scaleX = currentScale.value
-                scaleY = currentScale.value
-            },
+        modifier =
+            Modifier
+                .requiredSize(chipSizeDp)
+                .graphicsLayer {
+                    translationX = currentX.value - chipHalfW + coordOffsetX
+                    translationY = currentY.value - chipHalfH + coordOffsetY
+                    scaleX = currentScale.value
+                    scaleY = currentScale.value
+                },
         contentAlignment = Alignment.Center,
     ) {
         ChipStack(amount = slot.amount, isActive = isActive)
@@ -444,21 +449,23 @@ private fun HandZoneHud(
     val clusterW = with(density) { zone.clusterSize.width.toDp() }
     val clusterH = with(density) { zone.clusterSize.height.toDp() }
 
-    val borderGlowAlpha = if (isActive) {
-        val t = rememberInfiniteTransition(label = "borderGlowTransition")
-        t.animateFloat(
-            initialValue = 0.3f,
-            targetValue = 0.7f,
-            animationSpec =
-                infiniteRepeatable(
-                    animation = tween(1200, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse,
-                ),
-            label = "borderGlowAlpha",
-        ).value
-    } else {
-        0f
-    }
+    val borderGlowAlpha =
+        if (isActive) {
+            val t = rememberInfiniteTransition(label = "borderGlowTransition")
+            t
+                .animateFloat(
+                    initialValue = 0.3f,
+                    targetValue = 0.7f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(1200, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                    label = "borderGlowAlpha",
+                ).value
+        } else {
+            0f
+        }
 
     // Transparent cluster-sized box positioned over the cluster — used for badge anchoring
     Box(
@@ -521,19 +528,21 @@ private fun HandZoneHud(
                 ScoreBadge(
                     score = displayScore,
                     state = ScoreBadgeState.DEALER,
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = zone.scale
-                        scaleY = zone.scale
-                    }
+                    modifier =
+                        Modifier.graphicsLayer {
+                            scaleX = zone.scale
+                            scaleY = zone.scale
+                        }
                 )
             }
 
             HandStatusOverlay(
                 hand = state.dealerHand,
-                modifier = Modifier.align(Alignment.Center).graphicsLayer {
-                    scaleX = zone.scale
-                    scaleY = zone.scale
-                },
+                modifier =
+                    Modifier.align(Alignment.Center).graphicsLayer {
+                        scaleX = zone.scale
+                        scaleY = zone.scale
+                    },
             )
         } else {
             val handIndex = zone.handIndex
@@ -558,13 +567,14 @@ private fun HandZoneHud(
             ScoreBadge(
                 score = hand.score,
                 state = badgeState,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset(y = 20.dp * zone.scale)
-                    .graphicsLayer {
-                        scaleX = zone.scale
-                        scaleY = zone.scale
-                    }
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .offset(y = 20.dp * zone.scale)
+                        .graphicsLayer {
+                            scaleX = zone.scale
+                            scaleY = zone.scale
+                        }
             )
 
             HandOutcomeBadge(
@@ -583,10 +593,11 @@ private fun HandZoneHud(
             if (!state.status.isTerminal()) {
                 HandStatusOverlay(
                     hand = hand,
-                    modifier = Modifier.align(Alignment.Center).graphicsLayer {
-                        scaleX = zone.scale
-                        scaleY = zone.scale
-                    },
+                    modifier =
+                        Modifier.align(Alignment.Center).graphicsLayer {
+                            scaleX = zone.scale
+                            scaleY = zone.scale
+                        },
                 )
             }
         }

@@ -14,3 +14,7 @@
 ## $(date +%Y-%m-%d) - Optimize Collection Iterations in GameLogic
 **Learning:** When calculating properties from immutable collections in Kotlin (like `PersistentList` in `Hand`), chained higher-order functions (`filter`, `sumOf`, `count`) allocate intermediate lists and loop over elements multiple times.
 **Action:** Replace chained functions with a single `for` pass when performance is critical (e.g., UI rendering updates), combining conditions and accumulating values simultaneously.
+
+## 2026-03-22 - Optimize Iterator Allocations on Summation
+**Learning:** Using collection extensions like `.sum()` or `.sumOf()` on `PersistentList`, `PersistentMap`, or within tight Compose UI code creates intermediate `Iterator` objects and closures, causing unnecessary main-thread GC pressure.
+**Action:** Replace `.sum()` and `.sumOf()` with manual `for` loops (e.g., `for (i in 0 until list.size)` or accumulating Map entries) to keep performance allocations strictly O(1).
