@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack.utils
 
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +36,7 @@ class DragAndDropState {
 
     fun stopDrag() {
         isDragging = false
-        // Don't clear dragItem immediately so DropTarget can see it
+        // Keep dragItem until the next drag starts so DropTarget can access it
     }
 
     fun clearDragItem() {
@@ -61,46 +61,46 @@ fun DragAndDropContainer(
             content()
         }
     }
-
-    // Clear dragItem after all drop targets have had a chance to react
-    androidx.compose.runtime.LaunchedEffect(state.isDragging) {
-        if (!state.isDragging) {
-            state.clearDragItem()
-        }
-    }
 }
 
 @Composable
 fun DragTarget(
     modifier: Modifier = Modifier,
     item: Any,
+    enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val state = LocalDragAndDropState.current
     var currentPosition by remember { mutableStateOf(Offset.Zero) }
+
+    val dragModifier = if (enabled) {
+        Modifier.pointerInput(item) {
+            detectDragGesturesAfterLongPress(
+                onDragStart = { _ ->
+                    state.startDrag(item, currentPosition)
+                },
+                onDrag = { change, dragAmount ->
+                    change.consume()
+                    state.updateDrag(dragAmount)
+                },
+                onDragEnd = {
+                    state.stopDrag()
+                },
+                onDragCancel = {
+                    state.stopDrag()
+                }
+            )
+        }
+    } else {
+        Modifier
+    }
 
     Box(
         modifier = modifier
             .onGloballyPositioned {
                 currentPosition = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
             }
-            .pointerInput(item) {
-                detectDragGestures(
-                    onDragStart = {
-                        state.startDrag(item, currentPosition)
-                    },
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        state.updateDrag(dragAmount)
-                    },
-                    onDragEnd = {
-                        state.stopDrag()
-                    },
-                    onDragCancel = {
-                        state.stopDrag()
-                    }
-                )
-            }
+            .then(dragModifier)
     ) {
         content()
     }
@@ -147,6 +147,7 @@ fun DropTarget(
     androidx.compose.runtime.LaunchedEffect(state.isDragging) {
         if (!state.isDragging && isHovered) {
             state.dragItem?.let { onDrop(it) }
+            state.clearDragItem()
             isHovered = false
         }
     }

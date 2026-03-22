@@ -76,6 +76,7 @@ fun ChipRack(
                     val enabled = balance >= value
                     DragTarget(
                         item = value,
+                        enabled = enabled,
                         modifier = Modifier.clip(CircleShape)
                     ) {
                         BetChip(

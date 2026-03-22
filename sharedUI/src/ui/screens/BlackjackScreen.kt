@@ -669,14 +669,15 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 amount = amount,
                 chipColor = ChipUtils.chipColor(amount),
                 textColor = ChipUtils.chipTextColor(amount),
+                isActive = true, // Larger shadow and lift effect
                 modifier = Modifier
                     .size(56.dp)
                     .graphicsLayer {
                         translationX = dragAndDropState.dragPosition.x - (56.dp.toPx() / 2f)
                         translationY = dragAndDropState.dragPosition.y - (56.dp.toPx() / 2f)
-                        scaleX = 1.1f
-                        scaleY = 1.1f
-                        alpha = 0.9f
+                        scaleX = 1.15f
+                        scaleY = 1.15f
+                        alpha = 0.95f
                     }
                     .zIndex(100f)
             )

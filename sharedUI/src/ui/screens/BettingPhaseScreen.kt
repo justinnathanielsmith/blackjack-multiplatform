@@ -113,6 +113,11 @@ fun BettingPhaseScreen(
                             sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero,
                             amount
                         )
+                    },
+                    onHoverChange = { isHovered ->
+                        if (isHovered) {
+                            audioService.playEffect(AudioService.SoundEffect.PLINK)
+                        }
                     }
                 )
 
@@ -134,6 +139,11 @@ fun BettingPhaseScreen(
                             betDisplayOffset,
                             amount
                         )
+                    },
+                    onHoverChange = { isHovered ->
+                        if (isHovered) {
+                            audioService.playEffect(AudioService.SoundEffect.PLINK)
+                        }
                     }
                 )
 
@@ -156,6 +166,11 @@ fun BettingPhaseScreen(
                             sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero,
                             amount
                         )
+                    },
+                    onHoverChange = { isHovered ->
+                        if (isHovered) {
+                            audioService.playEffect(AudioService.SoundEffect.PLINK)
+                        }
                     }
                 )
             }

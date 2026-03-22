@@ -2,9 +2,11 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +30,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.Role
@@ -61,7 +64,8 @@ fun BettingSlot(
     isSideBet: Boolean = false,
     handCount: Int = 1,
     onPositioned: (Offset) -> Unit = {},
-    onDrop: (Int) -> Unit = {}
+    onDrop: (Int) -> Unit = {},
+    onHoverChange: (Boolean) -> Unit = {}
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "bettingSlotGlow")
     val glowAlpha by infiniteTransition.animateFloat(
@@ -106,10 +110,23 @@ fun BettingSlot(
         DropTarget(
             onDrop = { item -> if (item is Int) onDrop(item) }
         ) { isHovered ->
+            androidx.compose.runtime.LaunchedEffect(isHovered) {
+                onHoverChange(isHovered)
+            }
+
+            val scale by androidx.compose.animation.core.animateFloatAsState(
+                targetValue = if (isHovered) 1.15f else 1f,
+                animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
+            )
+
             Box(
                 modifier =
                     Modifier
                         .size(slotSize)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
                         .drawBehind {
                             val strokeWidth =
                                 if (isSideBet &&
