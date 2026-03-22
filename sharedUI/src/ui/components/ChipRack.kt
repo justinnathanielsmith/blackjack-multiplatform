@@ -9,17 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -37,8 +31,6 @@ fun ChipRack(
     onChipSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val chipPositions = remember { mutableStateMapOf<Int, Offset>() }
-
     // Outer wooden tray frame
     Box(
         modifier =
@@ -97,12 +89,6 @@ fun ChipRack(
                                 }
                             },
                             enabled = enabled,
-                            modifier =
-                                Modifier
-                                    .onGloballyPositioned {
-                                        val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                                        chipPositions[value] = center
-                                    },
                         )
                     }
                 }

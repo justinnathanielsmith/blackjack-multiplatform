@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -122,118 +122,110 @@ fun BetChip(
                     } else {
                         Modifier
                     }
-                ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val radius = size.minDimension / 2
-            val center = Offset(size.width / 2, size.height / 2)
+                ).drawBehind {
+                    val radius = size.minDimension / 2
+                    val center = Offset(size.width / 2, size.height / 2)
 
-            // Side depth offset (3D effect)
-            val depthOffset = 3.dp.toPx()
+                    // Side depth offset (3D effect)
+                    val depthOffset = 3.dp.toPx()
 
-            // Draw the "side" of the chip for 3D depth
-            drawCircle(
-                color = chipColor.copy(alpha = 0.8f),
-                radius = radius,
-                center = center.copy(y = center.y + depthOffset)
-            )
+                    // Draw the "side" of the chip for 3D depth
+                    drawCircle(
+                        color = chipColor.copy(alpha = 0.8f),
+                        radius = radius,
+                        center = center.copy(y = center.y + depthOffset)
+                    )
 
-            // Main top surface with a subtle gradient for gloss
-            drawCircle(
-                brush =
-                    Brush.radialGradient(
-                        0.0f to chipColor.copy(alpha = 1f),
-                        0.7f to chipColor.copy(alpha = 0.95f),
-                        1.0f to chipColor.copy(alpha = 0.9f),
+                    // Main top surface with a subtle gradient for gloss
+                    drawCircle(
+                        brush =
+                            Brush.radialGradient(
+                                0.0f to chipColor.copy(alpha = 1f),
+                                0.7f to chipColor.copy(alpha = 0.95f),
+                                1.0f to chipColor.copy(alpha = 0.9f),
+                                center = center,
+                                radius = radius
+                            ),
+                        radius = radius,
+                        center = center
+                    )
+
+                    // Gloss highlight at the top
+                    drawCircle(
+                        brush =
+                            Brush.radialGradient(
+                                0.0f to Color.White.copy(alpha = 0.25f),
+                                1.0f to Color.Transparent,
+                                center = center.copy(y = center.y - radius * 0.4f),
+                                radius = radius * 0.6f
+                            ),
+                        radius = radius * 0.6f,
+                        center = center.copy(y = center.y - radius * 0.4f)
+                    )
+
+                    // Outer rim highlights
+                    drawCircle(
+                        color = Color.White.copy(alpha = 0.4f),
+                        radius = radius - 0.5.dp.toPx(),
                         center = center,
-                        radius = radius
-                    ),
-                radius = radius,
-                center = center
-            )
+                        style = Stroke(width = 1.dp.toPx())
+                    )
 
-            // Gloss highlight at the top
-            drawCircle(
-                brush =
-                    Brush.radialGradient(
-                        0.0f to Color.White.copy(alpha = 0.25f),
-                        1.0f to Color.Transparent,
-                        center = center.copy(y = center.y - radius * 0.4f),
-                        radius = radius * 0.6f
-                    ),
-                radius = radius * 0.6f,
-                center = center.copy(y = center.y - radius * 0.4f)
-            )
-
-            // Outer rim highlights
-            drawCircle(
-                color = Color.White.copy(alpha = 0.4f),
-                radius = radius - 0.5.dp.toPx(),
-                center = center,
-                style = Stroke(width = 1.dp.toPx())
-            )
-
-            // Decorative blocks on the rim (standard casino chip look)
-            val dashLength = (radius * 2 * PI / 12).toFloat()
-            if (dashLength > 0f) {
-                drawCircle(
-                    color = Color.White.copy(alpha = 0.7f),
-                    radius = radius * 0.94f,
-                    center = center,
-                    style =
-                        Stroke(
-                            width = 3.5.dp.toPx(),
-                            pathEffect =
-                                PathEffect.dashPathEffect(
-                                    floatArrayOf(dashLength / 2, dashLength / 2),
-                                    0f
+                    // Decorative blocks on the rim (standard casino chip look)
+                    val dashLength = (radius * 2 * PI / 12).toFloat()
+                    if (dashLength > 0f) {
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.7f),
+                            radius = radius * 0.94f,
+                            center = center,
+                            style =
+                                Stroke(
+                                    width = 3.5.dp.toPx(),
+                                    pathEffect =
+                                        PathEffect.dashPathEffect(
+                                            floatArrayOf(dashLength / 2, dashLength / 2),
+                                            0f
+                                        )
                                 )
                         )
-                )
-            }
+                    }
 
-            // Inner circle highlight (recessed look)
-            drawCircle(
-                color = Color.Black.copy(alpha = 0.15f),
-                radius = radius * 0.75f,
-                center = center,
-                style = Stroke(width = 1.5.dp.toPx())
-            )
-
-            // Center inlay
-            drawCircle(
-                color = Color.White.copy(alpha = 0.12f),
-                radius = radius * 0.65f,
-                center = center
-            )
-        }
-
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(4.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = displayAmount,
-                color = if (enabled) textColor else textColor.copy(alpha = 0.4f),
-                fontSize = if (isActive) 15.sp else 13.sp,
-                fontWeight = FontWeight.Black,
-                style =
-                    MaterialTheme.typography.labelSmall.copy(
-                        letterSpacing = 0.sp
+                    // Inner circle highlight (recessed look)
+                    drawCircle(
+                        color = Color.Black.copy(alpha = 0.15f),
+                        radius = radius * 0.75f,
+                        center = center,
+                        style = Stroke(width = 1.5.dp.toPx())
                     )
-            )
-        }
+
+                    // Center inlay
+                    drawCircle(
+                        color = Color.White.copy(alpha = 0.12f),
+                        radius = radius * 0.65f,
+                        center = center
+                    )
+                },
+        contentAlignment = Alignment.Center,
+    ) {
+        val amountText = displayAmount
+        val textStyle = MaterialTheme.typography.labelSmall
+        val fontSize = if (isActive) 15.sp else 13.sp
+
+        Text(
+            text = amountText,
+            color = if (enabled) textColor else textColor.copy(alpha = 0.4f),
+            fontSize = fontSize,
+            fontWeight = FontWeight.Black,
+            style = textStyle.copy(letterSpacing = 0.sp),
+            modifier = Modifier.padding(4.dp)
+        )
 
         // Disable overlay
         if (!enabled) {
             Box(
                 modifier =
                     Modifier
-                        .fillMaxSize()
+                        .matchParentSize()
                         .clip(CircleShape)
                         .background(Color.Black.copy(alpha = 0.5f))
             )
