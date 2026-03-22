@@ -96,6 +96,7 @@ import io.github.smithjustinn.blackjack.utils.DragAndDropContainer
 import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.collections.immutable.toPersistentList
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.side_bet_colored_pair
@@ -249,7 +250,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 GameAction.NewGame(
                     rules = rules,
                     handCount = handCount,
-                    lastBets = state.currentBets,
+                    previousBets = state.playerHands.map { it.bet }.toPersistentList(),
                     lastSideBets = sideBets,
                 )
             )
@@ -259,9 +260,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.BETTING && autoDealPending) {
             autoDealPending = false
-            if (appSettings.isAutoDealEnabled && state.currentBets.all { it > 0 }) {
+            if (appSettings.isAutoDealEnabled && state.playerHands.all { it.bet > 0 }) {
                 component.onAction(GameAction.Deal)
-            } else if (appSettings.isAutoDealEnabled && state.currentBets.any { it == 0 }) {
+            } else if (appSettings.isAutoDealEnabled && state.playerHands.any { it.bet == 0 }) {
                 component.updateSettings { it.copy(isAutoDealEnabled = false) }
             }
         }

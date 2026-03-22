@@ -120,7 +120,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.BETTING,
                     balance = 900,
-                    currentBets = persistentListOf(100),
+// removed:                     currentBets = persistentListOf(100),
                     playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO),
@@ -143,7 +143,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBets = persistentListOf(100),
+// removed:                     currentBets = persistentListOf(100),
                     handCount = 3,
                     playerHands =
                         persistentListOf(
@@ -176,7 +176,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBets = persistentListOf(100),
+// removed:                     currentBets = persistentListOf(100),
                     handCount = 3,
                     playerHands =
                         persistentListOf(
@@ -199,7 +199,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 1000,
-                    currentBets = persistentListOf(100),
+// removed:                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.TEN, Rank.TEN).copy(bet = 100),
@@ -218,7 +218,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 1000,
-                    currentBets = persistentListOf(100),
+// removed:                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN)), bet = 100, wasSplit = true),
@@ -237,7 +237,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 1000,
-                    currentBets = persistentListOf(100),
+// removed:                     currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             Hand(persistentListOf(card(Rank.TEN), card(Rank.FIVE)), bet = 100, wasSplit = true),

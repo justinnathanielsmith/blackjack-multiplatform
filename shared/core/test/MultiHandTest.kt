@@ -30,7 +30,7 @@ class MultiHandTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(0),
+                        playerHands = persistentListOf(Hand(bet = 0)),
                         deck = deck
                     ),
                 )

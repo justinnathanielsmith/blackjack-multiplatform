@@ -62,7 +62,7 @@ class RuleVariationsTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(Hand(bet = 100)),
                         rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
                         deck =
                             persistentListOf(
@@ -88,7 +88,7 @@ class RuleVariationsTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(Hand(bet = 100)),
                         rules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE),
                         deck =
                             persistentListOf(

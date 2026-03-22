@@ -56,7 +56,7 @@ class DefaultBlackjackComponent(
                     savedBalance,
                     rules = settings.gameRules,
                     handCount = settings.defaultHandCount,
-                    lastBets = kotlinx.collections.immutable.persistentListOf(0)
+                    previousBets = kotlinx.collections.immutable.persistentListOf(0)
                 )
             )
 
@@ -102,7 +102,7 @@ class DefaultBlackjackComponent(
                     initialBalance = BalanceService.DEFAULT_BALANCE,
                     rules = _appSettings.value.gameRules,
                     handCount = _appSettings.value.defaultHandCount,
-                    lastBets = kotlinx.collections.immutable.persistentListOf(0),
+                    previousBets = kotlinx.collections.immutable.persistentListOf(0),
                 )
             )
         }

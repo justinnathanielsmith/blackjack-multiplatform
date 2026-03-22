@@ -202,7 +202,7 @@ fun BettingPhaseScreen(
                     val arcYOffset = (relPos * relPos * (if (isNarrow) 10 else 14)).dp
 
                     BettingSlot(
-                        amount = state.currentBets.getOrElse(seatIndex) { 0 },
+                        amount = state.playerHands.getOrNull(seatIndex)?.bet ?: 0,
                         label = "",
                         modifier = Modifier.offset(y = arcYOffset),
                         slotSize = seatSize,

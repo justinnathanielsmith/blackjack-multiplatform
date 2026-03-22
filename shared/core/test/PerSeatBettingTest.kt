@@ -22,16 +22,16 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(0, 0, 0),
+                        playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 0), Hand(bet = 0)),
                         handCount = 3,
                     )
                 )
             sm.dispatch(GameAction.PlaceBet(100, seatIndex = 0))
             advanceUntilIdle()
             assertEquals(900, sm.state.value.balance)
-            assertEquals(100, sm.state.value.currentBets[0])
-            assertEquals(0, sm.state.value.currentBets[1])
-            assertEquals(0, sm.state.value.currentBets[2])
+            assertEquals(100, sm.state.value.playerHands[0].bet)
+            assertEquals(0, sm.state.value.playerHands[1].bet)
+            assertEquals(0, sm.state.value.playerHands[2].bet)
         }
 
     @Test
@@ -42,15 +42,15 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(50, 0),
+                        playerHands = persistentListOf(Hand(bet = 50), Hand(bet = 0)),
                         handCount = 2,
                     )
                 )
             sm.dispatch(GameAction.PlaceBet(75, seatIndex = 1))
             advanceUntilIdle()
             assertEquals(925, sm.state.value.balance)
-            assertEquals(50, sm.state.value.currentBets[0])
-            assertEquals(75, sm.state.value.currentBets[1])
+            assertEquals(50, sm.state.value.playerHands[0].bet)
+            assertEquals(75, sm.state.value.playerHands[1].bet)
         }
 
     @Test
@@ -61,7 +61,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(0, 0, 0),
+                        playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 0), Hand(bet = 0)),
                         handCount = 3,
                     )
                 )
@@ -74,8 +74,8 @@ class PerSeatBettingTest {
             assertEquals(650, sm.state.value.balance)
             assertEquals(
                 350,
-                sm.state.value.currentBets
-                    .fold(0) { acc, b -> acc + b }
+                sm.state.value.playerHands
+                    .fold(0) { acc, hand -> acc + hand.bet }
             )
         }
 
@@ -87,7 +87,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(0),
+                        playerHands = persistentListOf(Hand(bet = 0)),
                         handCount = 1,
                     )
                 )
@@ -106,15 +106,15 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 750,
-                        currentBets = persistentListOf(100, 150),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 150)),
                         handCount = 2,
                     )
                 )
             sm.dispatch(GameAction.ResetSeatBet(seatIndex = 1))
             advanceUntilIdle()
             assertEquals(900, sm.state.value.balance)
-            assertEquals(100, sm.state.value.currentBets[0]) // untouched
-            assertEquals(0, sm.state.value.currentBets[1])
+            assertEquals(100, sm.state.value.playerHands[0].bet) // untouched
+            assertEquals(0, sm.state.value.playerHands[1].bet)
         }
 
     @Test
@@ -125,14 +125,14 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(Hand(bet = 100)),
                         handCount = 1,
                     )
                 )
             sm.dispatch(GameAction.ResetSeatBet(seatIndex = 2))
             advanceUntilIdle()
             assertEquals(900, sm.state.value.balance)
-            assertEquals(100, sm.state.value.currentBets[0])
+            assertEquals(100, sm.state.value.playerHands[0].bet)
         }
 
     // ── ResetBet (all seats) ──────────────────────────────────────────────────
@@ -145,7 +145,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 650,
-                        currentBets = persistentListOf(100, 150, 100),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 150), Hand(bet = 100)),
                         handCount = 3,
                     )
                 )
@@ -153,8 +153,8 @@ class PerSeatBettingTest {
             advanceUntilIdle()
             assertEquals(1000, sm.state.value.balance)
             assertTrue(
-                sm.state.value.currentBets
-                    .all { it == 0 }
+                sm.state.value.playerHands
+                    .all { it.bet == 0 }
             )
         }
 
@@ -169,7 +169,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(Hand(bet = 100)),
                         handCount = 1,
                     )
                 )
@@ -177,10 +177,10 @@ class PerSeatBettingTest {
             advanceUntilIdle()
             assertEquals(900, sm.state.value.balance) // unchanged
             assertEquals(3, sm.state.value.handCount)
-            assertEquals(3, sm.state.value.currentBets.size)
-            assertEquals(100, sm.state.value.currentBets[0])
-            assertEquals(0, sm.state.value.currentBets[1])
-            assertEquals(0, sm.state.value.currentBets[2])
+            assertEquals(3, sm.state.value.playerHands.size)
+            assertEquals(100, sm.state.value.playerHands[0].bet)
+            assertEquals(0, sm.state.value.playerHands[1].bet)
+            assertEquals(0, sm.state.value.playerHands[2].bet)
         }
 
     @Test
@@ -191,7 +191,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 650,
-                        currentBets = persistentListOf(100, 150, 100),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 150), Hand(bet = 100)),
                         handCount = 3,
                     )
                 )
@@ -199,9 +199,9 @@ class PerSeatBettingTest {
             advanceUntilIdle()
             assertEquals(750, sm.state.value.balance) // refunded seat 2's $100
             assertEquals(2, sm.state.value.handCount)
-            assertEquals(2, sm.state.value.currentBets.size)
-            assertEquals(100, sm.state.value.currentBets[0])
-            assertEquals(150, sm.state.value.currentBets[1])
+            assertEquals(2, sm.state.value.playerHands.size)
+            assertEquals(100, sm.state.value.playerHands[0].bet)
+            assertEquals(150, sm.state.value.playerHands[1].bet)
         }
 
     @Test
@@ -212,7 +212,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBets = persistentListOf(100, 0),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 0)),
                         handCount = 2,
                     )
                 )
@@ -232,7 +232,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBets = persistentListOf(100, 0),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 0)),
                         handCount = 2,
                         deck = deckOf(Rank.TEN, Rank.NINE, Rank.TEN, Rank.NINE),
                     )
@@ -250,7 +250,7 @@ class PerSeatBettingTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 650,
-                        currentBets = persistentListOf(100, 150, 100),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 150), Hand(bet = 100)),
                         handCount = 3,
                         deck =
                             deckOf(

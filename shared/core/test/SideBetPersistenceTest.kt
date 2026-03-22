@@ -48,7 +48,7 @@ class SideBetPersistenceTest {
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 150,
-                    lastBets = kotlinx.collections.immutable.persistentListOf(50),
+                    previousBets = kotlinx.collections.immutable.persistentListOf(50),
                     lastSideBets = lastSideBets
                 )
             )

@@ -11,7 +11,7 @@ class GameStateTest {
         val state =
             GameState(
                 status = GameStatus.BETTING,
-                currentBets = persistentListOf(100, 100, 100),
+                playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
                 handCount = 3,
                 sideBets =
                     persistentMapOf(

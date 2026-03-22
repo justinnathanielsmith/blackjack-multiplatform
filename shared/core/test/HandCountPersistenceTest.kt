@@ -58,15 +58,15 @@ class HandCountPersistenceTest {
                 GameAction.NewGame(
                     initialBalance = 1000,
                     handCount = 3,
-                    lastBets = kotlinx.collections.immutable.persistentListOf(100)
+                    previousBets = kotlinx.collections.immutable.persistentListOf(100)
                 )
             )
             testScheduler.advanceUntilIdle()
             val state = stateMachine.state.value
             assertEquals(3, state.handCount)
-            assertEquals(3, state.currentBets.size)
-            assertEquals(100, state.currentBets[0])
-            assertEquals(0, state.currentBets[1])
-            assertEquals(0, state.currentBets[2])
+            assertEquals(3, state.playerHands.size)
+            assertEquals(100, state.playerHands[0].bet)
+            assertEquals(0, state.playerHands[1].bet)
+            assertEquals(0, state.playerHands[2].bet)
         }
 }

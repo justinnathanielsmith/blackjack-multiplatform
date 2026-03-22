@@ -103,7 +103,7 @@ class BlackjackStateMachine(
             action.initialBalance,
             action.rules,
             action.handCount,
-            action.lastBets,
+            action.previousBets,
             action.lastSideBets
         )
     }
@@ -145,7 +145,7 @@ class BlackjackStateMachine(
 
     private fun handlePlaceBet(
         amount: Int,
-        seatIndex: Int
+        seatIndex: Int,
     ) {
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
@@ -157,10 +157,11 @@ class BlackjackStateMachine(
             emitEffect(GameEffect.Vibrate)
             return
         }
+        val currentHand = current.playerHands[seatIndex]
         _state.value =
             current.copy(
                 balance = current.balance - amount,
-                currentBets = current.currentBets.set(seatIndex, current.currentBets[seatIndex] + amount),
+                playerHands = current.playerHands.set(seatIndex, currentHand.copy(bet = currentHand.bet + amount)),
             )
     }
 
@@ -168,19 +169,20 @@ class BlackjackStateMachine(
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
         if (seatIndex == null) {
-            val refund = current.currentBets.fold(0) { acc, b -> acc + b }
+            val refund = current.playerHands.sumOf { it.bet }
             _state.value =
                 current.copy(
                     balance = current.balance + refund,
-                    currentBets = List(current.handCount) { 0 }.toPersistentList(),
+                    playerHands = current.playerHands.map { it.copy(bet = 0) }.toPersistentList(),
                 )
         } else {
             if (seatIndex !in 0 until current.handCount) return
-            val refund = current.currentBets.getOrElse(seatIndex) { 0 }
+            val currentHand = current.playerHands[seatIndex]
+            val refund = currentHand.bet
             _state.value =
                 current.copy(
                     balance = current.balance + refund,
-                    currentBets = current.currentBets.set(seatIndex, 0),
+                    playerHands = current.playerHands.set(seatIndex, currentHand.copy(bet = 0)),
                 )
         }
     }
@@ -194,20 +196,20 @@ class BlackjackStateMachine(
         }
         val delta = count - current.handCount
         if (delta == 0) return
-        val newBets: kotlinx.collections.immutable.PersistentList<Int>
+        val newHands: kotlinx.collections.immutable.PersistentList<Hand>
         val balanceDelta: Int
         if (delta > 0) {
-            newBets = current.currentBets.addAll(List(delta) { 0 })
+            newHands = current.playerHands.addAll(List(delta) { Hand() })
             balanceDelta = 0
         } else {
-            val refund = (count until current.handCount).sumOf { i -> current.currentBets.getOrElse(i) { 0 } }
-            newBets = current.currentBets.subList(0, count).toPersistentList()
+            val refund = (count until current.handCount).sumOf { i -> current.playerHands.getOrNull(i)?.bet ?: 0 }
+            newHands = current.playerHands.subList(0, count).toPersistentList()
             balanceDelta = refund
         }
         _state.value =
             current.copy(
                 handCount = count,
-                currentBets = newBets,
+                playerHands = newHands,
                 balance = current.balance + balanceDelta,
             )
     }
@@ -221,8 +223,8 @@ class BlackjackStateMachine(
     private suspend fun handleDeal() {
         val current = _state.value
         if (current.status != GameStatus.BETTING ||
-            current.currentBets.size != current.handCount ||
-            current.currentBets.any { it <= 0 }
+            current.playerHands.size != current.handCount ||
+            current.playerHands.any { it.bet <= 0 }
         ) {
             return
         }
@@ -235,10 +237,10 @@ class BlackjackStateMachine(
         current: GameState,
     ): Pair<kotlinx.collections.immutable.PersistentList<Hand>, Hand> {
         var deck = getDeck(current).toPersistentList()
-        var playerHands = List(current.handCount) { i -> Hand(bet = current.currentBets[i]) }.toPersistentList()
+        var playerHands = current.playerHands
         var dealerHand = Hand()
         _state.value =
-            _state.value.copy(playerHands = playerHands, dealerHand = dealerHand, deck = deck)
+            _state.value.copy(dealerHand = dealerHand, deck = deck)
         for (round in 0..1) {
             for (i in 0 until current.handCount) {
                 delay(dealCardDelayMs)
@@ -325,7 +327,7 @@ class BlackjackStateMachine(
         initialBalance: Int? = null,
         rules: GameRules = GameRules(),
         handCount: Int = 1,
-        lastBets: kotlinx.collections.immutable.PersistentList<Int> = persistentListOf(0),
+        previousBets: kotlinx.collections.immutable.PersistentList<Int> = persistentListOf(0),
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) {
         val currentState = _state.value
@@ -334,10 +336,10 @@ class BlackjackStateMachine(
         // Normalize lastBets list length if it doesn't match current seat selection
         // (but usually they should match if coming from round end)
         val normalizedLastBets =
-            if (lastBets.size >= handCount) {
-                lastBets.subList(0, handCount).toPersistentList()
+            if (previousBets.size >= handCount) {
+                previousBets.subList(0, handCount).toPersistentList()
             } else {
-                lastBets.toMutableList().apply { repeat(handCount - lastBets.size) { add(0) } }.toPersistentList()
+                previousBets.toMutableList().apply { repeat(handCount - previousBets.size) { add(0) } }.toPersistentList()
             }
 
         val totalLastBet = normalizedLastBets.sumOf { it }
@@ -375,11 +377,11 @@ class BlackjackStateMachine(
             GameState(
                 status = GameStatus.BETTING,
                 balance = postSideBetBalance,
-                currentBets = finalBets,
                 sideBets = finalSideBets,
-                lastBets = normalizedLastBets,
                 lastSideBets = lastSideBets,
-                playerHands = persistentListOf(Hand()),
+                playerHands = List(handCount) { i ->
+                    Hand(bet = finalBets[i], lastBet = normalizedLastBets[i])
+                }.toPersistentList(),
                 activeHandIndex = 0,
                 handCount = handCount,
                 rules = rules,

@@ -18,7 +18,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -36,7 +36,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -55,7 +55,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 100, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 100, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -70,7 +70,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -90,7 +90,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 1000,
-                        currentBets = persistentListOf(100),
+// removed:                         currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                     )
                 )
@@ -109,7 +109,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 900, currentBets = persistentListOf(100))
+                    GameState(status = GameStatus.BETTING, balance = 900, playerHands = persistentListOf(Hand(bet = 100)))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -130,7 +130,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 900,
-                        currentBets = persistentListOf(100),
+// removed:                         currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                     )
                 )
@@ -149,7 +149,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -167,7 +167,7 @@ class BettingPhaseTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 900,
-                    currentBets = persistentListOf(100),
+// removed:                     currentBets = persistentListOf(100),
                     playerHands =
                         kotlinx.collections.immutable.persistentListOf(
                             hand(Rank.FIVE, Rank.SIX).copy(bet = 100)
@@ -191,7 +191,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -213,7 +213,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(Hand(bet = 100)),
                         handCount = 1
                     )
                 )
@@ -223,10 +223,10 @@ class BettingPhaseTest {
                 val state = awaitItem()
                 assertEquals(900, state.balance) // unchanged — no pre-charge
                 assertEquals(3, state.handCount)
-                assertEquals(3, state.currentBets.size)
-                assertEquals(100, state.currentBets[0])
-                assertEquals(0, state.currentBets[1])
-                assertEquals(0, state.currentBets[2])
+                assertEquals(3, state.playerHands.size)
+                assertEquals(100, state.playerHands[0].bet)
+                assertEquals(0, state.playerHands[1].bet)
+                assertEquals(0, state.playerHands[2].bet)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -239,7 +239,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 700,
-                        currentBets = persistentListOf(100, 100, 100),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
                         handCount = 3,
                     )
                 )
@@ -261,7 +261,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(0),
+                        playerHands = persistentListOf(Hand(bet = 0)),
                         handCount = 1
                     )
                 )
@@ -285,7 +285,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 800,
-                        currentBets = persistentListOf(100, 100),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100)),
                         handCount = 2,
                     )
                 )
@@ -308,7 +308,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 700,
-                        currentBets = persistentListOf(100, 100, 100),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
                         handCount = 3,
                     )
                 )
@@ -328,7 +328,7 @@ class BettingPhaseTest {
                 GameState(
                     status = GameStatus.BETTING,
                     balance = 1000,
-                    currentBets = persistentListOf(0, 0, 0),
+                    playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 0), Hand(bet = 0)),
                     handCount = 3,
                 )
             val sm = testMachine(initialState)
@@ -337,7 +337,7 @@ class BettingPhaseTest {
                 sm.dispatch(GameAction.PlaceBet(10, seatIndex = 0))
                 val state = awaitItem()
                 assertEquals(990, state.balance)
-                assertEquals(10, state.currentBets[0])
+                assertEquals(10, state.playerHands[0].bet)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -349,7 +349,7 @@ class BettingPhaseTest {
                 GameState(
                     status = GameStatus.BETTING,
                     balance = 900,
-                    currentBets = persistentListOf(100, 0),
+                    playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 0)),
                     handCount = 2,
                     deck = deckOf(Rank.TEN, Rank.NINE, Rank.TEN, Rank.NINE),
                 )
@@ -370,7 +370,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 700,
-                        currentBets = persistentListOf(100, 100, 100),
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
                         handCount = 3,
                     )
                 )
@@ -394,7 +394,7 @@ class BettingPhaseTest {
                     GameState(
                         status = GameStatus.DEALER_WON,
                         balance = 800,
-                        currentBets = persistentListOf(0, 0, 0),
+                        playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 0), Hand(bet = 0)),
                         handCount = 3,
                     )
                 )

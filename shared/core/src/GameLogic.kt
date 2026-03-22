@@ -50,6 +50,7 @@ data class Card(
 data class Hand(
     val cards: PersistentList<Card> = persistentListOf(),
     val bet: Int = 0,
+    val lastBet: Int = 0,
     val isStanding: Boolean = false,
     val wasSplit: Boolean = false,
     val isFromSplitAce: Boolean = false,
@@ -170,11 +171,9 @@ data class GameState(
     val dealerHand: Hand = Hand(),
     val status: GameStatus = GameStatus.IDLE,
     val balance: Int = 1000,
-    val currentBets: PersistentList<Int> = persistentListOf(0),
     val insuranceBet: Int = 0,
     val sideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val sideBetResults: PersistentMap<SideBetType, SideBetResult> = persistentMapOf(),
-    val lastBets: PersistentList<Int> = persistentListOf(0),
     val lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val rules: GameRules = GameRules(),
     val dealerDrawIsCritical: Boolean = false,
@@ -189,16 +188,11 @@ data class GameState(
     }
 
     // Computed alias for backward compatibility (insurance, resolveInitialOutcomeValues, etc.)
-    val currentBet: Int get() = currentBets.getOrElse(0) { 0 }
+    val currentBet: Int get() = playerHands.getOrNull(0)?.bet ?: 0
 
     val totalBet: Int
         get() {
-            val mainBetsTotal =
-                if (status == GameStatus.BETTING) {
-                    currentBets.fold(0) { acc, b -> acc + b }
-                } else {
-                    playerHands.fold(0) { acc, h -> acc + h.bet }
-                }
+            val mainBetsTotal = playerHands.fold(0) { acc, h -> acc + h.bet }
 
             // Only count active side bets (before they are settled)
             val sideBetsTotal =
@@ -424,7 +418,7 @@ sealed class GameAction {
         val initialBalance: Int? = null,
         val rules: GameRules = GameRules(),
         val handCount: Int = 1,
-        val lastBets: PersistentList<Int> = persistentListOf(0),
+        val previousBets: PersistentList<Int> = persistentListOf(0),
         val lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) : GameAction()
 

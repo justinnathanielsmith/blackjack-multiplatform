@@ -16,7 +16,7 @@ class LogicImprovementsTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 50, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 50, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.effects.test {
                 sm.dispatch(GameAction.PlaceBet(100))
@@ -33,7 +33,7 @@ class LogicImprovementsTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(0),
+                        playerHands = persistentListOf(Hand(bet = 0)),
                         handCount = 1
                     )
                 )
@@ -49,7 +49,7 @@ class LogicImprovementsTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
+                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
                 )
             sm.effects.test {
                 sm.dispatch(GameAction.SelectHandCount(4))
@@ -68,7 +68,7 @@ class LogicImprovementsTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(Hand(bet = 100)),
                         deck = persistentListOf()
                     )
                 )

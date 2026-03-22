@@ -57,7 +57,7 @@ fun playingState(
     GameState(
         status = GameStatus.PLAYING,
         balance = balance,
-        currentBets = persistentListOf(bet),
+// removed:         currentBets = persistentListOf(bet),
         playerHands = persistentListOf(playerHand.copy(bet = bet)),
         dealerHand = dealerHand,
         deck = deck,

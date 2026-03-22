@@ -74,7 +74,7 @@ fun ControlCenter(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BettingActions(
-                    canDeal = state.currentBets.isNotEmpty() && state.currentBets.all { it > 0 },
+                    canDeal = state.playerHands.isNotEmpty() && state.playerHands.all { it.bet > 0 },
                     onReset = onResetBet,
                     onDeal = onDeal,
                     modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
