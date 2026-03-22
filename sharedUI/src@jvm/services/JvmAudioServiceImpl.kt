@@ -14,6 +14,7 @@ import sharedui.generated.resources.Res
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermissions
 import java.util.concurrent.ConcurrentHashMap
 
 class JvmAudioServiceImpl(
@@ -22,7 +23,21 @@ class JvmAudioServiceImpl(
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
     override var isMuted: Boolean = false
-    private val tempAudioDir = Files.createTempDirectory("blackjack_audio").toFile()
+    private val tempAudioDir =
+        try {
+            val perms = PosixFilePermissions.fromString("rwx------")
+            val attr = PosixFilePermissions.asFileAttribute(perms)
+            Files.createTempDirectory("blackjack_audio", attr).toFile()
+        } catch (e: UnsupportedOperationException) {
+            val dir = Files.createTempDirectory("blackjack_audio").toFile()
+            dir.setReadable(false, false)
+            dir.setWritable(false, false)
+            dir.setExecutable(false, false)
+            dir.setReadable(true, true)
+            dir.setWritable(true, true)
+            dir.setExecutable(true, true)
+            dir
+        }
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
 
     init {
