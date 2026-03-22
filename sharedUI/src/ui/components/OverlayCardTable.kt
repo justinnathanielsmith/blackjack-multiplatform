@@ -122,7 +122,13 @@ fun OverlayCardTable(
     Box(modifier = modifier.fillMaxSize()) {
         // 1. Active hand glow behind the cluster
         if (state.status == GameStatus.PLAYING) {
-            val activeZone = tableLayout.handZones.firstOrNull { it.handIndex == state.activeHandIndex }
+            var activeZone: HandZone? = null
+            for (i in 0 until tableLayout.handZones.size) {
+                if (tableLayout.handZones[i].handIndex == state.activeHandIndex) {
+                    activeZone = tableLayout.handZones[i]
+                    break
+                }
+            }
             if (activeZone != null) {
                 ActiveHandGlow(
                     zone = activeZone,
@@ -134,7 +140,8 @@ fun OverlayCardTable(
         }
 
         // 2. Positioned (landed) cards
-        tableLayout.cardSlots.forEach { slot ->
+        for (i in 0 until tableLayout.cardSlots.size) {
+            val slot = tableLayout.cardSlots[i]
             val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
             val isDealer = slot.handIndex == -1
             val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
@@ -156,7 +163,8 @@ fun OverlayCardTable(
         }
 
         // 2.5 Positioned (landed) chips
-        tableLayout.chipSlots.forEach { slot ->
+        for (i in 0 until tableLayout.chipSlots.size) {
+            val slot = tableLayout.chipSlots[i]
             val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
             androidx.compose.runtime.key(slot.handIndex) {
                 PositionedChipItem(
@@ -170,7 +178,8 @@ fun OverlayCardTable(
         }
 
         // 3. HUD badges per zone, positioned using cluster bounds as anchor
-        tableLayout.handZones.forEach { zone ->
+        for (i in 0 until tableLayout.handZones.size) {
+            val zone = tableLayout.handZones[i]
             val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
             val isDealer = zone.handIndex == -1
             val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
