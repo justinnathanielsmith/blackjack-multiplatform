@@ -165,7 +165,10 @@ class PlayerActionLogicTest {
         val outcome = PlayerActionLogic.stand(state)
 
         val expectedHand = state.activeHand.copy(isStanding = true)
-        assertEquals(state.copy(playerHands = state.playerHands.set(state.activeHandIndex, expectedHand)), outcome.state)
+        assertEquals(
+            state.copy(playerHands = state.playerHands.set(state.activeHandIndex, expectedHand)),
+            outcome.state
+        )
         assertTrue(outcome.shouldAdvanceTurn)
         assertTrue(outcome.effects.isEmpty())
     }

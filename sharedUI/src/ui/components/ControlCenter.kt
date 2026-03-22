@@ -1,10 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -26,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -68,39 +64,31 @@ fun ControlCenter(
             isCompact = isCompact
         )
 
+        val isBetting = state.status == GameStatus.BETTING
+
         // Actions for BETTING
         AnimatedVisibility(
-            visible = state.status == GameStatus.BETTING,
+            visible = isBetting,
             enter = fadeIn(tween(300)) + expandVertically(tween(300), expandFrom = Alignment.Top),
             exit = fadeOut(tween(300)) + shrinkVertically(tween(300), shrinkTowards = Alignment.Top),
         ) {
-            BettingActions(
-                canDeal = state.currentBets.isNotEmpty() && state.currentBets.all { it > 0 },
-                onReset = onResetBet,
-                onDeal = onDeal,
-                modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                BettingActions(
+                    canDeal = state.currentBets.isNotEmpty() && state.currentBets.all { it > 0 },
+                    onReset = onResetBet,
+                    onDeal = onDeal,
+                    modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+                )
+
+                // Chip Rack
+                ChipRack(
+                    balance = state.balance,
+                    selectedAmount = selectedAmount,
+                    onChipSelected = onChipSelected,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
         }
-
-        val isBetting = state.status == GameStatus.BETTING
-        val chipRackTranslationY by animateDpAsState(
-            targetValue = if (isBetting) 0.dp else 100.dp,
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "chipRackTranslationY"
-        )
-
-        // Persistent Chip Rack
-        ChipRack(
-            balance = state.balance,
-            selectedAmount = selectedAmount,
-            onChipSelected = onChipSelected,
-            modifier =
-                Modifier
-                    .padding(bottom = 16.dp)
-                    .graphicsLayer {
-                        translationY = chipRackTranslationY.toPx()
-                    }
-        )
 
         // Footer Bar
         Row(

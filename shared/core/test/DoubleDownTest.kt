@@ -264,7 +264,10 @@ class DoubleDownTest {
     fun canDoubleDown_false_when_more_than_two_cards() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX, Rank.TWO).copy(bet = 100)),
+                playerHands =
+                    kotlinx.collections.immutable.persistentListOf(
+                        hand(Rank.FIVE, Rank.SIX, Rank.TWO).copy(bet = 100)
+                    ),
                 balance = 100
             )
         assertFalse(state.canDoubleDown())
@@ -297,7 +300,11 @@ class DoubleDownTest {
 
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand.copy(bet = 100), validHand.copy(bet = 200)),
+                playerHands =
+                    kotlinx.collections.immutable.persistentListOf(
+                        invalidHand.copy(bet = 100),
+                        validHand.copy(bet = 200)
+                    ),
                 balance = 200,
                 activeHandIndex = 1
             )
@@ -305,7 +312,11 @@ class DoubleDownTest {
 
         val stateInsufficientBalanceForActive =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(invalidHand.copy(bet = 100), validHand.copy(bet = 200)),
+                playerHands =
+                    kotlinx.collections.immutable.persistentListOf(
+                        invalidHand.copy(bet = 100),
+                        validHand.copy(bet = 200)
+                    ),
                 balance = 150,
                 activeHandIndex = 1
             )

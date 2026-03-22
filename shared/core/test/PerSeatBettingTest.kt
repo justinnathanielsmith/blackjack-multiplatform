@@ -267,6 +267,10 @@ class PerSeatBettingTest {
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
-            assertEquals(listOf(100, 150, 100), sm.state.value.playerHands.map { it.bet })
+            assertEquals(
+                listOf(100, 150, 100),
+                sm.state.value.playerHands
+                    .map { it.bet }
+            )
         }
 }
