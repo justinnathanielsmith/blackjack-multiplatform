@@ -5,6 +5,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -90,6 +91,12 @@ fun BetChip(
                     shape = CircleShape,
                     ambientColor = Color.Black.copy(alpha = 0.5f),
                     spotColor = if (isActive) chipColor.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.3f),
+                ).then(
+                    if (isFocused) {
+                        Modifier.border(2.dp, Color.White, CircleShape)
+                    } else {
+                        Modifier
+                    }
                 ).then(
                     if (onClick != null) {
                         Modifier
