@@ -9,15 +9,15 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,19 +34,18 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import androidx.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_stand
-import io.github.smithjustinn.blackjack.ui.theme.SecondarySurface
 
 @Composable
 fun GameActionButton(
@@ -203,7 +202,9 @@ private fun GameActionButtonPreview() {
     BlackjackTheme {
         androidx.compose.foundation.layout.Row(
             modifier = Modifier.padding(16.dp),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+            horizontalArrangement =
+                androidx.compose.foundation.layout.Arrangement
+                    .spacedBy(8.dp)
         ) {
             GameActionButton(
                 icon = Res.drawable.ic_hit,
@@ -219,7 +220,6 @@ private fun GameActionButtonPreview() {
         }
     }
 }
-
 
 private fun Color.blend(
     other: Color,

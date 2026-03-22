@@ -43,23 +43,19 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.theme.SecondarySurface
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
-import androidx.compose.ui.tooling.preview.Preview
-import io.github.smithjustinn.blackjack.Card
-import io.github.smithjustinn.blackjack.Rank
-import io.github.smithjustinn.blackjack.Suit
-import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 
 internal val CardShape = RoundedCornerShape(8.dp)
 
@@ -581,4 +577,3 @@ private fun PlayingCardNearMissPreview() {
         }
     }
 }
-

@@ -2,20 +2,79 @@ package io.github.smithjustinn.blackjack.presentation
 
 import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.router.stack.StackNavigation
+import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.replaceCurrent
+import com.arkivanov.decompose.value.Value
 import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
+import kotlinx.serialization.Serializable
 
 interface RootComponent {
-    val blackjackComponent: BlackjackComponent
+    val childStack: Value<ChildStack<Config, Child>>
+
+    sealed class Child {
+        class Splash(
+            val component: SplashComponent
+        ) : Child()
+
+        class Blackjack(
+            val component: BlackjackComponent
+        ) : Child()
+    }
+
+    @Serializable
+    sealed class Config {
+        @Serializable
+        data object Splash : Config()
+
+        @Serializable
+        data object Blackjack : Config()
+    }
 }
 
 class DefaultRootComponent(
     componentContext: ComponentContext,
-    balanceService: BalanceService,
-    settingsRepository: SettingsRepository,
-    logger: Logger,
+    private val balanceService: BalanceService,
+    private val settingsRepository: SettingsRepository,
+    private val logger: Logger,
 ) : RootComponent,
     ComponentContext by componentContext {
-    override val blackjackComponent: BlackjackComponent =
-        DefaultBlackjackComponent(this, balanceService, settingsRepository, logger)
+    private val navigation = StackNavigation<RootComponent.Config>()
+
+    override val childStack: Value<ChildStack<RootComponent.Config, RootComponent.Child>> =
+        childStack(
+            source = navigation,
+            serializer = RootComponent.Config.serializer(),
+            initialConfiguration = RootComponent.Config.Splash,
+            handleBackButton = true,
+            childFactory = ::createChild
+        )
+
+    private fun createChild(
+        config: RootComponent.Config,
+        componentContext: ComponentContext
+    ): RootComponent.Child {
+        return when (config) {
+            is RootComponent.Config.Splash ->
+                RootComponent.Child.Splash(
+                    DefaultSplashComponent(
+                        componentContext = componentContext,
+                        onFinished = {
+                            navigation.replaceCurrent(RootComponent.Config.Blackjack)
+                        }
+                    )
+                )
+            is RootComponent.Config.Blackjack ->
+                RootComponent.Child.Blackjack(
+                    DefaultBlackjackComponent(
+                        componentContext = componentContext,
+                        balanceService = balanceService,
+                        settingsRepository = settingsRepository,
+                        logger = logger
+                    )
+                )
+        }
+    }
 }
