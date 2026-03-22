@@ -183,14 +183,16 @@ fun BettingSlot(
                             },
                         color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
                         style =
-                            if (isSideBet) {
-                                MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
-                            } else {
-                                MaterialTheme.typography.labelMedium
+                            when {
+                                isSideBet -> MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                                slotSize < 100.dp -> MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp)
+                                else -> MaterialTheme.typography.labelMedium
                             },
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = if (isSideBet) 0.sp else 2.sp,
-                        textAlign = TextAlign.Center
+                        letterSpacing = if (isSideBet || slotSize < 100.dp) 0.sp else 2.sp,
+                        textAlign = TextAlign.Center,
+                        maxLines = 3,
+                        lineHeight = if (slotSize < 100.dp) 12.sp else 16.sp
                     )
                 }
             }
@@ -239,5 +241,16 @@ private fun BettingSlotEmptySideBetPreview() {
         label = "Perfect Pairs",
         onClick = {},
         isSideBet = true,
+    )
+}
+
+@Preview
+@Composable
+private fun SmallBettingSlotPreview() {
+    BettingSlot(
+        amount = 0,
+        label = "TAP TO BET",
+        onClick = {},
+        slotSize = 84.dp,
     )
 }

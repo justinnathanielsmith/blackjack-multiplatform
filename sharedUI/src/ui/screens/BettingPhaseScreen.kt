@@ -1,7 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -74,12 +74,51 @@ fun BettingPhaseScreen(
         )
     }
 
-    Box(
+    BoxWithConstraints(
         modifier =
             modifier
                 .fillMaxSize()
                 .windowInsetsPadding(safeDrawingInsets())
     ) {
+        val maxWidth = maxWidth
+        val handCount = state.handCount
+
+        // Calculate responsive sizes
+        val isNarrow = maxWidth < 500.dp
+        val isTiny = maxWidth < 380.dp
+
+        val seatSize =
+            when {
+                isTiny && handCount == 3 -> 84.dp
+                isNarrow && handCount == 3 -> 96.dp
+                isNarrow && handCount == 2 -> 110.dp
+                else -> 124.dp
+            }
+
+        val sideBetSize =
+            when {
+                isTiny && handCount == 3 -> 56.dp
+                isNarrow && handCount == 3 -> 64.dp
+                isNarrow -> 68.dp
+                else -> 76.dp
+            }
+
+        val outerSpacing =
+            when {
+                isTiny && handCount == 3 -> 8.dp
+                isNarrow && handCount == 3 -> 12.dp
+                isNarrow -> 16.dp
+                else -> 24.dp
+            }
+
+        val innerSpacing =
+            when {
+                isTiny && handCount == 3 -> 4.dp
+                isNarrow && handCount == 3 -> 8.dp
+                isNarrow -> 12.dp
+                else -> 16.dp
+            }
+
         Column(
             modifier =
                 Modifier
@@ -93,7 +132,7 @@ fun BettingPhaseScreen(
             // ── Side bets + seat arc ──────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(outerSpacing, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Perfect Pairs side bet
@@ -101,7 +140,7 @@ fun BettingPhaseScreen(
                     amount = state.sideBets[SideBetType.PERFECT_PAIRS] ?: 0,
                     label = stringResource(Res.string.side_bet_perfect_pairs_label),
                     isSideBet = true,
-                    slotSize = 76.dp,
+                    slotSize = sideBetSize,
                     onClick = {
                         val offset = sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
@@ -122,23 +161,24 @@ fun BettingPhaseScreen(
 
                 // Seat betting circles (arc layout)
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(innerSpacing, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    for (seatIndex in 0 until state.handCount) {
+                    for (seatIndex in 0 until handCount) {
                         // Parabolic arc: outer seats dip lower, echoing the card table arc
                         val relPos =
-                            if (state.handCount > 1) {
-                                (seatIndex / (state.handCount - 1f)) * 2f - 1f
+                            if (handCount > 1) {
+                                (seatIndex / (handCount - 1f)) * 2f - 1f
                             } else {
                                 0f
                             }
-                        val arcYOffset = (relPos * relPos * 14).dp
+                        val arcYOffset = (relPos * relPos * (if (isNarrow) 10 else 14)).dp
 
                         BettingSlot(
                             amount = state.currentBets.getOrElse(seatIndex) { 0 },
                             label = "",
                             modifier = Modifier.offset(y = arcYOffset),
+                            slotSize = seatSize,
                             onClick = {
                                 val offset = betDisplayOffsets[seatIndex] ?: Offset.Zero
                                 audioService.playEffect(AudioService.SoundEffect.CLICK)
@@ -164,7 +204,7 @@ fun BettingPhaseScreen(
                     amount = state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: 0,
                     label = stringResource(Res.string.side_bet_twenty_one_plus_three_label),
                     isSideBet = true,
-                    slotSize = 76.dp,
+                    slotSize = sideBetSize,
                     onClick = {
                         val offset = sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
