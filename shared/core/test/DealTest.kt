@@ -19,7 +19,7 @@ class DealTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 100)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(100))
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -31,7 +31,7 @@ class DealTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -52,7 +52,7 @@ class DealTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         deck = deckOf(Rank.NINE, Rank.TEN, Rank.TWO, Rank.SEVEN),
                     ),
                 )
@@ -75,7 +75,7 @@ class DealTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         deck = deckOf(Rank.NINE, Rank.TEN, Rank.TWO, Rank.SEVEN),
                     ),
                 )
@@ -96,7 +96,7 @@ class DealTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         deck = deckOf(Rank.NINE, Rank.KING, Rank.TWO, Rank.ACE),
                     ),
                 )
@@ -115,7 +115,7 @@ class DealTest {
                 GameState(
                     status = GameStatus.BETTING,
                     balance = 1000,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
                     deck =
                         persistentListOf(

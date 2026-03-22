@@ -16,7 +16,7 @@ class LogicImprovementsTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 50, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 50, currentBets = persistentListOf(0))
                 )
             sm.effects.test {
                 sm.dispatch(GameAction.PlaceBet(100))
@@ -26,14 +26,19 @@ class LogicImprovementsTest {
         }
 
     @Test
-    fun selectHandCount_emitsVibrate_whenInsufficientBalance() =
+    fun placeBet_emitsVibrate_whenSeatIndexOutOfBounds() =
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 50, currentBet = 100, handCount = 1)
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        currentBets = persistentListOf(0),
+                        handCount = 1
+                    )
                 )
             sm.effects.test {
-                sm.dispatch(GameAction.SelectHandCount(2))
+                sm.dispatch(GameAction.PlaceBet(100, seatIndex = 5))
                 assertEquals(GameEffect.Vibrate, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -44,7 +49,7 @@ class LogicImprovementsTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
                 )
             sm.effects.test {
                 sm.dispatch(GameAction.SelectHandCount(4))
@@ -63,7 +68,7 @@ class LogicImprovementsTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         deck = persistentListOf()
                     )
                 )

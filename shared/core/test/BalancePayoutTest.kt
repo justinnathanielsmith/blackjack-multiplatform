@@ -22,7 +22,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
                         deck =
                             persistentListOf(
@@ -52,7 +52,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         rules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE),
                         deck =
                             persistentListOf(
@@ -82,7 +82,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 997,
-                        currentBet = 3,
+                        currentBets = persistentListOf(3),
                         rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
                         deck =
                             persistentListOf(
@@ -111,7 +111,7 @@ class BalancePayoutTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.ACE, Rank.TEN),
@@ -143,7 +143,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN)),
                         playerBets = persistentListOf(100),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -166,7 +166,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
                                 Hand(persistentListOf(card(Rank.TEN), card(Rank.TWO), card(Rank.FIVE))),
@@ -192,7 +192,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN)),
                         playerBets = persistentListOf(100),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
@@ -299,7 +299,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
                                 hand(Rank.TEN, Rank.TEN),
@@ -326,7 +326,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
                                 hand(Rank.TEN, Rank.TEN),
@@ -353,7 +353,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
                                 hand(Rank.TEN, Rank.FIVE),
@@ -380,7 +380,7 @@ class BalancePayoutTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 800,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands =
                             persistentListOf(
                                 hand(Rank.TEN, Rank.NINE),

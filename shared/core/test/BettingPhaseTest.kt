@@ -3,6 +3,7 @@
 package io.github.smithjustinn.blackjack
 
 import app.cash.turbine.test
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -17,7 +18,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -35,7 +36,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -54,7 +55,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 100, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 100, currentBets = persistentListOf(0))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -62,8 +63,6 @@ class BettingPhaseTest {
                 expectNoEvents()
                 cancelAndIgnoreRemainingEvents()
             }
-            // Verify effect triggered (it's a SharedFlow, we can collect separately if needed,
-            // but let's just check the SM's internal emission if possible or add a test for it)
         }
 
     @Test
@@ -71,7 +70,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -88,7 +87,13 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.PLAYING, balance = 1000, currentBet = 100)
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 1000,
+                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
+                        playerBets = persistentListOf(100),
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -105,7 +110,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100)
+                    GameState(status = GameStatus.BETTING, balance = 900, currentBets = persistentListOf(100))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -123,7 +128,13 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.PLAYING, balance = 900, currentBet = 100)
+                    GameState(
+                        status = GameStatus.PLAYING,
+                        balance = 900,
+                        currentBets = persistentListOf(100),
+                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
+                        playerBets = persistentListOf(100),
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -140,7 +151,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -158,7 +169,7 @@ class BettingPhaseTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 900,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         kotlinx.collections.immutable.persistentListOf(
                             hand(Rank.FIVE, Rank.SIX)
@@ -183,7 +194,7 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0)
+                    GameState(status = GameStatus.BETTING, balance = 1000, currentBets = persistentListOf(0))
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -197,18 +208,28 @@ class BettingPhaseTest {
         }
 
     @Test
-    fun selectHandCount_adjustsBalanceWhenBetPlaced() =
+    fun selectHandCount_addingSeatsDoesNotPreCharge() =
         runTest {
+            // Under the new model, adding a seat is free — new seat starts at 0.
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 900, currentBet = 100, handCount = 1)
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 900,
+                        currentBets = persistentListOf(100),
+                        handCount = 1
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.SelectHandCount(3))
                 val state = awaitItem()
-                assertEquals(700, state.balance)
+                assertEquals(900, state.balance) // unchanged — no pre-charge
                 assertEquals(3, state.handCount)
+                assertEquals(3, state.currentBets.size)
+                assertEquals(100, state.currentBets[0])
+                assertEquals(0, state.currentBets[1])
+                assertEquals(0, state.currentBets[2])
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -218,30 +239,19 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3)
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 700,
+                        currentBets = persistentListOf(100, 100, 100),
+                        handCount = 3,
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.SelectHandCount(2))
                 val state = awaitItem()
-                assertEquals(800, state.balance)
+                assertEquals(800, state.balance) // refunded seat-2's $100
                 assertEquals(2, state.handCount)
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
-
-    @Test
-    fun selectHandCount_rejectedIfInsufficientBalance() =
-        runTest {
-            val initialState = GameState(status = GameStatus.BETTING, balance = 50, currentBet = 100, handCount = 1)
-            val sm =
-                testMachine(
-                    initialState
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.SelectHandCount(2))
-                expectNoEvents()
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -251,7 +261,12 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, handCount = 1)
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        currentBets = persistentListOf(0),
+                        handCount = 1
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -270,7 +285,12 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 100, handCount = 2)
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 800,
+                        currentBets = persistentListOf(100, 100),
+                        handCount = 2,
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -279,16 +299,21 @@ class BettingPhaseTest {
             }
             val state = sm.state.value
             assertEquals(2, state.playerHands.size)
-            assertEquals(kotlinx.collections.immutable.persistentListOf(100, 100), state.playerBets)
+            assertEquals(persistentListOf(100, 100), state.playerBets)
         }
 
     @Test
     fun deal_doesNotDeductBalanceForMultiHand() =
         runTest {
-            // 3 hands, bet=100: all 3 hands already paid via PlaceBet → balance=700
+            // 3 hands, bets=[100,100,100]: all 3 already paid via PlaceBet → balance=700
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3)
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 700,
+                        currentBets = persistentListOf(100, 100, 100),
+                        handCount = 3,
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -299,44 +324,58 @@ class BettingPhaseTest {
         }
 
     @Test
-    fun placeBet_rejectedWhenTotalCostExceedsBalance() =
+    fun placeBet_onSeat_deductsSeatAmountOnly() =
         runTest {
-            val initialState = GameState(status = GameStatus.BETTING, balance = 25, currentBet = 0, handCount = 3)
-            val sm =
-                testMachine(
-                    initialState
+            // With 3 seats, placing $10 on seat 0 costs $10 — not $30
+            val initialState =
+                GameState(
+                    status = GameStatus.BETTING,
+                    balance = 1000,
+                    currentBets = persistentListOf(0, 0, 0),
+                    handCount = 3,
                 )
+            val sm = testMachine(initialState)
             sm.state.test {
                 awaitItem() // initial state
-                sm.dispatch(GameAction.PlaceBet(10)) // total cost = 30 > 25
-                expectNoEvents()
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
-
-    @Test
-    fun placeBet_deductsTotalCostForAllHands() =
-        runTest {
-            val sm =
-                testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, handCount = 3)
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.PlaceBet(10))
+                sm.dispatch(GameAction.PlaceBet(10, seatIndex = 0))
                 val state = awaitItem()
-                assertEquals(970, state.balance)
-                assertEquals(10, state.currentBet)
+                assertEquals(990, state.balance)
+                assertEquals(10, state.currentBets[0])
                 cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
-    fun resetBet_refundsTotalCost() =
+    fun deal_rejectedIfAnySeatHasNoBet() =
+        runTest {
+            val initialState =
+                GameState(
+                    status = GameStatus.BETTING,
+                    balance = 900,
+                    currentBets = persistentListOf(100, 0),
+                    handCount = 2,
+                    deck = deckOf(Rank.TEN, Rank.NINE, Rank.TEN, Rank.NINE),
+                )
+            val sm = testMachine(initialState)
+            sm.state.test {
+                awaitItem() // initial state
+                sm.dispatch(GameAction.Deal)
+                expectNoEvents() // deal rejected — seat 1 is unfunded
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun resetBet_refundsAllSeats() =
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 700, currentBet = 100, handCount = 3)
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 700,
+                        currentBets = persistentListOf(100, 100, 100),
+                        handCount = 3,
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state
@@ -351,11 +390,16 @@ class BettingPhaseTest {
     // ── NewGame ───────────────────────────────────────────────────────────────
 
     @Test
-    fun newGame_resetsHandCountTo1() =
+    fun newGame_resetsToOneSeat() =
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.DEALER_WON, balance = 800, currentBet = 0, handCount = 3)
+                    GameState(
+                        status = GameStatus.DEALER_WON,
+                        balance = 800,
+                        currentBets = persistentListOf(0, 0, 0),
+                        handCount = 3,
+                    )
                 )
             sm.state.test {
                 awaitItem() // initial state

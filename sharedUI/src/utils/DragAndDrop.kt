@@ -26,7 +26,10 @@ class DragAndDropState {
     var dragItem: Any? by mutableStateOf(null)
     var dragItemSourcePosition: Offset by mutableStateOf(Offset.Zero)
 
-    fun startDrag(item: Any, sourcePosition: Offset) {
+    fun startDrag(
+        item: Any,
+        sourcePosition: Offset
+    ) {
         dragItem = item
         dragItemSourcePosition = sourcePosition
         dragPosition = sourcePosition
@@ -73,34 +76,35 @@ fun DragTarget(
     val state = LocalDragAndDropState.current
     var currentPosition by remember { mutableStateOf(Offset.Zero) }
 
-    val dragModifier = if (enabled) {
-        Modifier.pointerInput(item) {
-            detectDragGesturesAfterLongPress(
-                onDragStart = { _ ->
-                    state.startDrag(item, currentPosition)
-                },
-                onDrag = { change, dragAmount ->
-                    change.consume()
-                    state.updateDrag(dragAmount)
-                },
-                onDragEnd = {
-                    state.stopDrag()
-                },
-                onDragCancel = {
-                    state.stopDrag()
-                }
-            )
+    val dragModifier =
+        if (enabled) {
+            Modifier.pointerInput(item) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { _ ->
+                        state.startDrag(item, currentPosition)
+                    },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        state.updateDrag(dragAmount)
+                    },
+                    onDragEnd = {
+                        state.stopDrag()
+                    },
+                    onDragCancel = {
+                        state.stopDrag()
+                    }
+                )
+            }
+        } else {
+            Modifier
         }
-    } else {
-        Modifier
-    }
 
     Box(
-        modifier = modifier
-            .onGloballyPositioned {
-                currentPosition = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-            }
-            .then(dragModifier)
+        modifier =
+            modifier
+                .onGloballyPositioned {
+                    currentPosition = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                }.then(dragModifier)
     ) {
         content()
     }
@@ -117,9 +121,10 @@ fun DropTarget(
     var bounds by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
 
     // Use derivedStateOf to avoid unnecessary recompositions
-    val isCurrentlyHovered = remember(bounds, state.isDragging, state.dragPosition) {
-        state.isDragging && bounds.contains(state.dragPosition)
-    }
+    val isCurrentlyHovered =
+        remember(bounds, state.isDragging, state.dragPosition) {
+            state.isDragging && bounds.contains(state.dragPosition)
+        }
 
     // Update isHovered state
     androidx.compose.runtime.SideEffect {
@@ -129,16 +134,18 @@ fun DropTarget(
     }
 
     Box(
-        modifier = modifier
-            .onGloballyPositioned {
-                val position = it.positionInRoot()
-                bounds = androidx.compose.ui.geometry.Rect(
-                    position.x,
-                    position.y,
-                    position.x + it.size.width,
-                    position.y + it.size.height
-                )
-            }
+        modifier =
+            modifier
+                .onGloballyPositioned {
+                    val position = it.positionInRoot()
+                    bounds =
+                        androidx.compose.ui.geometry.Rect(
+                            position.x,
+                            position.y,
+                            position.x + it.size.width,
+                            position.y + it.size.height
+                        )
+                }
     ) {
         content(isHovered)
     }

@@ -11,7 +11,7 @@ class GameStateTest {
         val state =
             GameState(
                 status = GameStatus.BETTING,
-                currentBet = 100,
+                currentBets = persistentListOf(100, 100, 100),
                 handCount = 3,
                 sideBets =
                     persistentMapOf(
@@ -19,7 +19,7 @@ class GameStateTest {
                         SideBetType.TWENTY_ONE_PLUS_THREE to 25
                     )
             )
-        // (100 * 3) + 50 + 25 = 375
+        // (100 + 100 + 100) + 50 + 25 = 375
         assertEquals(375, state.totalBet)
     }
 

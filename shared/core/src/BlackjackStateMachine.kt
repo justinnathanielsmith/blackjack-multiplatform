@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
-    initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0),
+    initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000),
     private val isTest: Boolean = false,
     private val logger: Logger = Logger.withTag("BlackjackStateMachine")
 ) {
@@ -90,6 +90,7 @@ class BlackjackStateMachine(
             is GameAction.UpdateRules,
             is GameAction.PlaceBet,
             is GameAction.ResetBet,
+            is GameAction.ResetSeatBet,
             is GameAction.SelectHandCount,
             is GameAction.PlaceSideBet,
             is GameAction.ResetSideBets -> handleBettingAction(action)
@@ -124,8 +125,9 @@ class BlackjackStateMachine(
     private fun handleBettingAction(action: GameAction) {
         when (action) {
             is GameAction.UpdateRules -> handleUpdateRules(action.rules)
-            is GameAction.PlaceBet -> handlePlaceBet(action.amount)
-            is GameAction.ResetBet -> handlePlaceBet(null)
+            is GameAction.PlaceBet -> handlePlaceBet(action.amount, action.seatIndex)
+            is GameAction.ResetBet -> handleResetBet(null)
+            is GameAction.ResetSeatBet -> handleResetBet(action.seatIndex)
             is GameAction.SelectHandCount -> handleSelectHandCount(action.count)
             is GameAction.PlaceSideBet -> handlePlaceSideBet(action.type, action.amount)
             is GameAction.ResetSideBets -> handlePlaceSideBet(null, 0)
@@ -141,25 +143,44 @@ class BlackjackStateMachine(
         actionChannel.close()
     }
 
-    private fun handlePlaceBet(amount: Int?) {
+    private fun handlePlaceBet(
+        amount: Int,
+        seatIndex: Int
+    ) {
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
-        if (amount == null) {
+        if (amount <= 0 || seatIndex !in 0 until current.handCount) {
+            emitEffect(GameEffect.Vibrate)
+            return
+        }
+        if (amount > current.balance) {
+            emitEffect(GameEffect.Vibrate)
+            return
+        }
+        _state.value =
+            current.copy(
+                balance = current.balance - amount,
+                currentBets = current.currentBets.set(seatIndex, current.currentBets[seatIndex] + amount),
+            )
+    }
+
+    private fun handleResetBet(seatIndex: Int?) {
+        val current = _state.value
+        if (current.status != GameStatus.BETTING) return
+        if (seatIndex == null) {
+            val refund = current.currentBets.fold(0) { acc, b -> acc + b }
             _state.value =
                 current.copy(
-                    balance = current.balance + current.currentBet * current.handCount,
-                    currentBet = 0,
+                    balance = current.balance + refund,
+                    currentBets = List(current.handCount) { 0 }.toPersistentList(),
                 )
         } else {
-            val totalCost = amount * current.handCount
-            if (amount <= 0 || totalCost > current.balance) {
-                emitEffect(GameEffect.Vibrate)
-                return
-            }
+            if (seatIndex !in 0 until current.handCount) return
+            val refund = current.currentBets.getOrElse(seatIndex) { 0 }
             _state.value =
                 current.copy(
-                    balance = current.balance - totalCost,
-                    currentBet = current.currentBet + amount,
+                    balance = current.balance + refund,
+                    currentBets = current.currentBets.set(seatIndex, 0),
                 )
         }
     }
@@ -173,15 +194,21 @@ class BlackjackStateMachine(
         }
         val delta = count - current.handCount
         if (delta == 0) return
-        val balanceAdjustment = current.currentBet * delta
-        if (balanceAdjustment > current.balance) {
-            emitEffect(GameEffect.Vibrate)
-            return
+        val newBets: kotlinx.collections.immutable.PersistentList<Int>
+        val balanceDelta: Int
+        if (delta > 0) {
+            newBets = current.currentBets.addAll(List(delta) { 0 })
+            balanceDelta = 0
+        } else {
+            val refund = (count until current.handCount).sumOf { i -> current.currentBets.getOrElse(i) { 0 } }
+            newBets = current.currentBets.subList(0, count).toPersistentList()
+            balanceDelta = refund
         }
         _state.value =
             current.copy(
                 handCount = count,
-                balance = current.balance - balanceAdjustment
+                currentBets = newBets,
+                balance = current.balance + balanceDelta,
             )
     }
 
@@ -193,7 +220,12 @@ class BlackjackStateMachine(
 
     private suspend fun handleDeal() {
         val current = _state.value
-        if (current.status != GameStatus.BETTING || current.currentBet <= 0) return
+        if (current.status != GameStatus.BETTING ||
+            current.currentBets.size != current.handCount ||
+            current.currentBets.any { it <= 0 }
+        ) {
+            return
+        }
         _state.value = current.copy(status = GameStatus.DEALING)
         val (playerHands, dealerHand) = dealCardsWithAnimation(current)
         applyInitialOutcome(current, playerHands, dealerHand)
@@ -202,7 +234,7 @@ class BlackjackStateMachine(
     private suspend fun dealCardsWithAnimation(
         current: GameState,
     ): Pair<kotlinx.collections.immutable.PersistentList<Hand>, Hand> {
-        val bets = List(current.handCount) { current.currentBet }.toPersistentList()
+        val bets = current.currentBets
         var deck = getDeck(current).toPersistentList()
         var playerHands = List(current.handCount) { Hand() }.toPersistentList()
         var dealerHand = Hand()
@@ -299,10 +331,9 @@ class BlackjackStateMachine(
     ) {
         val currentState = _state.value
         val newBalance = initialBalance ?: currentState.balance
-        val maxAffordableMainBet = if (handCount > 0) newBalance / handCount else newBalance
-        val clampedBet = lastBet.coerceIn(0, maxAffordableMainBet)
+        val clampedBet = lastBet.coerceIn(0, newBalance)
 
-        val remainingBalance = newBalance - clampedBet * handCount
+        val remainingBalance = newBalance - clampedBet
         var totalSideBetCost = 0
         for ((_, betAmount) in lastSideBets) {
             totalSideBetCost += betAmount
@@ -323,7 +354,7 @@ class BlackjackStateMachine(
             GameState(
                 status = GameStatus.BETTING,
                 balance = postSideBetBalance,
-                currentBet = clampedBet,
+                currentBets = (listOf(clampedBet) + List(handCount - 1) { 0 }).toPersistentList(),
                 sideBets = finalSideBets,
                 lastSideBets = lastSideBets,
                 playerHands = persistentListOf(Hand()),
@@ -556,16 +587,12 @@ class BlackjackStateMachine(
         if (!emitted) logger.w { "Effect dropped (buffer full): $effect" }
     }
 
-    private fun isSlowRoll(hand: Hand): Boolean {
-        if (hand.cards.size < 2) return false
-        val upcard = hand.cards[0]
-        val isBlackjack = hand.score == 21 && hand.cards.size == 2
-        val isTensionVisible = upcard.rank == Rank.ACE || upcard.rank.value == 10
-        return isBlackjack && isTensionVisible
-    }
-
     private fun getRevealDelayMs(hand: Hand): Long {
         if (isTest) return 0L
-        return if (isSlowRoll(hand)) SLOW_ROLL_DELAY_MS else REVEAL_DELAY_MS
+        val isSlowRoll =
+            hand.cards.size >= 2 &&
+                hand.score == 21 &&
+                (hand.cards[0].rank == Rank.ACE || hand.cards[0].rank.value == 10)
+        return if (isSlowRoll) SLOW_ROLL_DELAY_MS else REVEAL_DELAY_MS
     }
 }

@@ -33,6 +33,9 @@
     <string name="bet">Bet</string>
     <string name="reset_bet">❌</string>
     <string name="hand_count_label">Hands</string>
+    <string name="seats_label">Seats</string>
+    <string name="add_seat_description">Add seat</string>
+    <string name="remove_seat_description">Remove seat</string>
     <string name="total_bet">Total: %1$s</string>
     <string name="bet_total_label">Total Bet</string>
     <string name="bet_multiplier">x%1$d</string>

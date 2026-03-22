@@ -20,7 +20,7 @@ class InsuranceTest {
                     GameState(
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
                         playerBets = persistentListOf(100),
                         dealerHand = dealerHand(Rank.ACE, Rank.SEVEN),
@@ -44,7 +44,7 @@ class InsuranceTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 900,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         deck = deckOf(Rank.NINE, Rank.TWO, Rank.KING, Rank.SEVEN),
                     ),
                 )
@@ -65,7 +65,7 @@ class InsuranceTest {
                     GameState(
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
                         playerBets = persistentListOf(100),
                         dealerHand = dealerHand(Rank.ACE, Rank.SEVEN),
@@ -89,7 +89,7 @@ class InsuranceTest {
                     GameState(
                         status = GameStatus.INSURANCE_OFFERED,
                         balance = 900,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
                         playerBets = persistentListOf(100),
                         dealerHand = dealerHand(Rank.ACE, Rank.SEVEN),
@@ -115,7 +115,7 @@ class InsuranceTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 850,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         insuranceBet = 50,
                         playerHands = persistentListOf(hand(Rank.TEN, Rank.SIX)),
                         playerBets = persistentListOf(100),
@@ -141,7 +141,7 @@ class InsuranceTest {
                     GameState(
                         status = GameStatus.PLAYING,
                         balance = 850,
-                        currentBet = 100,
+                        currentBets = persistentListOf(100),
                         insuranceBet = 50,
                         playerHands = persistentListOf(hand(Rank.TEN, Rank.NINE)),
                         playerBets = persistentListOf(100),
@@ -164,7 +164,7 @@ class InsuranceTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 900,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
                     playerBets = persistentListOf(100),
                     dealerHand = dealerHand(Rank.ACE, Rank.SEVEN),

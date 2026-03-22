@@ -62,6 +62,8 @@ import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.components.BetChip
+import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.components.ControlCenter
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandResult
@@ -83,8 +85,6 @@ import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
-import io.github.smithjustinn.blackjack.ui.components.BetChip
-import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
@@ -242,7 +242,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
             val bet = state.currentBet
             val sideBets = state.sideBets
             val rules = appSettings.gameRules
-            val handCount = appSettings.defaultHandCount
+            val handCount = state.handCount
             delay(if (appSettings.isAutoDealEnabled) 1500L else 2000L)
             if (appSettings.isAutoDealEnabled) autoDealPending = true
             component.onAction(
@@ -259,9 +259,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.BETTING && autoDealPending) {
             autoDealPending = false
-            if (appSettings.isAutoDealEnabled && state.currentBet > 0) {
+            if (appSettings.isAutoDealEnabled && state.currentBets.all { it > 0 }) {
                 component.onAction(GameAction.Deal)
-            } else if (appSettings.isAutoDealEnabled && state.currentBet == 0) {
+            } else if (appSettings.isAutoDealEnabled && state.currentBets.any { it == 0 }) {
                 component.updateSettings { it.copy(isAutoDealEnabled = false) }
             }
         }
@@ -670,16 +670,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 chipColor = ChipUtils.chipColor(amount),
                 textColor = ChipUtils.chipTextColor(amount),
                 isActive = true, // Larger shadow and lift effect
-                modifier = Modifier
-                    .size(56.dp)
-                    .graphicsLayer {
-                        translationX = dragAndDropState.dragPosition.x - (56.dp.toPx() / 2f)
-                        translationY = dragAndDropState.dragPosition.y - (56.dp.toPx() / 2f)
-                        scaleX = 1.15f
-                        scaleY = 1.15f
-                        alpha = 0.95f
-                    }
-                    .zIndex(100f)
+                modifier =
+                    Modifier
+                        .size(56.dp)
+                        .graphicsLayer {
+                            translationX = dragAndDropState.dragPosition.x - (56.dp.toPx() / 2f)
+                            translationY = dragAndDropState.dragPosition.y - (56.dp.toPx() / 2f)
+                            scaleX = 1.15f
+                            scaleY = 1.15f
+                            alpha = 0.95f
+                        }.zIndex(100f)
             )
         }
     } // End of DragAndDropContainer

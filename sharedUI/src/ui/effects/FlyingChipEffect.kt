@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 data class FlyingChip(
     val id: Long,
     val startOffset: Offset,
+    val targetOffset: Offset,
     val amount: Int,
     val color: Color,
     val textColor: Color,

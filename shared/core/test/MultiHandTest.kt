@@ -27,14 +27,23 @@ class MultiHandTest {
                 )
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, currentBet = 0, deck = deck),
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        currentBets = persistentListOf(0),
+                        deck = deck
+                    ),
                 )
             sm.dispatch(GameAction.SelectHandCount(3))
             advanceUntilIdle()
-            sm.dispatch(GameAction.PlaceBet(100))
+            sm.dispatch(GameAction.PlaceBet(100, seatIndex = 0))
+            advanceUntilIdle()
+            sm.dispatch(GameAction.PlaceBet(100, seatIndex = 1))
+            advanceUntilIdle()
+            sm.dispatch(GameAction.PlaceBet(100, seatIndex = 2))
             advanceUntilIdle()
 
-            // Balance: 1000 - (100 * 3) = 700
+            // Balance: 1000 - 100 - 100 - 100 = 700
             assertEquals(700, sm.state.value.balance)
 
             sm.dispatch(GameAction.Deal)

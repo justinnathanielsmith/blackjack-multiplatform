@@ -132,7 +132,7 @@ class SplitTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.EIGHT, Rank.TWO),
@@ -160,7 +160,7 @@ class SplitTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             Hand(
@@ -222,7 +222,7 @@ class SplitTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.TEN, Rank.TEN),
@@ -254,7 +254,7 @@ class SplitTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.TEN, Rank.TEN),
@@ -285,7 +285,7 @@ class SplitTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.EIGHT, Rank.EIGHT),
@@ -316,7 +316,7 @@ class SplitTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 700,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.ACE, Rank.ACE),
@@ -350,7 +350,7 @@ class SplitTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.TEN, Rank.FIVE),

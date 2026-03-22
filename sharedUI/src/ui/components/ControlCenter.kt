@@ -75,7 +75,7 @@ fun ControlCenter(
             exit = fadeOut(tween(300)) + shrinkVertically(tween(300), shrinkTowards = Alignment.Top),
         ) {
             BettingActions(
-                canDeal = state.currentBet > 0,
+                canDeal = state.currentBets.isNotEmpty() && state.currentBets.all { it > 0 },
                 onReset = onResetBet,
                 onDeal = onDeal,
                 modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
@@ -94,11 +94,12 @@ fun ControlCenter(
             balance = state.balance,
             selectedAmount = selectedAmount,
             onChipSelected = onChipSelected,
-            modifier = Modifier
-                .padding(bottom = 16.dp)
-                .graphicsLayer {
-                    translationY = chipRackTranslationY.toPx()
-                }
+            modifier =
+                Modifier
+                    .padding(bottom = 16.dp)
+                    .graphicsLayer {
+                        translationY = chipRackTranslationY.toPx()
+                    }
         )
 
         // Footer Bar

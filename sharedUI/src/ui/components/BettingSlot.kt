@@ -8,20 +8,16 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,12 +38,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.utils.DropTarget
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.bet_multiplier
 import sharedui.generated.resources.bet_spot_description
 import sharedui.generated.resources.bet_spot_tap_to_bet
 import sharedui.generated.resources.side_bet_spot_description
@@ -62,7 +56,6 @@ fun BettingSlot(
     modifier: Modifier = Modifier,
     slotSize: Dp = 124.dp,
     isSideBet: Boolean = false,
-    handCount: Int = 1,
     onPositioned: (Offset) -> Unit = {},
     onDrop: (Int) -> Unit = {},
     onHoverChange: (Boolean) -> Unit = {}
@@ -126,8 +119,7 @@ fun BettingSlot(
                         .graphicsLayer {
                             scaleX = scale
                             scaleY = scale
-                        }
-                        .drawBehind {
+                        }.drawBehind {
                             val strokeWidth =
                                 if (isSideBet &&
                                     amount > 0
@@ -142,7 +134,11 @@ fun BettingSlot(
                             // Outer Dashed Circle
                             drawCircle(
                                 color = activeColor.copy(alpha = if (isHovered) 0.8f else glowAlpha),
-                                style = Stroke(width = strokeWidth + (if (isHovered) 2.dp.toPx() else 0f), pathEffect = dashEffect),
+                                style =
+                                    Stroke(
+                                        width = strokeWidth + (if (isHovered) 2.dp.toPx() else 0f),
+                                        pathEffect = dashEffect
+                                    ),
                                 radius = size.minDimension / 2f
                             )
 
@@ -199,19 +195,6 @@ fun BettingSlot(
                 }
             }
         }
-
-        if (!isSideBet && handCount > 1) {
-            Text(
-                text = stringResource(Res.string.bet_multiplier, handCount),
-                style = MaterialTheme.typography.labelSmall,
-                color = BackgroundDark,
-                fontWeight = FontWeight.Black,
-                modifier =
-                    Modifier
-                        .background(PrimaryGold, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-            )
-        }
     }
 }
 
@@ -223,7 +206,6 @@ private fun BettingSlotMainBetPreview() {
         label = "",
         onClick = {},
         isSideBet = false,
-        handCount = 1
     )
 }
 
@@ -235,7 +217,6 @@ private fun BettingSlotSideBetPreview() {
         label = "Perfect Pairs",
         onClick = {},
         isSideBet = true,
-        handCount = 1
     )
 }
 
@@ -247,7 +228,6 @@ private fun BettingSlotEmptyMainBetPreview() {
         label = "",
         onClick = {},
         isSideBet = false,
-        handCount = 1
     )
 }
 
@@ -259,6 +239,5 @@ private fun BettingSlotEmptySideBetPreview() {
         label = "Perfect Pairs",
         onClick = {},
         isSideBet = true,
-        handCount = 1
     )
 }

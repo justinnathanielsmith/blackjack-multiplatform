@@ -39,7 +39,6 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.hand_count_label
 import sharedui.generated.resources.settings_das
 import sharedui.generated.resources.settings_decks
 import sharedui.generated.resources.settings_game_rules
@@ -86,15 +85,6 @@ fun SettingsOverlay(
                 style = MaterialTheme.typography.labelLarge
             )
         }
-
-        SettingsDropdown(
-            title = stringResource(Res.string.hand_count_label),
-            currentValue = "${settings.defaultHandCount}",
-            options = listOf("1", "2", "3"),
-            onOptionSelected = { option ->
-                onUpdateSettings { it.copy(defaultHandCount = option.toInt()) }
-            }
-        )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color.White.copy(alpha = 0.1f))
 

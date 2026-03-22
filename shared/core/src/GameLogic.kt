@@ -169,7 +169,7 @@ data class GameState(
     val dealerHand: Hand = Hand(),
     val status: GameStatus = GameStatus.IDLE,
     val balance: Int = 1000,
-    val currentBet: Int = 0,
+    val currentBets: PersistentList<Int> = persistentListOf(0),
     val insuranceBet: Int = 0,
     val sideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val sideBetResults: PersistentMap<SideBetType, SideBetResult> = persistentMapOf(),
@@ -186,11 +186,14 @@ data class GameState(
         const val MAX_HANDS = 4
     }
 
+    // Computed alias for backward compatibility (insurance, resolveInitialOutcomeValues, etc.)
+    val currentBet: Int get() = currentBets.getOrElse(0) { 0 }
+
     val totalBet: Int
         get() {
             val mainBetsTotal =
                 if (status == GameStatus.BETTING) {
-                    currentBet * handCount
+                    currentBets.fold(0) { acc, b -> acc + b }
                 } else {
                     var sum = 0
                     for (i in 0 until playerBets.size) {
@@ -430,10 +433,15 @@ sealed class GameAction {
     data object Surrender : GameAction()
 
     data class PlaceBet(
-        val amount: Int
+        val amount: Int,
+        val seatIndex: Int = 0,
     ) : GameAction()
 
     data object ResetBet : GameAction()
+
+    data class ResetSeatBet(
+        val seatIndex: Int
+    ) : GameAction()
 
     data object Deal : GameAction()
 

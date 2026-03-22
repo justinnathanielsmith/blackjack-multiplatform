@@ -120,7 +120,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.BETTING,
                     balance = 900,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX)),
                     playerBets = persistentListOf(100),
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
@@ -144,7 +144,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     handCount = 3,
                     playerHands =
                         persistentListOf(
@@ -178,7 +178,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 800,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     handCount = 3,
                     playerHands =
                         persistentListOf(
@@ -202,7 +202,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 1000,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             hand(Rank.TEN, Rank.TEN),
@@ -222,7 +222,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 1000,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             Hand(persistentListOf(card(Rank.TEN), card(Rank.TEN)), wasSplit = true),
@@ -242,7 +242,7 @@ class DoubleDownTest {
                 GameState(
                     status = GameStatus.PLAYING,
                     balance = 1000,
-                    currentBet = 100,
+                    currentBets = persistentListOf(100),
                     playerHands =
                         persistentListOf(
                             Hand(persistentListOf(card(Rank.TEN), card(Rank.FIVE)), wasSplit = true),

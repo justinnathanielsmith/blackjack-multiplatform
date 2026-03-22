@@ -57,7 +57,7 @@ fun playingState(
     GameState(
         status = GameStatus.PLAYING,
         balance = balance,
-        currentBet = bet,
+        currentBets = persistentListOf(bet),
         playerHands = persistentListOf(playerHand),
         playerBets = persistentListOf(bet),
         dealerHand = dealerHand,
