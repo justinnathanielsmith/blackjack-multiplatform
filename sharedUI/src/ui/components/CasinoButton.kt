@@ -15,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -33,9 +34,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
 @Composable
@@ -208,5 +211,38 @@ fun CasinoButton(
             style = MaterialTheme.typography.labelLarge,
             letterSpacing = 2.sp
         )
+    }
+}
+
+@Preview
+@Composable
+private fun CasinoButtonPreview() {
+    BlackjackTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            CasinoButton(text = "Hit", onClick = { /* do nothing */ })
+            CasinoButton(
+                text = "Stand",
+                onClick = { /* do nothing */ },
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            CasinoButton(
+                text = "Double Down",
+                onClick = { /* do nothing */ },
+                isStrategic = true,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            CasinoButton(
+                text = "Split",
+                onClick = { /* do nothing */ },
+                enabled = false,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            CasinoButton(
+                text = "New Game",
+                onClick = { /* do nothing */ },
+                showShine = true,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
     }
 }

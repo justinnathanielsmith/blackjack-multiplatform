@@ -29,6 +29,8 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.insurance_message
 import sharedui.generated.resources.insurance_title
 import sharedui.generated.resources.insure
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import androidx.compose.ui.tooling.preview.Preview
 import sharedui.generated.resources.no_thanks
 
 @Composable
@@ -84,3 +86,15 @@ fun InsuranceOverlay(
         }
     }
 }
+
+@Preview
+@Composable
+private fun InsuranceOverlayPreview() {
+    BlackjackTheme {
+        InsuranceOverlay(
+            onInsure = {},
+            onDecline = {}
+        )
+    }
+}
+

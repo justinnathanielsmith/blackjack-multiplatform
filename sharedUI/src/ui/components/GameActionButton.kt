@@ -39,8 +39,14 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import androidx.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.ic_hit
+import sharedui.generated.resources.ic_stand
+import io.github.smithjustinn.blackjack.ui.theme.SecondarySurface
 
 @Composable
 fun GameActionButton(
@@ -190,6 +196,30 @@ fun GameActionButton(
         }
     }
 }
+
+@Preview
+@Composable
+private fun GameActionButtonPreview() {
+    BlackjackTheme {
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+        ) {
+            GameActionButton(
+                icon = Res.drawable.ic_hit,
+                onClick = {},
+                label = "Hit",
+                isStrategic = true
+            )
+            GameActionButton(
+                icon = Res.drawable.ic_stand,
+                onClick = {},
+                label = "Stand"
+            )
+        }
+    }
+}
+
 
 private fun Color.blend(
     other: Color,

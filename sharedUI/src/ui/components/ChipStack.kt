@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
@@ -90,3 +91,20 @@ fun ChipStack(
         }
     }
 }
+
+@Preview
+@Composable
+private fun ChipStackPreview() {
+    Box(modifier = Modifier.padding(32.dp)) {
+        ChipStack(amount = 86)
+    }
+}
+
+@Preview
+@Composable
+private fun ChipStackActivePreview() {
+    Box(modifier = Modifier.padding(32.dp)) {
+        ChipStack(amount = 250, isActive = true)
+    }
+}
+

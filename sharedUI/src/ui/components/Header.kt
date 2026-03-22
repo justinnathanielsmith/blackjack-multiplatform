@@ -48,6 +48,8 @@ import sharedui.generated.resources.emoji_bulb
 import sharedui.generated.resources.emoji_clock
 import sharedui.generated.resources.emoji_gear
 import sharedui.generated.resources.emoji_lightning
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import androidx.compose.ui.tooling.preview.Preview
 import sharedui.generated.resources.emoji_scroll
 
 @Composable
@@ -226,3 +228,32 @@ private fun HeaderIcon(
         )
     }
 }
+
+@Preview
+@Composable
+private fun HeaderPreview() {
+    BlackjackTheme {
+        Header(
+            isAutoDealEnabled = false,
+            onAutoDealToggle = {},
+            onSettingsClick = {},
+            onStrategyClick = {},
+            onRulesClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun HeaderAutoDealPreview() {
+    BlackjackTheme {
+        Header(
+            isAutoDealEnabled = true,
+            onAutoDealToggle = {},
+            onSettingsClick = {},
+            onStrategyClick = {},
+            onRulesClick = {}
+        )
+    }
+}
+

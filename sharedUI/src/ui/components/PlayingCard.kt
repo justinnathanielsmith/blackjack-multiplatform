@@ -53,7 +53,13 @@ import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.SecondarySurface
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
+import androidx.compose.ui.tooling.preview.Preview
+import io.github.smithjustinn.blackjack.Card
+import io.github.smithjustinn.blackjack.Rank
+import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 
 internal val CardShape = RoundedCornerShape(8.dp)
 
@@ -509,3 +515,70 @@ internal fun CardCorner(
         )
     }
 }
+
+@Preview
+@Composable
+private fun PlayingCardAcePreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            PlayingCard(
+                card = Card(Rank.ACE, Suit.SPADES),
+                isFaceUp = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PlayingCardTenPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            PlayingCard(
+                card = Card(Rank.TEN, Suit.DIAMONDS),
+                isFaceUp = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PlayingCardCourtPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            PlayingCard(
+                card = Card(Rank.KING, Suit.HEARTS),
+                isFaceUp = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PlayingCardBackPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            PlayingCard(
+                card = Card(Rank.TWO, Suit.CLUBS),
+                isFaceUp = false
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PlayingCardNearMissPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            PlayingCard(
+                card = Card(Rank.ACE, Suit.HEARTS),
+                isFaceUp = true,
+                isNearMiss = true
+            )
+        }
+    }
+}
+

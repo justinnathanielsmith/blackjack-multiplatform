@@ -38,6 +38,8 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -264,3 +266,44 @@ fun GameStatusMessage(
         }
     }
 }
+
+@Preview
+@Composable
+private fun GameStatusMessagePlayerWonPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(32.dp)) {
+            GameStatusMessage(status = GameStatus.PLAYER_WON, netPayout = 200)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun GameStatusMessageBlackjackPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(32.dp)) {
+            GameStatusMessage(status = GameStatus.PLAYER_WON, netPayout = 300, isBlackjack = true)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun GameStatusMessageDealerWonPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(32.dp)) {
+            GameStatusMessage(status = GameStatus.DEALER_WON, netPayout = -100)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun GameStatusMessagePushPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(32.dp)) {
+            GameStatusMessage(status = GameStatus.PUSH, netPayout = 0)
+        }
+    }
+}
+

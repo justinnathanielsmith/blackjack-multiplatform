@@ -44,12 +44,6 @@ enum class HandResult {
     PUSH
 }
 
-enum class HandStatus {
-    ACTIVE,
-    WAITING,
-    BUSTED
-}
-
 @Composable
 internal fun HandOutcomeBadge(
     result: HandResult,
@@ -60,7 +54,7 @@ internal fun HandOutcomeBadge(
         when (result) {
             HandResult.WIN -> PrimaryGold
             HandResult.LOSS -> TacticalRed
-            HandResult.PUSH -> Color(0xFF555555)
+            HandResult.PUSH -> Color(0xFF555555) // TODO: Define NeutralGray in theme
             HandResult.NONE -> Color.Transparent
         }
     val contentColor =
@@ -146,4 +140,22 @@ internal fun HandOutcomeBadge(
 @Composable
 private fun HandOutcomeBadgePreview() {
     HandOutcomeBadge(result = HandResult.WIN, netPayout = 100)
+}
+
+@Preview
+@Composable
+private fun HandOutcomeBadgeLossPreview() {
+    HandOutcomeBadge(result = HandResult.LOSS, netPayout = -50)
+}
+
+@Preview
+@Composable
+private fun HandOutcomeBadgePushPreview() {
+    HandOutcomeBadge(result = HandResult.PUSH, netPayout = 0)
+}
+
+@Preview
+@Composable
+private fun HandOutcomeBadgeNoPayoutPreview() {
+    HandOutcomeBadge(result = HandResult.WIN)
 }

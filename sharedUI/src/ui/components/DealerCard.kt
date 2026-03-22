@@ -28,7 +28,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
-import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
 
 enum class RevealState {
@@ -177,3 +179,30 @@ fun DealerCard(
         }
     }
 }
+
+@Preview
+@Composable
+private fun DealerCardHiddenPreview() {
+    BlackjackTheme {
+        DealerCard(
+            card = Card(Rank.TEN, Suit.SPADES),
+            isFaceUp = false,
+            dealerUpcard = Card(Rank.ACE, Suit.HEARTS),
+            dealerScore = 21
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun DealerCardRevealedPreview() {
+    BlackjackTheme {
+        DealerCard(
+            card = Card(Rank.TEN, Suit.SPADES),
+            isFaceUp = true,
+            dealerUpcard = Card(Rank.ACE, Suit.HEARTS),
+            dealerScore = 21
+        )
+    }
+}
+

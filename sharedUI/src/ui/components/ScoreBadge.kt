@@ -26,8 +26,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 
@@ -161,3 +163,34 @@ fun ScoreBadge(
         }
     }
 }
+
+@Preview
+@Composable
+private fun ScoreBadgePreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            ScoreBadge(score = 18, state = ScoreBadgeState.ACTIVE)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ScoreBadgeBustPreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            ScoreBadge(score = 23, state = ScoreBadgeState.ACTIVE)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ScoreBadgeTwentyOnePreview() {
+    BlackjackTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            ScoreBadge(score = 21, state = ScoreBadgeState.ACTIVE)
+        }
+    }
+}
+

@@ -12,7 +12,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.components.ChipUtils
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import androidx.compose.ui.tooling.preview.Preview
 
 private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)
 
@@ -47,5 +48,41 @@ fun ChipSelector(
                     },
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ChipSelectorPreview() {
+    BlackjackTheme {
+        ChipSelector(
+            balance = 1000,
+            selectedAmount = 10,
+            onChipSelected = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ChipSelectorLimitedBalancePreview() {
+    BlackjackTheme {
+        ChipSelector(
+            balance = 20,
+            selectedAmount = 5,
+            onChipSelected = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ChipSelectorSelectedPreview() {
+    BlackjackTheme {
+        ChipSelector(
+            balance = 500,
+            selectedAmount = 100,
+            onChipSelected = {}
+        )
     }
 }
