@@ -183,9 +183,6 @@ fun OverlayCardTable(
         for (i in 0 until tableLayout.handZones.size) {
             val zone = tableLayout.handZones[i]
             val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
-            val isDealer = zone.handIndex == -1
-            val alpha = if (state.status == GameStatus.PLAYING && !isDealer && !isActive) 0.7f else 1f
-            val scale = if (isActive) 1.05f else 1f
 
             HandZoneHud(
                 zone = zone,
@@ -194,8 +191,6 @@ fun OverlayCardTable(
                 coordOffsetY = coordOffsetY,
                 density = density,
                 isActive = isActive,
-                alpha = alpha,
-                scale = scale,
             )
         }
     }
@@ -455,10 +450,9 @@ private fun HandZoneHud(
     coordOffsetY: Float,
     density: Density,
     isActive: Boolean,
-    alpha: Float,
-    scale: Float,
 ) {
     val isDealer = zone.handIndex == -1
+    val isBetting = state.status == GameStatus.BETTING
     // HUD elements (labels, score badges) use a gentler scale than cards so they stay readable in
     // 3-hand mode (zone.scale = 0.52 → hudScale ≈ 0.73 instead of shrinking to 52%).
     val hudScale = (zone.scale * 1.4f).coerceAtMost(1.0f)
@@ -483,24 +477,17 @@ private fun HandZoneHud(
             0f
         }
 
-    // Transparent cluster-sized box positioned over the cluster — used for badge anchoring
+    // Cluster-sized box positioned over the cluster — draws active border and anchors HUD badges.
+    // No graphicsLayer wrapper so child badges can overflow the cluster bounds without being clipped.
     Box(
         modifier =
             Modifier
-                .requiredSize(clusterW * scale, clusterH * scale)
+                .requiredSize(clusterW, clusterH)
                 .offset {
                     IntOffset(
-                        x =
-                            ((zone.clusterTopLeft.x + coordOffsetX) - (clusterW.toPx() * (scale - 1f) / 2f))
-                                .roundToInt(),
-                        y =
-                            ((zone.clusterTopLeft.y + coordOffsetY) - (clusterH.toPx() * (scale - 1f) / 2f))
-                                .roundToInt(),
+                        x = (zone.clusterTopLeft.x + coordOffsetX).roundToInt(),
+                        y = (zone.clusterTopLeft.y + coordOffsetY).roundToInt(),
                     )
-                }.graphicsLayer {
-                    this.alpha = alpha
-                    this.scaleX = scale
-                    this.scaleY = scale
                 }.drawBehind {
                     if (isActive) {
                         drawRoundRect(
@@ -528,29 +515,31 @@ private fun HandZoneHud(
                     state.dealerHand.score
                 }
 
-            Row(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .wrapContentWidth(unbounded = true)
-                        .offset(y = (-24).dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                HudTitleBadge(
-                    title = stringResource(Res.string.dealer),
-                    isDealer = true,
-                    isActive = false,
-                )
-                ScoreBadge(
-                    score = displayScore,
-                    state = ScoreBadgeState.DEALER,
+            if (!isBetting) {
+                Row(
                     modifier =
-                        Modifier.graphicsLayer {
-                            scaleX = hudScale
-                            scaleY = hudScale
-                        }
-                )
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .wrapContentWidth(unbounded = true)
+                            .offset(y = (-24).dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    HudTitleBadge(
+                        title = stringResource(Res.string.dealer),
+                        isDealer = true,
+                        isActive = false,
+                    )
+                    ScoreBadge(
+                        score = displayScore,
+                        state = ScoreBadgeState.DEALER,
+                        modifier =
+                            Modifier.graphicsLayer {
+                                scaleX = hudScale
+                                scaleY = hudScale
+                            }
+                    )
+                }
             }
 
             HandStatusOverlay(
@@ -569,7 +558,7 @@ private fun HandZoneHud(
             val multiHand = state.playerHands.size > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
 
-            if (multiHand) {
+            if (multiHand && !isBetting) {
                 HudTitleBadge(
                     title = stringResource(Res.string.hand_number, handIndex + 1),
                     isDealer = false,
@@ -581,18 +570,20 @@ private fun HandZoneHud(
                 )
             }
 
-            ScoreBadge(
-                score = hand.score,
-                state = badgeState,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .offset(y = 20.dp * hudScale)
-                        .graphicsLayer {
-                            scaleX = hudScale
-                            scaleY = hudScale
-                        }
-            )
+            if (!isBetting) {
+                ScoreBadge(
+                    score = hand.score,
+                    state = badgeState,
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .offset(y = 20.dp * hudScale)
+                            .graphicsLayer {
+                                scaleX = hudScale
+                                scaleY = hudScale
+                            }
+                )
+            }
 
             HandOutcomeBadge(
                 result = result,
