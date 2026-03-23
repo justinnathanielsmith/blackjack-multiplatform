@@ -258,4 +258,18 @@ class SideBetLogicTest {
             )
         assertNull(result)
     }
+
+    @Test
+    fun testPerfectPairs_DifferentFaceCardsSameValue_NoMatch() {
+        val result =
+            SideBetLogic.evaluatePerfectPairs(
+                Hand(
+                    kotlinx.collections.immutable.persistentListOf(
+                        card(Rank.KING, Suit.SPADES),
+                        card(Rank.QUEEN, Suit.HEARTS),
+                    )
+                )
+            )
+        assertNull(result, "King and Queen should NOT be a pair despite both having value 10")
+    }
 }

@@ -289,10 +289,17 @@ class BlackjackStateMachine(
                 dealerHand = finalDealerHand,
                 balance = current.balance + balanceUpdate + sideBetUpdate.payoutTotal,
                 sideBetResults = sideBetUpdate.results,
+                lastSideBets = current.sideBets,
+                sideBets = persistentMapOf(),
             )
         if (balanceUpdate > 0) emitEffect(GameEffect.ChipEruption(balanceUpdate))
         sideBetUpdate.results.forEach { (type, result) ->
             if (result.payoutAmount > 0) emitEffect(GameEffect.ChipEruption(result.payoutAmount, type))
+        }
+        current.sideBets.forEach { (type, amount) ->
+            if (sideBetUpdate.results[type] == null) {
+                emitEffect(GameEffect.ChipLoss(amount))
+            }
         }
         if (initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0) {
             emitEffect(GameEffect.PlayWinSound)

@@ -56,15 +56,21 @@ object SideBetLogic {
         val c1 = hand.cards[0]
         val c2 = hand.cards[1]
 
+        if (!isPair(c1, c2)) return null
+
         return when {
-            c1.rank == c2.rank && c1.suit == c2.suit ->
+            c1.suit == c2.suit ->
                 SideBetResult(SideBetType.PERFECT_PAIRS, PERFECT_PAIR_PAYOUT, 0, "Perfect Pair")
-            c1.rank == c2.rank && isSameColor(c1.suit, c2.suit) ->
+            isSameColor(c1.suit, c2.suit) ->
                 SideBetResult(SideBetType.PERFECT_PAIRS, COLORED_PAIR_PAYOUT, 0, "Colored Pair")
-            c1.rank == c2.rank ->
+            else ->
                 SideBetResult(SideBetType.PERFECT_PAIRS, MIXED_PAIR_PAYOUT, 0, "Mixed Pair")
-            else -> null
         }
+    }
+
+    private fun isPair(c1: Card, c2: Card): Boolean {
+        // Must be the same RANK (not just the same value)
+        return c1.rank == c2.rank
     }
 
     fun evaluateTwentyOnePlusThree(

@@ -241,7 +241,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     LaunchedEffect(isTerminal) {
         if (isTerminal) {
             val bet = state.currentBet
-            val sideBets = state.sideBets
+            val sideBets = state.lastSideBets
             val rules = appSettings.gameRules
             val handCount = state.handCount
             delay(if (appSettings.isAutoDealEnabled) 1500L else 2000L)
@@ -758,9 +758,12 @@ private fun BlackjackLayout(
     val density = LocalDensity.current
 
     // Track all cards to detect additions and face-down changes.
-    // derivedStateOf ensures the list identity only changes when card content actually changes,
-    // preventing computeTableLayout from running on unrelated state updates (balance, status, etc.).
-    val allCards by remember { derivedStateOf { state.dealerHand.cards + state.playerHands.flatMap { it.cards } } }
+    // Keyed on dealerHand.cards and playerHands so the list identity only changes when card
+    // content actually changes, preventing computeTableLayout from running on unrelated state
+    // updates (balance, status, etc.).
+    val allCards = remember(state.dealerHand.cards, state.playerHands) {
+        state.dealerHand.cards + state.playerHands.flatMap { it.cards }
+    }
 
     CompositionLocalProvider(LocalShoePosition provides shoePosition) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -825,7 +828,7 @@ data class ChipLossInstance(
 @Composable
 private fun SideBetResultsOverlay(state: GameState) {
     AnimatedVisibility(
-        visible = state.status == GameStatus.PLAYING && state.sideBetResults.isNotEmpty(),
+        visible = state.sideBetResults.isNotEmpty(),
         enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(200)),
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(150)),
         modifier =
