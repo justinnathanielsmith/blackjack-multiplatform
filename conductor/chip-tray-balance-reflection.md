@@ -1,29 +1,30 @@
-# Chip Tray Balance Reflection Plan
+# Chip Tray Balance Reflection & Animation Optimization Plan
 
 ## Objective
-Update the `ChipRack` component so that it visually reflects the physical amount of chips the player has in their balance by breaking down their total balance into specific chip denominations and displaying stacks of chips.
+1. **Chip Rack**: Update the `ChipRack` component so that it visually reflects the physical amount of chips the player has in their balance by breaking down their total balance into specific chip denominations and displaying stacks of chips. *(Already Implemented)*
+2. **Animation Performance**: Improve the performance of chip animations by reusing chips instead of re-instantiating them. Specifically, implement an Object Pool for flying chip animations to reuse chips that are already allocated ("on the board"/in memory) to prevent heavy Garbage Collection overhead and Compose node reallocation.
 
 ## Approach
-1. **Balance Breakdown Algorithm**:
-   - Implement a greedy algorithm `breakdownBalance(balance: Int, chipValues: List<Int>)` that returns a `Map<Int, Int>` representing the quantity of each chip denomination.
-   - Example: `$137 = 1x$100, 1x$25, 1x$10, 0x$5, 2x$1`.
 
-2. **Visual Stacking**:
-   - Inside `ChipRack`, compute the breakdown whenever `balance` changes.
-   - For each chip denomination in the tray, determine its `count` from the breakdown.
-   - If `count > 0`, render a stack of `BetChip`s (up to a visual maximum, e.g., 5 chips) by layering them in a `Box` with a negative Y-axis `offset` (e.g., `-4.dp` per chip).
-   - The top-most chip in the stack should handle the interaction (`DragTarget` and `onClick`). The underlying chips in the stack can have interactions disabled.
+### Phase 1: Object Pooling for Flying Chips
+1. **State Class Modification (`FlyingChipEffect.kt` / `BettingPhaseScreen.kt`)**:
+   - Change `FlyingChip` from an immutable `data class` to a state-holder class `FlyingChipState` (or similar) with `MutableState` properties for `isActive`, `startOffset`, `targetOffset`, `amount`, `color`, and `textColor`.
+2. **Pool Initialization**:
+   - In `BettingPhaseScreen`, replace `mutableStateListOf<FlyingChip>()` with a pre-allocated pool of chips: `val flyingChipPool = remember { List(15) { FlyingChipState(it.toLong()) } }`.
+3. **Reusing Chips**:
+   - In `launchChip()`, instead of instantiating and adding a new chip to a list, find the first inactive chip in the pool (`flyingChipPool.firstOrNull { !it.isActive }`).
+   - Update its properties (`startOffset`, `amount`, etc.) and set `isActive = true`.
+4. **Animation Rendering**:
+   - Iterate over the pool: `flyingChipPool.forEach { chip -> if (chip.isActive) { ... } }`.
+   - On animation end, simply set `chip.isActive = false` instead of removing it from a list.
 
-3. **Empty Slots (Zero Count)**:
-   - If `count == 0`, render a single "ghosted" `BetChip` (e.g., with `alpha = 0.3f` or `0.5f`) to represent an empty slot.
-   - Players can still interact with this empty slot (click or drag) if `balance >= value` (i.e., making change is permitted), but it visually conveys that they don't possess that specific chip.
-
-4. **Layout Adjustments**:
-   - Ensure the `ChipRack`'s inner `Box` or `Row` has sufficient vertical padding or height to accommodate the upward Y-offset of the chip stacks without clipping.
+### Phase 2: Optimizing Particle Effects (Optional/Secondary)
+- If particle effects (`ChipLossEffect`, `ChipEruptionEffect`) are causing jank, ensure they use efficient list operations or similar pooling techniques (they currently use `removeAll`, which is O(N), but pre-allocating an array of reusable particles can further eliminate allocations).
 
 ## Files to Modify
-- `sharedUI/src/ui/components/ChipRack.kt`: Add the breakdown logic, stacking loop, ghosting modifier, and adjust padding/layout to prevent clipping.
+- `sharedUI/src/ui/screens/BettingPhaseScreen.kt`: Replace dynamic list with a fixed-size pool of reusable chip states.
+- `sharedUI/src/ui/effects/FlyingChipEffect.kt`: Adapt the `FlyingChip` model to support mutable, reusable state.
 
 ## Verification
-- Previews: Check `ChipRackPreview`, `ChipRackLimitedBalancePreview`, and `ChipRackSelectedPreview` to ensure stacks render correctly.
-- Gameplay: Place bets and observe the chip stacks recalculating and updating as the balance changes. Ensure 0-count chips are ghosted but remain clickable if the user has sufficient overall balance.
+- Place rapid bets in the betting phase and ensure the chip tossing animation remains fluid (60/120fps) without stuttering or GC pauses.
+- Verify that chips reset their states correctly when reused from the pool.

@@ -216,6 +216,12 @@ private fun PositionedCardItem(
     val currentY = remember { Animatable(slot.startOffset.y) }
     val currentScale = remember { Animatable(0.5f) }
     val currentRotation = remember { Animatable(if (slot.isDealer) -45f else 45f) }
+    // Shadow elevation and active-hand scale as Animatables whose values are read exclusively
+    // inside the graphicsLayer lambda below — this prevents per-frame recomposition of this
+    // composable while the animations are running.
+    val stackBoostPx = with(density) { (slot.cardIndex * 3).dp.toPx() }
+    val currentShadow = remember { Animatable(with(density) { 5.dp.toPx() } + stackBoostPx) }
+    val animatedScale = remember { Animatable(1f) }
 
     LaunchedEffect(slot.card, slot.centerOffset) {
         delay(slot.animDelay.toLong())
@@ -254,39 +260,32 @@ private fun PositionedCardItem(
             }
             currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
         }
+        // Elevate the card during flight then settle to its resting elevation on landing.
+        launch {
+            val flyingElevPx = with(density) { 16.dp.toPx() }
+            val landedElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
+            currentShadow.animateTo(flyingElevPx, tween(100))
+            delay(slot.animDuration.toLong() + 150L)
+            currentShadow.animateTo(landedElevPx, tween(300))
+        }
     }
 
-    val isFlying = currentX.isRunning || currentY.isRunning
-    val stackBoost = (slot.cardIndex * 3).dp
-    val shadowElevation by androidx.compose.animation.core.animateDpAsState(
-        targetValue =
-            if (isFlying) {
-                16.dp
-            } else if (isActive) {
-                (10.dp + stackBoost)
-            } else {
-                (5.dp + stackBoost)
-            },
-        animationSpec = tween(300),
-        label = "shadowElevation"
-    )
-
+    // Keep shadow and scale in sync when the active-hand state changes between deals.
     val targetScale =
-        if (isActive &&
-            state.playerHands.size > 1 &&
-            !slot.isDealer
-        ) {
+        if (isActive && state.playerHands.size > 1 && !slot.isDealer) {
             1.1f
         } else if (isActive) {
             1.05f
         } else {
             1f
         }
-    val animatedScale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = targetScale,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow),
-        label = "activeScale"
-    )
+    LaunchedEffect(targetScale) {
+        animatedScale.animateTo(targetScale, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow))
+    }
+    LaunchedEffect(isActive, slot.cardIndex, state.playerHands.size) {
+        val targetElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
+        currentShadow.animateTo(targetElevPx, tween(300))
+    }
 
     val scaledHalfW = baseCardW * slot.scale / 2f
     val scaledHalfH = baseCardH * slot.scale / 2f
@@ -303,8 +302,13 @@ private fun PositionedCardItem(
                     translationY = currentY.value - scaledHalfH + coordOffsetY
                     rotationZ = currentRotation.value
                     this.alpha = alpha
-                    this.scaleX = currentScale.value * animatedScale
-                    this.scaleY = currentScale.value * animatedScale
+                    this.scaleX = currentScale.value * animatedScale.value
+                    this.scaleY = currentScale.value * animatedScale.value
+                    // Shadow driven by Animatable — read here so only the layer re-applies
+                    // each frame, not the full composable.
+                    shadowElevation = currentShadow.value
+                    shape = CardShape
+                    clip = false
                 }
     ) {
         if (wasFaceDown) {
@@ -314,7 +318,7 @@ private fun PositionedCardItem(
                 dealerUpcard = state.dealerHand.cards.getOrNull(0),
                 dealerScore = state.dealerHand.score,
                 scale = slot.scale,
-                shadowElevation = shadowElevation,
+                shadowElevation = 0.dp,
             )
         } else {
             PlayingCard(
@@ -323,7 +327,7 @@ private fun PositionedCardItem(
                 scale = slot.scale,
                 isNearMiss = isNearMiss,
                 isDimmed = isDimmed,
-                shadowElevation = shadowElevation,
+                shadowElevation = 0.dp,
                 spotColor = if (isActive) PrimaryGold else Color.Black
             )
         }
@@ -392,7 +396,9 @@ private fun ActiveHandGlow(
     density: Density,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
-    val glowAlpha by infiniteTransition.animateFloat(
+    // State objects stored without `by` delegate — values are read inside the graphicsLayer
+    // lambda so only the layer re-applies each frame, avoiding per-frame recomposition.
+    val glowAlphaState = infiniteTransition.animateFloat(
         initialValue = 0.2f,
         targetValue = 0.5f,
         animationSpec =
@@ -402,7 +408,7 @@ private fun ActiveHandGlow(
             ),
         label = "glowAlpha",
     )
-    val glowScale by infiniteTransition.animateFloat(
+    val glowScaleState = infiniteTransition.animateFloat(
         initialValue = 1.0f,
         targetValue = 1.3f,
         animationSpec =
@@ -425,9 +431,9 @@ private fun ActiveHandGlow(
                 ).graphicsLayer {
                     translationX = zone.clusterCenter.x - glowW / 2f + coordOffsetX
                     translationY = zone.clusterCenter.y - glowH / 2f + coordOffsetY
-                    alpha = glowAlpha
-                    scaleX = glowScale
-                    scaleY = glowScale
+                    alpha = glowAlphaState.value
+                    scaleX = glowScaleState.value
+                    scaleY = glowScaleState.value
                 }.drawWithCache {
                     val radius = size.maxDimension * 0.5f
                     val center = Offset(size.width / 2, size.height / 2)
@@ -461,23 +467,20 @@ private fun HandZoneHud(
     val clusterW = with(density) { zone.clusterSize.width.toDp() }
     val clusterH = with(density) { zone.clusterSize.height.toDp() }
 
-    val borderGlowAlpha =
-        if (isActive) {
-            val t = rememberInfiniteTransition(label = "borderGlowTransition")
-            t
-                .animateFloat(
-                    initialValue = 0.3f,
-                    targetValue = 0.7f,
-                    animationSpec =
-                        infiniteRepeatable(
-                            animation = tween(1200, easing = FastOutSlowInEasing),
-                            repeatMode = RepeatMode.Reverse,
-                        ),
-                    label = "borderGlowAlpha",
-                ).value
-        } else {
-            0f
-        }
+    // Always create the infinite transition unconditionally to satisfy Compose composition rules.
+    // The alpha value is read inside drawBehind so only the draw phase re-executes each frame,
+    // not the full HandZoneHud composable.
+    val borderGlowTransition = rememberInfiniteTransition(label = "borderGlowTransition")
+    val borderGlowAlphaState = borderGlowTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.7f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "borderGlowAlpha",
+    )
 
     // Cluster-sized box positioned over the cluster — draws active border and anchors HUD badges.
     // No graphicsLayer wrapper so child badges can overflow the cluster bounds without being clipped.
@@ -493,7 +496,7 @@ private fun HandZoneHud(
                 }.drawBehind {
                     if (isActive) {
                         drawRoundRect(
-                            color = PrimaryGold.copy(alpha = borderGlowAlpha),
+                            color = PrimaryGold.copy(alpha = borderGlowAlphaState.value),
                             cornerRadius = CornerRadius(12.dp.toPx()),
                             style = Stroke(width = 2.dp.toPx()),
                         )
@@ -653,7 +656,8 @@ private fun HandStatusOverlay(
 @Composable
 private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "indicatorTransition")
-    val bounceOffset by infiniteTransition.animateFloat(
+    // No `by` delegate — value is read inside graphicsLayer to skip layout passes each frame.
+    val bounceOffsetState = infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 10f,
         animationSpec =
@@ -667,8 +671,8 @@ private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
     Box(
         modifier =
             modifier
-                .offset(y = bounceOffset.dp)
                 .graphicsLayer {
+                    translationY = bounceOffsetState.value
                     shadowElevation = 8.dp.toPx()
                     shape = RoundedCornerShape(4.dp)
                     clip = true

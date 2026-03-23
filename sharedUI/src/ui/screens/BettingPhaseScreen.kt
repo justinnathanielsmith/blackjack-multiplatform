@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,7 +47,7 @@ fun BettingPhaseScreen(
     selectedAmount: Int,
     modifier: Modifier = Modifier,
 ) {
-    val flyingChips = remember { mutableStateListOf<FlyingChip>() }
+    val flyingChips = remember { List(15) { FlyingChip(it.toLong()) } }
     val betDisplayOffsets = remember { mutableStateMapOf<Int, Offset>() }
     val sideBetOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
 
@@ -58,20 +57,18 @@ fun BettingPhaseScreen(
         amount: Int
     ) {
         if (startOffset == Offset.Zero) return
-        flyingChips.add(
-            FlyingChip(
-                id = (0..Long.MAX_VALUE).random(),
-                startOffset =
-                    Offset(
-                        x = startOffset.x + (-10..10).random(),
-                        y = startOffset.y + (-10..10).random(),
-                    ),
-                targetOffset = targetOffset,
-                amount = amount,
-                color = ChipUtils.chipColor(amount),
-                textColor = ChipUtils.chipTextColor(amount),
+        val chip = flyingChips.firstOrNull { !it.isActive } ?: return
+
+        chip.startOffset =
+            Offset(
+                x = startOffset.x + (-10..10).random(),
+                y = startOffset.y + (-10..10).random(),
             )
-        )
+        chip.targetOffset = targetOffset
+        chip.amount = amount
+        chip.color = ChipUtils.chipColor(amount)
+        chip.textColor = ChipUtils.chipTextColor(amount)
+        chip.isActive = true
     }
 
     BoxWithConstraints(
@@ -266,12 +263,14 @@ fun BettingPhaseScreen(
 
         // Flying chip animations layer
         flyingChips.forEach { chip ->
-            key(chip.id) {
-                FlyingChipAnimation(
-                    chip = chip,
-                    targetOffset = chip.targetOffset,
-                    onAnimationEnd = { flyingChips.remove(chip) },
-                )
+            if (chip.isActive) {
+                key(chip.id) {
+                    FlyingChipAnimation(
+                        chip = chip,
+                        targetOffset = chip.targetOffset,
+                        onAnimationEnd = { chip.isActive = false },
+                    )
+                }
             }
         }
     }

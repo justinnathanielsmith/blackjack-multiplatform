@@ -757,11 +757,10 @@ private fun BlackjackLayout(
     val shoePosition = remember { mutableStateOf<Offset?>(null) }
     val density = LocalDensity.current
 
-    // Track all cards to detect additions and face-down changes
-    val allCards =
-        remember(state) {
-            state.dealerHand.cards + state.playerHands.flatMap { it.cards }
-        }
+    // Track all cards to detect additions and face-down changes.
+    // derivedStateOf ensures the list identity only changes when card content actually changes,
+    // preventing computeTableLayout from running on unrelated state updates (balance, status, etc.).
+    val allCards by remember { derivedStateOf { state.dealerHand.cards + state.playerHands.flatMap { it.cards } } }
 
     CompositionLocalProvider(LocalShoePosition provides shoePosition) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {

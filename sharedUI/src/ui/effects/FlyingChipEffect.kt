@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -21,14 +25,16 @@ import io.github.smithjustinn.blackjack.ui.components.BetChip
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-data class FlyingChip(
-    val id: Long,
-    val startOffset: Offset,
-    val targetOffset: Offset,
-    val amount: Int,
-    val color: Color,
-    val textColor: Color,
-)
+class FlyingChip(
+    val id: Long
+) {
+    var isActive by mutableStateOf(false)
+    var startOffset by mutableStateOf(Offset.Zero)
+    var targetOffset by mutableStateOf(Offset.Zero)
+    var amount by mutableIntStateOf(0)
+    var color by mutableStateOf(Color.Unspecified)
+    var textColor by mutableStateOf(Color.Unspecified)
+}
 
 @Composable
 fun FlyingChipAnimation(
