@@ -10,3 +10,7 @@
 ## 2024-05-21 - Restoring Focus Indicators for Custom Interactive Components
 **Learning:** In Jetpack Compose, when you build a custom interactive element (like `CasinoButton`, `BetChip`, or `GameActionButton`) using a `Box` or `Canvas` with `.clickable` and pass `indication = null` to completely remove ripple effects, you inadvertently strip away the default visual focus state necessary for keyboard/D-pad navigation. This renders the application inaccessible for keyboard users, as they cannot tell which element is currently focused.
 **Action:** When removing ripples via `indication = null`, track the element's focus state manually using `val isFocused by interactionSource.collectIsFocusedAsState()`. Apply a visual indicator, such as a prominent `Modifier.border()`, when `isFocused` is true. This ensures your components remain accessible without disrupting the desired interaction visual design.
+
+## 2025-03-23 - Hardcoded Colors Break Dialog Themes
+**Learning:** Hardcoding text colors (like `Color.Black`) inside custom Material 3 dialogs (like `AlertDialog`) completely overrides the default `LocalContentColor`, making the text unreadable when the dialog uses a dark background or when the app is in dark mode.
+**Action:** Always rely on default Material theming and `LocalContentColor` (or explicitly set `titleContentColor` and `textContentColor` in the dialog definition) to ensure readability across all themes instead of forcing inline text colors.
