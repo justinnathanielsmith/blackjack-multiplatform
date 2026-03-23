@@ -169,7 +169,11 @@ class BlackjackStateMachine(
         val current = _state.value
         if (current.status != GameStatus.BETTING) return
         if (seatIndex == null) {
-            val refund = current.playerHands.sumOf { it.bet }
+            // Bolt Performance Optimization: Replace .sumOf with indexed loop to avoid Iterator allocation
+            var refund = 0
+            for (i in 0 until current.playerHands.size) {
+                refund += current.playerHands[i].bet
+            }
             _state.value =
                 current.copy(
                     balance = current.balance + refund,
@@ -202,7 +206,11 @@ class BlackjackStateMachine(
             newHands = current.playerHands.addAll(List(delta) { Hand() })
             balanceDelta = 0
         } else {
-            val refund = (count until current.handCount).sumOf { i -> current.playerHands.getOrNull(i)?.bet ?: 0 }
+            // Bolt Performance Optimization: Replace .sumOf with indexed loop to avoid Iterator allocation
+            var refund = 0
+            for (i in count until current.handCount) {
+                refund += current.playerHands.getOrNull(i)?.bet ?: 0
+            }
             newHands = current.playerHands.subList(0, count).toPersistentList()
             balanceDelta = refund
         }
@@ -355,7 +363,11 @@ class BlackjackStateMachine(
                     }.toPersistentList()
             }
 
-        val totalLastBet = normalizedLastBets.sumOf { it }
+        // Bolt Performance Optimization: Replace .sumOf with indexed loop to avoid Iterator allocation
+        var totalLastBet = 0
+        for (i in 0 until normalizedLastBets.size) {
+            totalLastBet += normalizedLastBets[i]
+        }
         val allAffordable = totalLastBet <= newBalance
 
         val finalBets: kotlinx.collections.immutable.PersistentList<Int>

@@ -761,9 +761,10 @@ private fun BlackjackLayout(
     // Keyed on dealerHand.cards and playerHands so the list identity only changes when card
     // content actually changes, preventing computeTableLayout from running on unrelated state
     // updates (balance, status, etc.).
-    val allCards = remember(state.dealerHand.cards, state.playerHands) {
-        state.dealerHand.cards + state.playerHands.flatMap { it.cards }
-    }
+    val allCards =
+        remember(state.dealerHand.cards, state.playerHands) {
+            state.dealerHand.cards + state.playerHands.flatMap { it.cards }
+        }
 
     CompositionLocalProvider(LocalShoePosition provides shoePosition) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {

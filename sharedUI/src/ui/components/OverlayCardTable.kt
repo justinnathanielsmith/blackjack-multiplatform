@@ -398,26 +398,28 @@ private fun ActiveHandGlow(
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
     // State objects stored without `by` delegate — values are read inside the graphicsLayer
     // lambda so only the layer re-applies each frame, avoiding per-frame recomposition.
-    val glowAlphaState = infiniteTransition.animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.5f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "glowAlpha",
-    )
-    val glowScaleState = infiniteTransition.animateFloat(
-        initialValue = 1.0f,
-        targetValue = 1.3f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "glowScale",
-    )
+    val glowAlphaState =
+        infiniteTransition.animateFloat(
+            initialValue = 0.2f,
+            targetValue = 0.5f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "glowAlpha",
+        )
+    val glowScaleState =
+        infiniteTransition.animateFloat(
+            initialValue = 1.0f,
+            targetValue = 1.3f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "glowScale",
+        )
 
     val glowW = zone.clusterSize.width * 1.6f
     val glowH = zone.clusterSize.height * 1.6f
@@ -471,16 +473,17 @@ private fun HandZoneHud(
     // The alpha value is read inside drawBehind so only the draw phase re-executes each frame,
     // not the full HandZoneHud composable.
     val borderGlowTransition = rememberInfiniteTransition(label = "borderGlowTransition")
-    val borderGlowAlphaState = borderGlowTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "borderGlowAlpha",
-    )
+    val borderGlowAlphaState =
+        borderGlowTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.7f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "borderGlowAlpha",
+        )
 
     // Cluster-sized box positioned over the cluster — draws active border and anchors HUD badges.
     // No graphicsLayer wrapper so child badges can overflow the cluster bounds without being clipped.
@@ -657,16 +660,17 @@ private fun HandStatusOverlay(
 private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "indicatorTransition")
     // No `by` delegate — value is read inside graphicsLayer to skip layout passes each frame.
-    val bounceOffsetState = infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 10f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(800, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "bounceOffset",
-    )
+    val bounceOffsetState =
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 10f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(800, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "bounceOffset",
+        )
 
     Box(
         modifier =

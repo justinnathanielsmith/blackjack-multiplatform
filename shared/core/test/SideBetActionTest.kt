@@ -11,12 +11,13 @@ class SideBetActionTest {
     @Test
     fun testPlaceSideBet_updatesState() =
         runTest {
-            val sm = testMachine(
-                GameState(
-                    status = GameStatus.BETTING,
-                    balance = 1000,
+            val sm =
+                testMachine(
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                    )
                 )
-            )
 
             sm.dispatch(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, 50))
             advanceUntilIdle()
@@ -29,13 +30,14 @@ class SideBetActionTest {
     @Test
     fun testResetSideBets_updatesState() =
         runTest {
-            val sm = testMachine(
-                GameState(
-                    status = GameStatus.BETTING,
-                    balance = 950,
-                    sideBets = kotlinx.collections.immutable.persistentMapOf(SideBetType.PERFECT_PAIRS to 50)
+            val sm =
+                testMachine(
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 950,
+                        sideBets = kotlinx.collections.immutable.persistentMapOf(SideBetType.PERFECT_PAIRS to 50)
+                    )
                 )
-            )
 
             sm.dispatch(GameAction.ResetSideBets)
             advanceUntilIdle()
