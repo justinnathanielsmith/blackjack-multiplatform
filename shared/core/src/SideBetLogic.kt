@@ -68,7 +68,10 @@ object SideBetLogic {
         }
     }
 
-    private fun isPair(c1: Card, c2: Card): Boolean {
+    private fun isPair(
+        c1: Card,
+        c2: Card
+    ): Boolean {
         // Must be the same RANK (not just the same value)
         return c1.rank == c2.rank
     }
