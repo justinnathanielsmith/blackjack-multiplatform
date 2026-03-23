@@ -164,18 +164,20 @@ fun OverlayCardTable(
             }
         }
 
-        // 2.5 Positioned (landed) chips
-        for (i in 0 until tableLayout.chipSlots.size) {
-            val slot = tableLayout.chipSlots[i]
-            val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
-            androidx.compose.runtime.key(slot.handIndex) {
-                PositionedChipItem(
-                    slot = slot,
-                    coordOffsetX = coordOffsetX,
-                    coordOffsetY = coordOffsetY,
-                    density = density,
-                    isActive = isActive,
-                )
+        // 2.5 Positioned (landed) chips — only after cards are dealt
+        if (state.status != GameStatus.BETTING) {
+            for (i in 0 until tableLayout.chipSlots.size) {
+                val slot = tableLayout.chipSlots[i]
+                val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
+                androidx.compose.runtime.key(slot.handIndex) {
+                    PositionedChipItem(
+                        slot = slot,
+                        coordOffsetX = coordOffsetX,
+                        coordOffsetY = coordOffsetY,
+                        density = density,
+                        isActive = isActive,
+                    )
+                }
             }
         }
 
