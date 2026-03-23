@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -39,6 +40,7 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.close
 import sharedui.generated.resources.settings_das
 import sharedui.generated.resources.settings_decks
 import sharedui.generated.resources.settings_game_rules
@@ -57,6 +59,8 @@ fun SettingsOverlay(
     onResetBalance: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var showResetConfirmation by remember { mutableStateOf(false) }
+
     BaseOverlay(
         title = stringResource(Res.string.settings_title),
         onDismiss = onDismiss
@@ -71,7 +75,7 @@ fun SettingsOverlay(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = onResetBalance,
+            onClick = { showResetConfirmation = true },
             modifier = Modifier.fillMaxWidth(),
             colors =
                 ButtonDefaults.buttonColors(
@@ -167,6 +171,53 @@ fun SettingsOverlay(
             style = MaterialTheme.typography.bodySmall,
             color = Color.White.copy(alpha = 0.4f)
         )
+
+        if (showResetConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showResetConfirmation = false },
+                title = {
+                    Text(
+                        text = stringResource(Res.string.settings_reset_balance).uppercase(),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Are you sure you want to reset your balance? This action cannot be undone."
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showResetConfirmation = false
+                            onResetBalance()
+                        },
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF8B0000),
+                                contentColor = Color.White
+                            )
+                    ) {
+                        Text(stringResource(Res.string.settings_reset_balance).uppercase())
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showResetConfirmation = false },
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = PrimaryGold,
+                                contentColor = Color.Black
+                            )
+                    ) {
+                        Text(stringResource(Res.string.close).uppercase())
+                    }
+                },
+                containerColor = GlassDark,
+                titleContentColor = PrimaryGold,
+                textContentColor = Color.White.copy(alpha = 0.8f)
+            )
+        }
     }
 }
 
