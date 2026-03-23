@@ -49,7 +49,11 @@ class LogicImprovementsTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        playerHands = persistentListOf(Hand(bet = 0))
+                    )
                 )
             sm.effects.test {
                 sm.dispatch(GameAction.SelectHandCount(4))

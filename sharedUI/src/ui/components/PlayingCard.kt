@@ -465,9 +465,10 @@ fun PlayingCard(
                     }
                     if (isDimmed) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.3f))
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.3f))
                         )
                     }
                 }

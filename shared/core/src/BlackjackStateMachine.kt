@@ -339,7 +339,13 @@ class BlackjackStateMachine(
             if (previousBets.size >= handCount) {
                 previousBets.subList(0, handCount).toPersistentList()
             } else {
-                previousBets.toMutableList().apply { repeat(handCount - previousBets.size) { add(0) } }.toPersistentList()
+                previousBets
+                    .toMutableList()
+                    .apply {
+                        repeat(
+                            handCount - previousBets.size
+                        ) { add(0) }
+                    }.toPersistentList()
             }
 
         val totalLastBet = normalizedLastBets.sumOf { it }
@@ -379,9 +385,10 @@ class BlackjackStateMachine(
                 balance = postSideBetBalance,
                 sideBets = finalSideBets,
                 lastSideBets = lastSideBets,
-                playerHands = List(handCount) { i ->
-                    Hand(bet = finalBets[i], lastBet = normalizedLastBets[i])
-                }.toPersistentList(),
+                playerHands =
+                    List(handCount) { i ->
+                        Hand(bet = finalBets[i], lastBet = normalizedLastBets[i])
+                    }.toPersistentList(),
                 activeHandIndex = 0,
                 handCount = handCount,
                 rules = rules,

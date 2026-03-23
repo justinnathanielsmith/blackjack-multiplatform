@@ -29,9 +29,21 @@ class PerSeatBettingTest {
             sm.dispatch(GameAction.PlaceBet(100, seatIndex = 0))
             advanceUntilIdle()
             assertEquals(900, sm.state.value.balance)
-            assertEquals(100, sm.state.value.playerHands[0].bet)
-            assertEquals(0, sm.state.value.playerHands[1].bet)
-            assertEquals(0, sm.state.value.playerHands[2].bet)
+            assertEquals(
+                100,
+                sm.state.value.playerHands[0]
+                    .bet
+            )
+            assertEquals(
+                0,
+                sm.state.value.playerHands[1]
+                    .bet
+            )
+            assertEquals(
+                0,
+                sm.state.value.playerHands[2]
+                    .bet
+            )
         }
 
     @Test
@@ -49,8 +61,16 @@ class PerSeatBettingTest {
             sm.dispatch(GameAction.PlaceBet(75, seatIndex = 1))
             advanceUntilIdle()
             assertEquals(925, sm.state.value.balance)
-            assertEquals(50, sm.state.value.playerHands[0].bet)
-            assertEquals(75, sm.state.value.playerHands[1].bet)
+            assertEquals(
+                50,
+                sm.state.value.playerHands[0]
+                    .bet
+            )
+            assertEquals(
+                75,
+                sm.state.value.playerHands[1]
+                    .bet
+            )
         }
 
     @Test
@@ -113,8 +133,16 @@ class PerSeatBettingTest {
             sm.dispatch(GameAction.ResetSeatBet(seatIndex = 1))
             advanceUntilIdle()
             assertEquals(900, sm.state.value.balance)
-            assertEquals(100, sm.state.value.playerHands[0].bet) // untouched
-            assertEquals(0, sm.state.value.playerHands[1].bet)
+            assertEquals(
+                100,
+                sm.state.value.playerHands[0]
+                    .bet
+            ) // untouched
+            assertEquals(
+                0,
+                sm.state.value.playerHands[1]
+                    .bet
+            )
         }
 
     @Test
@@ -132,7 +160,11 @@ class PerSeatBettingTest {
             sm.dispatch(GameAction.ResetSeatBet(seatIndex = 2))
             advanceUntilIdle()
             assertEquals(900, sm.state.value.balance)
-            assertEquals(100, sm.state.value.playerHands[0].bet)
+            assertEquals(
+                100,
+                sm.state.value.playerHands[0]
+                    .bet
+            )
         }
 
     // ── ResetBet (all seats) ──────────────────────────────────────────────────
@@ -178,9 +210,21 @@ class PerSeatBettingTest {
             assertEquals(900, sm.state.value.balance) // unchanged
             assertEquals(3, sm.state.value.handCount)
             assertEquals(3, sm.state.value.playerHands.size)
-            assertEquals(100, sm.state.value.playerHands[0].bet)
-            assertEquals(0, sm.state.value.playerHands[1].bet)
-            assertEquals(0, sm.state.value.playerHands[2].bet)
+            assertEquals(
+                100,
+                sm.state.value.playerHands[0]
+                    .bet
+            )
+            assertEquals(
+                0,
+                sm.state.value.playerHands[1]
+                    .bet
+            )
+            assertEquals(
+                0,
+                sm.state.value.playerHands[2]
+                    .bet
+            )
         }
 
     @Test
@@ -200,8 +244,16 @@ class PerSeatBettingTest {
             assertEquals(750, sm.state.value.balance) // refunded seat 2's $100
             assertEquals(2, sm.state.value.handCount)
             assertEquals(2, sm.state.value.playerHands.size)
-            assertEquals(100, sm.state.value.playerHands[0].bet)
-            assertEquals(150, sm.state.value.playerHands[1].bet)
+            assertEquals(
+                100,
+                sm.state.value.playerHands[0]
+                    .bet
+            )
+            assertEquals(
+                150,
+                sm.state.value.playerHands[1]
+                    .bet
+            )
         }
 
     @Test

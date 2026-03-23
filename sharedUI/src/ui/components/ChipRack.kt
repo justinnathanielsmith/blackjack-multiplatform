@@ -5,13 +5,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -24,6 +27,22 @@ import io.github.smithjustinn.blackjack.utils.DragTarget
 
 private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)
 
+private fun breakdownBalance(
+    balance: Int,
+    chipValues: List<Int>
+): Map<Int, Int> {
+    var remaining = balance
+    val breakdown = mutableMapOf<Int, Int>()
+    for (value in chipValues.sortedDescending()) {
+        val count = remaining / value
+        if (count > 0) {
+            breakdown[value] = count
+        }
+        remaining %= value
+    }
+    return breakdown
+}
+
 @Composable
 fun ChipRack(
     balance: Int,
@@ -31,6 +50,8 @@ fun ChipRack(
     onChipSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val breakdown = remember(balance) { breakdownBalance(balance, CHIP_VALUES) }
+
     // Outer wooden tray frame
     Box(
         modifier =
@@ -70,27 +91,64 @@ fun ChipRack(
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Bottom
             ) {
                 CHIP_VALUES.forEach { value ->
                     val enabled = balance >= value
-                    DragTarget(
-                        item = value,
-                        enabled = enabled,
-                        modifier = Modifier.clip(CircleShape)
+                    val count = breakdown[value] ?: 0
+                    val displayCount = if (count == 0) 1 else minOf(count, 5)
+
+                    Box(
+                        modifier = Modifier.height(72.dp),
+                        contentAlignment = Alignment.BottomCenter
                     ) {
-                        BetChip(
-                            amount = value,
-                            chipColor = ChipUtils.chipColor(value),
-                            textColor = ChipUtils.chipTextColor(value),
-                            isActive = (value == selectedAmount),
-                            onClick = {
-                                if (enabled) {
-                                    onChipSelected(value)
+                        for (i in 0 until displayCount) {
+                            val isTopChip = (i == displayCount - 1)
+                            val isGhost = (count == 0)
+
+                            val chipModifier =
+                                Modifier
+                                    .padding(bottom = (i * 4).dp)
+                                    .let { if (isGhost) it.alpha(0.3f) else it }
+                                    .let {
+                                        if (isTopChip) {
+                                            it.clip(CircleShape)
+                                        } else {
+                                            it
+                                        }
+                                    }
+
+                            if (isTopChip) {
+                                DragTarget(
+                                    item = value,
+                                    enabled = enabled,
+                                    modifier = chipModifier
+                                ) {
+                                    BetChip(
+                                        amount = value,
+                                        chipColor = ChipUtils.chipColor(value),
+                                        textColor = ChipUtils.chipTextColor(value),
+                                        isActive = (value == selectedAmount),
+                                        onClick = {
+                                            if (enabled) {
+                                                onChipSelected(value)
+                                            }
+                                        },
+                                        enabled = enabled,
+                                    )
                                 }
-                            },
-                            enabled = enabled,
-                        )
+                            } else {
+                                BetChip(
+                                    amount = value,
+                                    chipColor = ChipUtils.chipColor(value),
+                                    textColor = ChipUtils.chipTextColor(value),
+                                    isActive = false,
+                                    onClick = null,
+                                    enabled = enabled,
+                                    modifier = chipModifier
+                                )
+                            }
+                        }
                     }
                 }
             }

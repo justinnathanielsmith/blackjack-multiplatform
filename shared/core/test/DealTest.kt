@@ -19,7 +19,11 @@ class DealTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 100)))
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        playerHands = persistentListOf(Hand(bet = 100))
+                    )
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -31,7 +35,11 @@ class DealTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 1000, playerHands = persistentListOf(Hand(bet = 0)))
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        playerHands = persistentListOf(Hand(bet = 0))
+                    )
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
