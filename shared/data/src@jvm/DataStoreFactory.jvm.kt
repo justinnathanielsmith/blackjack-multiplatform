@@ -13,11 +13,9 @@ private val dataStoreInstance: DataStore<Preferences> by lazy {
     try {
         val perms = PosixFilePermissions.fromString("rwx------")
         val attr = PosixFilePermissions.asFileAttribute(perms)
-        try {
-            Files.createDirectories(dirPath, attr)
-        } catch (e: java.nio.file.FileAlreadyExistsException) {
-            // Directory already exists, proceed
-        }
+        Files.createDirectories(dirPath, attr)
+    } catch (e: java.nio.file.FileAlreadyExistsException) {
+        // Directory already exists, proceed
     } catch (e: UnsupportedOperationException) {
         // Fallback for non-POSIX filesystems like Windows
         val dir = dirPath.toFile()
@@ -37,11 +35,9 @@ private val dataStoreInstance: DataStore<Preferences> by lazy {
             try {
                 val filePerms = PosixFilePermissions.fromString("rw-------")
                 val fileAttr = PosixFilePermissions.asFileAttribute(filePerms)
-                try {
-                    Files.createFile(file, fileAttr)
-                } catch (e: java.nio.file.FileAlreadyExistsException) {
-                    // File already exists, proceed
-                }
+                Files.createFile(file, fileAttr)
+            } catch (e: java.nio.file.FileAlreadyExistsException) {
+                // File already exists, proceed
             } catch (e: UnsupportedOperationException) {
                 // Fallback for non-POSIX filesystems
                 val fileObj = file.toFile()
