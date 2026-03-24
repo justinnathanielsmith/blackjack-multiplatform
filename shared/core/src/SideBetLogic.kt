@@ -109,21 +109,52 @@ object SideBetLogic {
     private fun isSuitedTriple(cards: List<Card>): Boolean = isThreeOfAKind(cards) && isFlush(cards)
 
     private fun isFlush(cards: List<Card>): Boolean {
-        return cards.all { it.suit == cards[0].suit }
+        if (cards.isEmpty()) return false
+        val firstSuit = cards[0].suit
+        for (i in 1 until cards.size) {
+            if (cards[i].suit != firstSuit) return false
+        }
+        return true
     }
 
     private fun isThreeOfAKind(cards: List<Card>): Boolean {
-        return cards.all { it.rank == cards[0].rank }
+        if (cards.isEmpty()) return false
+        val firstRank = cards[0].rank
+        for (i in 1 until cards.size) {
+            if (cards[i].rank != firstRank) return false
+        }
+        return true
     }
 
     private fun isStraight(cards: List<Card>): Boolean {
-        val sortedRanks = cards.map { it.rank.ordinal }.sorted()
+        if (cards.size != 3) return false
+        var r0 = cards[0].rank.ordinal
+        var r1 = cards[1].rank.ordinal
+        var r2 = cards[2].rank.ordinal
+
+        // Manual sort network for 3 elements
+        if (r0 > r1) {
+            val temp = r0
+            r0 = r1
+            r1 = temp
+        }
+        if (r1 > r2) {
+            val temp = r1
+            r1 = r2
+            r2 = temp
+        }
+        if (r0 > r1) {
+            val temp = r0
+            r0 = r1
+            r1 = temp
+        }
+
         // Standard straight.
-        if (sortedRanks[1] == sortedRanks[0] + 1 && sortedRanks[2] == sortedRanks[1] + 1) return true
+        if (r1 == r0 + 1 && r2 == r1 + 1) return true
 
         // Ace-low straight (A, 2, 3).
         // Rank ordinal: ACE is last (12). TWO is 0. THREE is 1.
-        if (sortedRanks == listOf(Rank.TWO.ordinal, Rank.THREE.ordinal, Rank.ACE.ordinal)) return true
+        if (r0 == Rank.TWO.ordinal && r1 == Rank.THREE.ordinal && r2 == Rank.ACE.ordinal) return true
 
         return false
     }

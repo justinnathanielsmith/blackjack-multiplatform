@@ -17,3 +17,7 @@
 ## 2026-03-22 - Optimize Iterator Allocations on Summation
 **Learning:** Using collection extensions like `.sum()` or `.sumOf()` on `PersistentList`, `PersistentMap`, or within tight Compose UI code creates intermediate `Iterator` objects and closures, causing unnecessary main-thread GC pressure.
 **Action:** Replace `.sum()` and `.sumOf()` with manual `for` loops (e.g., `for (i in 0 until list.size)` or accumulating Map entries) to keep performance allocations strictly O(1).
+
+## 2026-03-22 - Manual Sorting Networks for Small Collections
+**Learning:** Using chained collection extensions like `.map { }.sorted()` to evaluate small, fixed-size hands (like 3 cards in side bets) creates multiple intermediate `ArrayList` and `Iterator` allocations, resulting in significant GC pressure when invoked repeatedly during high-frequency game logic (e.g. dealing/resolving multi-hand side bets).
+**Action:** Replace dynamic sorting and mapping of small collections (e.g., exactly 3 cards) with a manual sorting network using primitive variable extraction and inline comparisons to achieve true O(1) allocation overhead.
