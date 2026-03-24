@@ -21,3 +21,7 @@
 ## 2026-03-22 - Manual Sorting Networks for Small Collections
 **Learning:** Using chained collection extensions like `.map { }.sorted()` to evaluate small, fixed-size hands (like 3 cards in side bets) creates multiple intermediate `ArrayList` and `Iterator` allocations, resulting in significant GC pressure when invoked repeatedly during high-frequency game logic (e.g. dealing/resolving multi-hand side bets).
 **Action:** Replace dynamic sorting and mapping of small collections (e.g., exactly 3 cards) with a manual sorting network using primitive variable extraction and inline comparisons to achieve true O(1) allocation overhead.
+
+## 2026-03-24 - Allocation-Free Sorting for Small Fixed-Size Lists
+**Learning:** For small, fixed-size collections (like the 3-card hands in side bet logic), using generic `map` and `sorted` operations allocates temporary list objects and boxes primitive values.
+**Action:** Implement a manual sorting network using primitive variables to perform sorting with zero allocations.
