@@ -21,8 +21,7 @@ private val dataStoreInstance: DataStore<Preferences> by lazy {
     } catch (e: UnsupportedOperationException) {
         // Fallback for non-POSIX filesystems like Windows
         val dir = dirPath.toFile()
-        if (!dir.exists()) {
-            dir.mkdirs()
+        if (dir.mkdirs()) {
             dir.setReadable(false, false)
             dir.setWritable(false, false)
             dir.setExecutable(false, false)
@@ -46,8 +45,7 @@ private val dataStoreInstance: DataStore<Preferences> by lazy {
             } catch (e: UnsupportedOperationException) {
                 // Fallback for non-POSIX filesystems
                 val fileObj = file.toFile()
-                if (!fileObj.exists()) {
-                    fileObj.createNewFile()
+                if (fileObj.createNewFile()) {
                     fileObj.setReadable(false, false)
                     fileObj.setWritable(false, false)
                     fileObj.setExecutable(false, false)
