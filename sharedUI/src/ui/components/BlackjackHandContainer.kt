@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.NeutralGray
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
@@ -54,7 +55,7 @@ internal fun HandOutcomeBadge(
         when (result) {
             HandResult.WIN -> PrimaryGold
             HandResult.LOSS -> TacticalRed
-            HandResult.PUSH -> Color(0xFF555555) // TODO: Define NeutralGray in theme
+            HandResult.PUSH -> NeutralGray
             HandResult.NONE -> Color.Transparent
         }
     val contentColor =

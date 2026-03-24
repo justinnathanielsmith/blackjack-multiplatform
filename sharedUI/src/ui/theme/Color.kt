@@ -15,6 +15,7 @@ val GlassLight = Color(0x1AFFFFFF)
 // Legacy / Support Colors
 val DeepFeltGreen = Color(0xFF004D26)
 val DeepFeltGreenDark = Color(0xFF001A0D)
+val NeutralGray = Color(0xFF555555)
 val TacticalRed = Color(0xFFBB152C)
 val PokerRed = Color(0xFFD32F2F)
 val OakMedium = Color(0xFF4E2C1C)
