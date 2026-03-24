@@ -14,3 +14,7 @@
 ## 2025-03-23 - Hardcoded Colors Break Dialog Themes
 **Learning:** Hardcoding text colors (like `Color.Black`) inside custom Material 3 dialogs (like `AlertDialog`) completely overrides the default `LocalContentColor`, making the text unreadable when the dialog uses a dark background or when the app is in dark mode.
 **Action:** Always rely on default Material theming and `LocalContentColor` (or explicitly set `titleContentColor` and `textContentColor` in the dialog definition) to ensure readability across all themes instead of forcing inline text colors.
+
+## 2025-03-24 - Screen Reader Announcements for Dynamic UI Overlays
+**Learning:** When dynamic UI overlays (like `GameStatusMessage`) appear with important game state changes (e.g., win/loss, net payout), screen readers do not automatically read the contents unless explicitly instructed. This leaves visually impaired users unaware of game outcomes until they manually explore the screen.
+**Action:** Use `Modifier.semantics { liveRegion = LiveRegionMode.Polite }` combined with an explicit `contentDescription` on the top-level container of dynamic overlays to ensure screen readers automatically announce crucial status updates when they appear or change.

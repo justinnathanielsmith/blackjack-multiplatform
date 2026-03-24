@@ -30,6 +30,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -143,10 +147,36 @@ fun GameStatusMessage(
             else -> PrimaryGold.copy(alpha = 0.8f)
         }
 
+    val isTerminal =
+        status == GameStatus.PLAYER_WON ||
+            status == GameStatus.DEALER_WON ||
+            status == GameStatus.PUSH
+
+    val netLabel: String? =
+        if (isTerminal && netPayout != null) {
+            when {
+                netPayout > 0 -> stringResource(Res.string.net_result_won, netPayout)
+                netPayout < 0 -> stringResource(Res.string.net_result_lost, -netPayout)
+                else -> stringResource(Res.string.net_result_push)
+            }
+        } else {
+            null
+        }
+
+    val screenReaderAnnouncement =
+        if (netLabel != null) {
+            "$statusText. $netLabel"
+        } else {
+            statusText
+        }
+
     Box(
         modifier =
             Modifier
-                .graphicsLayer {
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                    contentDescription = screenReaderAnnouncement
+                }.graphicsLayer {
                     scaleX = pulseScale
                     scaleY = pulseScale
                 }.drawWithCache {
@@ -191,22 +221,6 @@ fun GameStatusMessage(
                 ).padding(horizontal = 48.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
-        val isTerminal =
-            status == GameStatus.PLAYER_WON ||
-                status == GameStatus.DEALER_WON ||
-                status == GameStatus.PUSH
-
-        val netLabel: String? =
-            if (isTerminal && netPayout != null) {
-                when {
-                    netPayout > 0 -> stringResource(Res.string.net_result_won, netPayout)
-                    netPayout < 0 -> stringResource(Res.string.net_result_lost, -netPayout)
-                    else -> stringResource(Res.string.net_result_push)
-                }
-            } else {
-                null
-            }
-
         val netLabelColor =
             when {
                 netPayout != null && netPayout > 0 -> PrimaryGold
