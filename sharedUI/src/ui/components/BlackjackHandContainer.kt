@@ -22,6 +22,10 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,6 +87,13 @@ internal fun HandOutcomeBadge(
             else -> null
         }
 
+    val screenReaderAnnouncement =
+        if (payoutLabel != null) {
+            "$badgeText. $payoutLabel"
+        } else {
+            badgeText
+        }
+
     AnimatedVisibility(
         visible = result != HandResult.NONE,
         enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 400f)) + fadeIn(tween(200)),
@@ -92,7 +103,10 @@ internal fun HandOutcomeBadge(
         Box(
             modifier =
                 Modifier
-                    .drawWithCache {
+                    .semantics {
+                        liveRegion = LiveRegionMode.Polite
+                        contentDescription = screenReaderAnnouncement
+                    }.drawWithCache {
                         val glowBrush =
                             Brush.radialGradient(
                                 colors = listOf(containerColor.copy(alpha = 0.4f), Color.Transparent),
