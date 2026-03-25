@@ -18,3 +18,7 @@
 ## 2025-03-24 - Screen Reader Announcements for Dynamic UI Overlays
 **Learning:** When dynamic UI overlays (like `GameStatusMessage`) appear with important game state changes (e.g., win/loss, net payout), screen readers do not automatically read the contents unless explicitly instructed. This leaves visually impaired users unaware of game outcomes until they manually explore the screen.
 **Action:** Use `Modifier.semantics { liveRegion = LiveRegionMode.Polite }` combined with an explicit `contentDescription` on the top-level container of dynamic overlays to ensure screen readers automatically announce crucial status updates when they appear or change.
+
+## 2025-03-24 - Screen Reader Announcements for Individual Component Outcomes
+**Learning:** While a top-level `GameStatusMessage` can announce overall game state changes, individual components (like `HandOutcomeBadge` for each split hand) that appear dynamically also need their own semantics to announce their specific results. If not explicitly tagged, screen readers may miss these granular, component-specific updates entirely.
+**Action:** Always verify if dynamic UI overlays or badges that contain unique, per-component information (such as individual hand payouts) use `Modifier.semantics { liveRegion = LiveRegionMode.Polite }` along with a computed `contentDescription`, even if there's a broader screen-level status announcement.
