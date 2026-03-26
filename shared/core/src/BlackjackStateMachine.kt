@@ -554,7 +554,11 @@ class BlackjackStateMachine(
         _state.value = state.copy(status = finalStatus, balance = state.balance + totalPayout)
 
         if (totalPayout > 0) emitEffect(GameEffect.ChipEruption(totalPayout))
-        val totalBet = state.playerHands.fold(0) { acc, h -> acc + h.bet }
+        // Bolt Performance Optimization: Replace .fold with indexed loop to avoid Iterator allocation
+        var totalBet = 0
+        for (i in 0 until state.playerHands.size) {
+            totalBet += state.playerHands[i].bet
+        }
         if (totalPayout < totalBet) emitEffect(GameEffect.ChipLoss(totalBet - totalPayout))
 
         when (finalStatus) {
