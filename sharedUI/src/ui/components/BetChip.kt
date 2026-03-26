@@ -10,7 +10,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -83,7 +82,7 @@ fun BetChip(
 
     val chipDescription = stringResource(Res.string.bet_chip_description, displayAmount)
 
-    BoxWithConstraints(
+    Box(
         modifier =
             modifier
                 .graphicsLayer {
@@ -211,16 +210,14 @@ fun BetChip(
         val textStyle = MaterialTheme.typography.labelSmall
         val fontSize = if (isActive) 15.sp else 13.sp
 
-        if (maxWidth >= 32.dp) {
-            Text(
-                text = amountText,
-                color = if (enabled) textColor else textColor.copy(alpha = 0.4f),
-                fontSize = fontSize,
-                fontWeight = FontWeight.Black,
-                style = textStyle.copy(letterSpacing = 0.sp),
-                modifier = Modifier.padding(4.dp)
-            )
-        }
+        Text(
+            text = amountText,
+            color = if (enabled) textColor else textColor.copy(alpha = 0.4f),
+            fontSize = fontSize,
+            fontWeight = FontWeight.Black,
+            style = textStyle.copy(letterSpacing = 0.sp),
+            modifier = Modifier.padding(4.dp)
+        )
 
         // Disable overlay
         if (!enabled) {

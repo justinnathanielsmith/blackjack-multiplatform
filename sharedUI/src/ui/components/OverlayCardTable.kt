@@ -27,9 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -187,11 +185,6 @@ fun OverlayCardTable(
         for (i in 0 until tableLayout.handZones.size) {
             val zone = tableLayout.handZones[i]
             val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
-            // Delay score display until the last card in this zone has visually landed.
-            val scoreDelay =
-                tableLayout.cardSlots
-                    .filter { it.handIndex == zone.handIndex }
-                    .maxOfOrNull { it.animDelay + it.animDuration } ?: 0
 
             HandZoneHud(
                 zone = zone,
@@ -200,7 +193,6 @@ fun OverlayCardTable(
                 coordOffsetY = coordOffsetY,
                 density = density,
                 isActive = isActive,
-                scoreDelay = scoreDelay,
             )
         }
     }
@@ -224,7 +216,6 @@ private fun PositionedCardItem(
     val currentY = remember { Animatable(slot.startOffset.y) }
     val currentScale = remember { Animatable(0.5f) }
     val currentRotation = remember { Animatable(if (slot.isDealer) -45f else 45f) }
-    val currentAlpha = remember { Animatable(0f) }
     // Shadow elevation and active-hand scale as Animatables whose values are read exclusively
     // inside the graphicsLayer lambda below — this prevents per-frame recomposition of this
     // composable while the animations are running.
@@ -232,70 +223,50 @@ private fun PositionedCardItem(
     val currentShadow = remember { Animatable(with(density) { 5.dp.toPx() } + stackBoostPx) }
     val animatedScale = remember { Animatable(1f) }
 
-    // Tracks whether this card's initial fly-in animation has been initiated.
-    // Keyed on slot.card so it resets when a genuinely new card occupies this slot
-    // (e.g. dealer hole-card reveal) but persists across centerOffset / rotationZ changes
-    // caused by the layout recentering after more cards are added.
-    val hasBeenDealt = remember(slot.card) { mutableStateOf(false) }
-
     LaunchedEffect(slot.card, slot.centerOffset) {
-        if (!hasBeenDealt.value) {
-            // First time this card is dealt — run the full fly-in animation.
-            // Set the flag immediately (before the delay) so that if the layout
-            // shifts mid-delay we still take the snap path on restart.
-            hasBeenDealt.value = true
-            delay(slot.animDelay.toLong())
-            currentAlpha.snapTo(1f)
+        delay(slot.animDelay.toLong())
 
-            val zeta = 0.65f
-            val durationSec = slot.animDuration / 1000f
-            val stiffness =
-                if (durationSec > 0) {
-                    val omegaN = 6.9f / (zeta * durationSec)
-                    (omegaN * omegaN).coerceIn(10f, 2000f)
-                } else {
-                    Spring.StiffnessMedium
-                }
+        val zeta = 0.65f
+        val durationSec = slot.animDuration / 1000f
+        val stiffness =
+            if (durationSec > 0) {
+                val omegaN = 6.9f / (zeta * durationSec)
+                (omegaN * omegaN).coerceIn(10f, 2000f)
+            } else {
+                Spring.StiffnessMedium
+            }
 
-            launch {
-                currentX.animateTo(
-                    targetValue = slot.centerOffset.x,
-                    animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
-                )
+        launch {
+            currentX.animateTo(
+                targetValue = slot.centerOffset.x,
+                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
+            )
+        }
+        launch {
+            currentY.animateTo(
+                targetValue = slot.centerOffset.y,
+                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
+            )
+        }
+        launch {
+            currentRotation.animateTo(
+                targetValue = slot.rotationZ,
+                animationSpec = spring(dampingRatio = 0.6f, stiffness = stiffness)
+            )
+        }
+        launch {
+            if (currentScale.value < 1f) {
+                currentScale.animateTo(1.15f, tween(150))
             }
-            launch {
-                currentY.animateTo(
-                    targetValue = slot.centerOffset.y,
-                    animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
-                )
-            }
-            launch {
-                currentRotation.animateTo(
-                    targetValue = slot.rotationZ,
-                    animationSpec = spring(dampingRatio = 0.6f, stiffness = stiffness)
-                )
-            }
-            launch {
-                if (currentScale.value < 1f) {
-                    currentScale.animateTo(1.15f, tween(150))
-                }
-                currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
-            }
-            // Elevate the card during flight then settle to its resting elevation on landing.
-            launch {
-                val flyingElevPx = with(density) { 16.dp.toPx() }
-                val landedElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
-                currentShadow.animateTo(flyingElevPx, tween(100))
-                delay(slot.animDuration.toLong() + 150L)
-                currentShadow.animateTo(landedElevPx, tween(300))
-            }
-        } else {
-            // Card already dealt — the layout recentered because new cards were added.
-            // Snap silently to avoid re-flying from the shoe.
-            currentAlpha.snapTo(1f) // safety: ensure visible if interrupted mid-deal
-            currentX.snapTo(slot.centerOffset.x)
-            currentY.snapTo(slot.centerOffset.y)
-            currentRotation.snapTo(slot.rotationZ)
+            currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
+        }
+        // Elevate the card during flight then settle to its resting elevation on landing.
+        launch {
+            val flyingElevPx = with(density) { 16.dp.toPx() }
+            val landedElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
+            currentShadow.animateTo(flyingElevPx, tween(100))
+            delay(slot.animDuration.toLong() + 150L)
+            currentShadow.animateTo(landedElevPx, tween(300))
         }
     }
 
@@ -330,7 +301,7 @@ private fun PositionedCardItem(
                     translationX = currentX.value - scaledHalfW + coordOffsetX
                     translationY = currentY.value - scaledHalfH + coordOffsetY
                     rotationZ = currentRotation.value
-                    this.alpha = alpha * currentAlpha.value
+                    this.alpha = alpha
                     this.scaleX = currentScale.value * animatedScale.value
                     this.scaleY = currentScale.value * animatedScale.value
                     // Shadow driven by Animatable — read here so only the layer re-applies
@@ -489,7 +460,6 @@ private fun HandZoneHud(
     coordOffsetY: Float,
     density: Density,
     isActive: Boolean,
-    scoreDelay: Int = 0,
 ) {
     val isDealer = zone.handIndex == -1
     val isBetting = state.status == GameStatus.BETTING
@@ -546,17 +516,12 @@ private fun HandZoneHud(
         }
 
         if (isDealer) {
-            val targetScore =
+            val displayScore =
                 if (state.status == GameStatus.PLAYING) {
                     state.dealerHand.visibleScore
                 } else {
                     state.dealerHand.score
                 }
-            var displayScore by remember { mutableStateOf(targetScore) }
-            LaunchedEffect(targetScore) {
-                delay(scoreDelay.toLong())
-                displayScore = targetScore
-            }
 
             if (!isBetting) {
                 Row(
@@ -601,12 +566,6 @@ private fun HandZoneHud(
             val multiHand = state.playerHands.size > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
 
-            var displayedScore by remember { mutableStateOf(hand.score) }
-            LaunchedEffect(hand.score) {
-                delay(scoreDelay.toLong())
-                displayedScore = hand.score
-            }
-
             if (multiHand && !isBetting) {
                 HudTitleBadge(
                     title = stringResource(Res.string.hand_number, handIndex + 1),
@@ -621,7 +580,7 @@ private fun HandZoneHud(
 
             if (!isBetting) {
                 ScoreBadge(
-                    score = displayedScore,
+                    score = hand.score,
                     state = badgeState,
                     modifier =
                         Modifier
