@@ -192,7 +192,11 @@ data class GameState(
 
     val totalBet: Int
         get() {
-            val mainBetsTotal = playerHands.fold(0) { acc, h -> acc + h.bet }
+            // Bolt Performance Optimization: Replace .fold with indexed loop to avoid Iterator allocation
+            var mainBetsTotal = 0
+            for (i in 0 until playerHands.size) {
+                mainBetsTotal += playerHands[i].bet
+            }
 
             // Only count active side bets (before they are settled)
             val sideBetsTotal =
