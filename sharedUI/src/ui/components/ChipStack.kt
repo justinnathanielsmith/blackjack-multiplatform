@@ -8,39 +8,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
-import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
-import io.github.smithjustinn.blackjack.ui.theme.ChipPurple
-import io.github.smithjustinn.blackjack.ui.theme.FeltDark
-import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
-import io.github.smithjustinn.blackjack.ui.theme.PokerRed
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.random.Random
 
 private val DENOMINATIONS = listOf(500, 100, 50, 25, 10, 5, 1)
-
-private fun getChipColor(value: Int): Color =
-    when (value) {
-        500 -> ChipPurple
-        100 -> PokerBlack
-        50 -> PrimaryGold
-        25 -> ChipGreen
-        10 -> ChipBlue
-        5 -> PokerRed
-        1 -> WhiteSoft
-        else -> PokerBlack
-    }
-
-private fun getChipTextColor(value: Int): Color =
-    when (value) {
-        50, 1 -> FeltDark
-        else -> WhiteSoft
-    }
 
 @Composable
 fun ChipStack(
@@ -68,7 +42,7 @@ fun ChipStack(
                 val angle = (index * 137.5f) * (PI / 180f).toFloat() // Golden angle jitter
                 val jitter = 1.0f + (Random.nextFloat() * 1.5f)
                 Offset(
-                    x = (Math.cos(angle.toDouble()).toFloat() * jitter),
+                    x = (cos(angle) * jitter),
                     y = -index * 4.5f // slightly taller stack height per chip
                 )
             }
@@ -83,8 +57,8 @@ fun ChipStack(
 
                 BetChip(
                     amount = if (index == chips.lastIndex) amount else denom,
-                    chipColor = getChipColor(denom),
-                    textColor = getChipTextColor(denom),
+                    chipColor = ChipUtils.chipColor(denom),
+                    textColor = ChipUtils.chipTextColor(denom),
                     isActive = isActive,
                     modifier = Modifier.offset(x = offset.x.dp, y = offset.y.dp)
                 )

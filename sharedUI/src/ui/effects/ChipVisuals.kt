@@ -16,7 +16,7 @@ import kotlin.math.PI
 object ChipVisuals {
     const val STANDARD_RADIUS = 24f
     private val DASH_LENGTH = (STANDARD_RADIUS * 2 * PI / 12).toFloat()
-    private val STANDARD_STROKE =
+    private val STANDARD_STROKE by lazy {
         Stroke(
             width = STANDARD_RADIUS * 0.16f,
             pathEffect =
@@ -25,6 +25,7 @@ object ChipVisuals {
                     0f
                 )
         )
+    }
 
     fun breakdownAmount(
         amount: Int,

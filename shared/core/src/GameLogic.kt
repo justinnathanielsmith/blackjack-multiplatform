@@ -192,7 +192,11 @@ data class GameState(
 
     val totalBet: Int
         get() {
-            val mainBetsTotal = playerHands.fold(0) { acc, h -> acc + h.bet }
+            // Bolt Performance Optimization: Replace .fold with indexed loop to avoid Iterator allocation
+            var mainBetsTotal = 0
+            for (i in 0 until playerHands.size) {
+                mainBetsTotal += playerHands[i].bet
+            }
 
             // Only count active side bets (before they are settled)
             val sideBetsTotal =
@@ -401,10 +405,13 @@ object BlackjackRules {
     ): List<Card> {
         val deckSize = rules.deckCount * CARDS_PER_DECK
         val newDeck = ArrayList<Card>(deckSize)
-        for (i in 1..rules.deckCount) {
-            for (suit in Suit.entries) {
-                for (rank in Rank.entries) {
-                    newDeck.add(Card(rank, suit))
+        val suits = Suit.entries
+        val ranks = Rank.entries
+        for (d in 1..rules.deckCount) {
+            for (i in 0 until suits.size) {
+                val suit = suits[i]
+                for (j in 0 until ranks.size) {
+                    newDeck.add(Card(ranks[j], suit))
                 }
             }
         }

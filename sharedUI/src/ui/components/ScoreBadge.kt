@@ -25,6 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -76,6 +80,14 @@ fun ScoreBadge(
             else -> Color.White.copy(alpha = 0.7f)
         }
 
+    val announcement =
+        when {
+            isBust -> "Bust, score $score"
+            is21 -> "Blackjack! Score 21"
+            state == ScoreBadgeState.DEALER -> "Dealer score $score"
+            else -> "Score $score"
+        }
+
     AnimatedVisibility(
         visible = score > 0,
         enter =
@@ -113,7 +125,10 @@ fun ScoreBadge(
         Box(
             modifier =
                 Modifier
-                    .graphicsLayer {
+                    .semantics {
+                        liveRegion = LiveRegionMode.Polite
+                        contentDescription = announcement
+                    }.graphicsLayer {
                         scaleX = pulseScale.value
                         scaleY = pulseScale.value
                     }.shadow(

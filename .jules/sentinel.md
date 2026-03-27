@@ -11,3 +11,7 @@
 **Vulnerability:** The dataStore instance in JVM was creating directories and files and then immediately altering their permissions with `setReadable` etc. This is a Time-Of-Check to Time-Of-Use (TOCTOU) vulnerability where the file/directory might be accessible by other users on the system for a fraction of a second.
 **Learning:** We can securely use `java.nio.file.Files.createDirectories` and `java.nio.file.Files.createFile` along with atomic `PosixFilePermissions` on POSIX-compliant systems.
 **Prevention:** Always use atomic POSIX file permissions when creating files/directories containing sensitive user data (like user preferences) on the JVM, and include a fallback for non-POSIX systems by catching `UnsupportedOperationException`.
+## 2023-10-27 - [MEDIUM] Fix Command Injection Potential in Audio Playback
+**Vulnerability:** Command Injection Potential / Path Traversal in `sharedUI/src@jvm/services/JvmAudioServiceImpl.kt` via `ProcessBuilder` execution. The `path` parameter derived from a resource map was passed unverified into `ProcessBuilder` which poses a potential Command Injection/Path Traversal risk if the mapping logic or cache is poisoned.
+**Learning:** External commands executed with `ProcessBuilder` can execute arbitrary processes or traverse directories if paths are not carefully validated against a secure base directory.
+**Prevention:** Verify file paths using `file.canonicalPath` and check against an expected, secure base directory (`tempAudioDir.canonicalPath`) before using them in shell commands or native APIs.
