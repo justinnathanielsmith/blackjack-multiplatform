@@ -25,3 +25,7 @@
 ## 2026-03-24 - Allocation-Free Sorting for Small Fixed-Size Lists
 **Learning:** For small, fixed-size collections (like the 3-card hands in side bet logic), using generic `map` and `sorted` operations allocates temporary list objects and boxes primitive values.
 **Action:** Implement a manual sorting network using primitive variables to perform sorting with zero allocations.
+
+## 2026-03-27 - Optimize intermediate allocations in BlackjackScreen
+**Learning:** High-frequency recomposition blocks can trigger repeated allocations if operations like `flatMap` or chained additions (`+`) are used on collections.
+**Action:** Replaced chained higher-order functions with a pre-sized `ArrayList` and `for` loops, which avoids creating intermediate throwaway lists and reduces GC pressure.
