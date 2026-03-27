@@ -224,51 +224,63 @@ private fun ModernActionButton(
     val isGlowing = tension > 0f && enabled
     val pulseDuration = if (isGlowing) (1200 - (tension * 600)).toInt() else 1200
 
+    // Bolt Performance Optimization: State objects held without `by` delegate so their
+    // `.value` reads are deferred to the drawBehind / graphicsLayer lambda (draw phase only).
+    // Using `by` would subscribe the composable to every animation frame tick and cause
+    // O(frames) full recompositions of all 4 ModernActionButton instances during gameplay.
+    // This matches the pattern already used by ActiveHandGlow and HandZoneHud in OverlayCardTable.
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f * tension,
-        targetValue = 0.9f * tension,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(pulseDuration, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-        label = "glowAlpha"
-    )
-    val glowScale by infiniteTransition.animateFloat(
-        initialValue = 1.0f,
-        targetValue = 1.0f + (0.4f * tension),
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(pulseDuration, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-        label = "glowScale"
-    )
+    val glowAlphaState =
+        infiniteTransition.animateFloat(
+            initialValue = 0.4f * tension,
+            targetValue = 0.9f * tension,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(pulseDuration, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+            label = "glowAlpha"
+        )
+    val glowScaleState =
+        infiniteTransition.animateFloat(
+            initialValue = 1.0f,
+            targetValue = 1.0f + (0.4f * tension),
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(pulseDuration, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+            label = "glowScale"
+        )
 
     val glowModifier =
         if (isGlowing) {
             Modifier
                 .drawBehind {
-                    val extraGlow = 8.dp.toPx() * tension * glowScale
+                    // Read .value here (draw phase) — no recomposition triggered.
+                    val gScale = glowScaleState.value
+                    val gAlpha = glowAlphaState.value
+                    val extraGlow = 8.dp.toPx() * tension * gScale
                     val glowSize = Size(this.size.width + extraGlow * 2, this.size.height + extraGlow * 2)
                     val glowTopLeft = Offset(-extraGlow, -extraGlow)
 
                     this.drawRoundRect(
                         brush =
                             Brush.radialGradient(
-                                colors = listOf(contentColor.copy(alpha = glowAlpha), Color.Transparent),
+                                colors = listOf(contentColor.copy(alpha = gAlpha), Color.Transparent),
                                 center = center,
-                                radius = this.size.maxDimension * 0.8f * glowScale
+                                radius = this.size.maxDimension * 0.8f * gScale
                             ),
                         topLeft = glowTopLeft,
                         size = glowSize,
                         cornerRadius = CornerRadius(glowSize.height / 2)
                     )
                 }.graphicsLayer {
+                    // Read .value here (layer phase) — no recomposition triggered.
                     if (tension > 0.8f) {
-                        scaleX = 0.98f + (0.04f * glowScale)
-                        scaleY = 0.98f + (0.04f * glowScale)
+                        val gScale = glowScaleState.value
+                        scaleX = 0.98f + (0.04f * gScale)
+                        scaleY = 0.98f + (0.04f * gScale)
                     }
                     clip = false
                 }
