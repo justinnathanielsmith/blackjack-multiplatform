@@ -20,6 +20,7 @@ import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.random.Random
 
 private val DENOMINATIONS = listOf(500, 100, 50, 25, 10, 5, 1)
@@ -68,7 +69,7 @@ fun ChipStack(
                 val angle = (index * 137.5f) * (PI / 180f).toFloat() // Golden angle jitter
                 val jitter = 1.0f + (Random.nextFloat() * 1.5f)
                 Offset(
-                    x = (Math.cos(angle.toDouble()).toFloat() * jitter),
+                    x = (cos(angle) * jitter),
                     y = -index * 4.5f // slightly taller stack height per chip
                 )
             }
