@@ -43,3 +43,7 @@
 ## 2026-03-27 - Zero-Allocation Helper Functions
 **Learning:** In performance-critical logic (like `evaluateTwentyOnePlusThree` in `SideBetLogic.kt`), wrapping small, fixed sets of domain objects into temporary collections (e.g., `listOf(c1, c2, dealerUpcard)`) just to pass them to helper methods incurs significant GC overhead during continuous or nested evaluations.
 **Action:** Extract explicit variables and rewrite the helper functions to take explicit positional arguments (e.g., `isFlush(c1: Card, c2: Card, c3: Card)`) rather than generically typed collections. This achieves zero-allocation checking for small constant groups.
+
+## 2026-03-27 - O(0) Main-Thread Relayout for Positional Animations
+**Learning:** Using `Modifier.offset { ... }` with animated state values triggers the layout phase on every frame, which, while cheaper than composition, still adds overhead.
+**Action:** Replace `Modifier.offset` with `Modifier.graphicsLayer { translationX = ...; translationY = ... }` for pure positional animations (like flying chips). This bypasses the layout phase entirely, operating strictly during the GPU draw/layer phase for true O(0) main-thread relayout.

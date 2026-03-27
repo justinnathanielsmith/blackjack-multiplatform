@@ -262,7 +262,8 @@ fun BettingPhaseScreen(
         }
 
         // Flying chip animations layer
-        flyingChips.forEach { chip ->
+        for (i in 0 until flyingChips.size) {
+            val chip = flyingChips[i]
             if (chip.isActive) {
                 key(chip.id) {
                     FlyingChipAnimation(

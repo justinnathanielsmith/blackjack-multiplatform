@@ -6,7 +6,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,7 +18,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.components.BetChip
 import kotlinx.coroutines.delay
@@ -86,8 +84,9 @@ fun FlyingChipAnimation(
     Box(
         modifier =
             Modifier
-                .offset { IntOffset(animX.value.toInt(), animY.value.toInt()) }
                 .graphicsLayer {
+                    this.translationX = animX.value
+                    this.translationY = animY.value
                     this.alpha = alpha.value
                     this.scaleX = scaleX.value
                     this.scaleY = scaleY.value

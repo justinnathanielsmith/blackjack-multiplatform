@@ -204,7 +204,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     // Trigger payout animations when results are calculated and it's a win
     LaunchedEffect(state.status, state.playerHands) {
         if (state.status.isTerminal()) {
-            state.playerHands.forEachIndexed { index, _ ->
+            for (index in 0 until state.playerHands.size) {
                 val result = state.handResult(index)
                 if (result == HandResult.WIN) {
                     val bet = state.playerHands.getOrNull(index)?.bet ?: 0
@@ -623,7 +623,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 )
                             }
 
-                            chipEruptions.forEach { instance ->
+                            for (i in 0 until chipEruptions.size) {
+                                val instance = chipEruptions[i]
                                 key(instance.id) {
                                     ChipEruptionEffect(
                                         amount = instance.amount,
@@ -631,13 +632,15 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     )
                                 }
                             }
-                            chipLosses.forEach { instance ->
+                            for (i in 0 until chipLosses.size) {
+                                val instance = chipLosses[i]
                                 key(instance.id) {
                                     ChipLossEffect(amount = instance.amount)
                                 }
                             }
 
-                            activePayouts.forEach { instance ->
+                            for (i in 0 until activePayouts.size) {
+                                val instance = activePayouts[i]
                                 key(instance.id) {
                                     io.github.smithjustinn.blackjack.ui.effects.PayoutEffect(
                                         amount = instance.amount,
