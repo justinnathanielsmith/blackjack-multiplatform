@@ -18,6 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,10 +42,17 @@ fun InsuranceOverlay(
     onInsure: () -> Unit,
     onDecline: () -> Unit,
 ) {
+    val title = stringResource(Res.string.insurance_title)
+    val message = stringResource(Res.string.insurance_message)
+    val announcement = "$title. $message"
+
     Box(
         modifier =
             Modifier
-                .fillMaxSize()
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                    contentDescription = announcement
+                }.fillMaxSize()
                 .background(GlassDark)
                 .windowInsetsPadding(safeDrawingInsets()),
         contentAlignment = Alignment.Center,
