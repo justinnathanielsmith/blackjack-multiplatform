@@ -57,7 +57,26 @@ class JvmAudioServiceImpl(
             val fileName = "$name.m4a"
             val tempFile = File(tempAudioDir, fileName)
 
-            if (!tempFile.exists()) {
+            var shouldWrite = false
+            try {
+                val perms = PosixFilePermissions.fromString("rw-------")
+                val attr = PosixFilePermissions.asFileAttribute(perms)
+                Files.createFile(tempFile.toPath(), attr)
+                shouldWrite = true
+            } catch (e: java.nio.file.FileAlreadyExistsException) {
+                // File already exists, skip writing
+            } catch (e: UnsupportedOperationException) {
+                // Fallback for non-POSIX filesystems
+                if (tempFile.createNewFile()) {
+                    tempFile.setReadable(false, false)
+                    tempFile.setWritable(false, false)
+                    tempFile.setExecutable(false, false)
+                    tempFile.setReadable(true, true)
+                    tempFile.setWritable(true, true)
+                    shouldWrite = true
+                }
+            }
+            if (shouldWrite) {
                 val bytes = Res.readBytes("files/$fileName")
                 withContext(Dispatchers.IO) {
                     FileOutputStream(tempFile).use { it.write(bytes) }
