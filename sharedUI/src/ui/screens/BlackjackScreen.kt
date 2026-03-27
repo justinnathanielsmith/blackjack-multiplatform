@@ -734,17 +734,18 @@ private fun BlackjackGameOverlay(
         }
         // ChipEruption is handled via chipEruptions state list triggered by GameEffect
 
-        val flashAlpha = flashAlphaProvider()
-        if (flashAlpha > 0f) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .drawBehind {
-                            drawRect(flashColorProvider().copy(alpha = flashAlphaProvider()))
-                        },
-            )
-        }
+        // Bolt Performance Optimization: Defer state read to draw phase to prevent O(Frames) recompositions
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        val alpha = flashAlphaProvider()
+                        if (alpha > 0f) {
+                            drawRect(flashColorProvider().copy(alpha = alpha))
+                        }
+                    },
+        )
     }
 }
 

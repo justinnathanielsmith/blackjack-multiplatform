@@ -25,7 +25,11 @@
 ## 2026-03-24 - Allocation-Free Sorting for Small Fixed-Size Lists
 **Learning:** For small, fixed-size collections (like the 3-card hands in side bet logic), using generic `map` and `sorted` operations allocates temporary list objects and boxes primitive values.
 **Action:** Implement a manual sorting network using primitive variables to perform sorting with zero allocations.
-
 ## 2026-03-24 - Avoid Functional Fold in Computed Properties
 **Learning:** Using functional extensions like `fold` on collections inside frequently accessed computed properties (like `GameState.totalBet`) or state machine transitions (like `finalizeGame`) allocates `Iterator` instances, leading to main-thread GC thrashing in Jetpack Compose when state changes rapidly.
 **Action:** Replace `fold` (and similar higher-order functions like `sumOf`) with indexed `for` loops (`for (i in 0 until list.size)`) to eliminate iterator allocations on hot paths.
+
+## 2026-03-26 - Defer State Reads in Compose Animation Loops
+**Learning:** Reading animation state values (like `alphaProvider()`) inside a composable's composition phase triggers O(Frames) recompositions for the entire composable tree during the animation.
+**Action:** Move state reads directly into the draw phase (e.g., inside the `drawBehind` modifier) so that only the layout/draw phase is invalidated, bypassing full composition recomposition and eliminating main-thread jank.
+
