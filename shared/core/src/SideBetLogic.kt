@@ -81,20 +81,29 @@ object SideBetLogic {
         dealerUpcard: Card
     ): SideBetResult? {
         if (playerHand.cards.size < 2) return null
-        val cards = listOf(playerHand.cards[0], playerHand.cards[1], dealerUpcard)
+        // Bolt Performance Optimization: Replace listOf() allocation with explicit vars to avoid List instantiation and GC overhead
+        val c1 = playerHand.cards[0]
+        val c2 = playerHand.cards[1]
+        val c3 = dealerUpcard
 
         return when {
             isSuitedTriple(
-                cards
+                c1,
+                c2,
+                c3
             ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, SUITED_TRIPLE_PAYOUT, 0, "Suited Triple")
             isStraightFlush(
-                cards
+                c1,
+                c2,
+                c3
             ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_FLUSH_PAYOUT, 0, "Straight Flush")
             isThreeOfAKind(
-                cards
+                c1,
+                c2,
+                c3
             ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, THREE_OF_A_KIND_PAYOUT, 0, "Three of a Kind")
-            isStraight(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_PAYOUT, 0, "Straight")
-            isFlush(cards) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, FLUSH_PAYOUT, 0, "Flush")
+            isStraight(c1, c2, c3) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_PAYOUT, 0, "Straight")
+            isFlush(c1, c2, c3) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, FLUSH_PAYOUT, 0, "Flush")
             else -> null
         }
     }
@@ -106,31 +115,36 @@ object SideBetLogic {
         return (s1 in RED_SUITS && s2 in RED_SUITS) || (s1 in BLACK_SUITS && s2 in BLACK_SUITS)
     }
 
-    private fun isSuitedTriple(cards: List<Card>): Boolean = isThreeOfAKind(cards) && isFlush(cards)
+    private fun isSuitedTriple(
+        c1: Card,
+        c2: Card,
+        c3: Card
+    ): Boolean = isThreeOfAKind(c1, c2, c3) && isFlush(c1, c2, c3)
 
-    private fun isFlush(cards: List<Card>): Boolean {
-        if (cards.isEmpty()) return false
-        val firstSuit = cards[0].suit
-        for (i in 1 until cards.size) {
-            if (cards[i].suit != firstSuit) return false
-        }
-        return true
+    private fun isFlush(
+        c1: Card,
+        c2: Card,
+        c3: Card
+    ): Boolean {
+        return c1.suit == c2.suit && c2.suit == c3.suit
     }
 
-    private fun isThreeOfAKind(cards: List<Card>): Boolean {
-        if (cards.isEmpty()) return false
-        val firstRank = cards[0].rank
-        for (i in 1 until cards.size) {
-            if (cards[i].rank != firstRank) return false
-        }
-        return true
+    private fun isThreeOfAKind(
+        c1: Card,
+        c2: Card,
+        c3: Card
+    ): Boolean {
+        return c1.rank == c2.rank && c2.rank == c3.rank
     }
 
-    private fun isStraight(cards: List<Card>): Boolean {
-        if (cards.size != 3) return false
-        var r0 = cards[0].rank.ordinal
-        var r1 = cards[1].rank.ordinal
-        var r2 = cards[2].rank.ordinal
+    private fun isStraight(
+        c1: Card,
+        c2: Card,
+        c3: Card
+    ): Boolean {
+        var r0 = c1.rank.ordinal
+        var r1 = c2.rank.ordinal
+        var r2 = c3.rank.ordinal
 
         // Manual sort network for 3 elements
         if (r0 > r1) {
@@ -159,7 +173,11 @@ object SideBetLogic {
         return false
     }
 
-    private fun isStraightFlush(cards: List<Card>): Boolean {
-        return isFlush(cards) && isStraight(cards)
+    private fun isStraightFlush(
+        c1: Card,
+        c2: Card,
+        c3: Card
+    ): Boolean {
+        return isFlush(c1, c2, c3) && isStraight(c1, c2, c3)
     }
 }

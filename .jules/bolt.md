@@ -40,3 +40,7 @@
 +**Learning:** Hoisting enum `.entries` out of nested loops and using index-based arrays (`for (i in 0 until list.size)`) eliminates intermediate allocations, unecessary `Iterator` objects, and overheads caused by calling getters for loops that execute multiple times per element.
 +**Action:** Try to hoist loop variables, such as enum entries, collections and list outside the inner loops whenever possible, using index loops array variables directly if possible to optimize nested iterations further in performance sensitive paths.
 >>>>>>> conflict 1 of 1 ends
+
+## 2026-03-27 - Zero-Allocation Helper Functions
+**Learning:** In performance-critical logic (like `evaluateTwentyOnePlusThree` in `SideBetLogic.kt`), wrapping small, fixed sets of domain objects into temporary collections (e.g., `listOf(c1, c2, dealerUpcard)`) just to pass them to helper methods incurs significant GC overhead during continuous or nested evaluations.
+**Action:** Extract explicit variables and rewrite the helper functions to take explicit positional arguments (e.g., `isFlush(c1: Card, c2: Card, c3: Card)`) rather than generically typed collections. This achieves zero-allocation checking for small constant groups.
