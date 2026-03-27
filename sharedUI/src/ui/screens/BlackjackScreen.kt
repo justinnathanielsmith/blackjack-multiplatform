@@ -764,7 +764,21 @@ private fun BlackjackLayout(
     // updates (balance, status, etc.).
     val allCards =
         remember(state.dealerHand.cards, state.playerHands) {
-            state.dealerHand.cards + state.playerHands.flatMap { it.cards }
+            var totalSize = state.dealerHand.cards.size
+            for (i in 0 until state.playerHands.size) {
+                totalSize += state.playerHands[i].cards.size
+            }
+            val cards = ArrayList<io.github.smithjustinn.blackjack.Card>(totalSize)
+            for (i in 0 until state.dealerHand.cards.size) {
+                cards.add(state.dealerHand.cards[i])
+            }
+            for (i in 0 until state.playerHands.size) {
+                val handCards = state.playerHands[i].cards
+                for (j in 0 until handCards.size) {
+                    cards.add(handCards[j])
+                }
+            }
+            cards
         }
 
     CompositionLocalProvider(LocalShoePosition provides shoePosition) {

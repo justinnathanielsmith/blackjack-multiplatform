@@ -25,6 +25,10 @@
 ## 2026-03-24 - Allocation-Free Sorting for Small Fixed-Size Lists
 **Learning:** For small, fixed-size collections (like the 3-card hands in side bet logic), using generic `map` and `sorted` operations allocates temporary list objects and boxes primitive values.
 **Action:** Implement a manual sorting network using primitive variables to perform sorting with zero allocations.
+
+## 2026-03-27 - Optimize intermediate allocations in BlackjackScreen
+**Learning:** High-frequency recomposition blocks can trigger repeated allocations if operations like `flatMap` or chained additions (`+`) are used on collections.
+**Action:** Replaced chained higher-order functions with a pre-sized `ArrayList` and `for` loops, which avoids creating intermediate throwaway lists and reduces GC pressure.
 ## 2026-03-24 - Avoid Functional Fold in Computed Properties
 **Learning:** Using functional extensions like `fold` on collections inside frequently accessed computed properties (like `GameState.totalBet`) or state machine transitions (like `finalizeGame`) allocates `Iterator` instances, leading to main-thread GC thrashing in Jetpack Compose when state changes rapidly.
 **Action:** Replace `fold` (and similar higher-order functions like `sumOf`) with indexed `for` loops (`for (i in 0 until list.size)`) to eliminate iterator allocations on hot paths.
@@ -33,13 +37,8 @@
 **Learning:** Reading animation state values (like `alphaProvider()`) inside a composable's composition phase triggers O(Frames) recompositions for the entire composable tree during the animation.
 **Action:** Move state reads directly into the draw phase (e.g., inside the `drawBehind` modifier) so that only the layout/draw phase is invalidated, bypassing full composition recomposition and eliminating main-thread jank.
 
-%%%%%%% diff from: zslztlut 4217be60 "Revert "fix: Hide `BetChip` value text when rendered small and refine card dealing animations with delayed score display."" (parents of rebased revision)
-\\\\\\\        to: zzvvvttr ce6803c7 "⚡ Hoist Enum entries out of nested loops in deck creation" (rebased revision)
-+
-+## 2023-11-20 - Hoisting Enums and Using Index-Based Loops
-+**Learning:** Hoisting enum `.entries` out of nested loops and using index-based arrays (`for (i in 0 until list.size)`) eliminates intermediate allocations, unecessary `Iterator` objects, and overheads caused by calling getters for loops that execute multiple times per element.
-+**Action:** Try to hoist loop variables, such as enum entries, collections and list outside the inner loops whenever possible, using index loops array variables directly if possible to optimize nested iterations further in performance sensitive paths.
->>>>>>> conflict 1 of 1 ends
+**Learning:** Hoisting enum `.entries` out of nested loops and using index-based arrays (`for (i in 0 until list.size)`) eliminates intermediate allocations, unecessary `Iterator` objects, and overheads caused by calling getters for loops that execute multiple times per element.
+**Action:** Try to hoist loop variables, such as enum entries, collections and list outside the inner loops whenever possible, using index loops array variables directly if possible to optimize nested iterations further in performance sensitive paths.
 
 ## 2026-03-27 - Zero-Allocation Helper Functions
 **Learning:** In performance-critical logic (like `evaluateTwentyOnePlusThree` in `SideBetLogic.kt`), wrapping small, fixed sets of domain objects into temporary collections (e.g., `listOf(c1, c2, dealerUpcard)`) just to pass them to helper methods incurs significant GC overhead during continuous or nested evaluations.
