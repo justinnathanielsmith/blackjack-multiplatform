@@ -23,14 +23,23 @@ class JvmAudioServiceImpl(
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
     override var isMuted: Boolean = false
-    private val tempAudioDir =
+
+    private val tempAudioDir: File =
         try {
             val perms = PosixFilePermissions.fromString("rwx------")
             val attr = PosixFilePermissions.asFileAttribute(perms)
             Files.createTempDirectory("blackjack_audio", attr).toFile()
         } catch (e: UnsupportedOperationException) {
-            Files.createTempDirectory("blackjack_audio").toFile()
+            val dir = Files.createTempDirectory("blackjack_audio").toFile()
+            dir.setReadable(false, false)
+            dir.setWritable(false, false)
+            dir.setExecutable(false, false)
+            dir.setReadable(true, true)
+            dir.setWritable(true, true)
+            dir.setExecutable(true, true)
+            dir
         }
+
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
 
     init {
