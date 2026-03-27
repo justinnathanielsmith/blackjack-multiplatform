@@ -44,6 +44,11 @@ private class Particle(
     var rotation = Random.nextFloat() * MAX_ROTATION_DEG
     private val vRot = (Random.nextFloat() - ROTATION_SPEED_OFFSET) * ROTATION_SPEED_MULTIPLIER
 
+    // Bolt Performance Optimization: Pre-allocated Path for STAR shape particles.
+    // Reused each frame via fillStarPath() instead of allocating a new Path per draw call.
+    // At 60fps with ~10% STAR particles out of 290 max, this eliminates ~1,740 allocations/second.
+    val path: Path? = if (shape == ParticleShape.STAR) Path() else null
+
     fun update() {
         x += vx
         y += vy
@@ -161,8 +166,10 @@ fun ConfettiEffect(
                             size = Size(p.size * 3f, p.size * 0.4f),
                         )
                     ParticleShape.STAR -> {
-                        val path = buildStarPath(position, p.size * 0.5f, p.size * 0.22f)
-                        drawPath(path = path, color = paintColor)
+                        // Reuse the pre-allocated path — reset() clears geometry without heap allocation.
+                        val starPath = p.path!!
+                        fillStarPath(starPath, position, p.size * 0.5f, p.size * 0.22f)
+                        drawPath(path = starPath, color = paintColor)
                     }
                 }
             }
@@ -179,12 +186,17 @@ private fun randomShape(): ParticleShape {
     }
 }
 
-private fun buildStarPath(
+/**
+ * Fills [path] with 5-pointed star geometry in-place, resetting any previous content.
+ * The caller must supply a pre-allocated [Path] to avoid heap allocation on every frame.
+ */
+private fun fillStarPath(
+    path: Path,
     center: Offset,
     outerRadius: Float,
     innerRadius: Float
-): Path {
-    val path = Path()
+) {
+    path.reset()
     val points = 5
     for (i in 0 until points * 2) {
         val radius = if (i % 2 == 0) outerRadius else innerRadius
@@ -194,7 +206,6 @@ private fun buildStarPath(
         if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
     }
     path.close()
-    return path
 }
 
 private const val MAX_ROTATION_DEG = 360f

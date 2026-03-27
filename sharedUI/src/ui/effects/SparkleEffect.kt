@@ -31,6 +31,11 @@ private class SparkleParticle(
     var frame = 0
     var alpha = 0f
 
+    // Bolt Performance Optimization: Pre-allocated Path reused each frame instead of
+    // allocating a new Path object per draw call. Eliminates ~1,200 Path allocations/second
+    // (20 particles × 60fps) during the blackjack-win sparkle effect.
+    val path = Path()
+
     companion object {
         const val RISE_FRAMES = 9
         const val FALL_FRAMES = 24
@@ -100,9 +105,11 @@ fun SparkleEffect(modifier: Modifier = Modifier) {
             val p = particles[i]
             val pos = Offset(origin.x + p.x, origin.y + p.y)
             val paintColor = p.color.copy(alpha = p.alpha.coerceIn(0f, 1f))
+            // Reuse the pre-allocated path — reset() clears geometry without heap allocation.
+            fillSparklePath(p.path, pos, p.size, p.size * 0.2f)
             rotate(p.frame * 3f, pivot = pos) {
                 drawPath(
-                    path = buildSparklePath(pos, p.size, p.size * 0.2f),
+                    path = p.path,
                     color = paintColor,
                 )
             }
@@ -110,12 +117,17 @@ fun SparkleEffect(modifier: Modifier = Modifier) {
     }
 }
 
-private fun buildSparklePath(
+/**
+ * Fills [path] with 4-pointed star geometry in-place, resetting any previous content.
+ * The caller must supply a pre-allocated [Path] to avoid heap allocation on every frame.
+ */
+private fun fillSparklePath(
+    path: Path,
     center: Offset,
     outerRadius: Float,
     innerRadius: Float
-): Path {
-    val path = Path()
+) {
+    path.reset()
     val points = 4
     for (i in 0 until points * 2) {
         val radius = if (i % 2 == 0) outerRadius else innerRadius
@@ -125,5 +137,4 @@ private fun buildSparklePath(
         if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
     }
     path.close()
-    return path
 }
