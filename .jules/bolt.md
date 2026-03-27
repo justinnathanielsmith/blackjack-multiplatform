@@ -33,3 +33,10 @@
 **Learning:** Reading animation state values (like `alphaProvider()`) inside a composable's composition phase triggers O(Frames) recompositions for the entire composable tree during the animation.
 **Action:** Move state reads directly into the draw phase (e.g., inside the `drawBehind` modifier) so that only the layout/draw phase is invalidated, bypassing full composition recomposition and eliminating main-thread jank.
 
+%%%%%%% diff from: zslztlut 4217be60 "Revert "fix: Hide `BetChip` value text when rendered small and refine card dealing animations with delayed score display."" (parents of rebased revision)
+\\\\\\\        to: zzvvvttr ce6803c7 "⚡ Hoist Enum entries out of nested loops in deck creation" (rebased revision)
++
++## 2023-11-20 - Hoisting Enums and Using Index-Based Loops
++**Learning:** Hoisting enum `.entries` out of nested loops and using index-based arrays (`for (i in 0 until list.size)`) eliminates intermediate allocations, unecessary `Iterator` objects, and overheads caused by calling getters for loops that execute multiple times per element.
++**Action:** Try to hoist loop variables, such as enum entries, collections and list outside the inner loops whenever possible, using index loops array variables directly if possible to optimize nested iterations further in performance sensitive paths.
+>>>>>>> conflict 1 of 1 ends
