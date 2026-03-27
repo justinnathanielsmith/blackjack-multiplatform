@@ -65,4 +65,80 @@ class BenchmarkTest {
             aces -= 1
         }
     }
+
+    @Test
+    fun benchmarkCreateDeck() {
+        val rules = GameRules(deckCount = 6)
+        val random = kotlin.random.Random(123)
+
+        // Run benchmarks multiple times to get a stable result
+        println("===============================")
+        var totalOld = 0L
+        var totalNew = 0L
+        val iterations = 5
+
+        for (i in 1..iterations) {
+            // Warmup
+            repeat(10_000) { createDeckOld(rules, random) }
+            val timeOld =
+                kotlin.system.measureTimeMillis {
+                    repeat(200_000) { createDeckOld(rules, random) }
+                }
+
+            // Warmup
+            repeat(10_000) { createDeckNew(rules, random) }
+            val timeNew =
+                kotlin.system.measureTimeMillis {
+                    repeat(200_000) { createDeckNew(rules, random) }
+                }
+
+            totalOld += timeOld
+            totalNew += timeNew
+            println("Iteration $i - Old: $timeOld ms, New: $timeNew ms")
+        }
+
+        println("Deck Average Old: ${totalOld / iterations} ms")
+        println("Deck Average New: ${totalNew / iterations} ms")
+        if (totalOld > 0) {
+            println("Average Improvement: ${(totalOld - totalNew).toDouble() / totalOld * 100}%")
+        }
+        println("===============================")
+    }
+
+    private fun createDeckOld(
+        rules: GameRules,
+        random: kotlin.random.Random
+    ): List<Card> {
+        val deckSize = rules.deckCount * BlackjackRules.CARDS_PER_DECK
+        val newDeck = ArrayList<Card>(deckSize)
+        for (i in 1..rules.deckCount) {
+            for (suit in Suit.entries) {
+                for (rank in Rank.entries) {
+                    newDeck.add(Card(rank, suit))
+                }
+            }
+        }
+        newDeck.shuffle(random)
+        return newDeck
+    }
+
+    private fun createDeckNew(
+        rules: GameRules,
+        random: kotlin.random.Random
+    ): List<Card> {
+        val deckSize = rules.deckCount * BlackjackRules.CARDS_PER_DECK
+        val newDeck = ArrayList<Card>(deckSize)
+        val suits = Suit.entries
+        val ranks = Rank.entries
+        for (i in 1..rules.deckCount) {
+            for (i in 0 until suits.size) {
+                val suit = suits[i]
+                for (j in 0 until ranks.size) {
+                    newDeck.add(Card(ranks[j], suit))
+                }
+            }
+        }
+        newDeck.shuffle(random)
+        return newDeck
+    }
 }

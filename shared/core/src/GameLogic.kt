@@ -405,10 +405,13 @@ object BlackjackRules {
     ): List<Card> {
         val deckSize = rules.deckCount * CARDS_PER_DECK
         val newDeck = ArrayList<Card>(deckSize)
-        for (i in 1..rules.deckCount) {
-            for (suit in Suit.entries) {
-                for (rank in Rank.entries) {
-                    newDeck.add(Card(rank, suit))
+        val suits = Suit.entries
+        val ranks = Rank.entries
+        for (d in 1..rules.deckCount) {
+            for (i in 0 until suits.size) {
+                val suit = suits[i]
+                for (j in 0 until ranks.size) {
+                    newDeck.add(Card(ranks[j], suit))
                 }
             }
         }
