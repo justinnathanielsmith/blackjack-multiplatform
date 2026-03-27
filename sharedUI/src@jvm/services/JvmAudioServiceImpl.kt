@@ -29,14 +29,7 @@ class JvmAudioServiceImpl(
             val attr = PosixFilePermissions.asFileAttribute(perms)
             Files.createTempDirectory("blackjack_audio", attr).toFile()
         } catch (e: UnsupportedOperationException) {
-            val dir = Files.createTempDirectory("blackjack_audio").toFile()
-            dir.setReadable(false, false)
-            dir.setWritable(false, false)
-            dir.setExecutable(false, false)
-            dir.setReadable(true, true)
-            dir.setWritable(true, true)
-            dir.setExecutable(true, true)
-            dir
+            Files.createTempDirectory("blackjack_audio").toFile()
         }
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
 
