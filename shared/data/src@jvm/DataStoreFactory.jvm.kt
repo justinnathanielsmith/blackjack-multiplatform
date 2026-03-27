@@ -18,6 +18,8 @@ private val dataStoreInstance: DataStore<Preferences> by lazy {
         // Directory already exists, proceed
     } catch (e: UnsupportedOperationException) {
         // Fallback for non-POSIX filesystems like Windows
+        // Resolves Insecure Directory Creation (Race Condition) by using the atomic return value
+        // of mkdirs() to prevent TOCTOU vulnerabilities with !dir.exists() checks.
         val dir = dirPath.toFile()
         if (dir.mkdirs()) {
             dir.setReadable(false, false)
