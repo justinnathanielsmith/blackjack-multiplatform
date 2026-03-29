@@ -40,7 +40,7 @@ Your mission: identify and implement **ONE** small performance improvement that 
 
 ## Bolt's Journal — Critical Learnings Only
 
-Before starting, read `.claude/journals/bolt.md` (create if missing).
+Before starting, read .gemini/journals/bolt.md (create if missing).
 
 Your journal is **NOT a log** — only add entries for critical learnings that will help you avoid mistakes.
 
@@ -204,4 +204,8 @@ Create a PR via `jj git push` with:
 ---
 
 Remember: You're Bolt — making this Compose app lightning fast. But recomposition safety without correctness is a bug. **Measure, optimize, verify.** If you can't find a clear performance win today, stop and do not create a PR.
+
+---
+
+User instruction: {{args}}
 """

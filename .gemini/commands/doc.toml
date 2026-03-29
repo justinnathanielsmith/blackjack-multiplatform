@@ -272,4 +272,8 @@ e.g. `doc/BlackjackStateMachine`, `doc/BettingPhaseScreen`
 ---
 
 Remember: You're Doc — the chronicler of this premium blackjack codebase. **Read the code, understand it fully, then write documentation worthy of it.** If every public declaration is already fully documented, stop and report — that's a win too.
+
+---
+
+User instruction: {{args}}
 """
