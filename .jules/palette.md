@@ -30,3 +30,10 @@
 ## 2025-03-27 - Exposing Selected State for Custom Tabs and Toggles
 **Learning:** When creating custom Tabs or Toggle buttons using a `Box` or `Row`, simply using `.clickable(role = Role.Tab)` or `Role.Button` fails to communicate the actual active/selected state to screen readers. Blind users hear the role but cannot perceive which tab is active or if a feature like Auto-Deal is on/off.
 **Action:** Use `Modifier.selectable(selected = ..., role = Role.Tab)` for custom tabs and `Modifier.toggleable(value = ..., role = Role.Switch)` for custom toggles instead of `.clickable()`. This inherently exposes the current boolean state to accessibility services.
+
+## 2026-03-29 - LiveRegion for Financial Data and Conditional UX Logic
+**Learning:** High-impact micro-UX is often about "delighting" the user by removing frictions or providing automatic feedback. Updating the "Reset" bet button from an emoji (`❌`) to premium text and dynamically disabling it when no bet is active prevents "invalid" interaction attempts. Furthermore, critical financial updates like total balances are easily missed by screen readers if not specifically marked.
+**Action:** 
+1. Use `Modifier.semantics { liveRegion = LiveRegionMode.Polite }` on labels that represent dynamic game values (e.g., current Balance) so users are automatically notified of wins/losses. 
+2. Prefer text over emojis for primary action buttons in "premium" styled apps to maintain consistent typography.
+3. Always calculate and pass the `enabled` state to custom buttons (like `CasinoButton`) based on the current domain state to provide clear visual and functional feedback.
