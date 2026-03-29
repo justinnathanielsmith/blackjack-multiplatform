@@ -162,7 +162,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
     val isBlackjack by remember {
         derivedStateOf {
-            state.status == GameStatus.PLAYER_WON && state.playerHands.any { it.cards.size == 2 && it.score == 21 }
+            state.status == GameStatus.PLAYER_WON && state.playerHands.any { it.isBlackjack }
         }
     }
     var flashColor by remember { mutableStateOf(Color.White) }

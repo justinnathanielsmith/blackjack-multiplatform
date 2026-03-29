@@ -626,7 +626,7 @@ private fun HandStatusOverlay(
     modifier: Modifier = Modifier,
 ) {
     val isBust = hand.isBust
-    val isBlackjack = hand.score == 21 && hand.cards.size == 2
+    val isBlackjack = hand.isBlackjack
     val isTwentyOne = hand.score == 21 && hand.cards.size > 2
 
     if (isBust || isBlackjack || isTwentyOne) {
