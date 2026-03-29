@@ -46,11 +46,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.BlackjackRules
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
-import io.github.smithjustinn.blackjack.HandOutcome
 import io.github.smithjustinn.blackjack.handNetPayout
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
@@ -69,16 +67,6 @@ import sharedui.generated.resources.status_blackjack
 import sharedui.generated.resources.status_bust
 import sharedui.generated.resources.status_twenty_one
 import kotlin.math.roundToInt
-
-internal fun GameState.handResult(index: Int): HandResult {
-    if (!status.isTerminal()) return HandResult.NONE
-    val hand = playerHands.getOrNull(index) ?: return HandResult.NONE
-    return when (BlackjackRules.determineHandOutcome(hand, dealerHand.score, dealerHand.isBust)) {
-        HandOutcome.WIN, HandOutcome.NATURAL_WIN -> HandResult.WIN
-        HandOutcome.PUSH -> HandResult.PUSH
-        HandOutcome.LOSS -> HandResult.LOSS
-    }
-}
 
 @Composable
 fun OverlayCardTable(
@@ -126,7 +114,8 @@ fun OverlayCardTable(
             androidx.compose.runtime.key(slot.handIndex, slot.cardIndex) {
                 PositionedCardItem(
                     slot = slot,
-                    state = state,
+                    dealerUpcard = state.dealerHand.cards.getOrNull(0),
+                    dealerScore = state.dealerHand.score,
                     baseCardW = baseCardW,
                     baseCardH = baseCardH,
                     coordOffsetX = coordOffsetX,
@@ -161,10 +150,19 @@ fun OverlayCardTable(
         for (i in 0 until tableLayout.handZones.size) {
             val zone = tableLayout.handZones[i]
             val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
+            val handIndex = zone.handIndex
+            val playerHand = if (handIndex != -1) state.playerHands.getOrNull(handIndex) else null
+            val result = if (handIndex != -1) state.handResult(handIndex) else HandResult.NONE
+            val netPayout = if (handIndex != -1) state.handNetPayout(handIndex) else null
 
             HandZoneHud(
                 zone = zone,
-                state = state,
+                status = state.status,
+                dealerHand = state.dealerHand,
+                playerHand = playerHand,
+                handResult = result,
+                handNetPayout = netPayout,
+                handCount = state.playerHands.size,
                 coordOffsetX = coordOffsetX,
                 coordOffsetY = coordOffsetY,
                 density = density,
@@ -177,7 +175,8 @@ fun OverlayCardTable(
 @Composable
 private fun PositionedCardItem(
     slot: CardSlotLayout,
-    state: GameState,
+    dealerUpcard: io.github.smithjustinn.blackjack.Card?,
+    dealerScore: Int,
     baseCardW: Float,
     baseCardH: Float,
     coordOffsetX: Float,
@@ -248,7 +247,7 @@ private fun PositionedCardItem(
 
     // Keep shadow and scale in sync when the active-hand state changes between deals.
     val targetScale =
-        if (isActive && state.playerHands.size > 1 && !slot.isDealer) {
+        if (isActive && !slot.isDealer) {
             1.1f
         } else if (isActive) {
             1.05f
@@ -258,7 +257,7 @@ private fun PositionedCardItem(
     LaunchedEffect(targetScale) {
         animatedScale.animateTo(targetScale, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow))
     }
-    LaunchedEffect(isActive, slot.cardIndex, state.playerHands.size) {
+    LaunchedEffect(isActive, slot.cardIndex) {
         val targetElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
         currentShadow.animateTo(targetElevPx, tween(300))
     }
@@ -291,8 +290,8 @@ private fun PositionedCardItem(
             DealerCard(
                 card = slot.card,
                 isFaceUp = slot.isFaceUp,
-                dealerUpcard = state.dealerHand.cards.getOrNull(0),
-                dealerScore = state.dealerHand.score,
+                dealerUpcard = dealerUpcard,
+                dealerScore = dealerScore,
                 scale = slot.scale,
                 shadowElevation = 0.dp,
             )
@@ -431,14 +430,19 @@ private fun ActiveHandGlow(
 @Composable
 private fun HandZoneHud(
     zone: HandZone,
-    state: GameState,
+    status: io.github.smithjustinn.blackjack.GameStatus,
+    dealerHand: io.github.smithjustinn.blackjack.Hand,
+    playerHand: io.github.smithjustinn.blackjack.Hand?,
+    handResult: HandResult,
+    handNetPayout: Int?,
+    handCount: Int,
     coordOffsetX: Float,
     coordOffsetY: Float,
     density: Density,
     isActive: Boolean,
 ) {
     val isDealer = zone.handIndex == -1
-    val isBetting = state.status == GameStatus.BETTING
+    val isBetting = status == GameStatus.BETTING
     // HUD elements (labels, score badges) use a gentler scale than cards so they stay readable in
     // 3-hand mode (zone.scale = 0.52 → hudScale ≈ 0.73 instead of shrinking to 52%).
     val hudScale = (zone.scale * 1.4f).coerceAtMost(1.0f)
@@ -493,10 +497,10 @@ private fun HandZoneHud(
 
         if (isDealer) {
             val displayScore =
-                if (state.status == GameStatus.PLAYING) {
-                    state.dealerHand.visibleScore
+                if (status == GameStatus.PLAYING) {
+                    dealerHand.visibleScore
                 } else {
-                    state.dealerHand.score
+                    dealerHand.score
                 }
 
             if (!isBetting) {
@@ -527,7 +531,7 @@ private fun HandZoneHud(
             }
 
             HandStatusOverlay(
-                hand = state.dealerHand,
+                hand = dealerHand,
                 modifier =
                     Modifier.align(Alignment.Center).graphicsLayer {
                         scaleX = hudScale
@@ -536,10 +540,10 @@ private fun HandZoneHud(
             )
         } else {
             val handIndex = zone.handIndex
-            val hand = state.playerHands.getOrNull(handIndex) ?: return@Box
-            val result = state.handResult(handIndex)
-            val netPayout = state.handNetPayout(handIndex)
-            val multiHand = state.playerHands.size > 1
+            val hand = playerHand ?: return@Box
+            val result = handResult
+            val netPayout = handNetPayout
+            val multiHand = handCount > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
 
             if (multiHand && !isBetting) {
@@ -582,7 +586,7 @@ private fun HandZoneHud(
                         },
             )
 
-            if (!state.status.isTerminal()) {
+            if (!status.isTerminal()) {
                 HandStatusOverlay(
                     hand = hand,
                     modifier =
