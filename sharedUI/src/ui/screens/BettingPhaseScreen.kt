@@ -46,6 +46,10 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.add_seat_description
 import sharedui.generated.resources.remove_seat_description
+import sharedui.generated.resources.seat_center
+import sharedui.generated.resources.seat_left
+import sharedui.generated.resources.seat_main
+import sharedui.generated.resources.seat_right
 import sharedui.generated.resources.seats_label
 import sharedui.generated.resources.side_bet_perfect_pairs_label
 import sharedui.generated.resources.side_bet_twenty_one_plus_three_label
@@ -209,9 +213,28 @@ fun BettingPhaseScreen(
                         }
                     val arcYOffset = (relPos * relPos * (if (isNarrow) 10 else 14)).dp
 
+                    val seatLabel =
+                        when {
+                            handCount == 1 -> stringResource(Res.string.seat_main)
+                            handCount == 2 ->
+                                if (seatIndex ==
+                                    0
+                                ) {
+                                    stringResource(Res.string.seat_left)
+                                } else {
+                                    stringResource(Res.string.seat_right)
+                                }
+                            else ->
+                                when (seatIndex) {
+                                    0 -> stringResource(Res.string.seat_left)
+                                    1 -> stringResource(Res.string.seat_center)
+                                    else -> stringResource(Res.string.seat_right)
+                                }
+                        }
+
                     BettingSlot(
                         amount = state.playerHands.getOrNull(seatIndex)?.bet ?: 0,
-                        label = "",
+                        label = seatLabel,
                         modifier = Modifier.offset(y = arcYOffset),
                         slotSize = seatSize,
                         onClick = {

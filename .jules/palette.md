@@ -41,3 +41,7 @@
 ## 2026-03-29 - Animated Selectable Chips and Accessible Deal Action
 **Learning:** Using `Modifier.selectable(selected = ...)` on custom components like `BetChip` provides intrinsic "Selected" semantics for screen readers without needing manual state description strings. Additionally, animating size changes with `animateDpAsState` significantly improves the perceived "juice" of the interaction.
 **Action:** Prefer `Modifier.selectable` for radio-button style selection in custom Compose components. Always animate layout-impacting state changes (like selection size) to avoid jarring UI jumps.
+
+## 2026-03-29 - Contextual Seat Labels for Multi-Hand Accessibility
+**Learning:** In multi-hand games (like 2-3 seats), using generic labels like "Tap to place bet" for all seats makes them indistinguishable to screen reader users. Providing spatial labels ("Left", "Center", "Right") significantly improves navigation and clarity.
+**Action:** Always provide context-aware labels (position-based) for repeated interactive slots. Pass these labels to custom components and incorporate them into `contentDescription` templates.
