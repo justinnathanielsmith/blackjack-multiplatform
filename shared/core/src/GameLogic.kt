@@ -72,6 +72,9 @@ data class Hand(
     val isFromSplitAce: Boolean = false,
     val isSurrendered: Boolean = false,
 ) {
+    // Bolt Performance Optimization: Score and derived properties are now memoized
+    // using `by lazy` instead of computed getters. This reduces O(N) card iterations
+    // to O(1) during Compose recompositions and game state evaluations.
     // Shared ace-reduction logic. Accepts boolean to optionally ignore face-down cards.
     private fun calculateScore(ignoreFaceDown: Boolean): Int {
         var s = 0
@@ -93,24 +96,24 @@ data class Hand(
      * The total point value of all cards in the hand, with Aces counted as 11
      * where possible without exceeding 21.
      */
-    val score: Int get() = calculateScore(ignoreFaceDown = false)
+    val score: Int by lazy { calculateScore(ignoreFaceDown = false) }
 
     /**
      * The point value of only face-up cards in the hand.
      *
      * This is primarily used for the dealer up-card display before the hole card is revealed.
      */
-    val visibleScore: Int get() = calculateScore(ignoreFaceDown = true)
+    val visibleScore: Int by lazy { calculateScore(ignoreFaceDown = true) }
 
     /** True if the hand's [score] exceeds 21. */
-    val isBust: Boolean get() = score > 21
+    val isBust: Boolean by lazy { score > 21 }
 
     /**
      * True if this hand is a "natural" blackjack — exactly 2 cards totalling 21.
      *
      * Note: A hand totaling 21 after splitting or hitting is NOT a natural blackjack.
      */
-    val isBlackjack: Boolean get() = cards.size == 2 && score == 21
+    val isBlackjack: Boolean by lazy { cards.size == 2 && score == 21 }
 
     /**
      * True if at least one Ace is being counted as 11 (i.e. the hand is "soft").
@@ -118,24 +121,20 @@ data class Hand(
      * Note: iterates **all** cards, including face-down ones. Only call this after the
      * dealer's hole card has been revealed (e.g. inside [BlackjackRules.shouldDealerDraw]).
      */
-    val isSoft: Boolean
-        get() {
-            var hasAce = false
-            var hardScore = 0
-            for (i in 0 until cards.size) {
-                val card = cards[i]
-                if (card.rank == Rank.ACE) {
-                    hasAce = true
-                    hardScore += 1
-                } else {
-                    hardScore += card.rank.value
-                }
+    val isSoft: Boolean by lazy {
+        var hasAce = false
+        var hardScore = 0
+        for (i in 0 until cards.size) {
+            val card = cards[i]
+            if (card.rank == Rank.ACE) {
+                hasAce = true
+                hardScore += 1
+            } else {
+                hardScore += card.rank.value
             }
-            if (!hasAce) return false
-            // A hand is soft when the score (with at least one Ace as 11) differs
-            // from the hard score (all Aces as 1).
-            return score != hardScore
         }
+        hasAce && score != hardScore
+    }
 }
 
 @Serializable

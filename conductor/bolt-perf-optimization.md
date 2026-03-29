@@ -1,29 +1,62 @@
-# Bolt Performance Optimization: Prevent Unnecessary Card Recomposition on Hole Card Reveal
+# Bolt Performance Optimization: O(1) Hand Score Memoization
 
 ## Objective
-Reduce unnecessary Compose recompositions and memory allocations when the dealer's hole card is revealed.
+Optimize the `Hand` class by replacing dynamic, computed properties (which execute O(n) loops over hand cards on every read) with `lazy` delegated properties. This ensures the score and other derived state properties are computed only once per hand instance, providing O(1) lookup during Compose recompositions and game logic transitions.
 
-## Key Files & Context
-- `shared/core/src/GameLogic.kt`
-- `shared/core/src/BlackjackStateMachine.kt`
+## Background & Motivation
+Currently, `val score: Int get() = calculateScore(ignoreFaceDown = false)` is defined as a computed property inside `shared/core/src/GameLogic.kt`. Because `Hand` is part of the `GameState` and is read repeatedly on every render frame and animation loop by the UI (e.g., in `ScoreBadge`, `DealerCard`, `OverlayCardTable`), `calculateScore` is needlessly re-run many times per second. By memoizing the result with `by lazy { ... }`, we reduce CPU load and prevent repeated iteration of the card list.
+
+## Scope & Impact
+- Target File: `shared/core/src/GameLogic.kt`
+- Impact: O(n) overhead reduced to O(1) for repeated reads of hand properties.
+
+## Proposed Solution
+Update `Hand` to use `lazy` delegates and `@Transient` for properties that calculate values based on the cards:
+- `score`
+- `visibleScore`
+- `isBust`
+- `isBlackjack`
+- `isSoft`
+
+### Example
+```kotlin
+    @Transient
+    val score: Int by lazy { calculateScore(ignoreFaceDown = false) }
+
+    @Transient
+    val visibleScore: Int by lazy { calculateScore(ignoreFaceDown = true) }
+
+    @Transient
+    val isBust: Boolean by lazy { score > 21 }
+
+    @Transient
+    val isBlackjack: Boolean by lazy { cards.size == 2 && score == 21 }
+
+    @Transient
+    val isSoft: Boolean by lazy {
+        var hasAce = false
+        var hardScore = 0
+        for (i in 0 until cards.size) {
+            val card = cards[i]
+            if (card.rank == Rank.ACE) {
+                hasAce = true
+                hardScore += 1
+            } else {
+                hardScore += card.rank.value
+            }
+        }
+        if (!hasAce) false
+        else score != hardScore
+    }
+```
+*Note: Ensure `kotlinx.serialization.Transient` is imported.*
 
 ## Implementation Steps
-Currently, when the dealer's hole card is revealed, the state machine and game logic allocate new `Card` instances for *all* cards in the dealer's hand by calling `it.copy(isFaceDown = false)` unconditionally.
-Since Kotlin's `data class copy` always allocates a new instance even if the values are identical, this breaks reference equality for the dealer's face-up cards (index 0). In Compose, this causes the `PlayingCard` composable for the first card to recompose unnecessarily.
-
-1. **Update `revealDealerHoleCard` in `BlackjackStateMachine.kt`**:
-   Change the `map` logic to only copy the card if it is currently face-down:
-   ```kotlin
-   .map { if (it.isFaceDown) it.copy(isFaceDown = false) else it }
-   ```
-
-2. **Update `resolveInitialOutcomeValues` in `GameLogic.kt`**:
-   Apply the same conditional copy optimization:
-   ```kotlin
-   val dealerHandRevealed = Hand(dealerHand.cards.map { if (it.isFaceDown) it.copy(isFaceDown = false) else it }.toPersistentList())
-   ```
+1. Open `shared/core/src/GameLogic.kt`.
+2. Import `kotlinx.serialization.Transient`.
+3. Modify the `Hand` data class properties (`score`, `visibleScore`, `isBust`, `isBlackjack`, `isSoft`) to use `@Transient` and `by lazy`.
 
 ## Verification & Testing
-- Run `./amper test -p jvm` to ensure core game logic and state machine tests pass.
-- Run `./amper build -p jvm` to verify the build succeeds.
-- Launch the application and observe the Layout Inspector during a dealer turn to ensure the first dealer card does not recompose when the hole card flips.
+- Run `./amper test -p jvm` to ensure all core tests pass.
+- Run `./amper build -p jvm` to verify compilation.
+- Ensure that the UI behaves normally when cards are dealt and scores are updated.
