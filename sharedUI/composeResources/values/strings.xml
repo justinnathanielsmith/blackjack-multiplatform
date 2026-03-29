@@ -128,6 +128,7 @@
     <string name="btn_strategy_description">Strategy Guide</string>
     <string name="btn_rules_description">Game Rules</string>
     <string name="btn_auto_deal_description">Auto Deal</string>
+    <string name="deal_description">Deal cards and start the game</string>
     <string name="bet_chip_description">Bet chip %1$s</string>
     <string name="btn_close_description">Close</string>
     <string name="bet_spot_description">Bet spot with %1$d</string>

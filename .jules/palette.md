@@ -37,3 +37,7 @@
 1. Use `Modifier.semantics { liveRegion = LiveRegionMode.Polite }` on labels that represent dynamic game values (e.g., current Balance) so users are automatically notified of wins/losses. 
 2. Prefer text over emojis for primary action buttons in "premium" styled apps to maintain consistent typography.
 3. Always calculate and pass the `enabled` state to custom buttons (like `CasinoButton`) based on the current domain state to provide clear visual and functional feedback.
+
+## 2026-03-29 - Animated Selectable Chips and Accessible Deal Action
+**Learning:** Using `Modifier.selectable(selected = ...)` on custom components like `BetChip` provides intrinsic "Selected" semantics for screen readers without needing manual state description strings. Additionally, animating size changes with `animateDpAsState` significantly improves the perceived "juice" of the interaction.
+**Action:** Prefer `Modifier.selectable` for radio-button style selection in custom Compose components. Always animate layout-impacting state changes (like selection size) to avoid jarring UI jumps.
