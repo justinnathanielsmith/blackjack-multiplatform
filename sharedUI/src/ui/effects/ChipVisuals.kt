@@ -27,6 +27,17 @@ object ChipVisuals {
         )
     }
 
+    // Single source of truth for chip denomination-to-color mapping
+    private val DENOMINATIONS: List<Pair<Int, Color>> =
+        listOf(
+            500 to ChipPurple,
+            100 to PokerBlack,
+            25 to ChipGreen,
+            10 to ChipBlue,
+            5 to PokerRed,
+            1 to WhiteSoft,
+        )
+
     fun breakdownAmount(
         amount: Int,
         maxParticles: Int = 30
@@ -34,17 +45,7 @@ object ChipVisuals {
         val result = mutableListOf<Color>()
         var remaining = amount
 
-        val denominations =
-            listOf(
-                500 to ChipPurple,
-                100 to PokerBlack,
-                25 to ChipGreen,
-                10 to ChipBlue,
-                5 to PokerRed,
-                1 to WhiteSoft
-            )
-
-        for ((value, color) in denominations) {
+        for ((value, color) in DENOMINATIONS) {
             val count = remaining / value
             if (count > 0) {
                 val toAdd = minOf(count, maxParticles - result.size)
@@ -72,17 +73,7 @@ object ChipVisuals {
         val result = mutableListOf<Int>()
         var remaining = amount
 
-        val denominations =
-            listOf(
-                500 to ChipPurple,
-                100 to PokerBlack,
-                25 to ChipGreen,
-                10 to ChipBlue,
-                5 to PokerRed,
-                1 to WhiteSoft
-            )
-
-        for ((value, _) in denominations) {
+        for ((value, _) in DENOMINATIONS) {
             val count = remaining / value
             if (count > 0) {
                 val toAdd = minOf(count, maxParticles - result.size)
