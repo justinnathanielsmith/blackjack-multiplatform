@@ -57,13 +57,14 @@ import sharedui.generated.resources.emoji_scroll
 fun Header(
     isAutoDealEnabled: Boolean,
     onAutoDealToggle: () -> Unit,
+    modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit = {},
     onStrategyClick: () -> Unit = {},
     onRulesClick: () -> Unit = {}
 ) {
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .background(GlassDark)
                 .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Top))
@@ -95,6 +96,7 @@ fun Header(
 @Composable
 internal fun AutoDealIcon(
     enabled: Boolean,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
     val autoDealDescription = stringResource(Res.string.btn_auto_deal_description)
@@ -172,7 +174,7 @@ internal fun AutoDealIcon(
 
     Box(
         modifier =
-            Modifier
+            modifier
                 .size(32.dp)
                 .semantics { contentDescription = autoDealDescription }
                 .drawBehind {
@@ -207,11 +209,12 @@ internal fun AutoDealIcon(
 private fun HeaderIcon(
     text: String,
     contentDescription: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
     Box(
         modifier =
-            Modifier
+            modifier
                 .size(32.dp)
                 .semantics { this.contentDescription = contentDescription }
                 .background(GlassDark, RoundedCornerShape(16.dp))
