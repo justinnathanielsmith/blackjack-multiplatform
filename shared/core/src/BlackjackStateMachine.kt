@@ -23,6 +23,18 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+/**
+ * The core state machine governing the game of Blackjack.
+ *
+ * This class serves as the single source of truth for the game state and side effects.
+ * It processes [GameAction]s sequentially through a [Channel], ensuring thread-safe
+ * mutations of the [GameState].
+ *
+ * @param scope The [CoroutineScope] in which the internal action loop and animations run.
+ * @param initialState The starting [GameState]. Defaults to a new game with 1000 balance in [GameStatus.BETTING].
+ * @param isTest When true, animations and delays (like [DEALER_TURN_DELAY_MS]) are disabled (0ms).
+ * @param logger Logger instance for internal state tracking and debugging.
+ */
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
     initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000),
@@ -42,10 +54,23 @@ class BlackjackStateMachine(
     private val dealerCriticalPreDelayMs: Long get() = if (isTest) 0L else DEALER_CRITICAL_PRE_DELAY_MS
 
     private val _state = MutableStateFlow(initialState)
+
+    /**
+     * A [StateFlow] emitting the current [GameState].
+     *
+     * UI components should collect this to reactively update the display.
+     */
     val state: StateFlow<GameState> = _state.asStateFlow()
 
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
     private val isShutdown = MutableStateFlow(false)
+
+    /**
+     * A [Flow] of [GameEffect]s triggered by state transitions (e.g., sound effects, vibrations).
+     *
+     * This flow ensures that subscribers receive all effects emitted during their collection lifetime.
+     * It is automatically cancelled when the state machine is shut down.
+     */
     val effects: Flow<GameEffect> =
         channelFlow {
             val collectJob = launch { _effects.collect { send(it) } }
@@ -135,10 +160,23 @@ class BlackjackStateMachine(
         }
     }
 
+    /**
+     * Dispatches a [GameAction] to be processed by the state machine.
+     *
+     * Actions are buffered and processed sequentially. Handlers within the state machine
+     * check the current [GameStatus] to ensure the action is valid for the current state.
+     *
+     * @param action The [GameAction] to dispatch.
+     */
     fun dispatch(action: GameAction) {
         actionChannel.trySend(action).getOrThrow()
     }
 
+    /**
+     * Closes the action channel, preventing further actions from being dispatched.
+     *
+     * The internal loop continues until all currently buffered actions are processed.
+     */
     fun shutdown() {
         actionChannel.close()
     }
