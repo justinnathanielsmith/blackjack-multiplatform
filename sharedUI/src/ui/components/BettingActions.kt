@@ -24,10 +24,12 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.deal
 import sharedui.generated.resources.reset_bet
+import sharedui.generated.resources.reset_bet_description
 
 @Composable
 fun BettingActions(
     canDeal: Boolean,
+    canReset: Boolean,
     onReset: () -> Unit,
     onDeal: () -> Unit,
     modifier: Modifier = Modifier
@@ -51,6 +53,8 @@ fun BettingActions(
         CasinoButton(
             text = stringResource(Res.string.reset_bet),
             onClick = onReset,
+            enabled = canReset,
+            contentDescription = stringResource(Res.string.reset_bet_description),
             modifier = Modifier.weight(1f),
             containerColor = GlassDark,
             contentColor = Color.White,
@@ -79,6 +83,7 @@ fun BettingActions(
 private fun BettingActionsPreview() {
     BettingActions(
         canDeal = true,
+        canReset = true,
         onReset = {},
         onDeal = {}
     )

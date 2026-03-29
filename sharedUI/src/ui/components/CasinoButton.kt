@@ -33,6 +33,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,6 +58,8 @@ fun CasinoButton(
     contentPadding: androidx.compose.foundation.layout.PaddingValues =
         androidx.compose.foundation.layout
             .PaddingValues(horizontal = 24.dp, vertical = 20.dp),
+    contentDescription: String? = null,
+    stateDescription: String? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -186,11 +192,14 @@ fun CasinoButton(
                                 )
                         )
                     }
+                }.semantics(mergeDescendants = true) {
+                    role = Role.Button
+                    contentDescription?.let { this.contentDescription = it }
+                    stateDescription?.let { this.stateDescription = it }
                 }.clickable(
                     interactionSource = interactionSource,
                     indication = null,
                     enabled = enabled,
-                    role = Role.Button,
                     onClick = onClick
                 ).padding(contentPadding),
         contentAlignment = Alignment.Center

@@ -23,7 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +67,7 @@ fun ControlCenter(
         )
 
         val isBetting = state.status == GameStatus.BETTING
+        val canReset = state.playerHands.any { it.bet > 0 }
 
         // Actions for BETTING
         AnimatedVisibility(
@@ -75,6 +78,7 @@ fun ControlCenter(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BettingActions(
                     canDeal = state.playerHands.isNotEmpty() && state.playerHands.all { it.bet > 0 },
+                    canReset = canReset,
                     onReset = onResetBet,
                     onDeal = onDeal,
                     modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
@@ -134,6 +138,7 @@ private fun FinancialData(
         modifier =
             Modifier.semantics(mergeDescendants = true) {
                 contentDescription = "$label: $formattedAmount"
+                liveRegion = LiveRegionMode.Polite
             },
         horizontalAlignment = alignment,
     ) {
