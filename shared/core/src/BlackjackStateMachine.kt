@@ -385,72 +385,15 @@ class BlackjackStateMachine(
         previousBets: kotlinx.collections.immutable.PersistentList<Int> = persistentListOf(0),
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) {
-        val currentState = _state.value
-        val newBalance = initialBalance ?: currentState.balance
-
-        // Normalize lastBets list length if it doesn't match current seat selection
-        // (but usually they should match if coming from round end)
-        val normalizedLastBets =
-            if (previousBets.size >= handCount) {
-                previousBets.subList(0, handCount).toPersistentList()
-            } else {
-                previousBets
-                    .toMutableList()
-                    .apply {
-                        repeat(
-                            handCount - previousBets.size
-                        ) { add(0) }
-                    }.toPersistentList()
-            }
-
-        // Bolt Performance Optimization: Replace .sumOf with indexed loop to avoid Iterator allocation
-        var totalLastBet = 0
-        for (i in 0 until normalizedLastBets.size) {
-            totalLastBet += normalizedLastBets[i]
-        }
-        val allAffordable = totalLastBet <= newBalance
-
-        val finalBets: kotlinx.collections.immutable.PersistentList<Int>
-        val afterMainBetBalance: Int
-
-        if (allAffordable) {
-            finalBets = normalizedLastBets
-            afterMainBetBalance = newBalance - totalLastBet
-        } else {
-            // If they can't afford exactly the previous bets, they start at zero to be safe
-            finalBets = List(handCount) { 0 }.toPersistentList()
-            afterMainBetBalance = newBalance
-        }
-
-        var totalSideBetCost = 0
-        for ((_, betAmount) in lastSideBets) {
-            totalSideBetCost += betAmount
-        }
-
-        val finalSideBets: PersistentMap<SideBetType, Int>
-        val postSideBetBalance: Int
-
-        if (totalSideBetCost <= afterMainBetBalance) {
-            finalSideBets = lastSideBets
-            postSideBetBalance = afterMainBetBalance - totalSideBetCost
-        } else {
-            finalSideBets = persistentMapOf()
-            postSideBetBalance = afterMainBetBalance
-        }
-
+        // Resolve nullable balance here (stateful read) then delegate pure logic to NewGameLogic.
+        val resolvedBalance = initialBalance ?: _state.value.balance
         _state.value =
-            GameState(
-                status = GameStatus.BETTING,
-                balance = postSideBetBalance,
-                sideBets = finalSideBets,
-                lastSideBets = lastSideBets,
-                playerHands =
-                    List(handCount) { i ->
-                        Hand(bet = finalBets[i], lastBet = normalizedLastBets[i])
-                    }.toPersistentList(),
-                activeHandIndex = 0,
-                handCount = handCount,
+            NewGameLogic.createInitialState(
+                balance = resolvedBalance,
                 rules = rules,
+                handCount = handCount,
+                previousBets = previousBets,
+                lastSideBets = lastSideBets,
             )
     }
 
