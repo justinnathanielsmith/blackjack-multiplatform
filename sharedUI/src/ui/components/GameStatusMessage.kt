@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -148,10 +149,8 @@ fun GameStatusMessage(
             else -> PrimaryGold.copy(alpha = 0.8f)
         }
 
-    val isTerminal =
-        status == GameStatus.PLAYER_WON ||
-            status == GameStatus.DEALER_WON ||
-            status == GameStatus.PUSH
+    // Delegate to the authoritative domain extension — consistent with all other sharedUI consumers.
+    val isTerminal = status.isTerminal()
 
     val netLabel: String? =
         if (isTerminal && netPayout != null) {
