@@ -8,6 +8,6 @@
 **Surprise:** `isBlackjack` represents a "natural" blackjack, which must be exactly 2 cards totaling 21. A player reaching 21 via splitting or hitting does NOT qualify for the 3:2 payout, making this boolean distinct from a simple `score == 21` check.
 **Rule:** Always distinguish between "Natural Blackjack" and "21-score" in both documentation and payout logic, as they carry different financial implications in the game loop.
 
-## 2026-03-29 - GameAction
-**Surprise:** `GameAction.NewGame` is not just for starting a fresh session; it's also the mechanism for "Repeat Bet" by accepting `previousBets` and `lastSideBets`. Understanding that this action re-normalizes the game state while carrying over betting context is key for UI implementations.
-**Rule:** Document `NewGame` as a state-reset and context-carry-over event, especially regarding how it handles balance normalization and previous wagering context.
+## 2026-03-29 - GameStatus
+**Surprise:** `GameStatus.IDLE` is defined as the default status for `GameState` but the `BlackjackStateMachine` initializes with `BETTING`. This makes `IDLE` effectively a pre-session placeholder. Also, `GameStatus.PLAYER_WON` is a collective status for the round, triggered if *any* player hand wins.
+**Rule:** When documenting state enums, distinguish between "reachable" application states and "uninitialized" defaults like `IDLE`.

@@ -161,18 +161,39 @@ data class GameRules(
     val splitOnValueOnly: Boolean = false,
 )
 
+/**
+ * Represents the lifecycle stages of a single Blackjack round.
+ *
+ * The standard sequence is: [BETTING] -> [DEALING] -> [PLAYING] -> [DEALER_TURN] -> terminal status.
+ * Specialized states like [INSURANCE_OFFERED] may occur immediately after [DEALING].
+ */
 @Serializable
 enum class GameStatus {
+    /** The player is currently placing bets and configuring the game. No cards have been dealt. */
     BETTING,
 
-    /** Transient state during the animated card deal. Never terminal; transitions to [PLAYING] or a terminal status immediately after. */
+    /** Transient state while cards are being dealt with animations. Always transitions to the next phase. */
     DEALING,
+
+    /** Default uninitialized state, used as a placeholder before a game session starts. */
     IDLE,
+
+    /** The round is active and the player is making decisions (Hit, Stand, etc.) for their hands. */
     PLAYING,
+
+    /** Specialized state occurring if the dealer shows an Ace, offering the player an insurance side-bet. */
     INSURANCE_OFFERED,
+
+    /** The dealer is revealing their hole card and drawing cards according to house rules. */
     DEALER_TURN,
+
+    /** Terminal state: The player won the round (at least one hand won or had a natural Blackjack). */
     PLAYER_WON,
+
+    /** Terminal state: The dealer won the round (all player hands lost or busted). */
     DEALER_WON,
+
+    /** Terminal state: The round ended in a tie (all hands pushed or tie was the best outcome). */
     PUSH
 }
 
