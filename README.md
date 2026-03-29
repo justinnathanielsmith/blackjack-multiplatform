@@ -81,6 +81,8 @@ Tests are located in `test/` directories within each module.
 ```
 We follow a **Spec-Driven Development** approach. Requirements and plans for features are documented in `conductor/tracks/<feature>/spec.md`.
 
+For a full directory of **AI Subagents** and commands, see the [AI Subagent & Workflow Guide](file:///Users/justinsmith/Projects/blackjack/docs/AI_AGENTS_GUIDE.md).
+
 ## 🔄 Version Control: Jujutsu (jj)
 
 This project is managed with **Jujutsu (jj)**. While a `.git` folder exists for compatibility, use `jj` commands for development:
