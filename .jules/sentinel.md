@@ -15,3 +15,7 @@
 **Vulnerability:** Command Injection Potential / Path Traversal in `sharedUI/src@jvm/services/JvmAudioServiceImpl.kt` via `ProcessBuilder` execution. The `path` parameter derived from a resource map was passed unverified into `ProcessBuilder` which poses a potential Command Injection/Path Traversal risk if the mapping logic or cache is poisoned.
 **Learning:** External commands executed with `ProcessBuilder` can execute arbitrary processes or traverse directories if paths are not carefully validated against a secure base directory.
 **Prevention:** Verify file paths using `file.canonicalPath` and check against an expected, secure base directory (`tempAudioDir.canonicalPath`) before using them in shell commands or native APIs.
+## 2024-11-06 - Safe Temporary File Creation
+**Vulnerability:** A Time-of-Check to Time-of-Use (TOCTOU) vulnerability where temp directories/files were created with `createTempDirectory` or `createNewFile` and subsequently had `setReadable(false, false)`, `setWritable(false, false)` applied as fallbacks.
+**Learning:** Using `java.nio.file.Files.createTempDirectory` inherently provides secure, restricted permissions by default on the JVM. Trying to manually enforce POSIX permissions and using fallbacks like `.createNewFile()` with `.setReadable()` introduces a TOCTOU vulnerability and should be avoided.
+**Prevention:** Rely on the native security of `Files.createTempDirectory` without post-creation permission modifications to avoid TOCTOU race conditions.
