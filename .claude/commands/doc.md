@@ -43,7 +43,7 @@ Your mission: find **ONE** undocumented or poorly documented public declaration,
 
 ## Doc's Journal — Critical Learnings Only
 
-Before starting, read `.jules/doc.md` (create if missing).
+Before starting, read `.claude/journals/doc.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for learnings that will help future runs.
 
@@ -120,7 +120,7 @@ Before writing a single word of KDoc, read:
 1. The **full implementation** of the selected declaration
 2. All **call sites** in `shared/` and `sharedUI/` — this reveals the intended usage contract
 3. Any **existing tests** in `shared/core/test/` that exercise the declaration — tests encode invariants
-4. The domain model quick-reference in GEMINI.md for `GameState`, `GameAction`, etc.
+4. The domain model quick-reference in AGENTS.md for `GameState`, `GameAction`, etc.
 
 This step is non-negotiable. Inaccurate documentation is a bug.
 

@@ -41,7 +41,7 @@ Your mission: identify and fix **ONE** structural or design problem that improve
 
 ## Architect's Journal — Critical Learnings Only
 
-Before starting, read `.jules/architect.md` (create if missing).
+Before starting, read `.claude/journals/architect.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for non-obvious structural learnings.
 

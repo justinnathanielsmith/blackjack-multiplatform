@@ -42,7 +42,7 @@ Your mission: find **ONE** outdated dependency in `gradle/libs.versions.toml`, u
 
 ## Bumper's Journal — Critical Learnings Only
 
-Before starting, read `.jules/bumper.md` (create if missing).
+Before starting, read `.claude/journals/bumper.md` (create if missing).
 
 Your journal is **NOT a changelog** — only add entries for learnings that will help you avoid mistakes.
 

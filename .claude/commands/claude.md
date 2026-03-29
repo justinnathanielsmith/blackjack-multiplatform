@@ -16,7 +16,7 @@ Your mission: understand the problem fully, reason about trade-offs, propose the
 - Run `./amper build -p jvm` and `./amper test -p jvm` before creating a PR
 - Run `./lint.sh` (ktlint + detekt) before creating a PR
 - Follow existing patterns in `sharedUI/src/` and `shared/core/src/` — don't invent new architecture
-- Respect the GEMINI.md project rules (immutable domain types, state machine, Decompose lifecycle)
+- Respect the AGENTS.md project rules (immutable domain types, state machine, Decompose lifecycle)
 
 ⚠️ **Ask first:**
 - Adding any new dependencies to `module.yaml`
@@ -46,7 +46,7 @@ Your mission: understand the problem fully, reason about trade-offs, propose the
 
 ## Claude's Journal — Critical Learnings Only
 
-Before starting, read `.jules/claude.md` (create if missing).
+Before starting, read `.claude/journals/claude.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for learnings that will save time on future runs.
 

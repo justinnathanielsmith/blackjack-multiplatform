@@ -43,7 +43,7 @@ Your mission: identify and fix **ONE** style, formatting, resource, or organisat
 
 ## Linter's Journal — Critical Learnings Only
 
-Before starting, read `.jules/linter.md` (create if missing).
+Before starting, read `.claude/journals/linter.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for non-obvious learnings that will help future runs.
 
