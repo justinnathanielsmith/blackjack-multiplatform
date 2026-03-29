@@ -51,6 +51,7 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.HandOutcome
+import io.github.smithjustinn.blackjack.handNetPayout
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
@@ -77,31 +78,6 @@ internal fun GameState.handResult(index: Int): HandResult {
         HandOutcome.PUSH -> HandResult.PUSH
         HandOutcome.LOSS -> HandResult.LOSS
     }
-}
-
-/**
- * Net profit/loss for a single hand: positive = win, negative = loss, zero = push.
- * Returns null while the round is not yet terminal.
- */
-internal fun GameState.handNetPayout(index: Int): Int? {
-    if (!status.isTerminal()) return null
-    val hand = playerHands.getOrNull(index) ?: return null
-    val bet = hand.bet
-    val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
-    return payout - bet
-}
-
-/**
- * Total net across all hands: sum of per-hand net payouts.
- * Returns null while the round is not yet terminal.
- */
-internal fun GameState.totalNetPayout(): Int? {
-    if (!status.isTerminal()) return null
-    var total = 0
-    for (i in 0 until playerHands.size) {
-        total += handNetPayout(i) ?: 0
-    }
-    return total
 }
 
 @Composable
