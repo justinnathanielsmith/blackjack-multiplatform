@@ -26,7 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -121,88 +121,106 @@ fun BetChip(
                     } else {
                         Modifier
                     }
-                ).drawBehind {
+                ).drawWithCache {
                     val radius = size.minDimension / 2
                     val center = Offset(size.width / 2, size.height / 2)
 
                     // Side depth offset (3D effect)
                     val depthOffset = 3.dp.toPx()
 
-                    // Draw the "side" of the chip for 3D depth
-                    drawCircle(
-                        color = chipColor.copy(alpha = 0.8f),
-                        radius = radius,
-                        center = center.copy(y = center.y + depthOffset)
-                    )
-
-                    // Main top surface with a subtle gradient for gloss
-                    drawCircle(
-                        brush =
-                            Brush.radialGradient(
-                                0.0f to chipColor.copy(alpha = 1f),
-                                0.7f to chipColor.copy(alpha = 0.95f),
-                                1.0f to chipColor.copy(alpha = 0.9f),
-                                center = center,
-                                radius = radius
-                            ),
-                        radius = radius,
-                        center = center
-                    )
-
-                    // Gloss highlight at the top
-                    drawCircle(
-                        brush =
-                            Brush.radialGradient(
-                                0.0f to Color.White.copy(alpha = 0.25f),
-                                1.0f to Color.Transparent,
-                                center = center.copy(y = center.y - radius * 0.4f),
-                                radius = radius * 0.6f
-                            ),
-                        radius = radius * 0.6f,
-                        center = center.copy(y = center.y - radius * 0.4f)
-                    )
-
-                    // Outer rim highlights
-                    drawCircle(
-                        color = Color.White.copy(alpha = 0.4f),
-                        radius = radius - 0.5.dp.toPx(),
-                        center = center,
-                        style = Stroke(width = 1.dp.toPx())
-                    )
-
-                    // Decorative blocks on the rim (standard casino chip look)
-                    val dashLength = (radius * 2 * PI / 12).toFloat()
-                    if (dashLength > 0f) {
-                        drawCircle(
-                            color = Color.White.copy(alpha = 0.7f),
-                            radius = radius * 0.94f,
+                    // Pre-compute gradients and strokes (Bolt Performance Optimization)
+                    // Avoids allocating Brush, PathEffect, and FloatArray on every draw frame.
+                    val mainBrush =
+                        Brush.radialGradient(
+                            0.0f to chipColor.copy(alpha = 1f),
+                            0.7f to chipColor.copy(alpha = 0.95f),
+                            1.0f to chipColor.copy(alpha = 0.9f),
                             center = center,
-                            style =
-                                Stroke(
-                                    width = 3.5.dp.toPx(),
-                                    pathEffect =
-                                        PathEffect.dashPathEffect(
-                                            floatArrayOf(dashLength / 2, dashLength / 2),
-                                            0f
-                                        )
-                                )
+                            radius = radius
+                        )
+
+                    val topGlossBrush =
+                        Brush.radialGradient(
+                            0.0f to Color.White.copy(alpha = 0.25f),
+                            1.0f to Color.Transparent,
+                            center = center.copy(y = center.y - radius * 0.4f),
+                            radius = radius * 0.6f
+                        )
+
+                    val outerRimStroke = Stroke(width = 1.dp.toPx())
+
+                    val dashLength = (radius * 2 * PI / 12).toFloat()
+                    val dashedStroke =
+                        if (dashLength > 0f) {
+                            Stroke(
+                                width = 3.5.dp.toPx(),
+                                pathEffect =
+                                    PathEffect.dashPathEffect(
+                                        floatArrayOf(dashLength / 2, dashLength / 2),
+                                        0f
+                                    )
+                            )
+                        } else {
+                            null
+                        }
+
+                    val innerHighlightStroke = Stroke(width = 1.5.dp.toPx())
+
+                    onDrawBehind {
+                        // Draw the "side" of the chip for 3D depth
+                        drawCircle(
+                            color = chipColor.copy(alpha = 0.8f),
+                            radius = radius,
+                            center = center.copy(y = center.y + depthOffset)
+                        )
+
+                        // Main top surface with a subtle gradient for gloss
+                        drawCircle(
+                            brush = mainBrush,
+                            radius = radius,
+                            center = center
+                        )
+
+                        // Gloss highlight at the top
+                        drawCircle(
+                            brush = topGlossBrush,
+                            radius = radius * 0.6f,
+                            center = center.copy(y = center.y - radius * 0.4f)
+                        )
+
+                        // Outer rim highlights
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.4f),
+                            radius = radius - 0.5.dp.toPx(),
+                            center = center,
+                            style = outerRimStroke
+                        )
+
+                        // Decorative blocks on the rim (standard casino chip look)
+                        if (dashedStroke != null) {
+                            drawCircle(
+                                color = Color.White.copy(alpha = 0.7f),
+                                radius = radius * 0.94f,
+                                center = center,
+                                style = dashedStroke
+                            )
+                        }
+
+                        // Inner circle highlight (recessed look)
+                        drawCircle(
+                            color = Color.Black.copy(alpha = 0.15f),
+                            radius = radius * 0.75f,
+                            center = center,
+                            style = innerHighlightStroke
+                        )
+
+                        // Center inlay
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.12f),
+                            radius = radius * 0.65f,
+                            center = center
                         )
                     }
-
-                    // Inner circle highlight (recessed look)
-                    drawCircle(
-                        color = Color.Black.copy(alpha = 0.15f),
-                        radius = radius * 0.75f,
-                        center = center,
-                        style = Stroke(width = 1.5.dp.toPx())
-                    )
-
-                    // Center inlay
-                    drawCircle(
-                        color = Color.White.copy(alpha = 0.12f),
-                        radius = radius * 0.65f,
-                        center = center
-                    )
                 },
         contentAlignment = Alignment.Center,
     ) {
