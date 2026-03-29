@@ -111,7 +111,7 @@ import sharedui.generated.resources.side_bet_three_of_a_kind
 import kotlin.random.Random
 
 // GameStatus.isTerminal() is now in GameLogic.kt
-// GameState.handResult() is defined in OverlayCardTable.kt
+// GameState.handResult() is defined in BlackjackHandContainer.kt
 
 @Composable
 fun BlackjackScreen(component: BlackjackComponent) {
