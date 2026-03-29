@@ -334,6 +334,20 @@ data class GameState(
         val rankMatch = if (rules.splitOnValueOnly) c0.value == c1.value else c0 == c1
         return rankMatch
     }
+
+    /**
+     * Returns true if the deal action is available during the betting phase:
+     * at least one hand exists and every hand has a non-zero bet placed.
+     * Domain predicate — keeps bet validation logic out of the UI layer.
+     */
+    fun canDeal(): Boolean = playerHands.isNotEmpty() && playerHands.all { it.bet > 0 }
+
+    /**
+     * Returns true if at least one player hand has a bet that can be cleared,
+     * meaning the reset-bet action is available during the betting phase.
+     * Domain predicate — keeps bet validation logic out of the UI layer.
+     */
+    fun canResetBet(): Boolean = playerHands.any { it.bet > 0 }
 }
 
 enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
