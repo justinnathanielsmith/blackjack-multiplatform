@@ -166,37 +166,44 @@ fun BettingSlot(
                         },
                 contentAlignment = Alignment.Center
             ) {
-                if (amount > 0) {
-                    if (isSideBet) {
-                        BetChip(
-                            amount = amount,
-                            chipColor = ChipUtils.chipColor(amount),
-                            textColor = ChipUtils.chipTextColor(amount),
-                        )
+                androidx.compose.animation.Crossfade(
+                    targetState = amount > 0,
+                    animationSpec = tween(durationMillis = 300),
+                    label = "betSlotContent",
+                    modifier = Modifier.align(Alignment.Center)
+                ) { hasAmount ->
+                    if (hasAmount) {
+                        if (isSideBet) {
+                            BetChip(
+                                amount = amount,
+                                chipColor = ChipUtils.chipColor(amount),
+                                textColor = ChipUtils.chipTextColor(amount),
+                            )
+                        } else {
+                            ChipStack(amount = amount, isActive = true)
+                        }
                     } else {
-                        ChipStack(amount = amount, isActive = true)
+                        Text(
+                            text =
+                                when {
+                                    isSideBet -> label.replace(" ", "\n")
+                                    label.isNotEmpty() -> label.replace(" ", "\n")
+                                    else -> stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
+                                },
+                            color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
+                            style =
+                                when {
+                                    isSideBet -> MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                                    slotSize < 100.dp -> MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp)
+                                    else -> MaterialTheme.typography.labelMedium
+                                },
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = if (isSideBet || slotSize < 100.dp) 0.sp else 2.sp,
+                            textAlign = TextAlign.Center,
+                            maxLines = 3,
+                            lineHeight = if (slotSize < 100.dp) 12.sp else 16.sp
+                        )
                     }
-                } else {
-                    Text(
-                        text =
-                            when {
-                                isSideBet -> label.replace(" ", "\n")
-                                label.isNotEmpty() -> label.replace(" ", "\n")
-                                else -> stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
-                            },
-                        color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
-                        style =
-                            when {
-                                isSideBet -> MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
-                                slotSize < 100.dp -> MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp)
-                                else -> MaterialTheme.typography.labelMedium
-                            },
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = if (isSideBet || slotSize < 100.dp) 0.sp else 2.sp,
-                        textAlign = TextAlign.Center,
-                        maxLines = 3,
-                        lineHeight = if (slotSize < 100.dp) 12.sp else 16.sp
-                    )
                 }
             }
         }
