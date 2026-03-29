@@ -43,9 +43,11 @@ import io.github.smithjustinn.blackjack.utils.DropTarget
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_spot_description
+import sharedui.generated.resources.bet_spot_description_with_label
 import sharedui.generated.resources.bet_spot_tap_to_bet
 import sharedui.generated.resources.side_bet_spot_description
 import sharedui.generated.resources.tap_to_place_bet
+import sharedui.generated.resources.tap_to_place_bet_with_label
 import sharedui.generated.resources.tap_to_place_side_bet
 
 @Composable
@@ -84,12 +86,16 @@ fun BettingSlot(
         if (amount > 0) {
             if (isSideBet) {
                 stringResource(Res.string.side_bet_spot_description, label, amount)
+            } else if (label.isNotEmpty()) {
+                stringResource(Res.string.bet_spot_description_with_label, label, amount)
             } else {
                 stringResource(Res.string.bet_spot_description, amount)
             }
         } else {
             if (isSideBet) {
                 stringResource(Res.string.tap_to_place_side_bet, label)
+            } else if (label.isNotEmpty()) {
+                stringResource(Res.string.tap_to_place_bet_with_label, label)
             } else {
                 stringResource(Res.string.tap_to_place_bet)
             }
@@ -173,13 +179,10 @@ fun BettingSlot(
                 } else {
                     Text(
                         text =
-                            if (isSideBet) {
-                                label.replace(
-                                    " ",
-                                    "\n"
-                                )
-                            } else {
-                                stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
+                            when {
+                                isSideBet -> label.replace(" ", "\n")
+                                label.isNotEmpty() -> label.replace(" ", "\n")
+                                else -> stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
                             },
                         color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
                         style =

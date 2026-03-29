@@ -132,9 +132,16 @@
     <string name="bet_chip_description">Bet chip %1$s</string>
     <string name="btn_close_description">Close</string>
     <string name="bet_spot_description">Bet spot with %1$d</string>
+    <string name="bet_spot_description_with_label">Bet spot %1$s with %2$d</string>
     <string name="side_bet_spot_description">Side bet %1$s with %2$d</string>
     <string name="tap_to_place_bet">Tap to place bet</string>
+    <string name="tap_to_place_bet_with_label">Tap to place %1$s bet</string>
     <string name="tap_to_place_side_bet">Tap to place %1$s side bet</string>
+
+    <string name="seat_left">LEFT</string>
+    <string name="seat_center">CENTER</string>
+    <string name="seat_right">RIGHT</string>
+    <string name="seat_main">MAIN</string>
 
     <!-- Emojis and Symbols -->
     <string name="emoji_crown">👑</string>
