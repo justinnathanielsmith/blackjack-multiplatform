@@ -501,7 +501,9 @@ object BlackjackRules {
         val playerHasBJ =
             current.handCount == 1 && playerHands[0].score == BLACKJACK_SCORE && playerHands[0].cards.size == 2
         val shouldOfferInsurance = current.handCount == 1 && !playerHasBJ && dealerHand.cards[0].rank == Rank.ACE
-        val dealerHandRevealed = Hand(dealerHand.cards.map { it.copy(isFaceDown = false) }.toPersistentList())
+        // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
+        val dealerHandRevealed =
+            Hand(dealerHand.cards.map { if (it.isFaceDown) it.copy(isFaceDown = false) else it }.toPersistentList())
 
         val initialStatus =
             if (shouldOfferInsurance) {

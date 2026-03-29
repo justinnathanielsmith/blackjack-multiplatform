@@ -524,7 +524,8 @@ class BlackjackStateMachine(
                     _state.value.dealerHand.copy(
                         cards =
                             _state.value.dealerHand.cards
-                                .map { it.copy(isFaceDown = false) }
+                                // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
+                                .map { if (it.isFaceDown) it.copy(isFaceDown = false) else it }
                                 .toPersistentList()
                     )
             )
