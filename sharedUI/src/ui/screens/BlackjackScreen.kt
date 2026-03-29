@@ -189,17 +189,19 @@ fun BlackjackScreen(component: BlackjackComponent) {
     }
 
     // handZones[0] = dealer, handZones[1..N] = player hands
-    val activeHandHighlightPosition by animateOffsetAsState(
-        targetValue =
-            if (state.status == GameStatus.PLAYING) {
-                val zone = dealRegistry.tableLayout?.handZones?.getOrNull(state.activeHandIndex + 1)
-                if (zone != null) zone.clusterCenter + dealRegistry.gameplayAreaOffset else Offset.Zero
-            } else {
-                Offset.Zero
-            },
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = "activeHandHighlight",
-    )
+    // Bolt Performance Optimization: Remove delegated 'by' and read .value in draw scope to avoid screen-wide recomposition during animation.
+    val activeHandHighlightPositionState =
+        animateOffsetAsState(
+            targetValue =
+                if (state.status == GameStatus.PLAYING) {
+                    val zone = dealRegistry.tableLayout?.handZones?.getOrNull(state.activeHandIndex + 1)
+                    if (zone != null) zone.clusterCenter + dealRegistry.gameplayAreaOffset else Offset.Zero
+                } else {
+                    Offset.Zero
+                },
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "activeHandHighlight",
+        )
 
     // Trigger payout animations when results are calculated and it's a win
     LaunchedEffect(state.status, state.playerHands) {
@@ -354,7 +356,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 androidx.compose.ui.graphics.drawscope
                                     .Stroke(width = 1.5.dp.toPx())
                             val insuranceOffset = 40.dp.toPx()
-                            val highlightRadius = size.maxDimension * 0.4f
 
                             onDrawBehind {
                                 // 1. Base Felt Gradient (shifted up towards the dealer)
@@ -461,19 +462,21 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     end = Offset(size.width, size.height - railHeight),
                                     strokeWidth = 1.dp.toPx()
                                 )
-
-                                // 5. Active Hand Highlight — read in draw scope to avoid recomposition
-                                val highlightPos = activeHandHighlightPosition
-                                if (highlightPos != Offset.Zero) {
-                                    drawRect(
-                                        brush =
-                                            Brush.radialGradient(
-                                                colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
-                                                center = highlightPos,
-                                                radius = highlightRadius
-                                            )
-                                    )
-                                }
+                            }
+                        }.drawBehind {
+                            // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame,
+                            // skipping the expensive felt texture and static arcs in the drawWithCache above.
+                            val highlightPos = activeHandHighlightPositionState.value
+                            if (highlightPos != Offset.Zero) {
+                                val highlightRadius = size.maxDimension * 0.4f
+                                drawRect(
+                                    brush =
+                                        Brush.radialGradient(
+                                            colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
+                                            center = highlightPos,
+                                            radius = highlightRadius
+                                        )
+                                )
                             }
                         }.graphicsLayer { translationX = shakeOffset.value * density },
             ) {
