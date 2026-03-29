@@ -1,11 +1,11 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -72,7 +73,11 @@ fun BetChip(
         label = "chipScale",
     )
 
-    val chipSize = if (isActive) 56.dp else 48.dp
+    val chipSize by animateDpAsState(
+        targetValue = if (isActive) 56.dp else 48.dp,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 300f),
+        label = "chipSizeAnimation"
+    )
 
     val displayAmount =
         when {
@@ -103,7 +108,8 @@ fun BetChip(
                 ).then(
                     if (onClick != null) {
                         Modifier
-                            .clickable(
+                            .selectable(
+                                selected = isActive,
                                 interactionSource = interactionSource,
                                 indication = null,
                                 enabled = enabled,
@@ -112,12 +118,6 @@ fun BetChip(
                             ).semantics {
                                 contentDescription = chipDescription
                             }
-                    } else {
-                        Modifier
-                    }
-                ).then(
-                    if (isFocused) {
-                        Modifier.border(2.dp, Color.White, CircleShape)
                     } else {
                         Modifier
                     }

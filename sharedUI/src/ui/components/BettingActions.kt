@@ -23,6 +23,7 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.deal
+import sharedui.generated.resources.deal_description
 import sharedui.generated.resources.reset_bet
 import sharedui.generated.resources.reset_bet_description
 
@@ -72,6 +73,7 @@ fun BettingActions(
             enabled = canDeal,
             isStrategic = true,
             showShine = canDeal,
+            contentDescription = stringResource(Res.string.deal_description),
             containerColor = PrimaryGold,
             contentColor = BackgroundDark,
         )
