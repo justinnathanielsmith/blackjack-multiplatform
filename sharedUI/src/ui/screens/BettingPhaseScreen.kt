@@ -1,5 +1,11 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -18,6 +24,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -35,6 +44,8 @@ import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.add_seat_description
+import sharedui.generated.resources.remove_seat_description
 import sharedui.generated.resources.seats_label
 import sharedui.generated.resources.side_bet_perfect_pairs_label
 import sharedui.generated.resources.side_bet_twenty_one_plus_three_label
@@ -230,6 +241,7 @@ fun BettingPhaseScreen(
             ) {
                 CasinoButton(
                     text = "−",
+                    contentDescription = stringResource(Res.string.remove_seat_description),
                     enabled = state.handCount > 1,
                     onClick = {
                         component.onAction(GameAction.SelectHandCount(state.handCount - 1))
@@ -240,14 +252,36 @@ fun BettingPhaseScreen(
                             vertical = 10.dp
                         ),
                 )
-                Text(
-                    text = "${state.handCount} ${stringResource(Res.string.seats_label)}",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = PrimaryGold,
-                    fontWeight = FontWeight.Bold,
-                )
+
+                AnimatedContent(
+                    targetState = state.handCount,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            // Sliding up when count increases
+                            (slideInVertically { height -> height } + fadeIn())
+                                .togetherWith(slideOutVertically { height -> -height } + fadeOut())
+                        } else {
+                            // Sliding down when count decreases
+                            (slideInVertically { height -> -height } + fadeIn())
+                                .togetherWith(slideOutVertically { height -> height } + fadeOut())
+                        }.using(
+                            sizeTransform = null // Don't animate size changes of the container
+                        )
+                    },
+                    label = "SeatCountAnimation"
+                ) { count ->
+                    Text(
+                        text = "$count ${stringResource(Res.string.seats_label)}",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = PrimaryGold,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+                    )
+                }
+
                 CasinoButton(
                     text = "+",
+                    contentDescription = stringResource(Res.string.add_seat_description),
                     enabled = state.handCount < 3,
                     onClick = {
                         component.onAction(GameAction.SelectHandCount(state.handCount + 1))
