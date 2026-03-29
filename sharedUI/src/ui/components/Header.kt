@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -191,7 +192,11 @@ internal fun AutoDealIcon(
                 }.background(backgroundColor, RoundedCornerShape(16.dp))
                 .border(1.dp, borderColor, RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))
-                .clickable(role = Role.Button) { onClick() },
+                .toggleable(
+                    value = enabled,
+                    role = Role.Switch,
+                    onValueChange = { onClick() }
+                ),
         contentAlignment = Alignment.Center,
     ) {
         Text(text = stringResource(Res.string.emoji_lightning), fontSize = 14.sp)

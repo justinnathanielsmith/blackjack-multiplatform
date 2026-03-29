@@ -2,7 +2,6 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -147,8 +147,11 @@ private fun StrategyTabs(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .clickable(role = Role.Tab) { onTabSelected(tab) }
-                        .background(if (isSelected) PrimaryGold else Color.Transparent)
+                        .selectable(
+                            selected = isSelected,
+                            role = Role.Tab,
+                            onClick = { onTabSelected(tab) }
+                        ).background(if (isSelected) PrimaryGold else Color.Transparent)
                         .padding(vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {

@@ -26,3 +26,7 @@
 ## 2025-03-26 - Screen Reader Announcements for Dynamic Component Values (Scores)
 **Learning:** In Compose Multiplatform, UI elements like a blackjack `ScoreBadge` that dynamically pop in or continuously change values aren't automatically read aloud by screen readers as they appear. This leads to a situation where visual users see a hand's live score (e.g., jumping from 10 to 18), but screen reader users get no auditory feedback of the current total unless they manually re-focus the badge.
 **Action:** Append `Modifier.semantics { liveRegion = LiveRegionMode.Polite; contentDescription = "..." }` to dynamically appearing/updating individual components like score badges. This ensures the accessibility service announces the state change (like "Score 18" or "Bust, score 24") right as it happens, keeping audio-dependent users in the loop automatically.
+
+## 2025-03-27 - Exposing Selected State for Custom Tabs and Toggles
+**Learning:** When creating custom Tabs or Toggle buttons using a `Box` or `Row`, simply using `.clickable(role = Role.Tab)` or `Role.Button` fails to communicate the actual active/selected state to screen readers. Blind users hear the role but cannot perceive which tab is active or if a feature like Auto-Deal is on/off.
+**Action:** Use `Modifier.selectable(selected = ..., role = Role.Tab)` for custom tabs and `Modifier.toggleable(value = ..., role = Role.Switch)` for custom toggles instead of `.clickable()`. This inherently exposes the current boolean state to accessibility services.
