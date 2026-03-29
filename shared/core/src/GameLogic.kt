@@ -45,6 +45,22 @@ data class Card(
     val isFaceUp: Boolean get() = !isFaceDown
 }
 
+/**
+ * Represents a set of cards held by either the player or the dealer.
+ *
+ * Each hand tracks its own cards, associated bet, and lifecycle status (e.g., whether it
+ * was split or stands). Blackjack scoring logic, including natural blackjacks and
+ * ace-reduction, is encapsulated here.
+ *
+ * @property cards The [PersistentList] of cards held in this hand.
+ * @property bet The current amount wagered on this hand (main bet).
+ * @property lastBet The previous bet amount, used for "Repeat Bet" functionality.
+ * @property isStanding True if the player has chosen to take no further cards for this hand.
+ * @property wasSplit True if this hand was created by splitting a identical pair.
+ * @property isFromSplitAce True if this hand was one of two created by splitting a pair of Aces.
+ *           Special rules often apply to split Aces (e.g., only one card deal).
+ * @property isSurrendered True if the player has surrendered the hand (losing half the bet).
+ */
 @Immutable
 @Serializable
 data class Hand(
@@ -73,13 +89,27 @@ data class Hand(
         return s
     }
 
+    /**
+     * The total point value of all cards in the hand, with Aces counted as 11
+     * where possible without exceeding 21.
+     */
     val score: Int get() = calculateScore(ignoreFaceDown = false)
 
+    /**
+     * The point value of only face-up cards in the hand.
+     *
+     * This is primarily used for the dealer up-card display before the hole card is revealed.
+     */
     val visibleScore: Int get() = calculateScore(ignoreFaceDown = true)
 
+    /** True if the hand's [score] exceeds 21. */
     val isBust: Boolean get() = score > 21
 
-    /** True if this hand is a natural blackjack (exactly 2 cards totalling 21). */
+    /**
+     * True if this hand is a "natural" blackjack — exactly 2 cards totalling 21.
+     *
+     * Note: A hand totaling 21 after splitting or hitting is NOT a natural blackjack.
+     */
     val isBlackjack: Boolean get() = cards.size == 2 && score == 21
 
     /**
