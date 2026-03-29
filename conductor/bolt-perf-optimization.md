@@ -4,7 +4,7 @@
 Optimize the `Hand` class by replacing dynamic, computed properties (which execute O(n) loops over hand cards on every read) with `lazy` delegated properties. This ensures the score and other derived state properties are computed only once per hand instance, providing O(1) lookup during Compose recompositions and game logic transitions.
 
 ## Background & Motivation
-Currently, `val score: Int get() = calculateScore(ignoreFaceDown = false)` is defined as a computed property inside `shared/core/src/GameLogic.kt`. Because `Hand` is part of the `GameState` and is read repeatedly on every render frame and animation loop by the UI (e.g., in `ScoreBadge`, `DealerCard`, `OverlayCardTable`), `calculateScore` is needlessly re-run many times per second. By memoizing the result with `by lazy { ... }`, we reduce CPU load and prevent repeated iteration of the card list.
+Currently, `Hand` is part of the `GameState` and is read repeatedly on every render frame and animation loop by the UI (e.g., in `ScoreBadge`, `DealerCard`, `OverlayCardTable`). While `by lazy { ... }` has been added to memoize these properties, they are missing the `@Transient` annotation. Without `@Transient`, `kotlinx.serialization` attempts to serialize the `Lazy` delegate backing field, which can cause runtime crashes (`Serializer for class 'Lazy' is not found`) or unnecessary payload bloat. By adding `@Transient`, we ensure the `lazy` memoization works safely within our serializable state machine.
 
 ## Scope & Impact
 - Target File: `shared/core/src/GameLogic.kt`
