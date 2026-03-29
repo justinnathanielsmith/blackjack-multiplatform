@@ -79,6 +79,9 @@ data class Hand(
 
     val isBust: Boolean get() = score > 21
 
+    /** True if this hand is a natural blackjack (exactly 2 cards totalling 21). */
+    val isBlackjack: Boolean get() = cards.size == 2 && score == 21
+
     /**
      * True if at least one Ace is being counted as 11 (i.e. the hand is "soft").
      *
