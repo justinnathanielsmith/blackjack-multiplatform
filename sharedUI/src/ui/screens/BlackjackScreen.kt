@@ -62,6 +62,7 @@ import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.totalNetPayout
 import io.github.smithjustinn.blackjack.ui.components.BetChip
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.components.ControlCenter
@@ -76,7 +77,6 @@ import io.github.smithjustinn.blackjack.ui.components.Shoe
 import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.components.computeTableLayout
 import io.github.smithjustinn.blackjack.ui.components.handResult
-import io.github.smithjustinn.blackjack.ui.components.totalNetPayout
 import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect

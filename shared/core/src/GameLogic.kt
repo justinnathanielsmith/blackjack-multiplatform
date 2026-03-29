@@ -235,6 +235,29 @@ data class GameState(
 
 enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
 
+// Domain layer: per-hand and total net payout helpers so UI never re-implements bet math.
+
+/** Net profit/loss for a single hand: positive = win, negative = loss, zero = push.
+ * Returns null while the round is not yet terminal. */
+fun GameState.handNetPayout(index: Int): Int? {
+    if (!status.isTerminal()) return null
+    val hand = playerHands.getOrNull(index) ?: return null
+    val bet = hand.bet
+    val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
+    return payout - bet
+}
+
+/** Total net across all hands: sum of per-hand net payouts.
+ * Returns null while the round is not yet terminal. */
+fun GameState.totalNetPayout(): Int? {
+    if (!status.isTerminal()) return null
+    var total = 0
+    for (i in 0 until playerHands.size) {
+        total += handNetPayout(i) ?: 0
+    }
+    return total
+}
+
 /**
  * Aggregated result of all player hands at the end of a round.
  * @param totalPayout sum of individual hand payouts (0 means all were lost)
