@@ -160,3 +160,9 @@ Config: `.editorconfig` (ktlint, `package-name` disabled), `config/detekt/detekt
 ## Spec-Driven Development
 Tracks live in `conductor/tracks/<track-name>/`. Each track has `spec.md` (requirements) and `plan.md` (steps).
 Always write tests against spec before implementing.
+
+---
+
+## 🤖 AI Subagent & Workflow Guide
+For a detailed guide on how to use slash commands and the project's subagent ecosystem, see:
+- [AI Subagent & Workflow Guide](file:///Users/justinsmith/Projects/blackjack/docs/AI_AGENTS_GUIDE.md)
