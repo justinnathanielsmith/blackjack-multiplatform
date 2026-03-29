@@ -1,13 +1,18 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
@@ -22,6 +27,27 @@ fun ChipStack(
     isActive: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val pulseScale = remember { Animatable(1f) }
+
+    LaunchedEffect(amount) {
+        if (amount > 0) {
+            pulseScale.snapTo(1.15f)
+            pulseScale.animateTo(
+                targetValue = 1f,
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+            )
+        }
+    }
+
+    val animatedModifier =
+        modifier.graphicsLayer {
+            scaleX = pulseScale.value
+            scaleY = pulseScale.value
+        }
     val chips =
         remember(amount) {
             val list = mutableListOf<Int>()
@@ -49,9 +75,9 @@ fun ChipStack(
         }
 
     if (chips.isEmpty() && amount > 0) {
-        BetChip(amount = amount, isActive = isActive, modifier = modifier)
+        BetChip(amount = amount, isActive = isActive, modifier = animatedModifier)
     } else {
-        Box(modifier = modifier, contentAlignment = Alignment.BottomCenter) {
+        Box(modifier = animatedModifier, contentAlignment = Alignment.BottomCenter) {
             chips.forEachIndexed { index, denom ->
                 val offset = stackOffsets.getOrElse(index) { Offset(0f, -index * 4.5f) }
 

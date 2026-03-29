@@ -45,3 +45,6 @@
 ## 2026-03-29 - Contextual Seat Labels for Multi-Hand Accessibility
 **Learning:** In multi-hand games (like 2-3 seats), using generic labels like "Tap to place bet" for all seats makes them indistinguishable to screen reader users. Providing spatial labels ("Left", "Center", "Right") significantly improves navigation and clarity.
 **Action:** Always provide context-aware labels (position-based) for repeated interactive slots. Pass these labels to custom components and incorporate them into `contentDescription` templates.
+## 2026-03-29 - ChipStack Pulse Animation
+**Learning:** Reading `Animatable.value` inside a `graphicsLayer { ... }` block defers state reads to the rendering layer phase, preventing expensive full composable recompositions when adding quick micro-interactions (like a chip stack scaling pulse).
+**Action:** Use `graphicsLayer { scaleX = anim.value }` instead of passing the animated value directly to a modifier or drawing it outside a lambda.
