@@ -13,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BalanceServiceTest {
+    // Tests use DataStoreBalanceService directly; production code injects via BalanceService interface
     class FakeDataStore : DataStore<Preferences> {
         private val state = MutableStateFlow<Preferences>(emptyPreferences())
 
@@ -45,7 +46,7 @@ class BalanceServiceTest {
     fun testDefaultBalanceIsEmittedWhenEmpty() =
         runTest {
             val dataStore = FakeDataStore()
-            val service = BalanceService(dataStore)
+            val service = DataStoreBalanceService(dataStore)
 
             assertEquals(BalanceService.DEFAULT_BALANCE, service.balanceFlow.first())
         }
@@ -54,7 +55,7 @@ class BalanceServiceTest {
     fun testSaveBalanceUpdatesValue() =
         runTest {
             val dataStore = FakeDataStore()
-            val service = BalanceService(dataStore)
+            val service = DataStoreBalanceService(dataStore)
 
             service.saveBalance(2500)
 
@@ -65,7 +66,7 @@ class BalanceServiceTest {
     fun testResetBalanceRestoresDefaultValue() =
         runTest {
             val dataStore = FakeDataStore()
-            val service = BalanceService(dataStore)
+            val service = DataStoreBalanceService(dataStore)
 
             service.saveBalance(500)
             assertEquals(500, service.balanceFlow.first())
@@ -78,7 +79,7 @@ class BalanceServiceTest {
     fun testExceptionInDataFlowReturnsDefaultValue() =
         runTest {
             val dataStore = ExceptionFakeDataStore()
-            val service = BalanceService(dataStore)
+            val service = DataStoreBalanceService(dataStore)
 
             assertEquals(BalanceService.DEFAULT_BALANCE, service.balanceFlow.first())
         }
