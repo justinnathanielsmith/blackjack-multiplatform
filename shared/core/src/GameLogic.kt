@@ -510,4 +510,6 @@ sealed class GameEffect {
     ) : GameEffect()
 
     data object PlayPlinkSound : GameEffect()
+
+    data object PlayPushSound : GameEffect()
 }

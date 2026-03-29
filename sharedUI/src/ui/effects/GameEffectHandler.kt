@@ -42,6 +42,7 @@ private fun handleAudioEffect(
         GameEffect.PlayLoseSound -> audio.playEffect(AudioService.SoundEffect.LOSE)
         GameEffect.DealerCriticalDraw -> audio.playEffect(AudioService.SoundEffect.TENSION)
         GameEffect.PlayPlinkSound -> audio.playEffect(AudioService.SoundEffect.PLINK)
+        GameEffect.PlayPushSound -> audio.playEffect(AudioService.SoundEffect.PUSH)
         else -> {}
     }
 }

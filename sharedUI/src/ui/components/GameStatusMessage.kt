@@ -51,6 +51,7 @@ import sharedui.generated.resources.net_result_lost
 import sharedui.generated.resources.net_result_push
 import sharedui.generated.resources.net_result_won
 import sharedui.generated.resources.status_betting
+import sharedui.generated.resources.status_blackjack_exclamation
 import sharedui.generated.resources.status_dealer_turn
 import sharedui.generated.resources.status_dealer_won
 import sharedui.generated.resources.status_dealing
@@ -127,7 +128,7 @@ fun GameStatusMessage(
 
     val statusText =
         when {
-            isBlackjack -> "Blackjack!"
+            isBlackjack -> stringResource(Res.string.status_blackjack_exclamation)
             status == GameStatus.BETTING -> stringResource(Res.string.status_betting)
             status == GameStatus.IDLE -> stringResource(Res.string.status_idle)
             status == GameStatus.DEALING -> stringResource(Res.string.status_dealing)

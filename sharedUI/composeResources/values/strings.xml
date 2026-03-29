@@ -55,6 +55,7 @@
     <string name="status_waiting">Waiting</string>
     <string name="status_bust">BUST</string>
     <string name="status_blackjack">BLACKJACK</string>
+    <string name="status_blackjack_exclamation">Blackjack!</string>
     <string name="status_twenty_one">21</string>
     <string name="result_win">Win</string>
     <string name="result_loss">Loss</string>

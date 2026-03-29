@@ -315,6 +315,8 @@ class BlackjackStateMachine(
         } else if (initialStatus == GameStatus.DEALER_WON) {
             emitEffect(GameEffect.PlayLoseSound)
             emitEffect(GameEffect.ChipLoss(current.currentBet))
+        } else if (initialStatus == GameStatus.PUSH) {
+            emitEffect(GameEffect.PlayPushSound)
         }
     }
 
@@ -570,6 +572,7 @@ class BlackjackStateMachine(
                 emitEffect(GameEffect.PlayLoseSound)
                 if (state.playerHands.none { it.isBust }) emitEffect(GameEffect.Vibrate)
             }
+            GameStatus.PUSH -> emitEffect(GameEffect.PlayPushSound)
             else -> {}
         }
     }

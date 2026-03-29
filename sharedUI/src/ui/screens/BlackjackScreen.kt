@@ -306,23 +306,16 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
+    // UI-only: shake animation on dealer win; audio handled via GameEffect pipeline
     LaunchedEffect(state.status) {
-        when (state.status) {
-            GameStatus.PLAYER_WON -> {
-                audioService.playEffect(AudioService.SoundEffect.WIN)
+        if (state.status == GameStatus.DEALER_WON) {
+            launch {
+                shakeOffset.animateTo(15f, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(-15f, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(10f, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(-10f, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(0f, spring<Float>(stiffness = Spring.StiffnessMedium))
             }
-            GameStatus.DEALER_WON -> {
-                audioService.playEffect(AudioService.SoundEffect.LOSE)
-                launch {
-                    shakeOffset.animateTo(15f, spring<Float>(stiffness = Spring.StiffnessHigh))
-                    shakeOffset.animateTo(-15f, spring<Float>(stiffness = Spring.StiffnessHigh))
-                    shakeOffset.animateTo(10f, spring<Float>(stiffness = Spring.StiffnessHigh))
-                    shakeOffset.animateTo(-10f, spring<Float>(stiffness = Spring.StiffnessHigh))
-                    shakeOffset.animateTo(0f, spring<Float>(stiffness = Spring.StiffnessMedium))
-                }
-            }
-            GameStatus.PUSH -> audioService.playEffect(AudioService.SoundEffect.PUSH)
-            else -> {}
         }
     }
 
