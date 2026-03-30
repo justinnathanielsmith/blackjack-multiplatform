@@ -52,6 +52,26 @@ import sharedui.generated.resources.action_stand
 import sharedui.generated.resources.new_game
 import sharedui.generated.resources.split
 
+/**
+ * A premium, highly-animated button component designed for the casino environment.
+ *
+ * This button features a 3D "embossed" look with vertical gradients, automated scale-spring
+ * animations on press, and specialized visual treatments for strategic actions and "juicy" highlights.
+ *
+ * @param text The label displayed on the button. Automatically transformed to uppercase.
+ * @param onClick Callback invoked when the button is tapped. Only active if [enabled] is true.
+ * @param modifier [Modifier] applied to the root of the button layout.
+ * @param enabled When false, the button is non-interactive and appears desaturated with a "glass" texture.
+ * @param isStrategic When true, the button uses [PrimaryGold] to signal it as the recommended
+ *        strategic move (e.g., as suggested by the house or basic strategy logic).
+ * @param showShine When true, triggers a repeating diagonal "shine" sweep animation across the button
+ *        surface to draw user attention.
+ * @param containerColor Optional override for the button's background color. Defaults based on [isStrategic].
+ * @param contentColor Optional override for the text label color. Defaults based on [isStrategic].
+ * @param contentPadding Internal [PaddingValues] around the text label.
+ * @param contentDescription Text read by accessibility services to describe the button's action.
+ * @param stateDescription Text read by accessibility services to describe the button's current state.
+ */
 @Composable
 fun CasinoButton(
     text: String,
