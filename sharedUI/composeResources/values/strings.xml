@@ -143,6 +143,8 @@
     <string name="score_accessibility_blackjack">Blackjack! Score 21</string>
     <string name="score_accessibility_dealer">Dealer score %1$d</string>
     <string name="score_accessibility_generic">Score %1$d</string>
+    <string name="status_announcement_template">%1$s. %2$s</string>
+
 
 
     <string name="seat_left">LEFT</string>

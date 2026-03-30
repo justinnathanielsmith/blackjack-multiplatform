@@ -51,6 +51,7 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.net_result_lost
 import sharedui.generated.resources.net_result_push
 import sharedui.generated.resources.net_result_won
+import sharedui.generated.resources.status_announcement_template
 import sharedui.generated.resources.status_betting
 import sharedui.generated.resources.status_blackjack_exclamation
 import sharedui.generated.resources.status_dealer_turn
@@ -166,7 +167,7 @@ fun GameStatusMessage(
 
     val screenReaderAnnouncement =
         if (netLabel != null) {
-            "$statusText. $netLabel"
+            stringResource(Res.string.status_announcement_template, statusText, netLabel)
         } else {
             statusText
         }
@@ -284,6 +285,7 @@ fun GameStatusMessage(
 
 @Preview
 @Composable
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 private fun GameStatusMessagePlayerWonPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
@@ -294,6 +296,7 @@ private fun GameStatusMessagePlayerWonPreview() {
 
 @Preview
 @Composable
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 private fun GameStatusMessageBlackjackPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
@@ -304,6 +307,7 @@ private fun GameStatusMessageBlackjackPreview() {
 
 @Preview
 @Composable
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 private fun GameStatusMessageDealerWonPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
@@ -314,6 +318,7 @@ private fun GameStatusMessageDealerWonPreview() {
 
 @Preview
 @Composable
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 private fun GameStatusMessagePushPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
