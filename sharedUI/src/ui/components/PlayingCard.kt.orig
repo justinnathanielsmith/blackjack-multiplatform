@@ -40,8 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -388,14 +386,10 @@ fun PlayingCard(
 
     val showBack = rotation < 90f
 
-    val cardDescription = if (isFaceUp) "${card.rank.name} of ${card.suit.name}" else "Card face down"
-
     Box(
         modifier =
             modifier
-                .clearAndSetSemantics {
-                    contentDescription = cardDescription
-                }.requiredWidth(Dimensions.Card.StandardWidth * scale)
+                .requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
                     rotationZ = baseRotation
@@ -527,7 +521,6 @@ internal fun CardCorner(
     }
 }
 
-@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardAcePreview() {
@@ -541,7 +534,6 @@ private fun PlayingCardAcePreview() {
     }
 }
 
-@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardTenPreview() {
@@ -555,7 +547,6 @@ private fun PlayingCardTenPreview() {
     }
 }
 
-@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardCourtPreview() {
@@ -569,7 +560,6 @@ private fun PlayingCardCourtPreview() {
     }
 }
 
-@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardBackPreview() {
@@ -583,7 +573,6 @@ private fun PlayingCardBackPreview() {
     }
 }
 
-@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardNearMissPreview() {
