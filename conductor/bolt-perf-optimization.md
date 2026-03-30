@@ -1,62 +1,57 @@
-# Bolt Performance Optimization: O(1) Hand Score Memoization
+# Bolt Performance Optimization: O(1) Hand Score & Softness Memoization
 
 ## Objective
-Optimize the `Hand` class by replacing dynamic, computed properties (which execute O(n) loops over hand cards on every read) with `lazy` delegated properties. This ensures the score and other derived state properties are computed only once per hand instance, providing O(1) lookup during Compose recompositions and game logic transitions.
+Optimize the `Hand` class by:
+1.  **Removing redundant `@Transient` annotations**: Following `kotlinx.serialization` best practices for `by lazy` properties to eliminate compiler warnings and reduce bytecode.
+2.  **Consolidating Hand Metrics**: Replacing multiple O(n) passes for `score` and `isSoft` with a single-pass calculation stored in a shared `metrics` lazy property.
+3.  **Improving `isSoft` Efficiency**: Deriving softness directly from the remaining unreduced Aces in the score calculation, reducing total card iterations from O(2n) to O(n).
 
 ## Background & Motivation
-Currently, `Hand` is part of the `GameState` and is read repeatedly on every render frame and animation loop by the UI (e.g., in `ScoreBadge`, `DealerCard`, `OverlayCardTable`). While `by lazy { ... }` has been added to memoize these properties, they are missing the `@Transient` annotation. Without `@Transient`, `kotlinx.serialization` attempts to serialize the `Lazy` delegate backing field, which can cause runtime crashes (`Serializer for class 'Lazy' is not found`) or unnecessary payload bloat. By adding `@Transient`, we ensure the `lazy` memoization works safely within our serializable state machine.
+`Hand` is a central data class in `GameState`, read frequently by both the state machine and the UI (especially during dealer draw animations and badge rendering). Currently, `isSoft` and `score` each perform a separate iteration over all cards. Furthermore, the `@Transient` annotation on `by lazy` properties in `@Serializable` classes is redundant and produces compiler warnings, as documented in the latest Bolt journal entry (2026-03-29).
 
 ## Scope & Impact
 - Target File: `shared/core/src/GameLogic.kt`
-- Impact: O(n) overhead reduced to O(1) for repeated reads of hand properties.
+- Impact: 
+    - Reduces card iterations for combined score/softness checks by 50%.
+    - Eliminates redundant bytecode and compiler warnings.
+    - O(1) lookup for all derived hand properties after the first read.
 
 ## Proposed Solution
-Update `Hand` to use `lazy` delegates and `@Transient` for properties that calculate values based on the cards:
-- `score`
-- `visibleScore`
-- `isBust`
-- `isBlackjack`
-- `isSoft`
+Refactor `Hand` to use an internal `HandMetrics` object:
 
-### Example
 ```kotlin
-    @Transient
-    val score: Int by lazy { calculateScore(ignoreFaceDown = false) }
+    private data class HandMetrics(val score: Int, val isSoft: Boolean)
 
-    @Transient
-    val visibleScore: Int by lazy { calculateScore(ignoreFaceDown = true) }
-
-    @Transient
-    val isBust: Boolean by lazy { score > 21 }
-
-    @Transient
-    val isBlackjack: Boolean by lazy { cards.size == 2 && score == 21 }
-
-    @Transient
-    val isSoft: Boolean by lazy {
-        var hasAce = false
-        var hardScore = 0
+    private val metrics: HandMetrics by lazy {
+        var s = 0
+        var aces = 0
         for (i in 0 until cards.size) {
             val card = cards[i]
-            if (card.rank == Rank.ACE) {
-                hasAce = true
-                hardScore += 1
-            } else {
-                hardScore += card.rank.value
-            }
+            s += card.rank.value
+            if (card.rank == Rank.ACE) aces++
         }
-        if (!hasAce) false
-        else score != hardScore
+        while (s > 21 && aces > 0) {
+            s -= 10
+            aces--
+        }
+        HandMetrics(score = s, isSoft = aces > 0)
     }
+
+    val score: Int get() = metrics.score
+    val isSoft: Boolean get() = metrics.isSoft
 ```
-*Note: Ensure `kotlinx.serialization.Transient` is imported.*
 
 ## Implementation Steps
-1. Open `shared/core/src/GameLogic.kt`.
-2. Import `kotlinx.serialization.Transient`.
-3. Modify the `Hand` data class properties (`score`, `visibleScore`, `isBust`, `isBlackjack`, `isSoft`) to use `@Transient` and `by lazy`.
+1.  Open `shared/core/src/GameLogic.kt`.
+2.  Modify the `Hand` data class body:
+    -   Define a private `HandMetrics` data class.
+    -   Implement the consolidated `metrics` lazy property.
+    -   Update `score` and `isSoft` to use `metrics`.
+    -   Remove redundant `@Transient` from all body properties (`visibleScore`, `isBust`, etc.).
+3.  Clean up the unused `calculateScore` private function.
+4.  Update `visibleScore` to use a direct calculation (still O(n), but only used for dealer display).
 
 ## Verification & Testing
-- Run `./amper test -p jvm` to ensure all core tests pass.
-- Run `./amper build -p jvm` to verify compilation.
-- Ensure that the UI behaves normally when cards are dealt and scores are updated.
+1.  Run `./amper test -p jvm` to ensure game logic remains correct (especially Ace reduction and soft hands).
+2.  Run `./amper build -p jvm` and verify no compiler warnings related to `@Transient`.
+3.  Verify that `DealerCard` and `ScoreBadge` correctly display scores and softness animations.

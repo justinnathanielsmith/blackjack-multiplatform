@@ -7,7 +7,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 @Serializable
 enum class Suit {
@@ -73,16 +72,18 @@ data class Hand(
     val isFromSplitAce: Boolean = false,
     val isSurrendered: Boolean = false,
 ) {
-    // Bolt Performance Optimization: Score and derived properties are now memoized
-    // using `by lazy` instead of computed getters. This reduces O(N) card iterations
-    // to O(1) during Compose recompositions and game state evaluations.
-    // Shared ace-reduction logic. Accepts boolean to optionally ignore face-down cards.
-    private fun calculateScore(ignoreFaceDown: Boolean): Int {
+    private data class HandMetrics(
+        val score: Int,
+        val isSoft: Boolean
+    )
+
+    // Bolt Performance Optimization: Score and softness are computed in a single pass.
+    // Memoization using `by lazy` reduces O(N) card iterations to O(1) during gameplay.
+    private val metrics: HandMetrics by lazy {
         var s = 0
         var aces = 0
         for (i in 0 until cards.size) {
             val card = cards[i]
-            if (ignoreFaceDown && card.isFaceDown) continue
             s += card.rank.value
             if (card.rank == Rank.ACE) aces++
         }
@@ -90,64 +91,55 @@ data class Hand(
             s -= 10
             aces--
         }
-        return s
+        HandMetrics(score = s, isSoft = aces > 0)
     }
 
     /**
      * The total point value of all cards in the hand, with Aces counted as 11
      * where possible without exceeding 21.
      */
-    @Transient
-    val score: Int by lazy { calculateScore(ignoreFaceDown = false) }
+    val score: Int get() = metrics.score
 
     /**
      * The point value of only face-up cards in the hand.
-     *
      * This is primarily used for the dealer up-card display before the hole card is revealed.
      */
-    @Transient
-    val visibleScore: Int by lazy { calculateScore(ignoreFaceDown = true) }
+    val visibleScore: Int by lazy {
+        var vs = 0
+        var vAces = 0
+        for (i in 0 until cards.size) {
+            val card = cards[i]
+            if (card.isFaceDown) continue
+            vs += card.rank.value
+            if (card.rank == Rank.ACE) vAces++
+        }
+        while (vs > 21 && vAces > 0) {
+            vs -= 10
+            vAces--
+        }
+        vs
+    }
 
     /** True if the hand's [score] exceeds 21. */
-    @Transient
     val isBust: Boolean by lazy { score > 21 }
 
     /**
      * True if this hand is a "natural" blackjack — exactly 2 cards totalling 21.
-     *
      * Note: A hand totaling 21 after splitting or hitting is NOT a natural blackjack.
      */
-    @Transient
     val isBlackjack: Boolean by lazy { cards.size == 2 && score == 21 }
 
     /**
      * True if the hand totals 21 via three or more cards (not a natural blackjack).
      * Distinct from [isBlackjack], which requires exactly 2 cards.
      */
-    @Transient
     val isTwentyOne: Boolean by lazy { score == 21 && !isBlackjack }
 
     /**
      * True if at least one Ace is being counted as 11 (i.e. the hand is "soft").
-     *
-     * Note: iterates **all** cards, including face-down ones. Only call this after the
-     * dealer's hole card has been revealed (e.g. inside [BlackjackRules.shouldDealerDraw]).
+     * Derived efficiently from the score calculation result.
      */
-    @Transient
-    val isSoft: Boolean by lazy {
-        var hasAce = false
-        var hardScore = 0
-        for (i in 0 until cards.size) {
-            val card = cards[i]
-            if (card.rank == Rank.ACE) {
-                hasAce = true
-                hardScore += 1
-            } else {
-                hardScore += card.rank.value
-            }
-        }
-        hasAce && score != hardScore
-    }
+    val isSoft: Boolean get() = metrics.isSoft
 }
 
 @Serializable
