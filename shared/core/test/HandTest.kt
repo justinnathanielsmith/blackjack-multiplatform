@@ -139,4 +139,69 @@ class HandTest {
         assertEquals(17, hand.score)
         assertEquals(false, hand.isSoft)
     }
+
+    @Test
+    fun testTension_zeroForSafeScores() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.SEVEN, Suit.HEARTS),
+                    Card(Rank.NINE, Suit.SPADES),
+                )
+            )
+        assertEquals(16, hand.score)
+        assertEquals(0.0f, hand.tension)
+    }
+
+    @Test
+    fun testTension_lowForSeventeen() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.TEN, Suit.HEARTS),
+                    Card(Rank.SEVEN, Suit.SPADES),
+                )
+            )
+        assertEquals(17, hand.score)
+        assertEquals(0.2f, hand.tension)
+    }
+
+    @Test
+    fun testTension_midForEighteen() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.TEN, Suit.HEARTS),
+                    Card(Rank.EIGHT, Suit.SPADES),
+                )
+            )
+        assertEquals(18, hand.score)
+        assertEquals(0.4f, hand.tension)
+    }
+
+    @Test
+    fun testTension_highForNineteen() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.TEN, Suit.HEARTS),
+                    Card(Rank.NINE, Suit.SPADES),
+                )
+            )
+        assertEquals(19, hand.score)
+        assertEquals(0.7f, hand.tension)
+    }
+
+    @Test
+    fun testTension_maxForTwentyAndAbove() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.TEN, Suit.HEARTS),
+                    Card(Rank.TEN, Suit.SPADES),
+                )
+            )
+        assertEquals(20, hand.score)
+        assertEquals(1.0f, hand.tension)
+    }
 }

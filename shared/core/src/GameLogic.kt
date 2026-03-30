@@ -136,6 +136,21 @@ data class Hand(
     val isTwentyOne: Boolean by lazy { score == 21 && !isBlackjack }
 
     /**
+     * A [0.0, 1.0] weight representing how dangerous this hand is to hit.
+     * Scores 17–20 are the standing-risk zone; scores below 17 carry no tension.
+     */
+    @Suppress("MagicNumber") // Blackjack standing-risk thresholds are self-documenting domain values
+    val tension: Float by lazy {
+        when {
+            score >= 20 -> 1.0f
+            score == 19 -> 0.7f
+            score == 18 -> 0.4f
+            score == 17 -> 0.2f
+            else -> 0.0f
+        }
+    }
+
+    /**
      * True if at least one Ace is being counted as 11 (i.e. the hand is "soft").
      * Derived efficiently from the score calculation result.
      */
