@@ -7,6 +7,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 enum class Suit {
@@ -96,6 +97,7 @@ data class Hand(
      * The total point value of all cards in the hand, with Aces counted as 11
      * where possible without exceeding 21.
      */
+    @Transient
     val score: Int by lazy { calculateScore(ignoreFaceDown = false) }
 
     /**
@@ -103,9 +105,11 @@ data class Hand(
      *
      * This is primarily used for the dealer up-card display before the hole card is revealed.
      */
+    @Transient
     val visibleScore: Int by lazy { calculateScore(ignoreFaceDown = true) }
 
     /** True if the hand's [score] exceeds 21. */
+    @Transient
     val isBust: Boolean by lazy { score > 21 }
 
     /**
@@ -113,6 +117,7 @@ data class Hand(
      *
      * Note: A hand totaling 21 after splitting or hitting is NOT a natural blackjack.
      */
+    @Transient
     val isBlackjack: Boolean by lazy { cards.size == 2 && score == 21 }
 
     /**
@@ -121,6 +126,7 @@ data class Hand(
      * Note: iterates **all** cards, including face-down ones. Only call this after the
      * dealer's hole card has been revealed (e.g. inside [BlackjackRules.shouldDealerDraw]).
      */
+    @Transient
     val isSoft: Boolean by lazy {
         var hasAce = false
         var hardScore = 0
