@@ -362,16 +362,8 @@ class BlackjackStateMachine(
         val totalCards = current.rules.deckCount * BlackjackRules.CARDS_PER_DECK
         val threshold = totalCards / BlackjackRules.RESHUFFLE_THRESHOLD_DIVISOR
 
-        // Always reshuffle if empty.
-        if (current.deck.isEmpty()) {
-            return BlackjackRules.createDeck(current.rules, secureRandom)
-        }
-
-        // In tests, respect custom small decks unless they are empty.
-        if (isTest) return current.deck
-
-        // Reshuffle if less than 25% of the shoe remains.
-        return if (current.deck.size < threshold) {
+        // Casino rules: reshuffle when the deck penetration reaches the threshold.
+        return if (current.deck.size <= threshold) {
             BlackjackRules.createDeck(current.rules, secureRandom)
         } else {
             current.deck
@@ -578,7 +570,10 @@ class BlackjackStateMachine(
 
         if (take) {
             val insuranceBet = state.currentBet / 2
-            if (insuranceBet > state.balance) return
+            if (insuranceBet > state.balance) {
+                emitEffect(GameEffect.Vibrate)
+                return
+            }
             _state.value =
                 state.copy(
                     balance = state.balance - insuranceBet,

@@ -62,9 +62,13 @@ object PlayerActionLogic {
     }
 
     fun doubleDown(state: GameState): PlayerActionOutcome {
-        if (state.status != GameStatus.PLAYING || !state.canDoubleDown()) {
-            return PlayerActionOutcome.noop(state)
+        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
+        val hand = state.activeHand
+        val canLogicDouble = hand.cards.size == 2 && (!hand.wasSplit || state.rules.allowDoubleAfterSplit)
+        if (canLogicDouble && state.balance < hand.bet) {
+            return PlayerActionOutcome(state, listOf(GameEffect.Vibrate))
         }
+        if (!canLogicDouble) return PlayerActionOutcome.noop(state)
 
         val drawnCard = state.deck.firstOrNull() ?: return PlayerActionOutcome.noop(state)
         val remainingDeck = state.deck.drop(1).toPersistentList()
@@ -102,9 +106,25 @@ object PlayerActionLogic {
     }
 
     fun split(state: GameState): PlayerActionOutcome {
-        if (state.status != GameStatus.PLAYING || !state.canSplit()) {
-            return PlayerActionOutcome.noop(state)
+        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
+        val hand = state.activeHand
+        val c0 = hand.cards.getOrNull(0)?.rank
+        val c1 = hand.cards.getOrNull(1)?.rank
+        val rankMatch =
+            if (state.rules.splitOnValueOnly) {
+                c0?.value == c1?.value
+            } else {
+                c0 == c1
+            }
+        val canLogicSplit =
+            state.playerHands.size < GameState.MAX_HANDS &&
+                hand.cards.size == 2 &&
+                rankMatch == true
+
+        if (canLogicSplit && state.balance < hand.bet) {
+            return PlayerActionOutcome(state, listOf(GameEffect.Vibrate))
         }
+        if (!canLogicSplit) return PlayerActionOutcome.noop(state)
         if (state.deck.size < CARDS_TO_DEAL_ON_SPLIT) return PlayerActionOutcome.noop(state)
 
         val card1 = state.activeHand.cards[0]
