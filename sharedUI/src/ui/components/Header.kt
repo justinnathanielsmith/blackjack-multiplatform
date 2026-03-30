@@ -29,6 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -169,7 +174,6 @@ internal fun AutoDealIcon(
         label = "pulseAlpha2",
     )
 
-    val borderColor = if (enabled) PrimaryGold.copy(alpha = borderAlpha) else GlassLight
     val backgroundColor = GlassDark
 
     Box(
@@ -192,8 +196,29 @@ internal fun AutoDealIcon(
                     scaleX = scale
                     scaleY = scale
                 }.background(backgroundColor, RoundedCornerShape(16.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp))
+                .drawWithCache {
+                    val strokeWidth = 1.dp.toPx()
+                    val halfStroke = strokeWidth / 2f
+                    val stroke = Stroke(strokeWidth)
+                    val topLeftOffset = Offset(halfStroke, halfStroke)
+                    val strokeSize = Size(size.width - strokeWidth, size.height - strokeWidth)
+                    val cornerRadius = CornerRadius(16.dp.toPx() - halfStroke)
+
+                    onDrawWithContent {
+                        drawContent()
+                        // Bolt Performance Optimization:
+                        // Deferring `borderAlpha` state read to the draw phase eliminates O(Frames)
+                        // recompositions. Hoisting `Stroke` out of the draw loop eliminates GC overhead.
+                        val currentBorderColor = if (enabled) PrimaryGold.copy(alpha = borderAlpha) else GlassLight
+                        drawRoundRect(
+                            color = currentBorderColor,
+                            topLeft = topLeftOffset,
+                            size = strokeSize,
+                            style = stroke,
+                            cornerRadius = cornerRadius
+                        )
+                    }
+                }.clip(RoundedCornerShape(16.dp))
                 .toggleable(
                     value = enabled,
                     role = Role.Switch,
