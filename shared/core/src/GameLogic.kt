@@ -410,13 +410,37 @@ data class HandResults(
     val allPush: Boolean
 )
 
+/**
+ * The central engine for Blackjack rules, scoring, and deal orchestration.
+ *
+ * This object contains pure logic for determining hand outcomes, calculating payouts,
+ * and managing the lifecycle of a round from initial deal to final settlement.
+ */
 object BlackjackRules {
+    /** The target score for a natural Blackjack or a non-bust hand. */
     const val BLACKJACK_SCORE = 21
+
+    /** The minimum score a dealer must achieve before they stop drawing (Stand). */
     const val DEALER_STAND_THRESHOLD = 17
+
+    /** The lowest score at which a dealer hand is considered "stiff" (risk of busting on next draw). */
     const val DEALER_STIFF_MIN = 12
+
+    /** Total number of cards in a standard physical deck. */
     const val CARDS_PER_DECK = 52
+
+    /** The divisor used to determine when the shoe should be reshuffled (e.g. 4 = reshuffle at 25% remaining). */
     const val RESHUFFLE_THRESHOLD_DIVISOR = 4
 
+    /**
+     * Returns true if the dealer must draw another card according to standard rules.
+     *
+     * Dealers typically stand on 17+, but may hit on "soft" 17 if [GameRules.dealerHitsSoft17] is enabled.
+     *
+     * @param hand The dealer's current [Hand].
+     * @param rules The [GameRules] defining house hit/stand behavior.
+     * @return True if the dealer should hit, false if they should stand.
+     */
     fun shouldDealerDraw(
         hand: Hand,
         rules: GameRules
@@ -426,6 +450,14 @@ object BlackjackRules {
         return false
     }
 
+    /**
+     * Determines the win/loss status of a single player hand against the dealer's score.
+     *
+     * @param hand The player's [Hand] to evaluate.
+     * @param dealerScore The final point total achieved by the dealer.
+     * @param dealerBust True if the dealer exceeded 21.
+     * @return The resulting [HandOutcome] for the player.
+     */
     fun determineHandOutcome(
         hand: Hand,
         dealerScore: Int,
@@ -442,10 +474,17 @@ object BlackjackRules {
     }
 
     /**
-     * Returns the chip payout for a single hand.
+     * Returns the chip payout for a single hand based on its outcome.
      *
      * Natural BJ payout uses integer division (casino convention): e.g. with 3:2,
      * a $3 bet returns $7 (not $7.50). Odd-bet rounding is intentional and tested.
+     *
+     * @param hand The [Hand] being settled.
+     * @param bet The specific amount wagered on this hand.
+     * @param dealerScore The final total for the dealer.
+     * @param dealerBust True if the dealer busted.
+     * @param rules The [GameRules] for this round (includes payout multipliers).
+     * @return The total number of chips to return to the player (initial bet + profit).
      */
     fun resolveHand(
         hand: Hand,
@@ -464,6 +503,14 @@ object BlackjackRules {
         }
     }
 
+    /**
+     * Aggregates the results across all player hands at the end of a dealer turn.
+     *
+     * @param state The current [GameState] containing player hands and rules.
+     * @param dealerScore The dealer's final point total.
+     * @param dealerBust True if the dealer busted.
+     * @return A [HandResults] object summarizing the total payout and broad win/push status.
+     */
     fun calculateHandResults(
         state: GameState,
         dealerScore: Int,
@@ -491,12 +538,15 @@ object BlackjackRules {
     }
 
     /**
-     * Determines the game status immediately after the initial deal.
+     * Determines the initial status of the game immediately following the deal.
      *
-     * **Multi-hand note:** if the dealer has a natural Blackjack the round ends as
-     * [GameStatus.DEALER_WON] for all player hands — even if an individual player hand
-     * is also a natural BJ. This is an intentional simplification for the multi-hand
-     * flow. Single-hand correctly resolves the BJ-vs-BJ case as [GameStatus.PUSH].
+     * Handles instant wins (natural Blackjack) and ties. In multi-hand play, if the dealer
+     * has a natural Blackjack, all user hands are considered lost immediately.
+     *
+     * @param hands The player cards dealt.
+     * @param dealerHand The dealer's initial two cards.
+     * @param handCount The number of active hands.
+     * @return The starting [GameStatus] for the round.
      */
     fun determineInitialStatus(
         hands: List<Hand>,
@@ -523,11 +573,16 @@ object BlackjackRules {
     }
 
     /**
-     * Computes the post-deal status, final dealer hand, and balance delta.
+     * Calculates the starting variables for the game after the initial two cards are dealt.
      *
-     * **Insurance invariant:** insurance is only offered when the dealer's up-card is an Ace
-     * AND the player does NOT have a natural BJ (see `shouldOfferInsurance`). Therefore
-     * [GameState.insuranceBet] is guaranteed to be 0 at this point — no refund is needed here.
+     * This orchestrates status transitions (like [GameStatus.INSURANCE_OFFERED]), dealer card
+     * reveal, and initial balance updates for natural blackjacks.
+     *
+     * @param current The current [GameState] during the deal.
+     * @param playerHands The final player cards (after deal animation).
+     * @param dealerHand The final dealer cards (after deal animation).
+     * @return A triple containing the new [GameStatus], the updated [Hand] (potentially flipped),
+     *         and the initial balance delta (chips won).
      */
     fun resolveInitialOutcomeValues(
         current: GameState,
@@ -567,6 +622,13 @@ object BlackjackRules {
         return Triple(initialStatus, finalDealerHand, balanceUpdate)
     }
 
+    /**
+     * Creates a new randomized shoe of cards based on the specified rule set.
+     *
+     * @param rules The [GameRules] defining the number of decks to include.
+     * @param random The [Random] generator used for shuffling.
+     * @return A shuffled [List] of [Card]s.
+     */
     fun createDeck(
         rules: GameRules,
         random: kotlin.random.Random
