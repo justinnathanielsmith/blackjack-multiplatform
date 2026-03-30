@@ -21,4 +21,21 @@ class GameStatusTest {
         assertFalse(GameStatus.INSURANCE_OFFERED.isTerminal())
         assertFalse(GameStatus.DEALER_TURN.isTerminal())
     }
+
+    @Test
+    fun isStatusVisible_returnsTrue_forVisibleStates() {
+        assertTrue(GameStatus.DEALING.isStatusVisible())
+        assertTrue(GameStatus.DEALER_TURN.isStatusVisible())
+        assertTrue(GameStatus.PLAYER_WON.isStatusVisible())
+        assertTrue(GameStatus.DEALER_WON.isStatusVisible())
+        assertTrue(GameStatus.PUSH.isStatusVisible())
+    }
+
+    @Test
+    fun isStatusVisible_returnsFalse_forHiddenStates() {
+        assertFalse(GameStatus.BETTING.isStatusVisible())
+        assertFalse(GameStatus.IDLE.isStatusVisible())
+        assertFalse(GameStatus.PLAYING.isStatusVisible())
+        assertFalse(GameStatus.INSURANCE_OFFERED.isStatusVisible())
+    }
 }
