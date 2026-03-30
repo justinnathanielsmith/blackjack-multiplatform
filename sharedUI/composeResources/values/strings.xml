@@ -138,6 +138,11 @@
     <string name="tap_to_place_bet">Tap to place bet</string>
     <string name="tap_to_place_bet_with_label">Tap to place %1$s bet</string>
     <string name="tap_to_place_side_bet">Tap to place %1$s side bet</string>
+    <string name="score_accessibility_bust">Bust, score %1$d</string>
+    <string name="score_accessibility_blackjack">Blackjack! Score 21</string>
+    <string name="score_accessibility_dealer">Dealer score %1$d</string>
+    <string name="score_accessibility_generic">Score %1$d</string>
+
 
     <string name="seat_left">LEFT</string>
     <string name="seat_center">CENTER</string>

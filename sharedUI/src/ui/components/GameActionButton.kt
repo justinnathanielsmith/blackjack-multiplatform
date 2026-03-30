@@ -43,9 +43,12 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.hit
 import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_stand
+import sharedui.generated.resources.stand
 
 @Composable
 fun GameActionButton(
@@ -209,13 +212,13 @@ private fun GameActionButtonPreview() {
             GameActionButton(
                 icon = Res.drawable.ic_hit,
                 onClick = {},
-                label = "Hit",
+                label = stringResource(Res.string.hit),
                 isStrategic = true
             )
             GameActionButton(
                 icon = Res.drawable.ic_stand,
                 onClick = {},
-                label = "Stand"
+                label = stringResource(Res.string.stand)
             )
         }
     }

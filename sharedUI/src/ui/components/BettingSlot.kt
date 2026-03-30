@@ -45,6 +45,7 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_spot_description
 import sharedui.generated.resources.bet_spot_description_with_label
 import sharedui.generated.resources.bet_spot_tap_to_bet
+import sharedui.generated.resources.side_bet_perfect_pair
 import sharedui.generated.resources.side_bet_spot_description
 import sharedui.generated.resources.tap_to_place_bet
 import sharedui.generated.resources.tap_to_place_bet_with_label
@@ -226,7 +227,7 @@ private fun BettingSlotMainBetPreview() {
 private fun BettingSlotSideBetPreview() {
     BettingSlot(
         amount = 50,
-        label = "Perfect Pairs",
+        label = stringResource(Res.string.side_bet_perfect_pair),
         onClick = {},
         isSideBet = true,
     )
@@ -248,7 +249,7 @@ private fun BettingSlotEmptyMainBetPreview() {
 private fun BettingSlotEmptySideBetPreview() {
     BettingSlot(
         amount = 0,
-        label = "Perfect Pairs",
+        label = stringResource(Res.string.side_bet_perfect_pair),
         onClick = {},
         isSideBet = true,
     )
@@ -259,7 +260,7 @@ private fun BettingSlotEmptySideBetPreview() {
 private fun SmallBettingSlotPreview() {
     BettingSlot(
         amount = 0,
-        label = "TAP TO BET",
+        label = stringResource(Res.string.bet_spot_tap_to_bet),
         onClick = {},
         slotSize = 84.dp,
     )

@@ -36,6 +36,12 @@ import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.score_accessibility_blackjack
+import sharedui.generated.resources.score_accessibility_bust
+import sharedui.generated.resources.score_accessibility_dealer
+import sharedui.generated.resources.score_accessibility_generic
 
 enum class ScoreBadgeState {
     ACTIVE,
@@ -82,10 +88,10 @@ fun ScoreBadge(
 
     val announcement =
         when {
-            isBust -> "Bust, score $score"
-            is21 -> "Blackjack! Score 21"
-            state == ScoreBadgeState.DEALER -> "Dealer score $score"
-            else -> "Score $score"
+            isBust -> stringResource(Res.string.score_accessibility_bust, score)
+            is21 -> stringResource(Res.string.score_accessibility_blackjack)
+            state == ScoreBadgeState.DEALER -> stringResource(Res.string.score_accessibility_dealer, score)
+            else -> stringResource(Res.string.score_accessibility_generic, score)
         }
 
     AnimatedVisibility(
