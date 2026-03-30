@@ -1,0 +1,13 @@
+⚡ Bolt: O(1) Hand Score Memoization
+
+## ⚡ Bolt Performance Boost
+
+💡 **What:** Added `@Transient` to `by lazy` delegated properties in the `Hand` class.
+
+🎯 **Why:** To ensure the `lazy` memoization works safely within our serializable state machine and prevents `kotlinx.serialization` from attempting to serialize the `Lazy` delegate backing field.
+
+📊 **Impact:** Provides safe O(1) hand score lookup during Compose recompositions, preventing O(n) loops per render frame.
+
+🔬 **Measurement:** All core tests pass via `./amper test -p jvm`.
+
+🏷️ **Platform scope:** All platforms
