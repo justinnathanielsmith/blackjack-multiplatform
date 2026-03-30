@@ -237,6 +237,7 @@ private fun HeaderIcon(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun HeaderPreview() {
@@ -251,6 +252,7 @@ private fun HeaderPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun HeaderAutoDealPreview() {

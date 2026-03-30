@@ -181,6 +181,7 @@ fun DealerCard(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun DealerCardHiddenPreview() {
@@ -194,6 +195,7 @@ private fun DealerCardHiddenPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun DealerCardRevealedPreview() {

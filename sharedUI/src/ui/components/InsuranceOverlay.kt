@@ -98,6 +98,7 @@ fun InsuranceOverlay(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun InsuranceOverlayPreview() {

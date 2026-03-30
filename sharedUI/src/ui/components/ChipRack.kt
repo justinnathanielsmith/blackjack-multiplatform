@@ -156,6 +156,7 @@ fun ChipRack(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ChipRackPreview() {
@@ -168,6 +169,7 @@ private fun ChipRackPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ChipRackLimitedBalancePreview() {
@@ -180,6 +182,7 @@ private fun ChipRackLimitedBalancePreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ChipRackSelectedPreview() {

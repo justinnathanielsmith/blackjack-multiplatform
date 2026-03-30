@@ -521,6 +521,7 @@ internal fun CardCorner(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardAcePreview() {
@@ -534,6 +535,7 @@ private fun PlayingCardAcePreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardTenPreview() {
@@ -547,6 +549,7 @@ private fun PlayingCardTenPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardCourtPreview() {
@@ -560,6 +563,7 @@ private fun PlayingCardCourtPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardBackPreview() {
@@ -573,6 +577,7 @@ private fun PlayingCardBackPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun PlayingCardNearMissPreview() {

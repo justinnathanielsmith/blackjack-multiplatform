@@ -230,6 +230,7 @@ fun CasinoButton(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun CasinoButtonPreview() {

@@ -199,6 +199,7 @@ fun GameActionButton(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun GameActionButtonPreview() {

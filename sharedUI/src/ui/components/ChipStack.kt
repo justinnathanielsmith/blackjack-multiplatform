@@ -93,6 +93,7 @@ fun ChipStack(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ChipStackPreview() {
@@ -101,6 +102,7 @@ private fun ChipStackPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ChipStackActivePreview() {

@@ -211,6 +211,7 @@ fun BettingSlot(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun BettingSlotMainBetPreview() {
@@ -222,6 +223,7 @@ private fun BettingSlotMainBetPreview() {
     )
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun BettingSlotSideBetPreview() {
@@ -233,6 +235,7 @@ private fun BettingSlotSideBetPreview() {
     )
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun BettingSlotEmptyMainBetPreview() {
@@ -244,6 +247,7 @@ private fun BettingSlotEmptyMainBetPreview() {
     )
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun BettingSlotEmptySideBetPreview() {
@@ -255,6 +259,7 @@ private fun BettingSlotEmptySideBetPreview() {
     )
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun SmallBettingSlotPreview() {

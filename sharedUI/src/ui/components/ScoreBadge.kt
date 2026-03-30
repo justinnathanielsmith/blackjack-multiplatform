@@ -185,6 +185,7 @@ fun ScoreBadge(
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ScoreBadgePreview() {
@@ -195,6 +196,7 @@ private fun ScoreBadgePreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ScoreBadgeBustPreview() {
@@ -205,6 +207,7 @@ private fun ScoreBadgeBustPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
 @Preview
 @Composable
 private fun ScoreBadgeTwentyOnePreview() {
