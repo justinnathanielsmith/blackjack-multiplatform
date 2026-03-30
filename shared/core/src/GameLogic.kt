@@ -121,6 +121,13 @@ data class Hand(
     val isBlackjack: Boolean by lazy { cards.size == 2 && score == 21 }
 
     /**
+     * True if the hand totals 21 via three or more cards (not a natural blackjack).
+     * Distinct from [isBlackjack], which requires exactly 2 cards.
+     */
+    @Transient
+    val isTwentyOne: Boolean by lazy { score == 21 && !isBlackjack }
+
+    /**
      * True if at least one Ace is being counted as 11 (i.e. the hand is "soft").
      *
      * Note: iterates **all** cards, including face-down ones. Only call this after the

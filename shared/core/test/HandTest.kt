@@ -6,6 +6,49 @@ import kotlin.test.assertEquals
 
 class HandTest {
     @Test
+    fun testIsTwentyOne_trueForThreeCardTwentyOne() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.SEVEN, Suit.HEARTS),
+                    Card(Rank.SEVEN, Suit.SPADES),
+                    Card(Rank.SEVEN, Suit.CLUBS),
+                )
+            )
+        assertEquals(21, hand.score)
+        assertEquals(true, hand.isTwentyOne)
+        assertEquals(false, hand.isBlackjack)
+    }
+
+    @Test
+    fun testIsTwentyOne_falseForNaturalBlackjack() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.ACE, Suit.HEARTS),
+                    Card(Rank.KING, Suit.SPADES),
+                )
+            )
+        assertEquals(21, hand.score)
+        assertEquals(false, hand.isTwentyOne)
+        assertEquals(true, hand.isBlackjack)
+    }
+
+    @Test
+    fun testIsTwentyOne_falseForNonTwentyOneHand() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.KING, Suit.HEARTS),
+                    Card(Rank.QUEEN, Suit.SPADES),
+                )
+            )
+        assertEquals(20, hand.score)
+        assertEquals(false, hand.isTwentyOne)
+        assertEquals(false, hand.isBlackjack)
+    }
+
+    @Test
     fun testVisibleScore_countsOnlyFaceUpCards() {
         val hand =
             Hand(
