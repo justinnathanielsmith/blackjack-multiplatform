@@ -47,3 +47,7 @@
 ## 2026-03-27 - O(0) Main-Thread Relayout for Positional Animations
 **Learning:** Using `Modifier.offset { ... }` with animated state values triggers the layout phase on every frame, which, while cheaper than composition, still adds overhead.
 **Action:** Replace `Modifier.offset` with `Modifier.graphicsLayer { translationX = ...; translationY = ... }` for pure positional animations (like flying chips). This bypasses the layout phase entirely, operating strictly during the GPU draw/layer phase for true O(0) main-thread relayout.
+
+## 2026-03-31 - AutoDealIcon Recomposition Loop
+**Learning:** Animated states (like infinite transitions) that are read directly in the composition phase to construct standard modifiers (like `Modifier.border`) force the composable to completely recompose on every animation frame (O(Frames)).
+**Action:** Move the state read directly into the draw phase (e.g., `Modifier.drawWithCache { onDrawWithContent { ... } }`).
