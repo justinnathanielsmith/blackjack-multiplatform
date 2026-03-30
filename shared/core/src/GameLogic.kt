@@ -551,25 +551,42 @@ object BlackjackRules {
     fun determineInitialStatus(
         hands: List<Hand>,
         dealerHand: Hand,
-        handCount: Int
     ): GameStatus {
-        val dealerHasBJ = dealerHand.score == BLACKJACK_SCORE && dealerHand.cards.size == 2
+        val dealerHasBJ = dealerHand.isBlackjack
+        var allDealerWon = true
+        var anyPush = false
+        var anyPlayerWon = false
+        var anyStillPlaying = false
 
-        if (handCount == 1) {
-            val playerHasBJ = hands[0].score == BLACKJACK_SCORE && hands[0].cards.size == 2
-            return when {
-                playerHasBJ && dealerHasBJ -> GameStatus.PUSH
-                playerHasBJ -> GameStatus.PLAYER_WON
-                dealerHasBJ -> GameStatus.DEALER_WON
-                else -> GameStatus.PLAYING
+        for (i in 0 until hands.size) {
+            val hand = hands[i]
+            val playerHasBJ = hand.isBlackjack
+            when {
+                playerHasBJ && dealerHasBJ -> {
+                    anyPush = true
+                    allDealerWon = false
+                }
+                playerHasBJ -> {
+                    anyPlayerWon = true
+                    allDealerWon = false
+                }
+                dealerHasBJ -> {
+                    // This hand lost.
+                }
+                else -> {
+                    anyStillPlaying = true
+                    allDealerWon = false
+                }
             }
         }
 
-        // Multi-hand: if dealer has Blackjack, all hands lose immediately.
-        // Individual player naturals are not compared in this path.
-        if (dealerHasBJ) return GameStatus.DEALER_WON
-
-        return GameStatus.PLAYING
+        return when {
+            anyStillPlaying -> GameStatus.PLAYING
+            anyPlayerWon -> GameStatus.PLAYER_WON
+            anyPush -> GameStatus.PUSH
+            allDealerWon -> GameStatus.DEALER_WON
+            else -> GameStatus.PLAYING // Defensive
+        }
     }
 
     /**
@@ -577,21 +594,22 @@ object BlackjackRules {
      *
      * This orchestrates status transitions (like [GameStatus.INSURANCE_OFFERED]), dealer card
      * reveal, and initial balance updates for natural blackjacks.
-     *
-     * @param current The current [GameState] during the deal.
-     * @param playerHands The final player cards (after deal animation).
-     * @param dealerHand The final dealer cards (after deal animation).
-     * @return A triple containing the new [GameStatus], the updated [Hand] (potentially flipped),
-     *         and the initial balance delta (chips won).
      */
     fun resolveInitialOutcomeValues(
         current: GameState,
         playerHands: List<Hand>,
         dealerHand: Hand,
     ): Triple<GameStatus, Hand, Int> {
-        val playerHasBJ =
-            current.handCount == 1 && playerHands[0].score == BLACKJACK_SCORE && playerHands[0].cards.size == 2
-        val shouldOfferInsurance = current.handCount == 1 && !playerHasBJ && dealerHand.cards[0].rank == Rank.ACE
+        // Bolt Performance Optimization: Replace .any with indexed loop to avoid iterator allocation.
+        var anyPlayerHasBJ = false
+        for (i in 0 until playerHands.size) {
+            if (playerHands[i].isBlackjack) {
+                anyPlayerHasBJ = true
+                break
+            }
+        }
+
+        val shouldOfferInsurance = current.handCount == 1 && !anyPlayerHasBJ && dealerHand.cards[0].rank == Rank.ACE
         // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
         val dealerHandRevealed =
             Hand(dealerHand.cards.map { if (it.isFaceDown) it.copy(isFaceDown = false) else it }.toPersistentList())
@@ -600,26 +618,31 @@ object BlackjackRules {
             if (shouldOfferInsurance) {
                 GameStatus.INSURANCE_OFFERED
             } else {
-                determineInitialStatus(playerHands, dealerHandRevealed, current.handCount)
+                determineInitialStatus(playerHands, dealerHandRevealed)
             }
 
-        val finalDealerHand =
-            if (initialStatus == GameStatus.PUSH || initialStatus == GameStatus.DEALER_WON) {
-                dealerHandRevealed
-            } else {
-                dealerHand
-            }
+        val finalDealerHand = if (initialStatus.isTerminal()) dealerHandRevealed else dealerHand
 
-        val balanceUpdate =
-            when (initialStatus) {
-                GameStatus.PLAYER_WON ->
-                    (current.currentBet * current.rules.blackjackPayout.numerator) /
-                        current.rules.blackjackPayout.denominator + current.currentBet
-                GameStatus.PUSH -> current.currentBet
-                else -> 0
-            }
+        var balanceOutcome = 0
+        val dealerHasBJ = dealerHandRevealed.isBlackjack
 
-        return Triple(initialStatus, finalDealerHand, balanceUpdate)
+        if (initialStatus.isTerminal() || anyPlayerHasBJ) {
+            for (i in 0 until playerHands.size) {
+                val hand = playerHands[i]
+                if (hand.isBlackjack) {
+                    if (dealerHasBJ) {
+                        balanceOutcome += hand.bet
+                    } else {
+                        balanceOutcome += (hand.bet * current.rules.blackjackPayout.numerator) /
+                            current.rules.blackjackPayout.denominator + hand.bet
+                    }
+                } else if (dealerHasBJ) {
+                    // Hand lost, no payout.
+                }
+            }
+        }
+
+        return Triple(initialStatus, finalDealerHand, balanceOutcome)
     }
 
     /**

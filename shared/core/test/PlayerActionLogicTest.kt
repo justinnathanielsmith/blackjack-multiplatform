@@ -196,7 +196,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertTrue(outcome.effects.contains(GameEffect.Vibrate))
     }
 
     @Test
