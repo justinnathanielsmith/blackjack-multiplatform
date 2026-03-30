@@ -11,3 +11,6 @@
 ## 2026-03-29 - GameStatus
 **Surprise:** `GameStatus.IDLE` is defined as the default status for `GameState` but the `BlackjackStateMachine` initializes with `BETTING`. This makes `IDLE` effectively a pre-session placeholder. Also, `GameStatus.PLAYER_WON` is a collective status for the round, triggered if *any* player hand wins.
 **Rule:** When documenting state enums, distinguish between "reachable" application states and "uninitialized" defaults like `IDLE`.
+## 2026-03-30 - SideBetLogic
+**Surprise:** `Perfect Pairs` requires an exact match on `Card.rank` (ordinal rank), not just `Card.rank.value`. A Jack and King, while both 10s, do NOT form a "Mixed Pair". For `21+3`, the "Ace-low straight" is specifically handled (Ace-2-3), which differs from standard numerical sorting of ordinals.
+**Rule:** When documenting Blackjack logic, explicitly state if a "rank match" refers to the literal rank (King == King) or the scoring value (10 == 10), as these have distinct definitions in different betting subsystems.
