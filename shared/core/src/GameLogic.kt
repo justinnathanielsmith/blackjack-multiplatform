@@ -218,6 +218,9 @@ enum class GameStatus {
 
 fun GameStatus.isTerminal() = this == GameStatus.PLAYER_WON || this == GameStatus.DEALER_WON || this == GameStatus.PUSH
 
+// Statuses during which the game result overlay is shown; complements isTerminal() for UI gating.
+fun GameStatus.isStatusVisible() = this == GameStatus.DEALING || this == GameStatus.DEALER_TURN || this.isTerminal()
+
 @Serializable
 enum class SideBetType {
     TWENTY_ONE_PLUS_THREE,

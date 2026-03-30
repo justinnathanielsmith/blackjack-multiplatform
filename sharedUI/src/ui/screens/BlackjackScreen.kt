@@ -59,6 +59,7 @@ import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
+import io.github.smithjustinn.blackjack.isStatusVisible
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
@@ -159,6 +160,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     }
 
     val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
+    val showStatus by remember { derivedStateOf { state.status.isStatusVisible() } }
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
     val isBlackjack by remember {
         derivedStateOf {
@@ -556,16 +558,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             )
 
                             SideBetResultsOverlay(state = state)
-
-                            // Game Status Overlay (On top of hands)
-                            val showStatus by remember {
-                                derivedStateOf {
-                                    state.status != GameStatus.PLAYING &&
-                                        state.status != GameStatus.BETTING &&
-                                        state.status != GameStatus.INSURANCE_OFFERED &&
-                                        state.status != GameStatus.IDLE
-                                }
-                            }
 
                             // Game Overlays & Status
                             BlackjackGameOverlay(
