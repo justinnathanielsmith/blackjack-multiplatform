@@ -72,6 +72,7 @@
     <string name="settings_title">Settings</string>
     <string name="settings_mute">Mute Sounds</string>
     <string name="settings_reset_balance">Reset Balance</string>
+    <string name="settings_reset_balance_confirmation">Are you sure you want to reset your balance? This action cannot be undone.</string>
     <string name="settings_game_rules">Game Rules</string>
     <string name="settings_payout">Blackjack Payout</string>
     <string name="settings_s17">Dealer Hits Soft 17</string>

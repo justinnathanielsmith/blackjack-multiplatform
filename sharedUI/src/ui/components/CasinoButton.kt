@@ -44,6 +44,13 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.action_double
+import sharedui.generated.resources.action_hit
+import sharedui.generated.resources.action_stand
+import sharedui.generated.resources.new_game
+import sharedui.generated.resources.split
 
 @Composable
 fun CasinoButton(
@@ -228,26 +235,26 @@ fun CasinoButton(
 private fun CasinoButtonPreview() {
     BlackjackTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            CasinoButton(text = "Hit", onClick = { /* do nothing */ })
+            CasinoButton(text = stringResource(Res.string.action_hit), onClick = { /* do nothing */ })
             CasinoButton(
-                text = "Stand",
+                text = stringResource(Res.string.action_stand),
                 onClick = { /* do nothing */ },
                 modifier = Modifier.padding(top = 8.dp)
             )
             CasinoButton(
-                text = "Double Down",
+                text = stringResource(Res.string.action_double),
                 onClick = { /* do nothing */ },
                 isStrategic = true,
                 modifier = Modifier.padding(top = 8.dp)
             )
             CasinoButton(
-                text = "Split",
+                text = stringResource(Res.string.split),
                 onClick = { /* do nothing */ },
                 enabled = false,
                 modifier = Modifier.padding(top = 8.dp)
             )
             CasinoButton(
-                text = "New Game",
+                text = stringResource(Res.string.new_game),
                 onClick = { /* do nothing */ },
                 showShine = true,
                 modifier = Modifier.padding(top = 8.dp)
