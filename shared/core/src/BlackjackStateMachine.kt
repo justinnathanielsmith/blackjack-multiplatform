@@ -387,13 +387,16 @@ class BlackjackStateMachine(
     ) {
         // Resolve nullable balance here (stateful read) then delegate pure logic to NewGameLogic.
         val resolvedBalance = initialBalance ?: _state.value.balance
+        // Tutor Fix: Preserve previous round's side bet memory if not explicitly provided in the new round request.
+        val resolvedLastSideBets = if (lastSideBets.isEmpty()) _state.value.lastSideBets else lastSideBets
+
         _state.value =
             NewGameLogic.createInitialState(
                 balance = resolvedBalance,
                 rules = rules,
                 handCount = handCount,
                 previousBets = previousBets,
-                lastSideBets = lastSideBets,
+                lastSideBets = resolvedLastSideBets,
             )
     }
 
