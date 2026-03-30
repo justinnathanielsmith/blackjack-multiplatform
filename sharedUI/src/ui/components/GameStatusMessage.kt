@@ -64,6 +64,7 @@ import sharedui.generated.resources.status_push
 @Composable
 fun GameStatusMessage(
     status: GameStatus,
+    modifier: Modifier = Modifier,
     netPayout: Int? = null,
     isCompact: Boolean = false,
     isBlackjack: Boolean = false,
@@ -172,7 +173,7 @@ fun GameStatusMessage(
 
     Box(
         modifier =
-            Modifier
+            modifier
                 .semantics {
                     liveRegion = LiveRegionMode.Polite
                     contentDescription = screenReaderAnnouncement
