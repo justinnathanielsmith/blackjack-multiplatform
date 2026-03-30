@@ -45,11 +45,14 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.add_seat_description
+import sharedui.generated.resources.minus
+import sharedui.generated.resources.plus
 import sharedui.generated.resources.remove_seat_description
 import sharedui.generated.resources.seat_center
 import sharedui.generated.resources.seat_left
 import sharedui.generated.resources.seat_main
 import sharedui.generated.resources.seat_right
+import sharedui.generated.resources.seats_count_template
 import sharedui.generated.resources.seats_label
 import sharedui.generated.resources.side_bet_perfect_pairs_label
 import sharedui.generated.resources.side_bet_twenty_one_plus_three_label
@@ -263,7 +266,7 @@ fun BettingPhaseScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 CasinoButton(
-                    text = "−",
+                    text = stringResource(Res.string.minus),
                     contentDescription = stringResource(Res.string.remove_seat_description),
                     enabled = state.handCount > 1,
                     onClick = {
@@ -294,7 +297,12 @@ fun BettingPhaseScreen(
                     label = "SeatCountAnimation"
                 ) { count ->
                     Text(
-                        text = "$count ${stringResource(Res.string.seats_label)}",
+                        text =
+                            stringResource(
+                                Res.string.seats_count_template,
+                                count,
+                                stringResource(Res.string.seats_label)
+                            ),
                         style = MaterialTheme.typography.labelLarge,
                         color = PrimaryGold,
                         fontWeight = FontWeight.Bold,
@@ -303,7 +311,7 @@ fun BettingPhaseScreen(
                 }
 
                 CasinoButton(
-                    text = "+",
+                    text = stringResource(Res.string.plus),
                     contentDescription = stringResource(Res.string.add_seat_description),
                     enabled = state.handCount < 3,
                     onClick = {

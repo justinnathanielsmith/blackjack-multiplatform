@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.bullet_point_template
 import sharedui.generated.resources.rules_actions_double
 import sharedui.generated.resources.rules_actions_hit
 import sharedui.generated.resources.rules_actions_split
@@ -45,7 +46,7 @@ fun RulesOverlay(onDismiss: () -> Unit) {
                     stringResource(Res.string.rules_actions_hit),
                     stringResource(Res.string.rules_actions_stand),
                     stringResource(Res.string.rules_actions_double),
-                    stringResource(Res.string.rules_actions_split)
+                    stringResource(Res.string.rules_actions_split),
                 )
         )
 
@@ -59,7 +60,7 @@ fun RulesOverlay(onDismiss: () -> Unit) {
             items =
                 listOf(
                     stringResource(Res.string.rules_side_bets_pairs),
-                    stringResource(Res.string.rules_side_bets_21_3)
+                    stringResource(Res.string.rules_side_bets_21_3),
                 )
         )
     }
@@ -88,7 +89,7 @@ private fun RuleSection(
         }
         items?.forEach { item ->
             Text(
-                text = "• $item",
+                text = stringResource(Res.string.bullet_point_template, item),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 2.dp)

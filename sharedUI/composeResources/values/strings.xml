@@ -145,6 +145,10 @@
     <string name="score_accessibility_generic">Score %1$d</string>
     <string name="status_announcement_template">%1$s. %2$s</string>
     <string name="financial_data_content_description">%1$s: %2$s</string>
+    <string name="plus">+</string>
+    <string name="minus">−</string>
+    <string name="bullet_point_template">• %1$s</string>
+    <string name="seats_count_template">%1$d %2$s</string>
 
 
 
