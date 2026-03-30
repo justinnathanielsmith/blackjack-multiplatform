@@ -47,6 +47,7 @@ import sharedui.generated.resources.settings_game_rules
 import sharedui.generated.resources.settings_mute
 import sharedui.generated.resources.settings_payout
 import sharedui.generated.resources.settings_reset_balance
+import sharedui.generated.resources.settings_reset_balance_confirmation
 import sharedui.generated.resources.settings_rule_disclaimer
 import sharedui.generated.resources.settings_s17
 import sharedui.generated.resources.settings_surrender
@@ -183,7 +184,7 @@ fun SettingsOverlay(
                 },
                 text = {
                     Text(
-                        text = "Are you sure you want to reset your balance? This action cannot be undone."
+                        text = stringResource(Res.string.settings_reset_balance_confirmation)
                     )
                 },
                 confirmButton = {

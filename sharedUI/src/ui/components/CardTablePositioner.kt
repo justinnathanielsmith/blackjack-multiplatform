@@ -67,118 +67,166 @@ fun computeTableLayout(
     shoePosition: Offset,
 ): TableLayout {
     val nPlayerHands = state.playerHands.size.coerceAtLeast(1)
-
-    // Dynamic Scaling: Reduced for 3 hands to save space
-    val cardScale =
-        when (nPlayerHands) {
-            1 -> 1.0f
-            2 -> 0.82f
-            else -> 0.42f // Optimized from 0.52f for 3 hands
-        }
-
+    val cardScale = getCardScale(nPlayerHands)
     val baseCardWPx = with(density) { Dimensions.Card.StandardWidth.toPx() }
     val baseStepYPx = with(density) { 6.dp.toPx() }
 
     val cardW = baseCardWPx * cardScale
     val cardH = cardW / Dimensions.Card.AspectRatio
+    val stepYPx = baseStepYPx * cardScale
 
-    // Casino-authentic overlap: only the index strip is visible (~22–25%)
-    val playerOverlapFactor =
-        if (nPlayerHands >
-            1
-        ) {
-            TableMetrics.PLAYER_OVERLAP_FACTOR_MULTI
-        } else {
-            TableMetrics.PLAYER_OVERLAP_FACTOR_SINGLE
-        }
-    val stepYPx = baseStepYPx * cardScale // Slightly flatter stacks
-
-    val minVisibleWidthFactor =
-        if (nPlayerHands > 1) {
-            TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_MULTI
-        } else {
-            TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE
-        }
-
-    val dealerParams =
-        SlotParams(
-            cardW = cardW,
-            cardH = cardH,
-            defaultStepX = cardW * TableMetrics.DEALER_OVERLAP_FACTOR,
-            stepYPx = stepYPx,
-            cardScale = cardScale,
-            minVisibleWidthFactor = TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE,
-        )
-    val playerParams =
-        SlotParams(
-            cardW = cardW,
-            cardH = cardH,
-            defaultStepX = cardW * playerOverlapFactor,
-            stepYPx = stepYPx,
-            cardScale = cardScale,
-            minVisibleWidthFactor = minVisibleWidthFactor,
-        )
+    val dealerParams = createDealerParams(cardW, cardH, stepYPx, cardScale)
+    val playerParams = createPlayerParams(cardW, cardH, stepYPx, cardScale, nPlayerHands)
 
     val cardSlots = mutableListOf<CardSlotLayout>()
     val handZones = mutableListOf<HandZone>()
     val chipSlots = mutableListOf<ChipSlotLayout>()
 
-    // Dealer cards are indexed first so they animate before player cards.
-    // This is intentional: the declarative animation system keys on composition
-    // order, and dealer-then-player produces a clean sweep rather than interleaving.
     var globalCardIndex = 0
 
     // Dealer zone
-    val dealerZoneCenter = Offset(areaWidth / 2f, areaHeight * TableMetrics.DEALER_ZONE_CENTER_Y_RATIO)
     val (dealerSlots, dealerZone) =
-        computeZone(
-            cards = state.dealerHand.cards,
-            handIndex = -1,
-            zoneCenter = dealerZoneCenter,
+        computeDealerZone(
+            state = state,
+            areaWidth = areaWidth,
+            areaHeight = areaHeight,
             shoePosition = shoePosition,
-            availableWidth = areaWidth * TableMetrics.DEALER_AVAILABLE_WIDTH_RATIO,
             params = dealerParams,
-            isDealer = true,
-            startIndex = globalCardIndex,
+            startIndex = globalCardIndex
         )
     cardSlots.addAll(dealerSlots)
     handZones.add(dealerZone)
     globalCardIndex += dealerSlots.size
 
-    // Player zones: implement a "smiling" radial arc
+    // Player zones
+    val (playerSlots, playerHandZones, playerChipSlots) =
+        computePlayerZones(
+            state = state,
+            areaWidth = areaWidth,
+            areaHeight = areaHeight,
+            density = density,
+            shoePosition = shoePosition,
+            params = playerParams,
+            startIndex = globalCardIndex
+        )
+    cardSlots.addAll(playerSlots)
+    handZones.addAll(playerHandZones)
+    chipSlots.addAll(playerChipSlots)
+
+    return TableLayout(cardSlots = cardSlots, handZones = handZones, chipSlots = chipSlots)
+}
+
+private fun getCardScale(nPlayerHands: Int): Float =
+    when (nPlayerHands) {
+        1 -> 1.0f
+        2 -> 0.82f
+        else -> 0.42f
+    }
+
+private fun createDealerParams(
+    cardW: Float,
+    cardH: Float,
+    stepYPx: Float,
+    cardScale: Float
+) = SlotParams(
+    cardW = cardW,
+    cardH = cardH,
+    defaultStepX = cardW * TableMetrics.DEALER_OVERLAP_FACTOR,
+    stepYPx = stepYPx,
+    cardScale = cardScale,
+    minVisibleWidthFactor = TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE,
+)
+
+private fun createPlayerParams(
+    cardW: Float,
+    cardH: Float,
+    stepYPx: Float,
+    cardScale: Float,
+    nPlayerHands: Int
+) = SlotParams(
+    cardW = cardW,
+    cardH = cardH,
+    defaultStepX =
+        cardW *
+            if (nPlayerHands >
+                1
+            ) {
+                TableMetrics.PLAYER_OVERLAP_FACTOR_MULTI
+            } else {
+                TableMetrics.PLAYER_OVERLAP_FACTOR_SINGLE
+            },
+    stepYPx = stepYPx,
+    cardScale = cardScale,
+    minVisibleWidthFactor =
+        if (nPlayerHands >
+            1
+        ) {
+            TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_MULTI
+        } else {
+            TableMetrics.SQUEEZED_MIN_VISIBLE_WIDTH_SINGLE
+        },
+)
+
+private fun computeDealerZone(
+    state: GameState,
+    areaWidth: Float,
+    areaHeight: Float,
+    shoePosition: Offset,
+    params: SlotParams,
+    startIndex: Int,
+): Pair<List<CardSlotLayout>, HandZone> {
+    val dealerZoneCenter = Offset(areaWidth / 2f, areaHeight * TableMetrics.DEALER_ZONE_CENTER_Y_RATIO)
+    return computeZone(
+        cards = state.dealerHand.cards,
+        handIndex = -1,
+        zoneCenter = dealerZoneCenter,
+        shoePosition = shoePosition,
+        availableWidth = areaWidth * TableMetrics.DEALER_AVAILABLE_WIDTH_RATIO,
+        params = params,
+        isDealer = true,
+        startIndex = startIndex,
+    )
+}
+
+private fun computePlayerZones(
+    state: GameState,
+    areaWidth: Float,
+    areaHeight: Float,
+    density: Density,
+    shoePosition: Offset,
+    params: SlotParams,
+    startIndex: Int,
+): Triple<List<CardSlotLayout>, List<HandZone>, List<ChipSlotLayout>> {
+    val nPlayerHands = state.playerHands.size.coerceAtLeast(1)
     val zoneWidth = areaWidth / nPlayerHands
-    val arcRadius = areaHeight * TableMetrics.PLAYER_SMILE_ARC_RADIUS_RATIO // The "depth" of the smile
+    val arcRadius = areaHeight * TableMetrics.PLAYER_SMILE_ARC_RADIUS_RATIO
+    val cardSlots = mutableListOf<CardSlotLayout>()
+    val handZones = mutableListOf<HandZone>()
+    val chipSlots = mutableListOf<ChipSlotLayout>()
+    var currentCardIndex = startIndex
 
     state.playerHands.forEachIndexed { handIdx, hand ->
-        // Normalize hand index to -1.0 to 1.0 range
-        val relativePos =
-            if (nPlayerHands > 1) {
-                (handIdx / (nPlayerHands - 1f)) * 2f - 1f
-            } else {
-                0f
-            }
-
+        val relativePos = if (nPlayerHands > 1) (handIdx / (nPlayerHands - 1f)) * 2f - 1f else 0f
         val zoneCenterX = (handIdx + 0.5f) * zoneWidth
-        // Parabolic arc: y = x^2 * radius
         val arcYOffset = relativePos * relativePos * arcRadius
         val playerZoneCenter = Offset(zoneCenterX, areaHeight * TableMetrics.PLAYER_ZONE_CENTER_Y_RATIO + arcYOffset)
 
-        val (playerSlots, playerZone) =
+        val (slots, zone) =
             computeZone(
                 cards = hand.cards,
                 handIndex = handIdx,
                 zoneCenter = playerZoneCenter,
                 shoePosition = shoePosition,
                 availableWidth = zoneWidth * 0.95f,
-                params = playerParams,
+                params = params,
                 isDealer = false,
-                startIndex = globalCardIndex,
+                startIndex = currentCardIndex,
             )
-        cardSlots.addAll(playerSlots)
-        handZones.add(playerZone)
-        globalCardIndex += playerSlots.size
+        cardSlots.addAll(slots)
+        handZones.add(zone)
+        currentCardIndex += slots.size
 
-        val bet = state.playerHands.getOrNull(handIdx)?.bet ?: 0
+        val bet = hand.bet
         if (bet > 0) {
             chipSlots.add(
                 ChipSlotLayout(
@@ -187,17 +235,15 @@ fun computeTableLayout(
                     startOffset = Offset(areaWidth / 2f, areaHeight + 80f),
                     centerOffset =
                         Offset(
-                            playerZone.clusterCenter.x,
-                            playerZone.clusterTopLeft.y + playerZone.clusterSize.height +
-                                with(density) { 20.dp.toPx() },
+                            zone.clusterCenter.x,
+                            zone.clusterTopLeft.y + zone.clusterSize.height + with(density) { 20.dp.toPx() },
                         ),
-                    scale = cardScale,
+                    scale = params.cardScale,
                 )
             )
         }
     }
-
-    return TableLayout(cardSlots = cardSlots, handZones = handZones, chipSlots = chipSlots)
+    return Triple(cardSlots, handZones, chipSlots)
 }
 
 private data class SlotParams(
