@@ -3,11 +3,27 @@ package io.github.smithjustinn.blackjack
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 
+/**
+ * Result of resolving all active side bets for a round.
+ *
+ * This container aggregates the total winnings across all side bets and provides
+ * granular results for each [SideBetType] to reflect in the UI.
+ *
+ * @property payoutTotal The total sum of chips to be returned to the player from all winning side bets.
+ * @property results A map of [SideBetType] to its specific [SideBetResult], containing payout details and outcome names.
+ */
 data class SideBetResolution(
     val payoutTotal: Int,
     val results: PersistentMap<SideBetType, SideBetResult>
 )
 
+/**
+ * Domain logic for settling Blackjack side bets.
+ *
+ * This object contains pure functions for evaluating player and dealer cards against
+ * specialized side bet rules like "Perfect Pairs" and "21+3". Payouts are calculated
+ * based on standard multi-deck casino conventions.
+ */
 object SideBetLogic {
     private const val PERFECT_PAIR_PAYOUT = 25
     private const val COLORED_PAIR_PAYOUT = 12
@@ -22,6 +38,17 @@ object SideBetLogic {
     private val RED_SUITS = setOf(Suit.HEARTS, Suit.DIAMONDS)
     private val BLACK_SUITS = setOf(Suit.CLUBS, Suit.SPADES)
 
+    /**
+     * Orchestrates the resolution of all active side bets on the table.
+     *
+     * Iterates through the player's active [sideBets], evaluates each against the
+     * provided player and dealer cards, and computes the total payout.
+     *
+     * @param sideBets The active side bets placed during the [GameStatus.BETTING] phase.
+     * @param playerHand The player's first [Hand], which must contain exactly two cards.
+     * @param dealerUpcard The dealer's first card (face-up).
+     * @return A [SideBetResolution] containing the total chip payout and detailed results for each bet.
+     */
     fun resolveSideBets(
         sideBets: PersistentMap<SideBetType, Int>,
         playerHand: Hand,
@@ -51,6 +78,18 @@ object SideBetLogic {
         return SideBetResolution(totalPayout, results.toPersistentMap())
     }
 
+    /**
+     * Evaluates a player's starting hand for "Perfect Pairs" combinations.
+     *
+     * A pair is defined as two cards of the exact same [Rank].
+     * Payouts follow standard rules:
+     * - Perfect Pair (same suit): 25:1
+     * - Colored Pair (different suit, same color): 12:1
+     * - Mixed Pair (different suit, different colors): 5:1
+     *
+     * @param hand The player's [Hand] to evaluate. Must contain at least two cards.
+     * @return A [SideBetResult] if a pair exists, or null otherwise.
+     */
     fun evaluatePerfectPairs(hand: Hand): SideBetResult? {
         if (hand.cards.size < 2) return null
         val c1 = hand.cards[0]
@@ -76,6 +115,20 @@ object SideBetLogic {
         return c1.rank == c2.rank
     }
 
+    /**
+     * Evaluates the player's first two cards and the dealer's upcard for "21+3" poker-style combinations.
+     *
+     * Payouts follow standard "9-1" or "Multi-Deck" rules:
+     * - Suited Triple (3 identical cards): 100:1
+     * - Straight Flush (3 cards in sequence and same suit): 40:1
+     * - Three of a Kind (3 cards of same rank): 30:1
+     * - Straight (3 cards in sequence): 10:1
+     * - Flush (3 cards of same suit): 5:1
+     *
+     * @param playerHand The player's starting [Hand].
+     * @param dealerUpcard The dealer's visible upcard.
+     * @return A [SideBetResult] if a poker combination exists, or null otherwise.
+     */
     fun evaluateTwentyOnePlusThree(
         playerHand: Hand,
         dealerUpcard: Card
