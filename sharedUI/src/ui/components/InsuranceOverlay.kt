@@ -36,6 +36,7 @@ import sharedui.generated.resources.insurance_message
 import sharedui.generated.resources.insurance_title
 import sharedui.generated.resources.insure
 import sharedui.generated.resources.no_thanks
+import sharedui.generated.resources.status_announcement_template
 
 @Composable
 fun InsuranceOverlay(
@@ -44,7 +45,7 @@ fun InsuranceOverlay(
 ) {
     val title = stringResource(Res.string.insurance_title)
     val message = stringResource(Res.string.insurance_message)
-    val announcement = "$title. $message"
+    val announcement = stringResource(Res.string.status_announcement_template, title, message)
 
     Box(
         modifier =

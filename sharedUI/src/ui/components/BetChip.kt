@@ -45,6 +45,7 @@ import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.bet_chip_amount_k
 import sharedui.generated.resources.bet_chip_description
 import kotlin.math.PI
 
@@ -81,7 +82,7 @@ fun BetChip(
 
     val displayAmount =
         when {
-            amount >= 1000 -> "${amount / 1000}K"
+            amount >= 1000 -> stringResource(Res.string.bet_chip_amount_k, amount / 1000)
             else -> amount.toString()
         }
 
