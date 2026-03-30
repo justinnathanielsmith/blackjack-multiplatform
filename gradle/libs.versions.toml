@@ -1,60 +1,60 @@
 [versions]
-kotlin = "2.3.20"
+androidx-activity-compose = "1.13.0"
+coil = "3.4.0"
 compose = "1.10.2"
 compose-material3 = "1.10.0-alpha05"
-androidx-activity-compose = "1.13.0"
-kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.10.0"
-kotlinx-datetime = "0.7.1"
-kotlinx-collections-immutable = "0.4.0"
+compottie = "2.1.0"
+datastore = "1.2.1"
 decompose = "3.5.0"
 essenty = "2.4.0"
+javafx = "23.0.1"
 kermit = "2.1.0"
-coil = "3.4.0"
-compottie = "2.1.0"
+kotlin = "2.3.20"
+kotlinx-collections-immutable = "0.4.0"
+kotlinx-coroutines = "1.10.2"
+kotlinx-datetime = "0.7.1"
+kotlinx-serialization = "1.10.0"
 room = "2.8.4"
 sqlite = "2.6.2"
-javafx = "23.0.1"
-datastore = "1.2.1"
 turbine = "1.2.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
-kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
-decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
-decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
-decompose-extensions-android = { module = "com.arkivanov.decompose:extensions-android", version.ref = "decompose" }
-essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
 coil = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
-compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
 compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
-javafx-media = { module = "org.openjfx:javafx-media", version.ref = "javafx" }
-javafx-graphics = { module = "org.openjfx:javafx-graphics", version.ref = "javafx" }
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions-android = { module = "com.arkivanov.decompose:extensions-android", version.ref = "decompose" }
+decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
 javafx-base = { module = "org.openjfx:javafx-base", version.ref = "javafx" }
 javafx-controls = { module = "org.openjfx:javafx-controls", version.ref = "javafx" }
+javafx-graphics = { module = "org.openjfx:javafx-graphics", version.ref = "javafx" }
+javafx-media = { module = "org.openjfx:javafx-media", version.ref = "javafx" }
 javafx-swing = { module = "org.openjfx:javafx-swing", version.ref = "javafx" }
-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [bundles]
 room = ["room-runtime", "sqlite-bundled"]
 
 [plugins]
-kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 room = { id = "androidx.room", version.ref = "room" }
