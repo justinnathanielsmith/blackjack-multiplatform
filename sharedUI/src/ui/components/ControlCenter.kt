@@ -43,6 +43,7 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance
 import sharedui.generated.resources.bet_total_label
 import sharedui.generated.resources.currency_template
+import sharedui.generated.resources.financial_data_content_description
 
 @Composable
 fun ControlCenter(
@@ -52,8 +53,8 @@ fun ControlCenter(
     onChipSelected: (Int) -> Unit,
     onResetBet: () -> Unit,
     onDeal: () -> Unit,
+    modifier: Modifier = Modifier,
     isCompact: Boolean = false,
-    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -110,14 +111,16 @@ fun ControlCenter(
             FinancialData(
                 label = stringResource(Res.string.bet_total_label),
                 amount = state.totalBet,
-                alignment = Alignment.Start
+                alignment = Alignment.Start,
+                modifier = Modifier.weight(1f)
             )
 
             // Balance (Bottom Right)
             FinancialData(
                 label = stringResource(Res.string.balance),
                 amount = state.balance,
-                alignment = Alignment.End
+                alignment = Alignment.End,
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -127,7 +130,8 @@ fun ControlCenter(
 private fun FinancialData(
     label: String,
     amount: Int,
-    alignment: Alignment.Horizontal
+    alignment: Alignment.Horizontal,
+    modifier: Modifier = Modifier,
 ) {
     val animatedAmount by animateIntAsState(
         targetValue = amount,
@@ -135,10 +139,17 @@ private fun FinancialData(
     )
     val formattedAmount = stringResource(Res.string.currency_template, animatedAmount.formatWithCommas())
 
+    val accessibilityDescription =
+        stringResource(
+            Res.string.financial_data_content_description,
+            label,
+            formattedAmount
+        )
+
     Column(
         modifier =
-            Modifier.semantics(mergeDescendants = true) {
-                contentDescription = "$label: $formattedAmount"
+            modifier.semantics(mergeDescendants = true) {
+                contentDescription = accessibilityDescription
                 liveRegion = LiveRegionMode.Polite
             },
         horizontalAlignment = alignment,

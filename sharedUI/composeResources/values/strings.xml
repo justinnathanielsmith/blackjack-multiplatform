@@ -144,6 +144,7 @@
     <string name="score_accessibility_dealer">Dealer score %1$d</string>
     <string name="score_accessibility_generic">Score %1$d</string>
     <string name="status_announcement_template">%1$s. %2$s</string>
+    <string name="financial_data_content_description">%1$s: %2$s</string>
 
 
 
