@@ -513,14 +513,10 @@ private fun HandZoneHud(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    HudTitleBadge(
-                        title = stringResource(Res.string.dealer),
-                        isDealer = true,
-                        isActive = false,
-                    )
                     ScoreBadge(
                         score = displayScore,
                         state = ScoreBadgeState.DEALER,
+                        label = stringResource(Res.string.dealer),
                         modifier =
                             Modifier.graphicsLayer {
                                 scaleX = hudScale
@@ -545,23 +541,23 @@ private fun HandZoneHud(
             val netPayout = handNetPayout
             val multiHand = handCount > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
-
-            if (multiHand && !isBetting) {
-                HudTitleBadge(
-                    title = stringResource(Res.string.hand_number, handIndex + 1),
-                    isDealer = false,
-                    isActive = isActive,
-                    modifier =
-                        Modifier
-                            .align(Alignment.TopCenter)
-                            .offset(y = (-32).dp * hudScale),
-                )
-            }
+            val label =
+                if (isActive) {
+                    "YOUR TURN"
+                } else if (multiHand) {
+                    stringResource(
+                        Res.string.hand_number,
+                        handIndex + 1
+                    )
+                } else {
+                    null
+                }
 
             if (!isBetting) {
                 ScoreBadge(
                     score = hand.score,
                     state = badgeState,
+                    label = label,
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)

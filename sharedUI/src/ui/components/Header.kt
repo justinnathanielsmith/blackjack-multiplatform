@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,15 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +47,7 @@ import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.btn_auto_deal_description
@@ -60,6 +62,7 @@ import sharedui.generated.resources.emoji_scroll
 
 @Composable
 fun Header(
+    balance: Int,
     isAutoDealEnabled: Boolean,
     onAutoDealToggle: () -> Unit,
     modifier: Modifier = Modifier,
@@ -73,12 +76,24 @@ fun Header(
                 .fillMaxWidth()
                 .background(GlassDark)
                 .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Top))
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Left Side: AutoDeal & Table Info
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
+            TableInfoBadge(minBet = 10, maxBet = 500)
+        }
+
+        // Center: Casino Vault (Balance)
+        CasinoVault(balance = balance)
+
+        // Right Side: Control Icons
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             HeaderIcon(
                 "rules",
                 contentDescription = stringResource(Res.string.btn_rules_description),
@@ -93,6 +108,88 @@ fun Header(
                 "settings",
                 contentDescription = stringResource(Res.string.btn_settings_description),
                 onClick = onSettingsClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun TableInfoBadge(
+    minBet: Int,
+    maxBet: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.Black.copy(alpha = 0.3f))
+                .border(0.5.dp, PrimaryGold.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 6.dp, vertical = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "$$minBet / $$maxBet",
+            style = MaterialTheme.typography.labelSmall,
+            color = PrimaryGold.copy(alpha = 0.8f),
+            fontWeight = FontWeight.Bold,
+            fontSize = 9.sp
+        )
+    }
+}
+
+@Composable
+private fun CasinoVault(
+    balance: Int,
+    modifier: Modifier = Modifier
+) {
+    val animatedBalance by animateIntAsState(
+        targetValue = balance,
+        animationSpec = tween(durationMillis = 800)
+    )
+
+    Box(
+        modifier =
+            modifier
+                .shadow(8.dp, RoundedCornerShape(percent = 50), spotColor = PrimaryGold.copy(alpha = 0.4f))
+                .background(
+                    brush =
+                        Brush.verticalGradient(
+                            0.0f to Color(0xFF2C2C2C),
+                            0.5f to Color.Black,
+                            1.0f to Color(0xFF1A1A1A)
+                        ),
+                    shape = RoundedCornerShape(percent = 50)
+                ).border(
+                    width = 1.5.dp,
+                    brush =
+                        Brush.linearGradient(
+                            0.0f to PrimaryGold,
+                            0.5f to PrimaryGold.copy(alpha = 0.3f),
+                            1.0f to PrimaryGold
+                        ),
+                    shape = RoundedCornerShape(percent = 50)
+                ).padding(horizontal = 16.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = "$",
+                color = PrimaryGold,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                fontSize = 14.sp
+            )
+            Text(
+                text = animatedBalance.formatWithCommas(),
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 0.5.sp,
+                fontSize = 16.sp
             )
         }
     }

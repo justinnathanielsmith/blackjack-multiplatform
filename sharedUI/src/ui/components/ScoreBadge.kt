@@ -12,6 +12,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -56,7 +58,8 @@ val BadgeShape = RoundedCornerShape(percent = 50)
 fun ScoreBadge(
     score: Int,
     state: ScoreBadgeState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    label: String? = null
 ) {
     val isBust = score > 21
     val is21 = score == 21
@@ -109,23 +112,25 @@ fun ScoreBadge(
     ) {
         val pulseScale = remember { Animatable(1f) }
 
-        LaunchedEffect(score) {
-            pulseScale.animateTo(
-                targetValue = 1.2f,
-                animationSpec =
-                    spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessHigh
-                    )
-            )
-            pulseScale.animateTo(
-                targetValue = 1f,
-                animationSpec =
-                    spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-            )
+        LaunchedEffect(score, state) {
+            if (state == ScoreBadgeState.ACTIVE || is21 || isBust) {
+                pulseScale.animateTo(
+                    targetValue = 1.15f,
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessHigh
+                        )
+                )
+                pulseScale.animateTo(
+                    targetValue = 1f,
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                )
+            }
         }
 
         Box(
@@ -144,7 +149,7 @@ fun ScoreBadge(
                                 is21 ||
                                 isBust
                             ) {
-                                12.dp
+                                16.dp
                             } else {
                                 4.dp
                             },
@@ -158,28 +163,44 @@ fun ScoreBadge(
                         }
                     ).background(backgroundColor, BadgeShape)
                     .border(1.5.dp, borderColor, BadgeShape)
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
-            AnimatedContent(
-                targetState = score,
-                transitionSpec = {
-                    val springSpec =
-                        spring<Float>(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                    (scaleIn(animationSpec = springSpec) + fadeIn())
-                        .togetherWith(scaleOut() + fadeOut())
-                },
-                label = "scoreRoll"
-            ) { targetScore ->
-                Text(
-                    text = targetScore.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = textColor,
-                    fontWeight = FontWeight.Black,
-                )
+            androidx.compose.foundation.layout.Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                if (label != null) {
+                    Text(
+                        text = label.uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = textColor.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.Black,
+                        fontSize = 9.sp,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+
+                AnimatedContent(
+                    targetState = score,
+                    transitionSpec = {
+                        val springSpec =
+                            spring<Float>(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        (scaleIn(animationSpec = springSpec) + fadeIn())
+                            .togetherWith(scaleOut() + fadeOut())
+                    },
+                    label = "scoreRoll"
+                ) { targetScore ->
+                    Text(
+                        text = targetScore.toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = textColor,
+                        fontWeight = FontWeight.Black,
+                    )
+                }
             }
         }
     }

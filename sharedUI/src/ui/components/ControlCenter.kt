@@ -8,7 +8,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,42 +99,24 @@ fun ControlCenter(
             }
         }
 
-        // Footer Bar
-        Row(
+        // Footer Bar - Floating Style
+        Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .background(GlassDark)
                     .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Bottom))
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                    .padding(bottom = 8.dp),
+            contentAlignment = Alignment.Center
         ) {
-            // Total Bet (Bottom Left)
-            FinancialData(
-                label = stringResource(Res.string.bet_total_label),
-                amount = state.totalBet,
-                alignment = Alignment.Start,
-                modifier = Modifier.weight(1f)
-            )
-
-            // Balance (Bottom Right)
-            FinancialData(
-                label = stringResource(Res.string.balance),
-                amount = state.balance,
-                alignment = Alignment.End,
-                modifier = Modifier.weight(1f)
-            )
+            TotalBetPill(amount = state.totalBet)
         }
     }
 }
 
 @Composable
-private fun FinancialData(
-    label: String,
+private fun TotalBetPill(
     amount: Int,
-    alignment: Alignment.Horizontal,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val animatedAmount by animateIntAsState(
         targetValue = amount,
@@ -142,31 +127,39 @@ private fun FinancialData(
     val accessibilityDescription =
         stringResource(
             Res.string.financial_data_content_description,
-            label,
+            stringResource(Res.string.bet_total_label),
             formattedAmount
         )
 
-    Column(
+    Box(
         modifier =
-            modifier.semantics(mergeDescendants = true) {
-                contentDescription = accessibilityDescription
-                liveRegion = LiveRegionMode.Polite
-            },
-        horizontalAlignment = alignment,
+            modifier
+                .semantics(mergeDescendants = true) {
+                    contentDescription = accessibilityDescription
+                    liveRegion = LiveRegionMode.Polite
+                }.background(GlassDark, RoundedCornerShape(percent = 50))
+                .border(1.dp, PrimaryGold.copy(alpha = 0.4f), RoundedCornerShape(percent = 50))
+                .padding(horizontal = 20.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label.uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.White.copy(alpha = 0.6f),
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp
-        )
-        Text(
-            text = stringResource(Res.string.currency_template, animatedAmount.formatWithCommas()),
-            style = MaterialTheme.typography.titleLarge,
-            color = PrimaryGold,
-            fontWeight = FontWeight.Black,
-            fontFamily = FontFamily.Monospace // Monospaced for stability
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.bet_total_label).uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White.copy(alpha = 0.6f),
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+            Text(
+                text = formattedAmount,
+                style = MaterialTheme.typography.titleMedium,
+                color = PrimaryGold,
+                fontWeight = FontWeight.Black,
+                fontFamily = FontFamily.Monospace
+            )
+        }
     }
 }

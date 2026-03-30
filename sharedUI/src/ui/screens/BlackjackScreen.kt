@@ -508,6 +508,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                         }
                             ) {
                                 Header(
+                                    balance = state.balance,
                                     isAutoDealEnabled = appSettings.isAutoDealEnabled,
                                     onAutoDealToggle = onAutoDealToggle,
                                     onSettingsClick = onSettingsClick,

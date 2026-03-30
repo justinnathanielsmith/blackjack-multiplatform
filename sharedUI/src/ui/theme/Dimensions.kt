@@ -14,8 +14,8 @@ object Dimensions {
     }
 
     object ActionBar {
-        val ButtonHeightNormal = 40.dp
-        val ButtonHeightCompact = 32.dp
+        val ButtonHeightNormal = 44.dp
+        val ButtonHeightCompact = 36.dp
     }
 
     object Hand {
