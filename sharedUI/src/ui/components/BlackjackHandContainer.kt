@@ -67,8 +67,8 @@ internal fun GameState.handResult(index: Int): HandResult {
 @Composable
 internal fun HandOutcomeBadge(
     result: HandResult,
-    netPayout: Int? = null,
     modifier: Modifier = Modifier,
+    netPayout: Int? = null,
 ) {
     val containerColor =
         when (result) {
@@ -168,24 +168,24 @@ internal fun HandOutcomeBadge(
 
 @Preview
 @Composable
-private fun HandOutcomeBadgePreview() {
+fun HandOutcomeBadgePreview() {
     HandOutcomeBadge(result = HandResult.WIN, netPayout = 100)
 }
 
 @Preview
 @Composable
-private fun HandOutcomeBadgeLossPreview() {
+fun HandOutcomeBadgeLossPreview() {
     HandOutcomeBadge(result = HandResult.LOSS, netPayout = -50)
 }
 
 @Preview
 @Composable
-private fun HandOutcomeBadgePushPreview() {
+fun HandOutcomeBadgePushPreview() {
     HandOutcomeBadge(result = HandResult.PUSH, netPayout = 0)
 }
 
 @Preview
 @Composable
-private fun HandOutcomeBadgeNoPayoutPreview() {
+fun HandOutcomeBadgeNoPayoutPreview() {
     HandOutcomeBadge(result = HandResult.WIN)
 }
