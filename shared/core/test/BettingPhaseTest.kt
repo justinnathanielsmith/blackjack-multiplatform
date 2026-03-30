@@ -334,6 +334,7 @@ class BettingPhaseTest {
                         balance = 700,
                         playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
                         handCount = 3,
+                        deck = deckOf(Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO),
                     )
                 )
             sm.state.test {

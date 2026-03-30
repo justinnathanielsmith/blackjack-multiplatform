@@ -68,7 +68,7 @@ object NewGameLogic {
         val finalSideBets: PersistentMap<SideBetType, Int>
         val postSideBetBalance: Int
 
-        if (totalSideBetCost <= afterMainBetBalance) {
+        if (allAffordable && totalSideBetCost <= afterMainBetBalance) {
             finalSideBets = lastSideBets
             postSideBetBalance = afterMainBetBalance - totalSideBetCost
         } else {

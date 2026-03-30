@@ -1,64 +1,49 @@
-00:02.803 INFO  :data:testJvm             Testing module 'data' for platform 'jvm'...
-00:02.802 INFO  :core:testJvm             Testing module 'core' for platform 'jvm'...
-00:02.853 INFO  :sharedUI:testJvm         Testing module 'sharedUI' for platform 'jvm'...
-[38;2;229;192;123m00:02.860 WARN  :desktopApp:testJvm       No test classes, skipping test execution for module 'desktopApp'[39m
-[38;2;97;175;239;1mStarted[22m ChipVisualsTest[39m
-[1mStarted[22m breakdownAmountValues_exceedsMaxParticles_withLeftover_addsOne()
-[38;2;152;195;121;1mPassed[22m breakdownAmountValues_exceedsMaxParticles_withLeftover_addsOne()[39m
-[1mStarted[22m breakdownAmountValues_exactDenomination_returnsSingleValue()
-[38;2;152;195;121;1mPassed[22m breakdownAmountValues_exactDenomination_returnsSingleValue()[39m
-[1mStarted[22m breakdownAmountValues_zeroAmount_returnsEmptyList()
-[38;2;152;195;121;1mPassed[22m breakdownAmountValues_zeroAmount_returnsEmptyList()[39m
-[1mStarted[22m breakdownAmountValues_withLeftoverAndSpace_addsOne()
-[38;2;152;195;121;1mPassed[22m breakdownAmountValues_withLeftoverAndSpace_addsOne()[39m
-[1mStarted[22m breakdownAmount_exceedsMaxParticles_withLeftover_noWhiteSoftAdded()
-[38;2;152;195;121;1mPassed[22m breakdownAmount_exceedsMaxParticles_withLeftover_noWhiteSoftAdded()[39m
-[1mStarted[22m breakdownAmount_exceedsMaxParticles_truncates()
-[38;2;152;195;121;1mPassed[22m breakdownAmount_exceedsMaxParticles_truncates()[39m
-[1mStarted[22m breakdownAmount_zeroAmount_returnsEmptyList()
-[38;2;152;195;121;1mPassed[22m breakdownAmount_zeroAmount_returnsEmptyList()[39m
-[1mStarted[22m breakdownAmountValues_complexAmount_returnsExpectedValues()
-[38;2;152;195;121;1mPassed[22m breakdownAmountValues_complexAmount_returnsExpectedValues()[39m
-[1mStarted[22m breakdownAmount_exactDenomination_returnsCorrectColors()
-[38;2;152;195;121;1mPassed[22m breakdownAmount_exactDenomination_returnsCorrectColors()[39m
-[1mStarted[22m breakdownAmountValues_exceedsMaxParticles_truncates()
-[38;2;152;195;121;1mPassed[22m breakdownAmountValues_exceedsMaxParticles_truncates()[39m
-[1mStarted[22m breakdownAmount_complexAmount_returnsCorrectColors()
-[38;2;152;195;121;1mPassed[22m breakdownAmount_complexAmount_returnsCorrectColors()[39m
-[38;2;97;175;239;1mCompleted[22m ChipVisualsTest[39m
-[38;2;97;175;239;1mStarted[22m GameEffectHandlerTest[39m
-[1mStarted[22m winPulseEffectRoutesToWinPulse()
-[38;2;152;195;121;1mPassed[22m winPulseEffectRoutesToWinPulse()[39m
-[1mStarted[22m lightTickEffectRoutesToLightTick()
-[38;2;152;195;121;1mPassed[22m lightTickEffectRoutesToLightTick()[39m
-[1mStarted[22m nonVibrateEffectDoesNotTriggerHaptics()
-[38;2;152;195;121;1mPassed[22m nonVibrateEffectDoesNotTriggerHaptics()[39m
-[1mStarted[22m bustThdEffectRoutesToBustThud()
-[38;2;152;195;121;1mPassed[22m bustThdEffectRoutesToBustThud()[39m
-[1mStarted[22m vibrateEffectTriggersHaptics()
-[38;2;152;195;121;1mPassed[22m vibrateEffectTriggersHaptics()[39m
-[38;2;97;175;239;1mCompleted[22m GameEffectHandlerTest[39m
-[38;2;97;175;239;1mStarted[22m AudioServiceTest[39m
-[1mStarted[22m toResourceMapsAllSoundEffectsCorrectly()
-[38;2;152;195;121;1mPassed[22m toResourceMapsAllSoundEffectsCorrectly()[39m
-[38;2;97;175;239;1mCompleted[22m AudioServiceTest[39m
+00:02.205 INFO  :core:compileJvm          Compiling module 'core' for platform 'jvm'...
+00:09.746 INFO  :data:compileJvm          Compiling module 'data' for platform 'jvm'...
+00:09.807 INFO  :core:compileJvmTest      Compiling module 'core' for platform 'jvm'...
+00:10.761 INFO  :data:compileJvmTest      Compiling module 'data' for platform 'jvm'...
+00:10.841 INFO  :sharedUI:compileJvm      Compiling module 'sharedUI' for platform 'jvm'...
+00:11.391 INFO  :data:testJvm             Testing module 'data' for platform 'jvm'...
+[38;2;97;175;239;1mStarted[22m DataStoreSettingsRepositoryTest[39m
+[1mStarted[22m testValidJsonIsDecoded()
+[38;2;152;195;121;1mPassed[22m testValidJsonIsDecoded()[39m
+[1mStarted[22m testDecodeErrorReturnsDefaultFlow()
+[38;2;152;195;121;1mPassed[22m testDecodeErrorReturnsDefaultFlow()[39m
+[1mStarted[22m testDecodeErrorReturnsDefaultOnUpdate()
+[38;2;152;195;121;1mPassed[22m testDecodeErrorReturnsDefaultOnUpdate()[39m
+[38;2;97;175;239;1mCompleted[22m DataStoreSettingsRepositoryTest[39m
+[38;2;97;175;239;1mStarted[22m SettingsRepositoryTest[39m
+[1mStarted[22m update_sound_muted()
+[38;2;152;195;121;1mPassed[22m update_sound_muted()[39m
+[1mStarted[22m default_settings_on_first_read()
+[38;2;152;195;121;1mPassed[22m default_settings_on_first_read()[39m
+[38;2;97;175;239;1mCompleted[22m SettingsRepositoryTest[39m
+[38;2;97;175;239;1mStarted[22m BalanceServiceTest[39m
+[1mStarted[22m testSaveBalanceUpdatesValue()
+[38;2;152;195;121;1mPassed[22m testSaveBalanceUpdatesValue()[39m
+[1mStarted[22m testExceptionInDataFlowReturnsDefaultValue()
+[38;2;152;195;121;1mPassed[22m testExceptionInDataFlowReturnsDefaultValue()[39m
+[1mStarted[22m testDefaultBalanceIsEmittedWhenEmpty()
+[38;2;152;195;121;1mPassed[22m testDefaultBalanceIsEmittedWhenEmpty()[39m
+[1mStarted[22m testResetBalanceRestoresDefaultValue()
+[38;2;152;195;121;1mPassed[22m testResetBalanceRestoresDefaultValue()[39m
+[38;2;97;175;239;1mCompleted[22m BalanceServiceTest[39m
 
-Test run finished after 425 ms
+Test run finished after 1502 ms
 [         6 containers found      ]
 [         0 containers skipped    ]
 [         6 containers started    ]
 [         0 containers aborted    ]
 [         6 containers successful ]
 [         0 containers failed     ]
-[        17 tests found           ]
+[         9 tests found           ]
 [         0 tests skipped         ]
-[        17 tests started         ]
+[         9 tests started         ]
 [         0 tests aborted         ]
-[        17 tests successful      ]
+[         9 tests successful      ]
 [         0 tests failed          ]
 
-[38;2;97;175;239;1mStarted[22m DataStoreSettingsRepositoryTest[39m
-[1mStarted[22m testValidJsonIsDecoded()
+00:17.648 INFO  :core:testJvm             Testing module 'core' for platform 'jvm'...
 [38;2;97;175;239;1mStarted[22m HandTest[39m
 [1mStarted[22m testTension_midForEighteen()
 [38;2;152;195;121;1mPassed[22m testTension_midForEighteen()[39m
@@ -93,14 +78,6 @@ Test run finished after 425 ms
 [38;2;97;175;239;1mCompleted[22m HandTest[39m
 [38;2;97;175;239;1mStarted[22m SideBetPersistenceTest[39m
 [1mStarted[22m testNewGameRemembersSideBets_InsufficientBalance()
-[38;2;152;195;121;1mPassed[22m testValidJsonIsDecoded()[39m
-[1mStarted[22m testDecodeErrorReturnsDefaultFlow()
-[38;2;152;195;121;1mPassed[22m testDecodeErrorReturnsDefaultFlow()[39m
-[1mStarted[22m testDecodeErrorReturnsDefaultOnUpdate()
-[38;2;152;195;121;1mPassed[22m testDecodeErrorReturnsDefaultOnUpdate()[39m
-[38;2;97;175;239;1mCompleted[22m DataStoreSettingsRepositoryTest[39m
-[38;2;97;175;239;1mStarted[22m SettingsRepositoryTest[39m
-[1mStarted[22m update_sound_muted()
 Verbose: (BlackjackStateMachine) SM received action: NewGame(initialBalance=150, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, previousBets=[50], lastSideBets={PERFECT_PAIRS=100, TWENTY_ONE_PLUS_THREE=100})
 Verbose: (BlackjackStateMachine) SM action loop finished current item: NewGame(initialBalance=150, rules=GameRules(dealerHitsSoft17=true, allowDoubleAfterSplit=true, allowSurrender=false, blackjackPayout=THREE_TO_TWO, deckCount=6, splitOnValueOnly=false), handCount=1, previousBets=[50], lastSideBets={PERFECT_PAIRS=100, TWENTY_ONE_PLUS_THREE=100})
 Debug: (BlackjackStateMachine) SM action loop cancelled
@@ -115,22 +92,8 @@ Debug: (BlackjackStateMachine) SM init block finally
 [38;2;97;175;239;1mCompleted[22m SideBetPersistenceTest[39m
 [38;2;97;175;239;1mStarted[22m LogicImprovementsTest[39m
 [1mStarted[22m placeBet_emitsVibrate_whenSeatIndexOutOfBounds()
-[38;2;152;195;121;1mPassed[22m update_sound_muted()[39m
-[1mStarted[22m default_settings_on_first_read()
-[38;2;152;195;121;1mPassed[22m default_settings_on_first_read()[39m
-[38;2;97;175;239;1mCompleted[22m SettingsRepositoryTest[39m
-[38;2;97;175;239;1mStarted[22m BalanceServiceTest[39m
-[1mStarted[22m testSaveBalanceUpdatesValue()
 Verbose: (BlackjackStateMachine) SM received action: PlaceBet(amount=100, seatIndex=5)
 Verbose: (BlackjackStateMachine) SM action loop finished current item: PlaceBet(amount=100, seatIndex=5)
-[38;2;152;195;121;1mPassed[22m testSaveBalanceUpdatesValue()[39m
-[1mStarted[22m testExceptionInDataFlowReturnsDefaultValue()
-[38;2;152;195;121;1mPassed[22m testExceptionInDataFlowReturnsDefaultValue()[39m
-[1mStarted[22m testDefaultBalanceIsEmittedWhenEmpty()
-[38;2;152;195;121;1mPassed[22m testDefaultBalanceIsEmittedWhenEmpty()[39m
-[1mStarted[22m testResetBalanceRestoresDefaultValue()
-[38;2;152;195;121;1mPassed[22m testResetBalanceRestoresDefaultValue()[39m
-[38;2;97;175;239;1mCompleted[22m BalanceServiceTest[39m
 Debug: (BlackjackStateMachine) SM action loop cancelled
 Debug: (BlackjackStateMachine) SM init block finally
 [38;2;152;195;121;1mPassed[22m placeBet_emitsVibrate_whenSeatIndexOutOfBounds()[39m
@@ -150,21 +113,6 @@ Debug: (BlackjackStateMachine) SM init block finally
 [38;2;152;195;121;1mPassed[22m placeBet_emitsVibrate_whenInsufficientBalance()[39m
 [1mStarted[22m handleDeal_reshuffles_whenDeckIsEmpty()
 Verbose: (BlackjackStateMachine) SM received action: Deal
-
-Test run finished after 538 ms
-[         6 containers found      ]
-[         0 containers skipped    ]
-[         6 containers started    ]
-[         0 containers aborted    ]
-[         6 containers successful ]
-[         0 containers failed     ]
-[         9 tests found           ]
-[         0 tests skipped         ]
-[         9 tests started         ]
-[         0 tests aborted         ]
-[         9 tests successful      ]
-[         0 tests failed          ]
-
 Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
 Debug: (BlackjackStateMachine) SM action loop cancelled
 Debug: (BlackjackStateMachine) SM init block finally
@@ -671,21 +619,82 @@ Debug: (BlackjackStateMachine) SM init block finally
 [38;2;97;175;239;1mStarted[22m BenchmarkTest[39m
 [1mStarted[22m runHandBenchmark()
 ===============================
-Old approach: 30 ms
-New approach: 10 ms
-Improvement: 66.66666666666666%
+Old approach: 34 ms
+New approach: 11 ms
+Improvement: 67.64705882352942%
 ===============================
 [38;2;152;195;121;1mPassed[22m runHandBenchmark()[39m
 [1mStarted[22m benchmarkCreateDeck()
 ===============================
-Iteration 1 - Old: 886 ms, New: 961 ms
-Iteration 2 - Old: 1013 ms, New: 800 ms
-Iteration 3 - Old: 926 ms, New: 828 ms
-Iteration 4 - Old: 1343 ms, New: 773 ms
-Iteration 5 - Old: 867 ms, New: 1076 ms
-Deck Average Old: 1007 ms
-Deck Average New: 887 ms
-Average Improvement: 11.85700099304866%
+Iteration 1 - Old: 875 ms, New: 953 ms
+[38;2;229;192;123m00:22.914 WARN  :sharedUI:compileJvm      The feature plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=StrongSkipping is enabled by default and specifying this option explicitly is not necessary.[39m
+00:22.990 INFO  :desktopApp:compileJvm    Compiling module 'desktopApp' for platform 'jvm'...
+00:22.994 INFO  :sharedUI:compileJvmTest  Compiling module 'sharedUI' for platform 'jvm'...
+Iteration 2 - Old: 1348 ms, New: 933 ms
+[38;2;229;192;123m00:23.926 WARN  :sharedUI:compileJvmTest  The feature plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=StrongSkipping is enabled by default and specifying this option explicitly is not necessary.[39m
+[38;2;229;192;123m00:23.950 WARN  :desktopApp:testJvm       No test classes, skipping test execution for module 'desktopApp'[39m
+00:23.965 INFO  :sharedUI:testJvm         Testing module 'sharedUI' for platform 'jvm'...
+[38;2;97;175;239;1mStarted[22m ChipVisualsTest[39m
+[1mStarted[22m breakdownAmountValues_exceedsMaxParticles_withLeftover_addsOne()
+[38;2;152;195;121;1mPassed[22m breakdownAmountValues_exceedsMaxParticles_withLeftover_addsOne()[39m
+[1mStarted[22m breakdownAmountValues_exactDenomination_returnsSingleValue()
+[38;2;152;195;121;1mPassed[22m breakdownAmountValues_exactDenomination_returnsSingleValue()[39m
+[1mStarted[22m breakdownAmountValues_zeroAmount_returnsEmptyList()
+[38;2;152;195;121;1mPassed[22m breakdownAmountValues_zeroAmount_returnsEmptyList()[39m
+[1mStarted[22m breakdownAmountValues_withLeftoverAndSpace_addsOne()
+[38;2;152;195;121;1mPassed[22m breakdownAmountValues_withLeftoverAndSpace_addsOne()[39m
+[1mStarted[22m breakdownAmount_exceedsMaxParticles_withLeftover_noWhiteSoftAdded()
+[38;2;152;195;121;1mPassed[22m breakdownAmount_exceedsMaxParticles_withLeftover_noWhiteSoftAdded()[39m
+[1mStarted[22m breakdownAmount_exceedsMaxParticles_truncates()
+[38;2;152;195;121;1mPassed[22m breakdownAmount_exceedsMaxParticles_truncates()[39m
+[1mStarted[22m breakdownAmount_zeroAmount_returnsEmptyList()
+[38;2;152;195;121;1mPassed[22m breakdownAmount_zeroAmount_returnsEmptyList()[39m
+[1mStarted[22m breakdownAmountValues_complexAmount_returnsExpectedValues()
+[38;2;152;195;121;1mPassed[22m breakdownAmountValues_complexAmount_returnsExpectedValues()[39m
+[1mStarted[22m breakdownAmount_exactDenomination_returnsCorrectColors()
+[38;2;152;195;121;1mPassed[22m breakdownAmount_exactDenomination_returnsCorrectColors()[39m
+[1mStarted[22m breakdownAmountValues_exceedsMaxParticles_truncates()
+[38;2;152;195;121;1mPassed[22m breakdownAmountValues_exceedsMaxParticles_truncates()[39m
+[1mStarted[22m breakdownAmount_complexAmount_returnsCorrectColors()
+[38;2;152;195;121;1mPassed[22m breakdownAmount_complexAmount_returnsCorrectColors()[39m
+[38;2;97;175;239;1mCompleted[22m ChipVisualsTest[39m
+[38;2;97;175;239;1mStarted[22m GameEffectHandlerTest[39m
+[1mStarted[22m winPulseEffectRoutesToWinPulse()
+[38;2;152;195;121;1mPassed[22m winPulseEffectRoutesToWinPulse()[39m
+[1mStarted[22m lightTickEffectRoutesToLightTick()
+[38;2;152;195;121;1mPassed[22m lightTickEffectRoutesToLightTick()[39m
+[1mStarted[22m nonVibrateEffectDoesNotTriggerHaptics()
+[38;2;152;195;121;1mPassed[22m nonVibrateEffectDoesNotTriggerHaptics()[39m
+[1mStarted[22m bustThdEffectRoutesToBustThud()
+[38;2;152;195;121;1mPassed[22m bustThdEffectRoutesToBustThud()[39m
+[1mStarted[22m vibrateEffectTriggersHaptics()
+[38;2;152;195;121;1mPassed[22m vibrateEffectTriggersHaptics()[39m
+[38;2;97;175;239;1mCompleted[22m GameEffectHandlerTest[39m
+[38;2;97;175;239;1mStarted[22m AudioServiceTest[39m
+[1mStarted[22m toResourceMapsAllSoundEffectsCorrectly()
+[38;2;152;195;121;1mPassed[22m toResourceMapsAllSoundEffectsCorrectly()[39m
+[38;2;97;175;239;1mCompleted[22m AudioServiceTest[39m
+
+Test run finished after 336 ms
+[         6 containers found      ]
+[         0 containers skipped    ]
+[         6 containers started    ]
+[         0 containers aborted    ]
+[         6 containers successful ]
+[         0 containers failed     ]
+[        17 tests found           ]
+[         0 tests skipped         ]
+[        17 tests started         ]
+[         0 tests aborted         ]
+[        17 tests successful      ]
+[         0 tests failed          ]
+
+Iteration 3 - Old: 1423 ms, New: 895 ms
+Iteration 4 - Old: 713 ms, New: 696 ms
+Iteration 5 - Old: 707 ms, New: 695 ms
+Deck Average Old: 1013 ms
+Deck Average New: 834 ms
+Average Improvement: 17.647058823529413%
 ===============================
 [38;2;152;195;121;1mPassed[22m benchmarkCreateDeck()[39m
 [38;2;97;175;239;1mCompleted[22m BenchmarkTest[39m
@@ -1343,44 +1352,7 @@ Debug: (BlackjackStateMachine) SM init block finally
 [1mStarted[22m shouldInitializeWithCorrectStatusAndRules()
 [38;2;152;195;121;1mPassed[22m shouldInitializeWithCorrectStatusAndRules()[39m
 [1mStarted[22m shouldRejectBothIfTotalMainBetsUnaffordable()
-[38;2;224;108;117;1mFailed[22m shouldRejectBothIfTotalMainBetsUnaffordable()[39m
-[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: Expected value to be true.[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.fail(Assertions.java:143)[39m
-[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)[39m
-[38;2;224;108;117m                at kotlin.test.Asserter.assertTrue(Assertions.kt:694)[39m
-[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)[39m
-[38;2;224;108;117m                at kotlin.test.Asserter.assertTrue(Assertions.kt:704)[39m
-[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertTrue(Unknown Source)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertTrue$default(Assertions.kt:42)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertTrue$default(Unknown Source)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.NewGameLogicTest$shouldRejectBothIfTotalMainBetsUnaffordable$1.invokeSuspend(NewGameLogicTest.kt:172)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.NewGameLogicTest$shouldRejectBothIfTotalMainBetsUnaffordable$1.invoke(NewGameLogicTest.kt)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.NewGameLogicTest$shouldRejectBothIfTotalMainBetsUnaffordable$1.invoke(NewGameLogicTest.kt)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
-[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
-[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.NewGameLogicTest.shouldRejectBothIfTotalMainBetsUnaffordable(NewGameLogicTest.kt:156)[39m
+[38;2;152;195;121;1mPassed[22m shouldRejectBothIfTotalMainBetsUnaffordable()[39m
 [1mStarted[22m shouldPadPreviousBetsWhenHandCountIncreases()
 [38;2;152;195;121;1mPassed[22m shouldPadPreviousBetsWhenHandCountIncreases()[39m
 [1mStarted[22m shouldApproveSideBetsIfAffordableAfterMainBets()
@@ -1424,43 +1396,7 @@ Verbose: (BlackjackStateMachine) SM received action: Deal
 Verbose: (BlackjackStateMachine) SM action loop finished current item: Deal
 Debug: (BlackjackStateMachine) SM action loop cancelled
 Debug: (BlackjackStateMachine) SM init block finally
-[38;2;224;108;117;1mFailed[22m deal_doesNotDeductBalanceForMultiHand()[39m
-[38;2;224;108;117m           => Exception: org.opentest4j.AssertionFailedError: expected: <700> but was: <950>[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)[39m
-[38;2;224;108;117m                at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)[39m
-[38;2;224;108;117m                at kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals(Unknown Source)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)[39m
-[38;2;224;108;117m                at kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BettingPhaseTest$deal_doesNotDeductBalanceForMultiHand$1.invokeSuspend(BettingPhaseTest.kt:344)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BettingPhaseTest$deal_doesNotDeductBalanceForMultiHand$1.invoke(BettingPhaseTest.kt)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BettingPhaseTest$deal_doesNotDeductBalanceForMultiHand$1.invoke(BettingPhaseTest.kt)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)[39m
-[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)[39m
-[38;2;224;108;117m                at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0$default(TestBuilders.kt:159)[39m
-[38;2;224;108;117m                at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0$default(Unknown Source)[39m
-[38;2;224;108;117m                at io.github.smithjustinn.blackjack.BettingPhaseTest.deal_doesNotDeductBalanceForMultiHand(BettingPhaseTest.kt:328)[39m
+[38;2;152;195;121;1mPassed[22m deal_doesNotDeductBalanceForMultiHand()[39m
 [1mStarted[22m selectHandCount_noBalanceChangeWhenNoBet()
 Verbose: (BlackjackStateMachine) SM received action: SelectHandCount(count=3)
 Verbose: (BlackjackStateMachine) SM action loop finished current item: SelectHandCount(count=3)
@@ -1595,37 +1531,7 @@ Debug: (BlackjackStateMachine) SM init block finally
 [38;2;152;195;121;1mPassed[22m totalBet_isZero_whenNoBets()[39m
 [38;2;97;175;239;1mCompleted[22m GameStateTest[39m
 
-Failures (2):
-  JUnit Jupiter:NewGameLogicTest:shouldRejectBothIfTotalMainBetsUnaffordable()
-    MethodSource [className = 'io.github.smithjustinn.blackjack.NewGameLogicTest', methodName = 'shouldRejectBothIfTotalMainBetsUnaffordable', methodParameterTypes = '']
-    => org.opentest4j.AssertionFailedError: Expected value to be true.
-       org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)
-       org.junit.jupiter.api.Assertions.fail(Assertions.java:143)
-       kotlin.test.junit5.JUnit5Asserter.fail(JUnitSupport.kt:56)
-       kotlin.test.Asserter.assertTrue(Assertions.kt:694)
-       kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
-       kotlin.test.Asserter.assertTrue(Assertions.kt:704)
-       kotlin.test.junit5.JUnit5Asserter.assertTrue(JUnitSupport.kt:30)
-       kotlin.test.AssertionsKt__AssertionsKt.assertTrue(Assertions.kt:44)
-       kotlin.test.AssertionsKt.assertTrue(Unknown Source)
-       kotlin.test.AssertionsKt__AssertionsKt.assertTrue$default(Assertions.kt:42)
-       [...]
-  JUnit Jupiter:BettingPhaseTest:deal_doesNotDeductBalanceForMultiHand()
-    MethodSource [className = 'io.github.smithjustinn.blackjack.BettingPhaseTest', methodName = 'deal_doesNotDeductBalanceForMultiHand', methodParameterTypes = '']
-    => org.opentest4j.AssertionFailedError: expected: <700> but was: <950>
-       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
-       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
-       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
-       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
-       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
-       kotlin.test.junit5.JUnit5Asserter.assertEquals(JUnitSupport.kt:32)
-       kotlin.test.AssertionsKt__AssertionsKt.assertEquals(Assertions.kt:63)
-       kotlin.test.AssertionsKt.assertEquals(Unknown Source)
-       kotlin.test.AssertionsKt__AssertionsKt.assertEquals$default(Assertions.kt:62)
-       kotlin.test.AssertionsKt.assertEquals$default(Unknown Source)
-       [...]
-
-Test run finished after 11146 ms
+Test run finished after 10631 ms
 [        41 containers found      ]
 [         0 containers skipped    ]
 [        41 containers started    ]
@@ -1636,8 +1542,6 @@ Test run finished after 11146 ms
 [         0 tests skipped         ]
 [       297 tests started         ]
 [         0 tests aborted         ]
-[       295 tests successful      ]
-[         2 tests failed          ]
+[       297 tests successful      ]
+[         0 tests failed          ]
 
-
-[38;2;224;108;117mERROR: JVM tests failed for module 'core' with exit code 1 (see errors above)[39m

@@ -1,155 +1,208 @@
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package io.github.smithjustinn.blackjack
 
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class NewGameLogicTest {
-    // ── Bet normalisation ──────────────────────────────────────────────────────
+    @Test
+    fun shouldPadPreviousBetsWhenHandCountIncreases() =
+        runTest {
+            val balance = 1000
+            val handCount = 3
+            val previousBets = persistentListOf(100)
+
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets
+                )
+
+            assertEquals(3, state.playerHands.size)
+            assertEquals(100, state.playerHands[0].bet)
+            assertEquals(0, state.playerHands[1].bet)
+            assertEquals(0, state.playerHands[2].bet)
+            assertEquals(900, state.balance)
+            assertEquals(100, state.playerHands[0].lastBet)
+            assertEquals(0, state.playerHands[1].lastBet)
+            assertEquals(0, state.playerHands[2].lastBet)
+        }
 
     @Test
-    fun previousBets_truncated_whenLongerThanHandCount() {
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 1000,
-                handCount = 2,
-                previousBets = persistentListOf(10, 20, 30),
-            )
-        assertEquals(2, state.playerHands.size)
-        assertEquals(10, state.playerHands[0].bet)
-        assertEquals(20, state.playerHands[1].bet)
-    }
+    fun shouldTruncatePreviousBetsWhenHandCountDecreases() =
+        runTest {
+            val balance = 1000
+            val handCount = 1
+            val previousBets = persistentListOf(100, 200, 300)
+
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets
+                )
+
+            assertEquals(1, state.playerHands.size)
+            assertEquals(100, state.playerHands[0].bet)
+            assertEquals(900, state.balance)
+            assertEquals(100, state.playerHands[0].lastBet)
+        }
 
     @Test
-    fun previousBets_padded_whenShorterThanHandCount() {
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 1000,
-                handCount = 3,
-                previousBets = persistentListOf(50),
-            )
-        assertEquals(50, state.playerHands[0].bet)
-        assertEquals(0, state.playerHands[1].bet)
-        assertEquals(0, state.playerHands[2].bet)
-    }
+    fun shouldKeepPreviousBetsWhenHandCountMatches() =
+        runTest {
+            val balance = 1000
+            val handCount = 2
+            val previousBets = persistentListOf(100, 200)
 
-    // ── Main bet affordability ─────────────────────────────────────────────────
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets
+                )
 
-    @Test
-    fun betsApplied_andBalanceReduced_whenAffordable() {
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 1000,
-                handCount = 3,
-                previousBets = persistentListOf(10, 25, 50),
-            )
-        assertEquals(listOf(10, 25, 50), state.playerHands.map { it.bet })
-        assertEquals(1000 - 10 - 25 - 50, state.balance)
-    }
+            assertEquals(2, state.playerHands.size)
+            assertEquals(100, state.playerHands[0].bet)
+            assertEquals(200, state.playerHands[1].bet)
+            assertEquals(700, state.balance)
+        }
 
     @Test
-    fun betsResetToZero_whenUnaffordable() {
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 150,
-                handCount = 2,
-                previousBets = persistentListOf(100, 100),
-            )
-        assertEquals(listOf(0, 0), state.playerHands.map { it.bet })
-        assertEquals(150, state.balance)
-    }
+    fun shouldApprovePreviousBetsIfExactlyAffordable() =
+        runTest {
+            val balance = 300
+            val handCount = 3
+            val previousBets = persistentListOf(100, 100, 100)
+
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets
+                )
+
+            assertEquals(300, state.playerHands.sumOf { it.bet })
+            assertEquals(0, state.balance)
+        }
 
     @Test
-    fun lastBets_alwaysStoreNormalizedBets_regardlessOfAffordability() {
-        val previousBets = persistentListOf(100, 100)
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 150,
-                handCount = 2,
-                previousBets = previousBets,
-            )
-        // finalBets are zeroed, but lastBet should mirror the normalized attempt
-        assertEquals(previousBets, state.playerHands.map { it.lastBet }.toPersistentList())
-    }
+    fun shouldRejectPreviousBetsIfUnaffordable() =
+        runTest {
+            val balance = 200
+            val handCount = 3
+            val previousBets = persistentListOf(100, 100, 100)
 
-    // ── Side bet affordability ─────────────────────────────────────────────────
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets
+                )
 
-    @Test
-    fun sideBetsApplied_andBalanceReduced_whenAffordable() {
-        val sideBets =
-            persistentMapOf(
-                SideBetType.PERFECT_PAIRS to 10,
-                SideBetType.TWENTY_ONE_PLUS_THREE to 25,
-            )
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 1000,
-                lastSideBets = sideBets,
-            )
-        assertEquals(10, state.sideBets[SideBetType.PERFECT_PAIRS])
-        assertEquals(25, state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE])
-        assertEquals(1000 - 10 - 25, state.balance)
-    }
+            assertEquals(0, state.playerHands.sumOf { it.bet })
+            assertEquals(200, state.balance)
+            // lastBet should still be the normalized previous bets for UI cues
+            assertEquals(100, state.playerHands[0].lastBet)
+            assertEquals(100, state.playerHands[1].lastBet)
+            assertEquals(100, state.playerHands[2].lastBet)
+        }
 
     @Test
-    fun sideBetsCleared_whenUnaffordableAfterMainBets() {
-        val sideBets =
-            persistentMapOf(
-                SideBetType.PERFECT_PAIRS to 100,
-                SideBetType.TWENTY_ONE_PLUS_THREE to 100,
-            )
-        // 50 main bet leaves 100 remaining, but side bets total 200
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 150,
-                handCount = 1,
-                previousBets = persistentListOf(50),
-                lastSideBets = sideBets,
-            )
-        assertEquals(0, state.sideBets.size)
-        assertEquals(100, state.balance)
-    }
+    fun shouldApproveSideBetsIfAffordableAfterMainBets() =
+        runTest {
+            val balance = 500
+            val handCount = 1
+            val previousBets = persistentListOf(100)
+            val lastSideBets =
+                persistentMapOf(
+                    SideBetType.PERFECT_PAIRS to 50,
+                    SideBetType.TWENTY_ONE_PLUS_THREE to 50
+                )
+
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets,
+                    lastSideBets = lastSideBets
+                )
+
+            assertEquals(100, state.playerHands[0].bet)
+            assertEquals(2, state.sideBets.size)
+            assertEquals(50, state.sideBets[SideBetType.PERFECT_PAIRS])
+            assertEquals(50, state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE])
+            assertEquals(300, state.balance) // 500 - 100 - 50 - 50 = 300
+        }
 
     @Test
-    fun lastSideBets_alwaysPreserved_regardlessOfAffordability() {
-        val sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 200)
-        val state =
-            NewGameLogic.createInitialState(
-                balance = 50,
-                lastSideBets = sideBets,
-            )
-        // Side bet not applied, but lastSideBets preserved for next round repeat
-        assertEquals(0, state.sideBets.size)
-        assertEquals(sideBets, state.lastSideBets)
-    }
+    fun shouldRejectSideBetsIfUnaffordableAfterMainBets() =
+        runTest {
+            val balance = 150
+            val handCount = 1
+            val previousBets = persistentListOf(100)
+            val lastSideBets =
+                persistentMapOf(
+                    SideBetType.PERFECT_PAIRS to 100
+                )
 
-    // ── GameState shape ────────────────────────────────────────────────────────
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets,
+                    lastSideBets = lastSideBets
+                )
 
-    @Test
-    fun returnsStatus_BETTING() {
-        val state = NewGameLogic.createInitialState(balance = 500)
-        assertEquals(GameStatus.BETTING, state.status)
-    }
-
-    @Test
-    fun activeHandIndex_isZero() {
-        val state = NewGameLogic.createInitialState(balance = 500, handCount = 3)
-        assertEquals(0, state.activeHandIndex)
-    }
+            assertEquals(100, state.playerHands[0].bet)
+            assertTrue(state.sideBets.isEmpty())
+            assertEquals(50, state.balance) // 150 - 100 = 50
+            assertEquals(lastSideBets, state.lastSideBets) // lastSideBets persists for UI
+        }
 
     @Test
-    fun handCount_matchesParameter() {
-        val state = NewGameLogic.createInitialState(balance = 500, handCount = 2)
-        assertEquals(2, state.handCount)
-        assertEquals(2, state.playerHands.size)
-    }
+    fun shouldRejectBothIfTotalMainBetsUnaffordable() =
+        runTest {
+            val balance = 50
+            val handCount = 1
+            val previousBets = persistentListOf(100)
+            val lastSideBets =
+                persistentMapOf(
+                    SideBetType.PERFECT_PAIRS to 50
+                )
+
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = balance,
+                    handCount = handCount,
+                    previousBets = previousBets,
+                    lastSideBets = lastSideBets
+                )
+
+            assertEquals(0, state.playerHands[0].bet)
+            assertTrue(state.sideBets.isEmpty())
+            assertEquals(50, state.balance)
+        }
 
     @Test
-    fun rules_propagatedToState() {
-        val rules = GameRules(allowSurrender = true, dealerHitsSoft17 = false)
-        val state = NewGameLogic.createInitialState(balance = 500, rules = rules)
-        assertEquals(rules, state.rules)
-    }
+    fun shouldInitializeWithCorrectStatusAndRules() =
+        runTest {
+            val rules = GameRules(dealerHitsSoft17 = false)
+            val state =
+                NewGameLogic.createInitialState(
+                    balance = 1000,
+                    rules = rules
+                )
+
+            assertEquals(GameStatus.BETTING, state.status)
+            assertEquals(rules, state.rules)
+            assertEquals(0, state.activeHandIndex)
+        }
 }
