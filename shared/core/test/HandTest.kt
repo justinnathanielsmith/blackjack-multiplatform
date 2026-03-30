@@ -99,4 +99,44 @@ class HandTest {
         assertEquals(20, hand.visibleScore)
         assertEquals(20, hand.score)
     }
+
+    @Test
+    fun testIsSoft_trueForSoftSeventeen() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.ACE, Suit.HEARTS),
+                    Card(Rank.SIX, Suit.SPADES)
+                )
+            )
+        assertEquals(17, hand.score)
+        assertEquals(true, hand.isSoft)
+    }
+
+    @Test
+    fun testIsSoft_falseForHardSeventeen() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.TEN, Suit.HEARTS),
+                    Card(Rank.SEVEN, Suit.SPADES)
+                )
+            )
+        assertEquals(17, hand.score)
+        assertEquals(false, hand.isSoft)
+    }
+
+    @Test
+    fun testIsSoft_falseForHardSeventeenWithAce() {
+        val hand =
+            Hand(
+                persistentListOf(
+                    Card(Rank.ACE, Suit.HEARTS),
+                    Card(Rank.TEN, Suit.SPADES),
+                    Card(Rank.SIX, Suit.CLUBS)
+                )
+            )
+        assertEquals(17, hand.score)
+        assertEquals(false, hand.isSoft)
+    }
 }
