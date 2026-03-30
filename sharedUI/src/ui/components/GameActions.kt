@@ -186,7 +186,7 @@ fun GameActions(
                     )
 
                     val activeHand = state.playerHands.getOrNull(state.activeHandIndex)
-                    val tension = activeHand?.let { calculateTension(it.score) } ?: 0.0f
+                    val tension = activeHand?.tension ?: 0.0f // Domain predicate: tension lives in Hand
 
                     ModernActionButton(
                         icon = Res.drawable.ic_stand,
@@ -376,15 +376,5 @@ private fun ModernActionButton(
                 )
             }
         }
-    }
-}
-
-private fun calculateTension(score: Int): Float {
-    return when {
-        score >= 20 -> 1.0f
-        score == 19 -> 0.7f
-        score == 18 -> 0.4f
-        score == 17 -> 0.2f
-        else -> 0.0f
     }
 }
