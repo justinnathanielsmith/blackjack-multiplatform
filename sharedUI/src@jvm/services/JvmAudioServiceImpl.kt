@@ -69,7 +69,7 @@ class JvmAudioServiceImpl(
         val canonicalPath = file.canonicalPath
         val canonicalTempDir = tempAudioDir.canonicalPath
 
-        if (!canonicalPath.startsWith(canonicalTempDir) || !file.exists()) {
+        if (!canonicalPath.startsWith(canonicalTempDir + File.separator) || !file.exists()) {
             logger.e { "Invalid sound path detected: $path" }
             return
         }
@@ -77,7 +77,7 @@ class JvmAudioServiceImpl(
         scope.launch {
             try {
                 // macOS only audio playback fallback natively provided by the OS
-                ProcessBuilder(listOf("afplay", canonicalPath)).start()
+                ProcessBuilder(listOf("/usr/bin/afplay", "--", canonicalPath)).start()
             } catch (e: Exception) {
                 logger.e(e) { "Error playing sound: $resource" }
             }
