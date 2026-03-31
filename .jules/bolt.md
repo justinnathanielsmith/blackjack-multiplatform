@@ -52,6 +52,7 @@
 **Learning:** Animated states (like infinite transitions) that are read directly in the composition phase to construct standard modifiers (like `Modifier.border`) force the composable to completely recompose on every animation frame (O(Frames)).
 **Action:** Move the state read directly into the draw phase (e.g., `Modifier.drawWithCache { onDrawWithContent { ... } }`).
 
-## 2026-04-01 - Mutate instead of map and toPersistentList
-**Learning:** For `kotlinx.collections.immutable.PersistentList`, chaining `.map { ... }.toPersistentList()` inside state transitions creates intermediate `ArrayList` and `Iterator` allocations, resulting in GC overhead.
-**Action:** Replace `.map { ... }.toPersistentList()` with `.mutate { builder -> for (i in 0 until builder.size) { ... } }` to modify the builder directly in-place without generating temporary objects.
+## 2026-03-31 - Avoiding Intermediate List Allocations in State Machine
+**Learning:** For `kotlinx.collections.immutable.PersistentList`, using `.map { ... }.toPersistentList()` to update elements creates intermediate `ArrayList` allocations and extra iterations.
+**Action:** Use `.mutate { builder -> ... }` with an indexed loop to modify the persistent list builder in-place, which is significantly more efficient for small updates or full-list transformations.
+
