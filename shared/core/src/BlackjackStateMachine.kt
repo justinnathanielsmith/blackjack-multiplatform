@@ -5,6 +5,7 @@ package io.github.smithjustinn.blackjack
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.utils.secureRandom
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
@@ -215,7 +216,12 @@ class BlackjackStateMachine(
             _state.value =
                 current.copy(
                     balance = current.balance + refund,
-                    playerHands = current.playerHands.map { it.copy(bet = 0) }.toPersistentList(),
+                    playerHands =
+                        current.playerHands.mutate { builder ->
+                            for (i in 0 until builder.size) {
+                                builder[i] = builder[i].copy(bet = 0)
+                            }
+                        },
                 )
         } else {
             if (seatIndex !in 0 until current.handCount) return
@@ -472,8 +478,14 @@ class BlackjackStateMachine(
                         cards =
                             _state.value.dealerHand.cards
                                 // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
-                                .map { if (it.isFaceDown) it.copy(isFaceDown = false) else it }
-                                .toPersistentList()
+                                .mutate { builder ->
+                                    for (i in 0 until builder.size) {
+                                        val card = builder[i]
+                                        if (card.isFaceDown) {
+                                            builder[i] = card.copy(isFaceDown = false)
+                                        }
+                                    }
+                                }
                     )
             )
     }
