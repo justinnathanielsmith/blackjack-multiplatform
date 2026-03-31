@@ -1,0 +1,10 @@
+<<<<<<< SEARCH
+                    playerHands = current.playerHands.map { it.copy(bet = 0) }.toPersistentList(),
+=======
+                    playerHands =
+                        current.playerHands.mutate { builder ->
+                            for (i in 0 until builder.size) {
+                                builder[i] = builder[i].copy(bet = 0)
+                            }
+                        },
+>>>>>>> REPLACE

@@ -3,9 +3,9 @@ package io.github.smithjustinn.blackjack
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -612,7 +612,16 @@ object BlackjackRules {
         val shouldOfferInsurance = current.handCount == 1 && !anyPlayerHasBJ && dealerHand.cards[0].rank == Rank.ACE
         // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
         val dealerHandRevealed =
-            Hand(dealerHand.cards.map { if (it.isFaceDown) it.copy(isFaceDown = false) else it }.toPersistentList())
+            Hand(
+                dealerHand.cards.mutate { builder ->
+                    for (i in 0 until builder.size) {
+                        val card = builder[i]
+                        if (card.isFaceDown) {
+                            builder[i] = card.copy(isFaceDown = false)
+                        }
+                    }
+                }
+            )
 
         val initialStatus =
             if (shouldOfferInsurance) {
