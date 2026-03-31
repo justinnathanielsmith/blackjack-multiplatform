@@ -384,6 +384,14 @@ fun GameState.handNetPayout(index: Int): Int? {
     val hand = playerHands.getOrNull(index) ?: return null
     val bet = hand.bet
     val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
+
+    // Special case: Surrender already refunded half the bet.
+    // resolveHand() returns 0 for surrendered hands because they are settled.
+    // But the net payout should reflect the loss of half the bet.
+    if (hand.isSurrendered) {
+        return -(bet - bet / 2)
+    }
+
     return payout - bet
 }
 
