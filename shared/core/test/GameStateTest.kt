@@ -67,4 +67,96 @@ class GameStateTest {
         val state = GameState(status = GameStatus.BETTING)
         assertEquals(0, state.totalBet)
     }
+
+    @Test
+    fun totalNetPayout_returnsNull_whenNotTerminal() {
+        val state =
+            playingState(
+                playerHand = hand(Rank.TEN, Rank.SIX),
+                dealerHand = hand(Rank.TEN, Rank.SEVEN)
+            )
+        assertEquals(null, state.totalNetPayout())
+    }
+
+    @Test
+    fun totalNetPayout_calculatesCorrectly_forSingleHandWin() {
+        val state =
+            playingState(
+                bet = 100,
+                playerHand = hand(Rank.TEN, Rank.TEN),
+                dealerHand = hand(Rank.TEN, Rank.NINE)
+            ).copy(status = GameStatus.PLAYER_WON)
+        // Win returns 2*bet = 200. Net = 200 - 100 = 100.
+        assertEquals(100, state.totalNetPayout())
+    }
+
+    @Test
+    fun totalNetPayout_calculatesCorrectly_forSingleHandLoss() {
+        val state =
+            playingState(
+                bet = 100,
+                playerHand = hand(Rank.TEN, Rank.SEVEN),
+                dealerHand = hand(Rank.TEN, Rank.EIGHT)
+            ).copy(status = GameStatus.DEALER_WON)
+        // Loss returns 0. Net = 0 - 100 = -100.
+        assertEquals(-100, state.totalNetPayout())
+    }
+
+    @Test
+    fun totalNetPayout_calculatesCorrectly_forSingleHandPush() {
+        val state =
+            playingState(
+                bet = 100,
+                playerHand = hand(Rank.TEN, Rank.EIGHT),
+                dealerHand = hand(Rank.TEN, Rank.EIGHT)
+            ).copy(status = GameStatus.PUSH)
+        // Push returns 1*bet = 100. Net = 100 - 100 = 0.
+        assertEquals(0, state.totalNetPayout())
+    }
+
+    @Test
+    fun totalNetPayout_calculatesCorrectly_forNaturalBlackjack() {
+        val state =
+            playingState(
+                bet = 100,
+                playerHand = hand(Rank.ACE, Rank.JACK),
+                dealerHand = hand(Rank.TEN, Rank.NINE)
+            ).copy(status = GameStatus.PLAYER_WON)
+        // Blackjack returns 2.5*bet (3:2) = 250. Net = 250 - 100 = 150.
+        assertEquals(150, state.totalNetPayout())
+    }
+
+    @Test
+    fun totalNetPayout_calculatesCorrectly_forMultiHand() {
+        val state =
+            multiHandPlayingState(
+                balance = 1000,
+                hands =
+                    listOf(
+                        hand(Rank.TEN, Rank.TEN), // Win
+                        hand(Rank.TEN, Rank.SEVEN), // Loss
+                        hand(Rank.TEN, Rank.EIGHT) // Push
+                    ),
+                bets = listOf(100, 100, 100),
+                dealerHand = hand(Rank.TEN, Rank.EIGHT)
+            ).copy(status = GameStatus.PLAYER_WON)
+        // Hand 1: 200 - 100 = 100
+        // Hand 2: 0 - 100 = -100
+        // Hand 3: 100 - 100 = 0
+        // Total = 100 - 100 + 0 = 0
+        assertEquals(0, state.totalNetPayout())
+    }
+
+    @Test
+    fun totalNetPayout_calculatesCorrectly_forSurrenderedHand() {
+        val state =
+            playingState(
+                bet = 100,
+                playerHand = hand(Rank.TEN, Rank.SIX).copy(isSurrendered = true),
+                dealerHand = hand(Rank.TEN, Rank.SEVEN)
+            ).copy(status = GameStatus.DEALER_WON)
+        // Surrender refunds half (50). Net loss is -50.
+        // Current buggy implementation returns 0 - 100 = -100.
+        assertEquals(-50, state.totalNetPayout())
+    }
 }
