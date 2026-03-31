@@ -42,6 +42,10 @@ class JvmAudioServiceImpl(
             val fileName = "$name.m4a"
             val tempFile = File(tempAudioDir, fileName)
 
+            if (!tempFile.canonicalPath.startsWith(tempAudioDir.canonicalPath + File.separator)) {
+                throw SecurityException("Invalid filename: $fileName")
+            }
+
             var shouldWrite = false
             try {
                 Files.createFile(tempFile.toPath())
@@ -67,7 +71,7 @@ class JvmAudioServiceImpl(
 
         val file = File(path)
         val canonicalPath = file.canonicalPath
-        val canonicalTempDir = tempAudioDir.canonicalPath
+        val canonicalTempDir = tempAudioDir.canonicalPath + File.separator
 
         if (!canonicalPath.startsWith(canonicalTempDir) || !file.exists()) {
             logger.e { "Invalid sound path detected: $path" }
@@ -77,7 +81,7 @@ class JvmAudioServiceImpl(
         scope.launch {
             try {
                 // macOS only audio playback fallback natively provided by the OS
-                ProcessBuilder(listOf("afplay", canonicalPath)).start()
+                ProcessBuilder(listOf("/usr/bin/afplay", "--", canonicalPath)).start()
             } catch (e: Exception) {
                 logger.e(e) { "Error playing sound: $resource" }
             }

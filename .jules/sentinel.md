@@ -19,3 +19,8 @@
 **Vulnerability:** A Time-of-Check to Time-of-Use (TOCTOU) vulnerability where temp directories/files were created with `createTempDirectory` or `createNewFile` and subsequently had `setReadable(false, false)`, `setWritable(false, false)` applied as fallbacks.
 **Learning:** Using `java.nio.file.Files.createTempDirectory` inherently provides secure, restricted permissions by default on the JVM. Trying to manually enforce POSIX permissions and using fallbacks like `.createNewFile()` with `.setReadable()` introduces a TOCTOU vulnerability and should be avoided.
 **Prevention:** Rely on the native security of `Files.createTempDirectory` without post-creation permission modifications to avoid TOCTOU race conditions.
+
+## 2024-11-12 - [HIGH] Secure Process Execution and Path Validation in JvmAudioServiceImpl
+**Vulnerability:** Unvalidated path construction and execution in `JvmAudioServiceImpl.kt`. Using `ProcessBuilder` with relative binary names and unescaped arguments could lead to command/argument injection. Also, path prefix matching without a trailing separator allowed for partial prefix bypass.
+**Learning:** `ProcessBuilder` should use absolute paths for binaries and `--` to separate options from positional arguments. Path validation via `startsWith` is only secure if the base directory path ends with a file separator.
+**Prevention:** Always use absolute paths for external binaries, use `--` for CLI arguments, and append `File.separator` to the base directory during `startsWith` validation to prevent partial path matches.
