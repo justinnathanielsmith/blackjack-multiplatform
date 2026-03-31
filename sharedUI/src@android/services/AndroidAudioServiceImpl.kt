@@ -140,23 +140,22 @@ class AndroidAudioServiceImpl(
         tempFile: File,
         name: String,
     ) {
-        var newPlayer: MediaPlayer? = null
+        val newPlayer = MediaPlayer()
         try {
-            newPlayer = MediaPlayer()
-            newPlayer.apply {
-                setDataSource(tempFile.absolutePath)
-                setVolume(soundVolume, soundVolume)
-                setOnCompletionListener { mp -> mp.seekTo(0) }
-                setOnPreparedListener { mp -> mp.start() }
-                prepareAsync()
-            }
-            fallbackPlayers[resource] = newPlayer
+            fallbackPlayers[resource] =
+                newPlayer.apply {
+                    setDataSource(tempFile.absolutePath)
+                    setVolume(soundVolume, soundVolume)
+                    setOnCompletionListener { mp -> mp.seekTo(0) }
+                    setOnPreparedListener { mp -> mp.start() }
+                    prepareAsync()
+                }
         } catch (e: IOException) {
             logger.e(e) { "IO Error initializing fallback player: $name" }
-            newPlayer?.release()
+            newPlayer.release()
         } catch (e: Exception) {
             logger.e(e) { "Unexpected error initializing fallback player: $name" }
-            newPlayer?.release()
+            newPlayer.release()
             fallbackPlayers.remove(resource)?.release()
         }
     }
