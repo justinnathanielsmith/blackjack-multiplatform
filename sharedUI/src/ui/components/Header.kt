@@ -40,8 +40,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,6 +57,7 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.balance
 import sharedui.generated.resources.btn_auto_deal_description
 import sharedui.generated.resources.btn_rules_description
 import sharedui.generated.resources.btn_settings_description
@@ -64,6 +67,7 @@ import sharedui.generated.resources.emoji_clock
 import sharedui.generated.resources.emoji_gear
 import sharedui.generated.resources.emoji_lightning
 import sharedui.generated.resources.emoji_scroll
+import sharedui.generated.resources.financial_data_content_description
 
 @Composable
 fun Header(
@@ -152,12 +156,23 @@ private fun CasinoVault(
         targetValue = balance,
         animationSpec = tween(durationMillis = 800)
     )
+    val balanceLabel = stringResource(Res.string.balance)
+    val formattedBalance = animatedBalance.formatWithCommas()
+    val fullDescription =
+        stringResource(
+            Res.string.financial_data_content_description,
+            balanceLabel,
+            "\$$formattedBalance"
+        )
 
     Box(
         modifier =
             modifier
                 .shadow(8.dp, RoundedCornerShape(percent = 50), spotColor = PrimaryGold.copy(alpha = 0.4f))
-                .background(
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                    contentDescription = fullDescription
+                }.background(
                     brush =
                         Brush.verticalGradient(
                             0.0f to Color(0xFF2C2C2C),
@@ -189,7 +204,7 @@ private fun CasinoVault(
                 fontSize = 14.sp
             )
             Text(
-                text = animatedBalance.formatWithCommas(),
+                text = formattedBalance,
                 color = Color.White,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
