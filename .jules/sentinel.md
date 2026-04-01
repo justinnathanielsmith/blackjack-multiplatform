@@ -24,3 +24,8 @@
 **Vulnerability:** Unvalidated path construction and execution in `JvmAudioServiceImpl.kt`. Using `ProcessBuilder` with relative binary names and unescaped arguments could lead to command/argument injection. Also, path prefix matching without a trailing separator allowed for partial prefix bypass.
 **Learning:** `ProcessBuilder` should use absolute paths for binaries and `--` to separate options from positional arguments. Path validation via `startsWith` is only secure if the base directory path ends with a file separator.
 **Prevention:** Always use absolute paths for external binaries, use `--` for CLI arguments, and append `File.separator` to the base directory during `startsWith` validation to prevent partial path matches.
+
+## 2024-11-20 - Prevent Data Loss from Unknown JSON Keys in DataStore
+**Vulnerability:** The `DataStoreSettingsRepository` parsed preferences using the default `kotlinx.serialization.json.Json` instance, which throws an exception when it encounters unknown keys. This can lead to a crash loop (local DoS) or loss of user preferences if the schema evolves or if the data is tampered with.
+**Learning:** The default `Json` parser is strict and throws exceptions on unknown keys. For resilient local storage parsing, `ignoreUnknownKeys` must be explicitly enabled.
+**Prevention:** Always use a custom `Json` instance configured with `ignoreUnknownKeys = true` when reading from persistent local storage or external sources to ensure forward compatibility and prevent parsing crashes.

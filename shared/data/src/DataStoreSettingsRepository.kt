@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+private val secureJson = Json { ignoreUnknownKeys = true }
 private val SETTINGS_KEY = stringPreferencesKey("app_settings")
 
 class DataStoreSettingsRepository(
@@ -21,7 +22,7 @@ class DataStoreSettingsRepository(
             .catch { emit(emptyPreferences()) }
             .map { prefs ->
                 prefs[SETTINGS_KEY]?.let {
-                    runCatching { Json.decodeFromString<AppSettings>(it) }.getOrNull()
+                    runCatching { secureJson.decodeFromString<AppSettings>(it) }.getOrNull()
                 } ?: AppSettings()
             }
 
@@ -29,9 +30,9 @@ class DataStoreSettingsRepository(
         dataStore.edit { prefs ->
             val current =
                 prefs[SETTINGS_KEY]
-                    ?.let { runCatching { Json.decodeFromString<AppSettings>(it) }.getOrNull() }
+                    ?.let { runCatching { secureJson.decodeFromString<AppSettings>(it) }.getOrNull() }
                     ?: AppSettings()
-            prefs[SETTINGS_KEY] = Json.encodeToString(transform(current))
+            prefs[SETTINGS_KEY] = secureJson.encodeToString(transform(current))
         }
     }
 }
