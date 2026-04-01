@@ -1,6 +1,7 @@
 package io.github.smithjustinn.blackjack
 
 import androidx.compose.runtime.Immutable
+import kotlin.random.Random
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate
@@ -671,7 +672,7 @@ object BlackjackRules {
      */
     fun createDeck(
         rules: GameRules,
-        random: kotlin.random.Random
+        random: Random
     ): List<Card> {
         val deckSize = rules.deckCount * CARDS_PER_DECK
         val newDeck = ArrayList<Card>(deckSize)

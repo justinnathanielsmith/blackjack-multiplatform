@@ -1,11 +1,13 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.persistentMapOf
+import persistentListOf
+import persistentMapOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SideBetPersistenceTest {
     @Test
     fun testNewGameRemembersSideBets() =
@@ -48,7 +50,7 @@ class SideBetPersistenceTest {
             stateMachine.dispatch(
                 GameAction.NewGame(
                     initialBalance = 150,
-                    previousBets = kotlinx.collections.immutable.persistentListOf(50),
+                    previousBets = persistentListOf(50),
                     lastSideBets = lastSideBets
                 )
             )

@@ -3,7 +3,7 @@ package io.github.smithjustinn.blackjack.ui.components
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
+import animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -14,7 +14,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -173,9 +176,9 @@ fun GameActionButton(
 
         val finalColor = if (enabled) resolvedContentColor else disabledContentColor
 
-        androidx.compose.foundation.layout.Column(
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(4.dp)
         ) {
             Icon(
@@ -204,10 +207,10 @@ fun GameActionButton(
 @Composable
 private fun GameActionButtonPreview() {
     BlackjackTheme {
-        androidx.compose.foundation.layout.Row(
+        Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement =
-                androidx.compose.foundation.layout.Arrangement
+                Arrangement
                     .spacedBy(8.dp)
         ) {
             GameActionButton(

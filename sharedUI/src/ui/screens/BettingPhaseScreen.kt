@@ -9,6 +9,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -273,7 +274,7 @@ fun BettingPhaseScreen(
                         component.onAction(GameAction.SelectHandCount(state.handCount - 1))
                     },
                     contentPadding =
-                        androidx.compose.foundation.layout.PaddingValues(
+                        PaddingValues(
                             horizontal = 16.dp,
                             vertical = 10.dp
                         ),
@@ -318,7 +319,7 @@ fun BettingPhaseScreen(
                         component.onAction(GameAction.SelectHandCount(state.handCount + 1))
                     },
                     contentPadding =
-                        androidx.compose.foundation.layout.PaddingValues(
+                        PaddingValues(
                             horizontal = 16.dp,
                             vertical = 10.dp
                         ),

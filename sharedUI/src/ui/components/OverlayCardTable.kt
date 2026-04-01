@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
@@ -175,7 +176,7 @@ fun OverlayCardTable(
 @Composable
 private fun PositionedCardItem(
     slot: CardSlotLayout,
-    dealerUpcard: io.github.smithjustinn.blackjack.Card?,
+    dealerUpcard: Card?,
     dealerScore: Int,
     baseCardW: Float,
     baseCardH: Float,
@@ -430,9 +431,9 @@ private fun ActiveHandGlow(
 @Composable
 private fun HandZoneHud(
     zone: HandZone,
-    status: io.github.smithjustinn.blackjack.GameStatus,
-    dealerHand: io.github.smithjustinn.blackjack.Hand,
-    playerHand: io.github.smithjustinn.blackjack.Hand?,
+    status: GameStatus,
+    dealerHand: Hand,
+    playerHand: Hand?,
     handResult: HandResult,
     handNetPayout: Int?,
     handCount: Int,

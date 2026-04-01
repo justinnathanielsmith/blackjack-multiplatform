@@ -3,7 +3,7 @@ package io.github.smithjustinn.blackjack.ui.effects
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import LaunchedEffect
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -12,7 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawParticleChip
-import kotlin.random.Random
+import Random
 
 private class ChipParticle(
     val amount: Int,

@@ -26,6 +26,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
@@ -49,7 +50,7 @@ fun DealerCard(
     dealerScore: Int,
     modifier: Modifier = Modifier,
     scale: Float = 1f,
-    shadowElevation: androidx.compose.ui.unit.Dp = 6.dp,
+    shadowElevation: Dp = 6.dp,
     spotColor: Color = Color.Black,
 ) {
     val rotationY = remember { Animatable(0f) }

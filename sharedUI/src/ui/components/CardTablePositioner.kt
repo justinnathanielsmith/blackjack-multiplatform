@@ -1,13 +1,13 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.GameState
-import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
-import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import AnimationConstants
+import Dimensions
 
 data class CardSlotLayout(
     val card: Card,

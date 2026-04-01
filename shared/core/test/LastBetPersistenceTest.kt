@@ -1,13 +1,13 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.persistentListOf
+import persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class LastBetPersistenceTest {
     @Test
     fun testMultiHandBetPersistence() =

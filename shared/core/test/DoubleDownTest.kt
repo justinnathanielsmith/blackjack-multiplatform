@@ -2,7 +2,7 @@
 
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.persistentListOf
+import persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -254,7 +254,7 @@ class DoubleDownTest {
     fun canDoubleDown_true_when_two_cards_and_sufficient_balance_and_not_split() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
+                playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                 balance = 100
             )
         assertTrue(state.canDoubleDown())
@@ -265,7 +265,7 @@ class DoubleDownTest {
         val state =
             GameState(
                 playerHands =
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         hand(Rank.FIVE, Rank.SIX, Rank.TWO).copy(bet = 100)
                     ),
                 balance = 100
@@ -277,7 +277,7 @@ class DoubleDownTest {
     fun canDoubleDown_false_when_less_than_two_cards() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE).copy(bet = 100)),
+                playerHands = persistentListOf(hand(Rank.FIVE).copy(bet = 100)),
                 balance = 100
             )
         assertFalse(state.canDoubleDown())
@@ -287,7 +287,7 @@ class DoubleDownTest {
     fun canDoubleDown_false_when_insufficient_balance() {
         val state =
             GameState(
-                playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
+                playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                 balance = 99
             )
         assertFalse(state.canDoubleDown())
@@ -301,7 +301,7 @@ class DoubleDownTest {
         val state =
             GameState(
                 playerHands =
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         invalidHand.copy(bet = 100),
                         validHand.copy(bet = 200)
                     ),
@@ -313,7 +313,7 @@ class DoubleDownTest {
         val stateInsufficientBalanceForActive =
             GameState(
                 playerHands =
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         invalidHand.copy(bet = 100),
                         validHand.copy(bet = 200)
                     ),

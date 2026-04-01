@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack
 
-import kotlin.random.Random
+import Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

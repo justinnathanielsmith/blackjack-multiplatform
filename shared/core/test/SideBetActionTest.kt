@@ -1,7 +1,10 @@
-@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@file:OptIn(ExperimentalCoroutinesApi::class)
 
 package io.github.smithjustinn.blackjack
 
+import persistentListOf
+import persistentMapOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -35,7 +38,7 @@ class SideBetActionTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 950,
-                        sideBets = kotlinx.collections.immutable.persistentMapOf(SideBetType.PERFECT_PAIRS to 50)
+                        sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50)
                     )
                 )
 
@@ -54,10 +57,10 @@ class SideBetActionTest {
                 GameState(
                     status = GameStatus.BETTING,
                     balance = 1000,
-                    playerHands = kotlinx.collections.immutable.persistentListOf(Hand(bet = 100)),
-                    sideBets = kotlinx.collections.immutable.persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
+                    playerHands = persistentListOf(Hand(bet = 100)),
+                    sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
                     deck =
-                        kotlinx.collections.immutable.persistentListOf(
+                        persistentListOf(
                             Card(Rank.TEN, Suit.SPADES), // P1
                             Card(Rank.SEVEN, Suit.HEARTS), // D1
                             Card(Rank.TEN, Suit.SPADES), // P2

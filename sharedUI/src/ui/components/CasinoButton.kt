@@ -3,7 +3,7 @@ package io.github.smithjustinn.blackjack.ui.components
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
+import animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -16,6 +16,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -82,9 +84,8 @@ fun CasinoButton(
     showShine: Boolean = false,
     containerColor: Color? = null,
     contentColor: Color? = null,
-    contentPadding: androidx.compose.foundation.layout.PaddingValues =
-        androidx.compose.foundation.layout
-            .PaddingValues(horizontal = 24.dp, vertical = 20.dp),
+    contentPadding: PaddingValues =
+        PaddingValues(horizontal = 24.dp, vertical = 20.dp),
     contentDescription: String? = null,
     stateDescription: String? = null,
 ) {
@@ -180,8 +181,8 @@ fun CasinoButton(
                         Brush.verticalGradient(
                             colors =
                                 listOf(
-                                    io.github.smithjustinn.blackjack.ui.theme.GlassDark,
-                                    io.github.smithjustinn.blackjack.ui.theme.GlassDark
+                                    GlassDark,
+                                    GlassDark
                                 )
                         )
                     }
@@ -212,7 +213,7 @@ fun CasinoButton(
                             width = 1.dp,
                             color =
                                 if (isStrategic) {
-                                    io.github.smithjustinn.blackjack.ui.theme.PrimaryGold.copy(
+                                    PrimaryGold.copy(
                                         alpha = 0.2f
                                     )
                                 } else {
@@ -253,7 +254,7 @@ fun CasinoButton(
     ) {
         val disabledContentColor =
             if (isStrategic) {
-                io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+                PrimaryGold
                     .copy(alpha = 0.3f)
             } else {
                 resolvedContentColor.copy(alpha = 0.3f)

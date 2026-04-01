@@ -11,6 +11,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import io.github.smithjustinn.blackjack.di.AppGraph
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.RootComponent
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 
 @Composable
 fun RootScreen(
@@ -18,7 +19,7 @@ fun RootScreen(
     appGraph: AppGraph,
 ) {
     CompositionLocalProvider(LocalAppGraph provides appGraph) {
-        io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme {
+        BlackjackTheme {
             Surface {
                 Children(
                     stack = component.childStack,

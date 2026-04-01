@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import okio.Path.Companion.toPath
+import FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.attribute.PosixFilePermissions
@@ -14,7 +15,7 @@ private val dataStoreInstance: DataStore<Preferences> by lazy {
         val perms = PosixFilePermissions.fromString("rwx------")
         val attr = PosixFilePermissions.asFileAttribute(perms)
         Files.createDirectories(dirPath, attr)
-    } catch (e: java.nio.file.FileAlreadyExistsException) {
+    } catch (e: FileAlreadyExistsException) {
         // Directory already exists, proceed
     } catch (e: UnsupportedOperationException) {
         // Fallback for non-POSIX filesystems like Windows
@@ -38,7 +39,7 @@ private val dataStoreInstance: DataStore<Preferences> by lazy {
                 val filePerms = PosixFilePermissions.fromString("rw-------")
                 val fileAttr = PosixFilePermissions.asFileAttribute(filePerms)
                 Files.createFile(file, fileAttr)
-            } catch (e: java.nio.file.FileAlreadyExistsException) {
+            } catch (e: FileAlreadyExistsException) {
                 // File already exists, proceed
             } catch (e: UnsupportedOperationException) {
                 // Fallback for non-POSIX filesystems

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -118,7 +121,7 @@ fun DropTarget(
 ) {
     val state = LocalDragAndDropState.current
     var isHovered by remember { mutableStateOf(false) }
-    var bounds by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
+    var bounds by remember { mutableStateOf(Rect.Zero) }
 
     // Use derivedStateOf to avoid unnecessary recompositions
     val isCurrentlyHovered =
@@ -127,7 +130,7 @@ fun DropTarget(
         }
 
     // Update isHovered state
-    androidx.compose.runtime.SideEffect {
+    SideEffect {
         if (state.isDragging) {
             isHovered = isCurrentlyHovered
         }
@@ -139,7 +142,7 @@ fun DropTarget(
                 .onGloballyPositioned {
                     val position = it.positionInRoot()
                     bounds =
-                        androidx.compose.ui.geometry.Rect(
+                        Rect(
                             position.x,
                             position.y,
                             position.x + it.size.width,
@@ -151,7 +154,7 @@ fun DropTarget(
     }
 
     // Effect to handle drop when dragging ends while hovering
-    androidx.compose.runtime.LaunchedEffect(state.isDragging) {
+    LaunchedEffect(state.isDragging) {
         if (!state.isDragging && isHovered) {
             state.dragItem?.let { onDrop(it) }
             state.clearDragItem()

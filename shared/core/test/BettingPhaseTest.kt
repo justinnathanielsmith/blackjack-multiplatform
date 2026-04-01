@@ -3,7 +3,7 @@
 package io.github.smithjustinn.blackjack
 
 import app.cash.turbine.test
-import kotlinx.collections.immutable.persistentListOf
+import persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -189,7 +189,7 @@ class BettingPhaseTest {
                     balance = 900,
 // removed:                     currentBets = persistentListOf(100),
                     playerHands =
-                        kotlinx.collections.immutable.persistentListOf(
+                        persistentListOf(
                             hand(Rank.FIVE, Rank.SIX).copy(bet = 100)
                         ),
                     handCount = 1,

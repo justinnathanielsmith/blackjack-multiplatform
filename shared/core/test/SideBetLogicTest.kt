@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.persistentMapOf
+import persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -13,7 +13,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluatePerfectPairs(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.TEN, Suit.SPADES),
                         card(Rank.TEN, Suit.SPADES),
                     )
@@ -34,7 +34,7 @@ class SideBetLogicTest {
         val coloredResult =
             SideBetLogic.evaluatePerfectPairs(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.TEN, Suit.SPADES),
                         card(Rank.TEN, Suit.CLUBS),
                     )
@@ -50,7 +50,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluatePerfectPairs(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.TEN, Suit.SPADES),
                         card(Rank.TEN, Suit.HEARTS),
                     )
@@ -66,7 +66,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.KING, Suit.HEARTS),
                         card(Rank.KING, Suit.HEARTS),
                     )
@@ -83,7 +83,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.NINE, Suit.CLUBS),
                         card(Rank.TEN, Suit.CLUBS),
                     )
@@ -100,7 +100,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.TWO, Suit.DIAMONDS),
                         card(Rank.SIX, Suit.DIAMONDS),
                     )
@@ -117,7 +117,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.ACE, Suit.SPADES),
                         card(Rank.TWO, Suit.HEARTS),
                     )
@@ -134,7 +134,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.FOUR, Suit.SPADES),
                         card(Rank.FIVE, Suit.HEARTS),
                     )
@@ -151,7 +151,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.QUEEN, Suit.SPADES),
                         card(Rank.QUEEN, Suit.HEARTS),
                     )
@@ -168,7 +168,7 @@ class SideBetLogicTest {
         val sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 10)
         val playerHand =
             Hand(
-                kotlinx.collections.immutable.persistentListOf(
+                persistentListOf(
                     card(Rank.TEN, Suit.SPADES),
                     card(Rank.TEN, Suit.SPADES),
                 )
@@ -184,7 +184,7 @@ class SideBetLogicTest {
         val sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 10)
         val playerHand =
             Hand(
-                kotlinx.collections.immutable.persistentListOf(
+                persistentListOf(
                     card(Rank.TEN, Suit.SPADES),
                     card(Rank.FIVE, Suit.HEARTS),
                 )
@@ -199,7 +199,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluatePerfectPairs(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.TEN, Suit.SPADES),
                         card(Rank.FIVE, Suit.HEARTS),
                     )
@@ -214,7 +214,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.QUEEN, Suit.SPADES),
                         card(Rank.KING, Suit.HEARTS),
                     )
@@ -232,7 +232,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.JACK, Suit.SPADES),
                         card(Rank.QUEEN, Suit.HEARTS),
                     )
@@ -249,7 +249,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluateTwentyOnePlusThree(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.TWO, Suit.SPADES),
                         card(Rank.SEVEN, Suit.HEARTS),
                     )
@@ -264,7 +264,7 @@ class SideBetLogicTest {
         val result =
             SideBetLogic.evaluatePerfectPairs(
                 Hand(
-                    kotlinx.collections.immutable.persistentListOf(
+                    persistentListOf(
                         card(Rank.KING, Suit.SPADES),
                         card(Rank.QUEEN, Suit.HEARTS),
                     )

@@ -13,6 +13,7 @@ import org.jetbrains.compose.resources.getString
 import sharedui.generated.resources.Res
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.util.concurrent.ConcurrentHashMap
 
@@ -50,7 +51,7 @@ class JvmAudioServiceImpl(
             try {
                 Files.createFile(tempFile.toPath())
                 shouldWrite = true
-            } catch (e: java.nio.file.FileAlreadyExistsException) {
+            } catch (e: FileAlreadyExistsException) {
                 // File already exists, skip writing
             }
             if (shouldWrite) {

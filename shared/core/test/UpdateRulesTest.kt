@@ -1,7 +1,8 @@
-@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@file:OptIn(ExperimentalCoroutinesApi::class)
 
 package io.github.smithjustinn.blackjack
 
+import persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -57,7 +58,7 @@ class UpdateRulesTest {
                     GameState(
                         status = GameStatus.DEALER_TURN,
                         rules = initialRules,
-                        playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.TEN, Rank.TEN)),
+                        playerHands = persistentListOf(hand(Rank.TEN, Rank.TEN)),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN)
                     )
                 )
@@ -78,7 +79,7 @@ class UpdateRulesTest {
                     GameState(
                         status = GameStatus.PLAYER_WON,
                         rules = initialRules,
-                        playerHands = kotlinx.collections.immutable.persistentListOf(hand(Rank.ACE, Rank.TEN)),
+                        playerHands = persistentListOf(hand(Rank.ACE, Rank.TEN)),
                         dealerHand = hand(Rank.TEN, Rank.SEVEN)
                     )
                 )
@@ -109,7 +110,7 @@ class UpdateRulesTest {
                     GameState(
                         status = GameStatus.BETTING,
                         balance = 1000,
-                        playerHands = kotlinx.collections.immutable.persistentListOf(Hand(bet = 100)),
+                        playerHands = persistentListOf(Hand(bet = 100)),
                         deck = initialDeck,
                     ),
                 )

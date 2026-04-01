@@ -1,9 +1,11 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -17,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,11 +113,11 @@ fun BettingSlot(
         DropTarget(
             onDrop = { item -> if (item is Int) onDrop(item) }
         ) { isHovered ->
-            androidx.compose.runtime.LaunchedEffect(isHovered) {
+            LaunchedEffect(isHovered) {
                 onHoverChange(isHovered)
             }
 
-            val scale by androidx.compose.animation.core.animateFloatAsState(
+            val scale by animateFloatAsState(
                 targetValue = if (isHovered) 1.15f else 1f,
                 animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
             )
@@ -167,7 +170,7 @@ fun BettingSlot(
                         },
                 contentAlignment = Alignment.Center
             ) {
-                androidx.compose.animation.Crossfade(
+                Crossfade(
                     targetState = amount > 0,
                     animationSpec = tween(durationMillis = 300),
                     label = "betSlotContent",

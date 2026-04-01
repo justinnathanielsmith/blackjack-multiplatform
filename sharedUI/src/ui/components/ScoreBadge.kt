@@ -14,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -36,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+import io.github.smithjustinn.blackjack.ui.theme.VelvetRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.score_accessibility_blackjack
@@ -64,9 +70,9 @@ fun ScoreBadge(
 
     val backgroundColor =
         when {
-            isBust -> io.github.smithjustinn.blackjack.ui.theme.VelvetRed
-            is21 -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
-            state == ScoreBadgeState.ACTIVE -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+            isBust -> VelvetRed
+            is21 -> ModernGoldLight
+            state == ScoreBadgeState.ACTIVE -> ModernGoldLight
             state == ScoreBadgeState.DEALER -> BackgroundDark
             else -> Color(0xFF1A1A1A) // Deep dark for waiting
         }
@@ -75,15 +81,15 @@ fun ScoreBadge(
         when {
             isBust -> Color.White.copy(alpha = 0.6f)
             is21 || state == ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.5f)
-            state == ScoreBadgeState.DEALER -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+            state == ScoreBadgeState.DEALER -> ModernGoldLight
             else -> Color.White.copy(alpha = 0.15f)
         }
 
     val textColor =
         when {
             isBust -> Color.White
-            is21 || state == ScoreBadgeState.ACTIVE -> io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
-            state == ScoreBadgeState.DEALER -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+            is21 || state == ScoreBadgeState.ACTIVE -> LeatherBlack
+            state == ScoreBadgeState.DEALER -> ModernGoldLight
             else -> Color.White.copy(alpha = 0.7f)
         }
 
@@ -156,15 +162,14 @@ fun ScoreBadge(
                             if (state ==
                                 ScoreBadgeState.ACTIVE
                             ) {
-                                io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+                                ModernGoldLight
                             } else {
                                 backgroundColor
                             }
-                    ).androidx.compose.ui.draw
-                    .drawWithCache {
+                    ).drawWithCache {
                         val glowRadius = size.maxDimension * 1.5f * pulseScale.value
                         val glowBrush =
-                            androidx.compose.ui.graphics.Brush.radialGradient(
+                            Brush.radialGradient(
                                 colors = listOf(backgroundColor.copy(alpha = 0.4f), Color.Transparent),
                                 radius = glowRadius
                             )
@@ -177,7 +182,7 @@ fun ScoreBadge(
                         if (state == ScoreBadgeState.ACTIVE) {
                             Modifier.border(
                                 2.dp,
-                                io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+                                ModernGoldLight
                                     .copy(alpha = 0.8f),
                                 BadgeShape
                             )
@@ -189,7 +194,7 @@ fun ScoreBadge(
                     .padding(horizontal = 12.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
-            androidx.compose.foundation.layout.Row(
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {

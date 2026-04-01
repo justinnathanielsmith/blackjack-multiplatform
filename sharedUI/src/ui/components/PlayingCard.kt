@@ -46,6 +46,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
@@ -53,7 +54,10 @@ import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.DeepWine
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -256,7 +260,7 @@ fun CardBack(modifier: Modifier = Modifier) {
                     Brush.linearGradient(
                         colors =
                             listOf(
-                                io.github.smithjustinn.blackjack.ui.theme.DeepWine,
+                                DeepWine,
                                 Color(0xFF2C0A0A) // Deeper wine for gradient
                             )
                     ),
@@ -266,7 +270,7 @@ fun CardBack(modifier: Modifier = Modifier) {
                     val spacing = 8.dp.toPx()
                     val strokeWidth = 1.dp.toPx()
                     val patternColor =
-                        io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                        ModernGoldDark
                             .copy(alpha = 0.3f)
 
                     onDrawBehind {
@@ -300,8 +304,8 @@ fun CardBack(modifier: Modifier = Modifier) {
                                 Brush.linearGradient(
                                     colors =
                                         listOf(
-                                            io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight,
-                                            io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                                            ModernGoldLight,
+                                            ModernGoldDark
                                         )
                                 ),
                             size =
@@ -328,8 +332,8 @@ fun CardBack(modifier: Modifier = Modifier) {
                         Brush.linearGradient(
                             colors =
                                 listOf(
-                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight,
-                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                                    ModernGoldLight,
+                                    ModernGoldDark
                                 )
                         ),
                     radius = size.minDimension / 2,
@@ -337,14 +341,14 @@ fun CardBack(modifier: Modifier = Modifier) {
                 )
                 // Inner dark core
                 drawCircle(
-                    color = io.github.smithjustinn.blackjack.ui.theme.DeepWine,
+                    color = DeepWine,
                     radius = size.minDimension / 2 - 2.dp.toPx(),
                     center = centerOffset
                 )
                 // Delicate inner gold detail
                 drawCircle(
                     color =
-                        io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                        ModernGoldDark
                             .copy(alpha = 0.8f),
                     radius = size.minDimension / 2 - 5.dp.toPx(),
                     center = centerOffset,
@@ -355,7 +359,7 @@ fun CardBack(modifier: Modifier = Modifier) {
             Text(
                 text = "♠",
                 fontSize = 18.sp,
-                color = io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+                color = ModernGoldLight
             )
         }
     }
@@ -363,13 +367,13 @@ fun CardBack(modifier: Modifier = Modifier) {
 
 @Composable
 fun PlayingCard(
-    card: io.github.smithjustinn.blackjack.Card,
+    card: Card,
     isFaceUp: Boolean,
     modifier: Modifier = Modifier,
     scale: Float = 1f,
     isNearMiss: Boolean = false,
     isDimmed: Boolean = false,
-    shadowElevation: androidx.compose.ui.unit.Dp = 6.dp,
+    shadowElevation: Dp = 6.dp,
     spotColor: Color = Color.Black,
 ) {
     val baseRotation =

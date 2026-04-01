@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +43,9 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.DeepWine
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.launch
@@ -144,11 +148,11 @@ fun GameStatusMessage(
 
     val accentColor =
         when (status) {
-            GameStatus.PLAYER_WON -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
-            GameStatus.DEALER_WON -> io.github.smithjustinn.blackjack.ui.theme.DeepWine
+            GameStatus.PLAYER_WON -> ModernGoldLight
+            GameStatus.DEALER_WON -> DeepWine
             GameStatus.PUSH -> Color.White
             else ->
-                io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+                ModernGoldLight
                     .copy(alpha = 0.8f)
         }
 
@@ -214,7 +218,7 @@ fun GameStatusMessage(
                     Brush.verticalGradient(
                         colors =
                             listOf(
-                                io.github.smithjustinn.blackjack.ui.theme.DeepWine,
+                                DeepWine,
                                 Color.Black.copy(alpha = 0.9f)
                             )
                     )
@@ -224,9 +228,9 @@ fun GameStatusMessage(
                         Brush.horizontalGradient(
                             colors =
                                 listOf(
-                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark,
-                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight,
-                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                                    ModernGoldDark,
+                                    ModernGoldLight,
+                                    ModernGoldDark
                                 )
                         ),
                     shape = RoundedCornerShape(12.dp),
@@ -240,7 +244,7 @@ fun GameStatusMessage(
                 else -> Color.White.copy(alpha = 0.7f)
             }
 
-        androidx.compose.foundation.layout.Column(
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(

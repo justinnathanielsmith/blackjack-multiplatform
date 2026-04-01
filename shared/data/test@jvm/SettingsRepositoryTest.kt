@@ -1,6 +1,7 @@
 package io.github.smithjustinn.blackjack.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -14,7 +15,7 @@ class SettingsRepositoryTest {
         DataStoreSettingsRepository(
             PreferenceDataStoreFactory.create(
                 produceFile = {
-                    java.io.File.createTempFile(name, ".preferences_pb")
+                    File.createTempFile(name, ".preferences_pb")
                 }
             )
         )

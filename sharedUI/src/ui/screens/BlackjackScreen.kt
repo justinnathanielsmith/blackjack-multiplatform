@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,16 +49,20 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.Hand
+import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isStatusVisible
 import io.github.smithjustinn.blackjack.isTerminal
@@ -83,6 +88,7 @@ import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
+import io.github.smithjustinn.blackjack.ui.effects.PayoutEffect
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
@@ -362,14 +368,11 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             val arcLeft = (size.width - arcWidth) / 2
                             val arcTop = size.height * 0.35f
                             val arcSize =
-                                androidx.compose.ui.geometry
-                                    .Size(arcWidth, arcHeight)
+                                Size(arcWidth, arcHeight)
                             val arcStroke =
-                                androidx.compose.ui.graphics.drawscope
-                                    .Stroke(width = 3.dp.toPx())
+                                Stroke(width = 3.dp.toPx())
                             val insuranceStroke =
-                                androidx.compose.ui.graphics.drawscope
-                                    .Stroke(width = 1.5.dp.toPx())
+                                Stroke(width = 1.5.dp.toPx())
                             val insuranceOffset = 40.dp.toPx()
 
                             onDrawBehind {
@@ -628,7 +631,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 modifier = Modifier.zIndex(5f),
                             )
 
-                            androidx.compose.animation.AnimatedVisibility(
+                            AnimatedVisibility(
                                 visible = state.status == GameStatus.BETTING,
                                 modifier = Modifier.zIndex(5f),
                                 enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
@@ -642,7 +645,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 )
                             }
 
-                            androidx.compose.animation.AnimatedVisibility(
+                            AnimatedVisibility(
                                 visible = showSettings,
                                 modifier = Modifier.zIndex(10f),
                                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
@@ -656,7 +659,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 )
                             }
 
-                            androidx.compose.animation.AnimatedVisibility(
+                            AnimatedVisibility(
                                 visible = showRules,
                                 modifier = Modifier.zIndex(10f),
                                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
@@ -686,7 +689,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             for (i in 0 until activePayouts.size) {
                                 val instance = activePayouts[i]
                                 key(instance.id) {
-                                    io.github.smithjustinn.blackjack.ui.effects.PayoutEffect(
+                                    PayoutEffect(
                                         amount = instance.amount,
                                         targetOffset = instance.targetOffset,
                                         onAnimationEnd = { activePayouts.remove(instance) }
@@ -697,7 +700,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                     } // CompositionLocalProvider
                 }
 
-                androidx.compose.animation.AnimatedVisibility(
+                AnimatedVisibility(
                     visible = showStrategy,
                     modifier = Modifier.zIndex(10f),
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
@@ -736,7 +739,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
 @Composable
 private fun BlackjackGameOverlay(
     status: GameStatus,
-    playerHands: List<io.github.smithjustinn.blackjack.Hand>,
+    playerHands: List<Hand>,
     netPayout: Int?,
     isBlackjack: Boolean,
     component: BlackjackComponent,
@@ -752,7 +755,7 @@ private fun BlackjackGameOverlay(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        androidx.compose.animation.AnimatedVisibility(
+        AnimatedVisibility(
             visible = showStatus,
             enter =
                 fadeIn(animationSpec = tween(200)) +
@@ -815,7 +818,7 @@ private fun BlackjackLayout(
             for (i in 0 until state.playerHands.size) {
                 totalSize += state.playerHands[i].cards.size
             }
-            val cards = ArrayList<io.github.smithjustinn.blackjack.Card>(totalSize)
+            val cards = ArrayList<Card>(totalSize)
             for (i in 0 until state.dealerHand.cards.size) {
                 cards.add(state.dealerHand.cards[i])
             }

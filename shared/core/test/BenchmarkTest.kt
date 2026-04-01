@@ -1,12 +1,15 @@
 package io.github.smithjustinn.blackjack
 
+import Random
+import measureTimeMillis
 import kotlin.test.Test
+import persistentListOf
 
 class BenchmarkTest {
     @Test
     fun runHandBenchmark() {
         val cards =
-            kotlinx.collections.immutable.persistentListOf(
+            persistentListOf(
                 Card(Rank.ACE, Suit.HEARTS),
                 Card(Rank.TEN, Suit.HEARTS),
                 Card(Rank.TWO, Suit.HEARTS, true),
@@ -18,7 +21,7 @@ class BenchmarkTest {
         repeat(100_000) { runOldApproach(cards) }
 
         val timeOld =
-            kotlin.system.measureTimeMillis {
+            measureTimeMillis {
                 repeat(1_000_000) { runOldApproach(cards) }
             }
 
@@ -26,7 +29,7 @@ class BenchmarkTest {
         repeat(100_000) { runNewApproach(cards) }
 
         val timeNew =
-            kotlin.system.measureTimeMillis {
+            measureTimeMillis {
                 repeat(1_000_000) { runNewApproach(cards) }
             }
 
@@ -69,7 +72,7 @@ class BenchmarkTest {
     @Test
     fun benchmarkCreateDeck() {
         val rules = GameRules(deckCount = 6)
-        val random = kotlin.random.Random(123)
+        val random = Random(123)
 
         // Run benchmarks multiple times to get a stable result
         println("===============================")
@@ -81,14 +84,14 @@ class BenchmarkTest {
             // Warmup
             repeat(10_000) { createDeckOld(rules, random) }
             val timeOld =
-                kotlin.system.measureTimeMillis {
+                measureTimeMillis {
                     repeat(200_000) { createDeckOld(rules, random) }
                 }
 
             // Warmup
             repeat(10_000) { createDeckNew(rules, random) }
             val timeNew =
-                kotlin.system.measureTimeMillis {
+                measureTimeMillis {
                     repeat(200_000) { createDeckNew(rules, random) }
                 }
 
@@ -107,7 +110,7 @@ class BenchmarkTest {
 
     private fun createDeckOld(
         rules: GameRules,
-        random: kotlin.random.Random
+        random: Random
     ): List<Card> {
         val deckSize = rules.deckCount * BlackjackRules.CARDS_PER_DECK
         val newDeck = ArrayList<Card>(deckSize)
@@ -124,7 +127,7 @@ class BenchmarkTest {
 
     private fun createDeckNew(
         rules: GameRules,
-        random: kotlin.random.Random
+        random: Random
     ): List<Card> {
         val deckSize = rules.deckCount * BlackjackRules.CARDS_PER_DECK
         val newDeck = ArrayList<Card>(deckSize)

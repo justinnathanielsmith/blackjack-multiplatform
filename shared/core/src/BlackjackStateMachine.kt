@@ -4,11 +4,13 @@ package io.github.smithjustinn.blackjack
 
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.utils.secureRandom
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -82,12 +84,12 @@ class BlackjackStateMachine(
     private val actionChannel = Channel<GameAction>(Channel.BUFFERED)
 
     init {
-        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 for (action in actionChannel) {
                     processAction(action)
                 }
-            } catch (e: kotlinx.coroutines.CancellationException) {
+            } catch (e: CancellationException) {
                 logger.d { "SM action loop cancelled" }
                 throw e
             } catch (
@@ -244,7 +246,7 @@ class BlackjackStateMachine(
         }
         val delta = count - current.handCount
         if (delta == 0) return
-        val newHands: kotlinx.collections.immutable.PersistentList<Hand>
+        val newHands: PersistentList<Hand>
         val balanceDelta: Int
         if (delta > 0) {
             newHands = current.playerHands.addAll(List(delta) { Hand() })
@@ -287,7 +289,7 @@ class BlackjackStateMachine(
 
     private suspend fun dealCardsWithAnimation(
         current: GameState,
-    ): Pair<kotlinx.collections.immutable.PersistentList<Hand>, Hand> {
+    ): Pair<PersistentList<Hand>, Hand> {
         var deck = getDeck(current).toPersistentList()
         var playerHands = current.playerHands
         var dealerHand = Hand()
@@ -315,7 +317,7 @@ class BlackjackStateMachine(
 
     private suspend fun applyInitialOutcome(
         current: GameState,
-        playerHands: kotlinx.collections.immutable.PersistentList<Hand>,
+        playerHands: PersistentList<Hand>,
         dealerHand: Hand,
     ) {
         val sideBetUpdate =
@@ -389,7 +391,7 @@ class BlackjackStateMachine(
         initialBalance: Int? = null,
         rules: GameRules = GameRules(),
         handCount: Int = 1,
-        previousBets: kotlinx.collections.immutable.PersistentList<Int> = persistentListOf(0),
+        previousBets: PersistentList<Int> = persistentListOf(0),
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ) {
         // Resolve nullable balance here (stateful read) then delegate pure logic to NewGameLogic.

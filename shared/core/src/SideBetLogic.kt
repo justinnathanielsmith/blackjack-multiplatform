@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.PersistentMap
+import PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 
 /**

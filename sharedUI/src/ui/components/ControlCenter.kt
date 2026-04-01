@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
+import AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -9,10 +9,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import Column
+import Row
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
@@ -38,8 +38,8 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
-import io.github.smithjustinn.blackjack.ui.theme.GlassDark
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import GlassDark
+import PrimaryGold
 import io.github.smithjustinn.blackjack.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res

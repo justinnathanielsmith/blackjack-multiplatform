@@ -1,10 +1,12 @@
 package io.github.smithjustinn.blackjack
 
+import persistentListOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class HandCountPersistenceTest {
     @Test
     fun testNewGameRemembersHandCount() =
@@ -58,7 +60,7 @@ class HandCountPersistenceTest {
                 GameAction.NewGame(
                     initialBalance = 1000,
                     handCount = 3,
-                    previousBets = kotlinx.collections.immutable.persistentListOf(100)
+                    previousBets = persistentListOf(100)
                 )
             )
             testScheduler.advanceUntilIdle()

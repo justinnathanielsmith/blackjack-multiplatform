@@ -1,7 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import Column
+import ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,8 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import io.github.smithjustinn.blackjack.ui.theme.GlassDark
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import GlassDark
+import PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.close

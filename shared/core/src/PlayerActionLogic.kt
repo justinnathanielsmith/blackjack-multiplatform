@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack
 
-import kotlinx.collections.immutable.persistentListOf
+import persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 
 data class PlayerActionOutcome(

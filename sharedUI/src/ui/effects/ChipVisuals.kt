@@ -4,13 +4,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import io.github.smithjustinn.blackjack.ui.theme.ChipBlue
-import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
-import io.github.smithjustinn.blackjack.ui.theme.ChipPurple
-import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
-import io.github.smithjustinn.blackjack.ui.theme.PokerRed
-import io.github.smithjustinn.blackjack.ui.theme.WhiteSoft
+import Stroke
+import ChipBlue
+import ChipGreen
+import ChipPurple
+import PokerBlack
+import PokerRed
+import WhiteSoft
 import kotlin.math.PI
 
 object ChipVisuals {
