@@ -57,7 +57,6 @@ import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 
 internal val CardShape = RoundedCornerShape(8.dp)
 
@@ -252,13 +251,23 @@ fun CardBack(modifier: Modifier = Modifier) {
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .background(Color.White)
                 .padding(4.dp)
-                // 2. Rich casino red core
-                .background(TacticalRed, RoundedCornerShape(4.dp))
-                .clip(RoundedCornerShape(4.dp))
+                // 2. Rich premium casino core
+                .background(
+                    Brush.linearGradient(
+                        colors =
+                            listOf(
+                                io.github.smithjustinn.blackjack.ui.theme.DeepWine,
+                                Color(0xFF2C0A0A) // Deeper wine for gradient
+                            )
+                    ),
+                    RoundedCornerShape(4.dp)
+                ).clip(RoundedCornerShape(4.dp))
                 .drawWithCache {
-                    val spacing = 6.dp.toPx()
+                    val spacing = 8.dp.toPx()
                     val strokeWidth = 1.dp.toPx()
-                    val patternColor = Color.White.copy(alpha = 0.15f)
+                    val patternColor =
+                        io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                            .copy(alpha = 0.3f)
 
                     onDrawBehind {
                         // 3. Elegant diamond lattice pattern
@@ -287,7 +296,14 @@ fun CardBack(modifier: Modifier = Modifier) {
 
                         // 4. Inner gold foil frame
                         drawRoundRect(
-                            color = PrimaryGold.copy(alpha = 0.8f),
+                            brush =
+                                Brush.linearGradient(
+                                    colors =
+                                        listOf(
+                                            io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight,
+                                            io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                                        )
+                                ),
                             size =
                                 size.copy(
                                     width = size.width - 12.dp.toPx(),
@@ -308,20 +324,29 @@ fun CardBack(modifier: Modifier = Modifier) {
 
                 // Outer gold ring
                 drawCircle(
-                    color = PrimaryGold,
+                    brush =
+                        Brush.linearGradient(
+                            colors =
+                                listOf(
+                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight,
+                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                                )
+                        ),
                     radius = size.minDimension / 2,
                     center = centerOffset
                 )
-                // Inner red core
+                // Inner dark core
                 drawCircle(
-                    color = TacticalRed,
+                    color = io.github.smithjustinn.blackjack.ui.theme.DeepWine,
                     radius = size.minDimension / 2 - 2.dp.toPx(),
                     center = centerOffset
                 )
                 // Delicate inner gold detail
                 drawCircle(
-                    color = PrimaryGold.copy(alpha = 0.5f),
-                    radius = size.minDimension / 2 - 4.dp.toPx(),
+                    color =
+                        io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                            .copy(alpha = 0.8f),
+                    radius = size.minDimension / 2 - 5.dp.toPx(),
                     center = centerOffset,
                     style = Stroke(width = 1.dp.toPx())
                 )
@@ -330,7 +355,7 @@ fun CardBack(modifier: Modifier = Modifier) {
             Text(
                 text = "♠",
                 fontSize = 18.sp,
-                color = PrimaryGold
+                color = io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
             )
         }
     }

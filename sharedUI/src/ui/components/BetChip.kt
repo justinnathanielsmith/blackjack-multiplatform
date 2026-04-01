@@ -126,99 +126,109 @@ fun BetChip(
                     val radius = size.minDimension / 2
                     val center = Offset(size.width / 2, size.height / 2)
 
-                    // Side depth offset (3D effect)
-                    val depthOffset = 3.dp.toPx()
+                    // Increased depth for 3D clay look
+                    val depthOffset = 6.dp.toPx()
 
                     // Pre-compute gradients and strokes (Bolt Performance Optimization)
                     // Avoids allocating Brush, PathEffect, and FloatArray on every draw frame.
                     val mainBrush =
                         Brush.radialGradient(
-                            0.0f to chipColor.copy(alpha = 1f),
-                            0.7f to chipColor.copy(alpha = 0.95f),
-                            1.0f to chipColor.copy(alpha = 0.9f),
+                            0.0f to chipColor,
+                            0.7f to chipColor,
+                            1.0f to chipColor.copy(alpha = 0.85f),
                             center = center,
                             radius = radius
                         )
 
                     val topGlossBrush =
-                        Brush.radialGradient(
-                            0.0f to Color.White.copy(alpha = 0.25f),
-                            1.0f to Color.Transparent,
-                            center = center.copy(y = center.y - radius * 0.4f),
-                            radius = radius * 0.6f
+                        Brush.linearGradient(
+                            colors =
+                                listOf(
+                                    Color.White.copy(alpha = 0.4f),
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.2f)
+                                ),
+                            start = Offset(0f, 0f),
+                            end = Offset(0f, size.height)
                         )
 
                     val outerRimStroke = Stroke(width = 1.dp.toPx())
 
-                    val dashLength = (radius * 2 * PI / 12).toFloat()
+                    val dashLength = (radius * 2 * PI / 8).toFloat()
                     val dashedStroke =
-                        if (dashLength > 0f) {
-                            Stroke(
-                                width = 3.5.dp.toPx(),
-                                pathEffect =
-                                    PathEffect.dashPathEffect(
-                                        floatArrayOf(dashLength / 2, dashLength / 2),
-                                        0f
-                                    )
-                            )
-                        } else {
-                            null
-                        }
+                        Stroke(
+                            width = 6.dp.toPx(),
+                            pathEffect =
+                                PathEffect.dashPathEffect(
+                                    floatArrayOf(dashLength * 0.15f, dashLength * 0.85f),
+                                    0f
+                                )
+                        )
 
                     val innerHighlightStroke = Stroke(width = 1.5.dp.toPx())
 
                     onDrawBehind {
-                        // Draw the "side" of the chip for 3D depth
+                        // Draw the 3D edge cylinder
+                        // Bottom shadow
                         drawCircle(
-                            color = chipColor.copy(alpha = 0.8f),
+                            color = Color.Black.copy(alpha = 0.4f),
+                            radius = radius,
+                            center = center.copy(y = center.y + depthOffset + 2.dp.toPx())
+                        )
+                        // Side of the chip
+                        drawCircle(
+                            color = chipColor.copy(alpha = 0.6f),
                             radius = radius,
                             center = center.copy(y = center.y + depthOffset)
                         )
+                        drawCircle(
+                            color = chipColor.copy(alpha = 0.7f),
+                            radius = radius,
+                            center = center.copy(y = center.y + depthOffset / 2)
+                        )
 
-                        // Main top surface with a subtle gradient for gloss
+                        // Main top surface
                         drawCircle(
                             brush = mainBrush,
                             radius = radius,
                             center = center
                         )
 
-                        // Gloss highlight at the top
-                        drawCircle(
-                            brush = topGlossBrush,
-                            radius = radius * 0.6f,
-                            center = center.copy(y = center.y - radius * 0.4f)
-                        )
-
                         // Outer rim highlights
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = Color.White.copy(alpha = 0.3f),
                             radius = radius - 0.5.dp.toPx(),
                             center = center,
                             style = outerRimStroke
                         )
 
-                        // Decorative blocks on the rim (standard casino chip look)
-                        if (dashedStroke != null) {
-                            drawCircle(
-                                color = Color.White.copy(alpha = 0.7f),
-                                radius = radius * 0.94f,
-                                center = center,
-                                style = dashedStroke
-                            )
-                        }
-
-                        // Inner circle highlight (recessed look)
+                        // Base contrasting rim dashes (clay edge spots)
                         drawCircle(
-                            color = Color.Black.copy(alpha = 0.15f),
-                            radius = radius * 0.75f,
+                            color = Color.White,
+                            radius = radius * 0.90f,
+                            center = center,
+                            style = dashedStroke
+                        )
+
+                        // Inner circle recess shadow
+                        drawCircle(
+                            color = Color.Black.copy(alpha = 0.25f),
+                            radius = radius * 0.70f,
                             center = center,
                             style = innerHighlightStroke
                         )
 
-                        // Center inlay
+                        // Center inlay area
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.12f),
+                            color = Color.White.copy(alpha = 0.85f),
                             radius = radius * 0.65f,
+                            center = center
+                        )
+
+                        // Gloss lighting over the entire top
+                        drawCircle(
+                            brush = topGlossBrush,
+                            radius = radius,
                             center = center
                         )
                     }

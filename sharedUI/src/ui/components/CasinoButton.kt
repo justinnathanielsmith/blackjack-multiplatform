@@ -93,7 +93,7 @@ fun CasinoButton(
     val isFocused by interactionSource.collectIsFocusedAsState()
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.93f else 1f,
+        targetValue = if (isPressed) 0.95f else 1f,
         animationSpec =
             if (isPressed) {
                 tween(durationMillis = 80)
@@ -103,13 +103,24 @@ fun CasinoButton(
         label = "buttonScale",
     )
 
+    val offsetY by animateFloatAsState(
+        targetValue = if (isPressed) 4f else 0f,
+        animationSpec =
+            if (isPressed) {
+                tween(durationMillis = 80)
+            } else {
+                spring(dampingRatio = 0.5f, stiffness = 400f)
+            },
+        label = "buttonOffset",
+    )
+
     val shineTransition = rememberInfiniteTransition(label = "buttonShine")
     val shineProgress by shineTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(1800, easing = LinearEasing),
+                animation = tween(2500, easing = LinearEasing, delayMillis = 500),
                 repeatMode = RepeatMode.Restart
             ),
         label = "shineProgress"
@@ -122,7 +133,7 @@ fun CasinoButton(
     // Disabled colors: desaturated and darker
     val baseColor = resolvedContainerColor
 
-    val shadowColor = if (enabled) Color.Black.copy(alpha = 0.5f) else Color.Transparent
+    val shadowColor = if (enabled) Color.Black.copy(alpha = 0.6f) else Color.Transparent
 
     Box(
         modifier =
@@ -130,10 +141,11 @@ fun CasinoButton(
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
+                    translationY = offsetY
                 }.then(
                     if (enabled) {
                         Modifier.shadow(
-                            elevation = if (isPressed) 1.dp else 6.dp,
+                            elevation = if (isPressed) 2.dp else 8.dp,
                             shape = RoundedCornerShape(16.dp),
                             ambientColor = shadowColor,
                             spotColor = shadowColor
@@ -147,12 +159,19 @@ fun CasinoButton(
                         Brush.verticalGradient(
                             colors =
                                 listOf(
-                                    baseColor,
-                                    // Slightly darker version for 3D effect
+                                    // Top highlight reflection
                                     Color(
-                                        (baseColor.red * 0.85f).coerceIn(0f, 1f),
-                                        (baseColor.green * 0.85f).coerceIn(0f, 1f),
-                                        (baseColor.blue * 0.85f).coerceIn(0f, 1f),
+                                        (baseColor.red * 1.15f).coerceIn(0f, 1f),
+                                        (baseColor.green * 1.15f).coerceIn(0f, 1f),
+                                        (baseColor.blue * 1.15f).coerceIn(0f, 1f),
+                                        baseColor.alpha
+                                    ),
+                                    baseColor,
+                                    // Deep shadow bottom
+                                    Color(
+                                        (baseColor.red * 0.7f).coerceIn(0f, 1f),
+                                        (baseColor.green * 0.7f).coerceIn(0f, 1f),
+                                        (baseColor.blue * 0.7f).coerceIn(0f, 1f),
                                         baseColor.alpha
                                     )
                                 )
@@ -174,15 +193,16 @@ fun CasinoButton(
                             shape = RoundedCornerShape(16.dp)
                         )
                     } else if (enabled) {
+                        // Premium acrylic double border: soft bright inner top, dark edge bottom
                         Modifier.border(
                             width = 1.dp,
                             brush =
                                 Brush.verticalGradient(
                                     colors =
                                         listOf(
-                                            Color.White.copy(alpha = 0.3f),
-                                            Color.Transparent,
-                                            Color.Black.copy(alpha = 0.2f)
+                                            Color.White.copy(alpha = 0.5f),
+                                            Color.White.copy(alpha = 0.1f),
+                                            Color.Black.copy(alpha = 0.4f)
                                         )
                                 ),
                             shape = RoundedCornerShape(16.dp)
@@ -204,14 +224,14 @@ fun CasinoButton(
                 ).drawBehind {
                     if (showShine && enabled) {
                         val shineX = -size.width + shineProgress * 3f * size.width
-                        val bandWidth = size.width * 0.4f
+                        val bandWidth = size.width * 0.35f
                         drawRect(
                             brush =
                                 Brush.linearGradient(
                                     colors =
                                         listOf(
                                             Color.Transparent,
-                                            Color.White.copy(alpha = 0.3f),
+                                            Color.White.copy(alpha = 0.45f),
                                             Color.Transparent
                                         ),
                                     start = Offset(shineX, 0f),

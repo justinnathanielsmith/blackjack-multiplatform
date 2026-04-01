@@ -22,6 +22,13 @@ val OakMedium = Color(0xFF4E2C1C)
 val PokerBlack = Color(0xFF212121)
 val WhiteSoft = Color(0xFFF5F5F5)
 
+// New Premium Tokens
+val ModernGoldLight = Color(0xFFFFE66D)
+val ModernGoldDark = Color(0xFFD4AF37)
+val VelvetRed = Color(0xFF8A1521)
+val DeepWine = Color(0xFF4A0A11)
+val LeatherBlack = Color(0xFF151515)
+
 // Casino Chip Colors
 val ChipBlue = Color(0xFF1565C0)
 val ChipGreen = Color(0xFF2E7D32)

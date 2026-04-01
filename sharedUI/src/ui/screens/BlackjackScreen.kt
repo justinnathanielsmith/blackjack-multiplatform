@@ -334,15 +334,28 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             // Static size-dependent brushes — recreated only when size changes
                             val feltBrush =
                                 Brush.radialGradient(
-                                    colors = listOf(FeltWarmCenter, FeltGreen, FeltDeepEdge),
+                                    // Deeper, richer felt colors for premium feel
+                                    colors =
+                                        listOf(
+                                            FeltWarmCenter,
+                                            FeltGreen,
+                                            FeltDeepEdge,
+                                            Color.Black.copy(alpha = 0.8f)
+                                        ),
                                     center = Offset(size.width / 2, size.height * 0.35f),
-                                    radius = size.maxDimension * 0.6f
+                                    radius = size.maxDimension * 0.65f
                                 )
                             val vignetteBrush =
                                 Brush.radialGradient(
-                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                                    // Dramatically deeper vignette for high roller mood
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            Color.Transparent,
+                                            Color.Black.copy(alpha = 0.85f)
+                                        ),
                                     center = Offset(size.width / 2, size.height / 2),
-                                    radius = size.maxDimension * 0.55f
+                                    radius = size.maxDimension * 0.7f
                                 )
                             val arcWidth = size.width * 1.5f
                             val arcHeight = size.height * 0.6f
@@ -466,22 +479,64 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 )
                             }
                         }.drawBehind {
-                            // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame,
-                            // skipping the expensive felt texture and static arcs in the drawWithCache above.
+                            // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame.
                             val highlightPos = activeHandHighlightPositionState.value
                             if (highlightPos != Offset.Zero) {
-                                val highlightRadius = size.maxDimension * 0.4f
-                                drawRect(
+                                val highlightRadius = size.maxDimension * 0.35f
+                                // Inner intense spot
+                                drawCircle(
+                                    brush =
+                                        Brush.radialGradient(
+                                            colors = listOf(PrimaryGold.copy(alpha = 0.15f), Color.Transparent),
+                                            center = highlightPos,
+                                            radius = highlightRadius * 0.4f
+                                        ),
+                                    center = highlightPos,
+                                    radius = highlightRadius * 0.4f
+                                )
+                                // Outer soft throw
+                                drawCircle(
                                     brush =
                                         Brush.radialGradient(
                                             colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
                                             center = highlightPos,
                                             radius = highlightRadius
-                                        )
+                                        ),
+                                    center = highlightPos,
+                                    radius = highlightRadius
                                 )
                             }
                         }.graphicsLayer { translationX = shakeOffset.value * density },
             ) {
+                // Table printing added to the felt
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(top = 180.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Text(
+                        text = "BLACKJACK PAYS 3 TO 2",
+                        color = PrimaryGold.copy(alpha = 0.12f),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 4.sp
+                    )
+                    Text(
+                        text = "Dealer must draw to 16, and stand on all 17s",
+                        color = Color.White.copy(alpha = 0.08f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    Text(
+                        text = "INSURANCE PAYS 2 TO 1",
+                        color = PrimaryGold.copy(alpha = 0.08f),
+                        style = MaterialTheme.typography.bodySmall,
+                        letterSpacing = 2.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
                 // Enforce a portrait-like aspect ratio (9:16) if the window is too wide (letterboxing)
                 val gameModifier =
                     if (maxHeight > maxWidth) {

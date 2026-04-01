@@ -43,11 +43,9 @@ fun BlackjackTheme(
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    val typography = androidx.compose.material3.Typography()
-
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = typography,
+        typography = BlackjackTypography,
         content = {
             Surface(color = Color.Transparent) {
                 content()

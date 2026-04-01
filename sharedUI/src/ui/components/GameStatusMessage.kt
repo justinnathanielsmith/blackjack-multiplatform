@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.launch
@@ -145,10 +144,12 @@ fun GameStatusMessage(
 
     val accentColor =
         when (status) {
-            GameStatus.PLAYER_WON -> PrimaryGold
-            GameStatus.DEALER_WON -> TacticalRed
+            GameStatus.PLAYER_WON -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+            GameStatus.DEALER_WON -> io.github.smithjustinn.blackjack.ui.theme.DeepWine
             GameStatus.PUSH -> Color.White
-            else -> PrimaryGold.copy(alpha = 0.8f)
+            else ->
+                io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+                    .copy(alpha = 0.8f)
         }
 
     // Delegate to the authoritative domain extension — consistent with all other sharedUI consumers.
@@ -184,19 +185,19 @@ fun GameStatusMessage(
                 }.drawWithCache {
                     val glowBrush =
                         Brush.radialGradient(
-                            colors = listOf(accentColor.copy(alpha = 0.15f), Color.Transparent),
-                            radius = size.maxDimension * 0.8f
+                            colors = listOf(accentColor.copy(alpha = 0.25f), Color.Transparent),
+                            radius = size.maxDimension * 0.9f
                         )
                     onDrawBehind {
                         drawCircle(
-                            color = accentColor.copy(alpha = ring1Alpha.value * 0.55f),
+                            color = accentColor.copy(alpha = ring1Alpha.value * 0.65f),
                             radius = ring1Radius.value * size.maxDimension * 0.7f,
-                            style = Stroke(2.dp.toPx()),
+                            style = Stroke(3.dp.toPx()),
                         )
                         drawCircle(
-                            color = accentColor.copy(alpha = ring2Alpha.value * 0.45f),
+                            color = accentColor.copy(alpha = ring2Alpha.value * 0.5f),
                             radius = ring2Radius.value * size.maxDimension * 0.7f,
-                            style = Stroke(1.5.dp.toPx()),
+                            style = Stroke(2.dp.toPx()),
                         )
                         drawCircle(
                             color = accentColor.copy(alpha = ring3Alpha.value * 0.35f),
@@ -205,21 +206,30 @@ fun GameStatusMessage(
                         )
                         drawRoundRect(
                             brush = glowBrush,
-                            cornerRadius = CornerRadius(32.dp.toPx(), 32.dp.toPx())
+                            cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx())
                         )
                     }
-                }.clip(RoundedCornerShape(32.dp))
+                }.clip(RoundedCornerShape(12.dp))
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(GlassDark, Color.Black.copy(alpha = 0.9f))
+                        colors =
+                            listOf(
+                                io.github.smithjustinn.blackjack.ui.theme.DeepWine,
+                                Color.Black.copy(alpha = 0.9f)
+                            )
                     )
                 ).border(
                     width = 2.dp,
                     brush =
                         Brush.horizontalGradient(
-                            colors = listOf(accentColor.copy(alpha = 0.1f), accentColor, accentColor.copy(alpha = 0.1f))
+                            colors =
+                                listOf(
+                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark,
+                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight,
+                                    io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+                                )
                         ),
-                    shape = RoundedCornerShape(32.dp),
+                    shape = RoundedCornerShape(12.dp),
                 ).padding(horizontal = 48.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {

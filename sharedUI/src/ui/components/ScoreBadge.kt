@@ -36,8 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.score_accessibility_blackjack
@@ -66,9 +64,9 @@ fun ScoreBadge(
 
     val backgroundColor =
         when {
-            isBust -> TacticalRed
-            is21 -> PrimaryGold
-            state == ScoreBadgeState.ACTIVE -> PrimaryGold
+            isBust -> io.github.smithjustinn.blackjack.ui.theme.VelvetRed
+            is21 -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+            state == ScoreBadgeState.ACTIVE -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
             state == ScoreBadgeState.DEALER -> BackgroundDark
             else -> Color(0xFF1A1A1A) // Deep dark for waiting
         }
@@ -77,15 +75,15 @@ fun ScoreBadge(
         when {
             isBust -> Color.White.copy(alpha = 0.6f)
             is21 || state == ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.5f)
-            state == ScoreBadgeState.DEALER -> PrimaryGold
+            state == ScoreBadgeState.DEALER -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
             else -> Color.White.copy(alpha = 0.15f)
         }
 
     val textColor =
         when {
             isBust -> Color.White
-            is21 || state == ScoreBadgeState.ACTIVE -> BackgroundDark
-            state == ScoreBadgeState.DEALER -> PrimaryGold
+            is21 || state == ScoreBadgeState.ACTIVE -> io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
+            state == ScoreBadgeState.DEALER -> io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
             else -> Color.White.copy(alpha = 0.7f)
         }
 
@@ -154,10 +152,35 @@ fun ScoreBadge(
                                 4.dp
                             },
                         shape = BadgeShape,
-                        spotColor = if (state == ScoreBadgeState.ACTIVE) PrimaryGold else backgroundColor
-                    ).then(
+                        spotColor =
+                            if (state ==
+                                ScoreBadgeState.ACTIVE
+                            ) {
+                                io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+                            } else {
+                                backgroundColor
+                            }
+                    ).androidx.compose.ui.draw
+                    .drawWithCache {
+                        val glowRadius = size.maxDimension * 1.5f * pulseScale.value
+                        val glowBrush =
+                            androidx.compose.ui.graphics.Brush.radialGradient(
+                                colors = listOf(backgroundColor.copy(alpha = 0.4f), Color.Transparent),
+                                radius = glowRadius
+                            )
+                        onDrawBehind {
+                            if (state == ScoreBadgeState.ACTIVE || is21 || isBust) {
+                                drawRect(glowBrush)
+                            }
+                        }
+                    }.then(
                         if (state == ScoreBadgeState.ACTIVE) {
-                            Modifier.border(2.dp, PrimaryGold.copy(alpha = 0.8f), BadgeShape)
+                            Modifier.border(
+                                2.dp,
+                                io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+                                    .copy(alpha = 0.8f),
+                                BadgeShape
+                            )
                         } else {
                             Modifier
                         }
