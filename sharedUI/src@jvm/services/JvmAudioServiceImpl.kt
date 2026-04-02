@@ -74,7 +74,7 @@ class JvmAudioServiceImpl(
         val canonicalPath = file.canonicalPath
         val canonicalTempDir = tempAudioDir.canonicalPath + File.separator
 
-        if (!canonicalPath.startsWith(canonicalTempDir + File.separator) || !file.exists()) {
+        if (!canonicalPath.startsWith(canonicalTempDir) || !file.exists()) {
             logger.e { "Invalid sound path detected: $path" }
             return
         }
