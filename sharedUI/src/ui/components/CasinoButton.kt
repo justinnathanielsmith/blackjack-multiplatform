@@ -123,10 +123,11 @@ fun CasinoButton(
                 shineX.snapTo(-1f)
                 shineX.animateTo(
                     targetValue = 2f,
-                    animationSpec = tween(
-                        durationMillis = AnimationConstants.ButtonShineDuration,
-                        easing = LinearEasing,
-                    ),
+                    animationSpec =
+                        tween(
+                            durationMillis = AnimationConstants.ButtonShineDuration,
+                            easing = LinearEasing,
+                        ),
                 )
                 kotlinx.coroutines.delay(AnimationConstants.ButtonShineDelay.toLong())
             }

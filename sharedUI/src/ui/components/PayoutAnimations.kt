@@ -56,7 +56,11 @@ private fun PayoutToast(
         launch {
             offsetY.animateTo(
                 targetValue = -100f,
-                animationSpec = tween(durationMillis = AnimationConstants.PayoutSlideUpDuration, easing = FastOutSlowInEasing)
+                animationSpec =
+                    tween(
+                        durationMillis = AnimationConstants.PayoutSlideUpDuration,
+                        easing = FastOutSlowInEasing
+                    )
             )
         }
         launch {

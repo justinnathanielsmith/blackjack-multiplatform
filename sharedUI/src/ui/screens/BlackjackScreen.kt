@@ -1,23 +1,11 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,109 +13,61 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.GameAction
-
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.Hand
-import io.github.smithjustinn.blackjack.Card
-import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
-import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
-import io.github.smithjustinn.blackjack.ui.animation.ChipEruptionInstance
-import io.github.smithjustinn.blackjack.ui.animation.ChipLossInstance
-import io.github.smithjustinn.blackjack.ui.animation.PayoutInstance
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isStatusVisible
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.totalNetPayout
+import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
+import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
+import io.github.smithjustinn.blackjack.ui.animation.PayoutInstance
 import io.github.smithjustinn.blackjack.ui.components.BetChip
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.components.ControlCenter
-import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.Header
-import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.components.OverlayCardTable
-import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
-import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
 import io.github.smithjustinn.blackjack.ui.components.Shoe
-import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.components.computeTableLayout
 import io.github.smithjustinn.blackjack.ui.components.handResult
-import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
-import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
-import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
-import io.github.smithjustinn.blackjack.ui.effects.PayoutEffect
-import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
-import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
-import io.github.smithjustinn.blackjack.ui.theme.FeltWarmCenter
 import io.github.smithjustinn.blackjack.ui.theme.LocalShoePosition
-import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawBettingArc
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawFeltGradient
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawFiberTexture
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawRails
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawVignette
 import io.github.smithjustinn.blackjack.utils.DragAndDropContainer
 import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
-
-import org.jetbrains.compose.resources.stringResource
-import sharedui.generated.resources.Res
-import sharedui.generated.resources.side_bet_colored_pair
-import sharedui.generated.resources.side_bet_flush
-import sharedui.generated.resources.side_bet_mixed_pair
-import sharedui.generated.resources.side_bet_perfect_pair
-import sharedui.generated.resources.side_bet_result_template
-import sharedui.generated.resources.side_bet_straight
-import sharedui.generated.resources.side_bet_straight_flush
-import sharedui.generated.resources.side_bet_suited_triple
-import sharedui.generated.resources.side_bet_three_of_a_kind
 import kotlin.random.Random
-
-// GameStatus.isTerminal() is now in GameLogic.kt
-// GameState.handResult() is defined in BlackjackHandContainer.kt
 
 @Composable
 fun BlackjackScreen(component: BlackjackComponent) {
@@ -241,7 +181,13 @@ fun BlackjackScreen(component: BlackjackComponent) {
             val sideBets = state.lastSideBets
             val rules = appSettings.gameRules
             val handCount = state.handCount
-            delay(if (appSettings.isAutoDealEnabled) AnimationConstants.AutoDealDelayTerminalMs else AnimationConstants.ManualResetDelayMs)
+            delay(
+                if (appSettings.isAutoDealEnabled) {
+                    AnimationConstants.AutoDealDelayTerminalMs
+                } else {
+                    AnimationConstants.ManualResetDelayMs
+                }
+            )
             if (appSettings.isAutoDealEnabled) autoDealPending = true
             component.onAction(
                 GameAction.NewGame(
@@ -278,128 +224,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     BlackjackTheme {
         DragAndDropContainer {
-            BoxWithConstraints(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(FeltDeepEdge) // Fallback deep color
-                        .drawWithCache {
-                            // Static size-dependent brushes — recreated only when size changes
-                            val feltBrush =
-                                Brush.radialGradient(
-                                    // Deeper, richer felt colors for premium feel
-                                    colors =
-                                        listOf(
-                                            FeltWarmCenter,
-                                            FeltGreen,
-                                            FeltDeepEdge,
-                                            Color.Black.copy(alpha = 0.8f)
-                                        ),
-                                    center = Offset(size.width / 2, size.height * 0.35f),
-                                    radius = size.maxDimension * 0.65f
-                                )
-                            val vignetteBrush =
-                                Brush.radialGradient(
-                                    // Dramatically deeper vignette for high roller mood
-                                    colors =
-                                        listOf(
-                                            Color.Transparent,
-                                            Color.Transparent,
-                                            Color.Black.copy(alpha = 0.85f)
-                                        ),
-                                    center = Offset(size.width / 2, size.height / 2),
-                                    radius = size.maxDimension * 0.7f
-                                )
-                            val arcWidth = size.width * 1.5f
-                            val arcHeight = size.height * 0.6f
-                            val arcLeft = (size.width - arcWidth) / 2
-                            val arcTop = size.height * 0.35f
-                            val arcSize =
-                                Size(arcWidth, arcHeight)
-                            val arcStroke =
-                                Stroke(width = 3.dp.toPx())
-                            val insuranceStroke =
-                                Stroke(width = 1.5.dp.toPx())
-                            val insuranceOffset = 40.dp.toPx()
-
-                            onDrawBehind {
-                                // 1. Base felt gradient
-                                drawFeltGradient(feltBrush)
-                                // 1b. Fiber texture (subtle noise / linen)
-                                drawFiberTexture()
-                                // 2 & 3. Betting arc + insurance arc (embossed)
-                                drawBettingArc(
-                                    arcLeft = arcLeft,
-                                    arcTop = arcTop,
-                                    arcSize = arcSize,
-                                    arcStroke = arcStroke,
-                                    insuranceStroke = insuranceStroke,
-                                    insuranceOffset = insuranceOffset,
-                                    primaryGold = PrimaryGold,
-                                )
-                                // 4. Heavy vignette (dark leather rail mood)
-                                drawVignette(vignetteBrush)
-                                // 4b. Physical wood table rails
-                                drawRails(railHeight = 20.dp.toPx())
-                            }
-                        }.drawBehind {
-                            // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame.
-                            val highlightPos = activeHandHighlightPositionState.value
-                            if (highlightPos != Offset.Zero) {
-                                val highlightRadius = size.maxDimension * 0.35f
-                                // Inner intense spot
-                                drawCircle(
-                                    brush =
-                                        Brush.radialGradient(
-                                            colors = listOf(PrimaryGold.copy(alpha = 0.15f), Color.Transparent),
-                                            center = highlightPos,
-                                            radius = highlightRadius * 0.4f
-                                        ),
-                                    center = highlightPos,
-                                    radius = highlightRadius * 0.4f
-                                )
-                                // Outer soft throw
-                                drawCircle(
-                                    brush =
-                                        Brush.radialGradient(
-                                            colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
-                                            center = highlightPos,
-                                            radius = highlightRadius
-                                        ),
-                                    center = highlightPos,
-                                    radius = highlightRadius
-                                )
-                            }
-                        }.graphicsLayer { translationX = animState.shakeOffset.value * density },
-            ) {
-                // Table printing added to the felt
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(top = 180.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    Text(
-                        text = "BLACKJACK PAYS 3 TO 2",
-                        color = PrimaryGold.copy(alpha = 0.12f),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 4.sp
-                    )
-                    Text(
-                        text = "Dealer must draw to 16, and stand on all 17s",
-                        color = Color.White.copy(alpha = 0.08f),
-                        style = MaterialTheme.typography.bodyMedium,
-                        letterSpacing = 1.sp,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                    Text(
-                        text = "INSURANCE PAYS 2 TO 1",
-                        color = PrimaryGold.copy(alpha = 0.08f),
-                        style = MaterialTheme.typography.bodySmall,
-                        letterSpacing = 2.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                TableSurface()
 
                 // Enforce a portrait-like aspect ratio (9:16) if the window is too wide (letterboxing)
                 val gameModifier =
@@ -410,7 +236,42 @@ fun BlackjackScreen(component: BlackjackComponent) {
                         Modifier.size(gameWidth, maxHeight).align(Alignment.Center)
                     }
 
-                Box(modifier = gameModifier) {
+                Box(
+                    modifier =
+                        gameModifier
+                            .drawBehind {
+                                // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame.
+                                val highlightPos = activeHandHighlightPositionState.value
+                                if (highlightPos != Offset.Zero) {
+                                    val highlightRadius = size.maxDimension * 0.35f
+                                    // Inner intense spot
+                                    drawCircle(
+                                        brush =
+                                            Brush.radialGradient(
+                                                colors = listOf(PrimaryGold.copy(alpha = 0.15f), Color.Transparent),
+                                                center = highlightPos,
+                                                radius = highlightRadius * 0.4f
+                                            ),
+                                        center = highlightPos,
+                                        radius = highlightRadius * 0.4f
+                                    )
+                                    // Outer soft throw
+                                    drawCircle(
+                                        brush =
+                                            Brush.radialGradient(
+                                                colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
+                                                center = highlightPos,
+                                                radius = highlightRadius
+                                            ),
+                                        center = highlightPos,
+                                        radius = highlightRadius
+                                    )
+                                }
+                            }.graphicsLayer {
+                                val densityVal = density
+                                translationX = animState.shakeOffset.value * densityVal
+                            },
+                ) {
                     CompositionLocalProvider(LocalDealAnimationRegistry provides dealRegistry) {
                         Column(
                             modifier =
@@ -477,10 +338,9 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 modifier = Modifier.zIndex(1f),
                             )
 
-                            SideBetResultsOverlay(state = state)
-
                             // Game Overlays & Status
-                            BlackjackGameOverlay(
+                            GameOverlay(
+                                sideBetResults = state.sideBetResults,
                                 status = state.status,
                                 playerHands = state.playerHands,
                                 netPayout = state.totalNetPayout(),
@@ -490,182 +350,53 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 flashColorProvider = { animState.flashColor },
                                 showStatus = showStatus,
                                 isPaused = { animState.isPaused },
-                                modifier = Modifier.zIndex(5f),
                             )
 
-                            AnimatedVisibility(
-                                visible = state.status == GameStatus.BETTING,
-                                modifier = Modifier.zIndex(5f),
-                                enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(AnimationConstants.BettingPhaseEnterDuration)),
-                                exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
-                            ) {
-                                BettingPhaseScreen(
-                                    state = state,
-                                    component = component,
-                                    audioService = audioService,
-                                    selectedAmount = selectedAmount,
-                                )
-                            }
+                            BettingLayer(
+                                state = state,
+                                animState = animState,
+                                component = component,
+                                audioService = audioService,
+                                selectedAmount = selectedAmount,
+                            )
 
-                            AnimatedVisibility(
-                                visible = showSettings,
-                                modifier = Modifier.zIndex(10f),
-                                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.OverlayEnterDuration)),
-                                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
-                            ) {
-                                SettingsOverlay(
-                                    settings = appSettings,
-                                    onUpdateSettings = component::updateSettings,
-                                    onResetBalance = component::resetBalance,
-                                    onDismiss = onDismissSettings
-                                )
-                            }
-
-                            AnimatedVisibility(
-                                visible = showRules,
-                                modifier = Modifier.zIndex(10f),
-                                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.OverlayEnterDuration)),
-                                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
-                            ) {
-                                RulesOverlay(
-                                    onDismiss = onDismissRules
-                                )
-                            }
-
-                            for (i in 0 until animState.chipEruptions.size) {
-                                val instance = animState.chipEruptions[i]
-                                key(instance.id) {
-                                    ChipEruptionEffect(
-                                        amount = instance.amount,
-                                        startOffset = instance.startOffset,
-                                        isPaused = { animState.isPaused },
-                                    )
-                                }
-                            }
-                            for (i in 0 until animState.chipLosses.size) {
-                                val instance = animState.chipLosses[i]
-                                key(instance.id) {
-                                    ChipLossEffect(
-                                        amount = instance.amount,
-                                        isPaused = { animState.isPaused },
-                                    )
-                                }
-                            }
-
-                            for (i in 0 until animState.activePayouts.size) {
-                                val instance = animState.activePayouts[i]
-                                key(instance.id) {
-                                    PayoutEffect(
-                                        amount = instance.amount,
-                                        targetOffset = instance.targetOffset,
-                                        onAnimationEnd = { animState.activePayouts.remove(instance) },
-                                        isPaused = { animState.isPaused },
-                                    )
-                                }
-                            }
+                            OverlayLayer(
+                                showSettings = showSettings,
+                                showRules = showRules,
+                                showStrategy = showStrategy,
+                                appSettings = appSettings,
+                                component = component,
+                                onDismissSettings = onDismissSettings,
+                                onDismissRules = onDismissRules,
+                                onDismissStrategy = onDismissStrategy,
+                            )
                         }
                     } // CompositionLocalProvider
                 }
+            } // End of outer BoxWithConstraints
 
-                AnimatedVisibility(
-                    visible = showStrategy,
-                    modifier = Modifier.zIndex(10f),
-                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.OverlayEnterDuration)),
-                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
-                ) {
-                    StrategyGuideOverlay(
-                        onDismiss = onDismissStrategy
-                    )
-                }
-            } // End of gameModifier Box
-        } // End of outer BoxWithConstraints
-
-        val dragAndDropState = LocalDragAndDropState.current
-        if (dragAndDropState.isDragging && dragAndDropState.dragItem is Int) {
-            val amount = dragAndDropState.dragItem as Int
-            BetChip(
-                amount = amount,
-                chipColor = ChipUtils.chipColor(amount),
-                textColor = ChipUtils.chipTextColor(amount),
-                isActive = true, // Larger shadow and lift effect
-                modifier =
-                    Modifier
-                        .size(56.dp)
-                        .graphicsLayer {
-                            translationX = dragAndDropState.dragPosition.x - (56.dp.toPx() / 2f)
-                            translationY = dragAndDropState.dragPosition.y - (56.dp.toPx() / 2f)
-                            scaleX = 1.15f
-                            scaleY = 1.15f
-                            alpha = 0.95f
-                        }.zIndex(100f)
-            )
-        }
-    } // End of DragAndDropContainer
-} // End of BlackjackTheme
-
-@Composable
-private fun BlackjackGameOverlay(
-    status: GameStatus,
-    playerHands: List<Hand>,
-    netPayout: Int?,
-    isBlackjack: Boolean,
-    component: BlackjackComponent,
-    flashAlphaProvider: () -> Float,
-    flashColorProvider: () -> Color,
-    showStatus: Boolean,
-    isPaused: () -> Boolean = { false },
-    modifier: Modifier = Modifier,
-) {
-    val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
-    val onDeclineInsurance = remember(component) { { component.onAction(GameAction.DeclineInsurance) } }
-
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        AnimatedVisibility(
-            visible = showStatus,
-            enter =
-                fadeIn(animationSpec = tween(AnimationConstants.StatusMessageEnterDuration)) +
-                    scaleIn(initialScale = 0.5f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f)),
-            exit = fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)) + scaleOut(targetScale = 0.8f),
-        ) {
-            GameStatusMessage(status = status, netPayout = netPayout, isBlackjack = isBlackjack)
-        }
-
-        if (status == GameStatus.INSURANCE_OFFERED) {
-            InsuranceOverlay(
-                onInsure = onTakeInsurance,
-                onDecline = onDeclineInsurance,
-            )
-        }
-
-        if (status == GameStatus.PLAYER_WON) {
-            ConfettiEffect(
-                particleCount = if (isBlackjack) 250 else 120,
-                isBlackjack = isBlackjack,
-                isPaused = isPaused,
-            )
-        }
-
-        if (status == GameStatus.PLAYER_WON && isBlackjack) {
-            SparkleEffect(isPaused = isPaused)
-        }
-        // ChipEruption is handled via chipEruptions state list triggered by GameEffect
-
-        // Bolt Performance Optimization: Defer state read to draw phase to prevent O(Frames) recompositions
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        val alpha = flashAlphaProvider()
-                        if (alpha > 0f) {
-                            drawRect(flashColorProvider().copy(alpha = alpha))
-                        }
-                    },
-        )
-    }
+            val dragAndDropState = LocalDragAndDropState.current
+            if (dragAndDropState.isDragging && dragAndDropState.dragItem is Int) {
+                val amount = dragAndDropState.dragItem as Int
+                BetChip(
+                    amount = amount,
+                    chipColor = ChipUtils.chipColor(amount),
+                    textColor = ChipUtils.chipTextColor(amount),
+                    isActive = true, // Larger shadow and lift effect
+                    modifier =
+                        Modifier
+                            .size(56.dp)
+                            .graphicsLayer {
+                                translationX = dragAndDropState.dragPosition.x - (56.dp.toPx() / 2f)
+                                translationY = dragAndDropState.dragPosition.y - (56.dp.toPx() / 2f)
+                                scaleX = 1.15f
+                                scaleY = 1.15f
+                                alpha = 0.95f
+                            }.zIndex(100f)
+                )
+            }
+        } // End of DragAndDropContainer
+    } // End of BlackjackTheme
 }
 
 @Composable
@@ -740,66 +471,5 @@ private fun BlackjackLayout(
                 )
             }
         }
-    }
-}
-
-// PayoutInstance, ChipEruptionInstance, ChipLossInstance are defined in
-// ui/animation/BlackjackAnimationState.kt
-
-@Composable
-private fun SideBetResultsOverlay(state: GameState) {
-    AnimatedVisibility(
-        visible = state.sideBetResults.isNotEmpty(),
-        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.StatusMessageEnterDuration)),
-        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.StatusMessageExitDuration)),
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(bottom = 8.dp)
-                .zIndex(4f),
-    ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                state.sideBetResults.forEach { (_, result) ->
-                    Box(
-                        modifier =
-                            Modifier
-                                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                                .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                    ) {
-                        Text(
-                            text =
-                                stringResource(
-                                    Res.string.side_bet_result_template,
-                                    getLocalizedOutcomeName(result.outcomeName),
-                                    result.payoutAmount,
-                                ),
-                            color = PrimaryGold,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Black,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun getLocalizedOutcomeName(name: String): String {
-    return when (name) {
-        "Perfect Pair" -> stringResource(Res.string.side_bet_perfect_pair)
-        "Colored Pair" -> stringResource(Res.string.side_bet_colored_pair)
-        "Mixed Pair" -> stringResource(Res.string.side_bet_mixed_pair)
-        "Suited Triple" -> stringResource(Res.string.side_bet_suited_triple)
-        "Straight Flush" -> stringResource(Res.string.side_bet_straight_flush)
-        "Three of a Kind" -> stringResource(Res.string.side_bet_three_of_a_kind)
-        "Straight" -> stringResource(Res.string.side_bet_straight)
-        "Flush" -> stringResource(Res.string.side_bet_flush)
-        else -> name
     }
 }

@@ -19,122 +19,139 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BlackjackAnimationOrchestratorTest {
+    private val noopAudio =
+        object : AudioService {
+            override var isMuted: Boolean = false
 
-    private val noopAudio = object : AudioService {
-        override var isMuted: Boolean = false
-        override fun playEffect(effect: AudioService.SoundEffect) {}
-        override fun release() {}
-    }
+            override fun playEffect(effect: AudioService.SoundEffect) {}
 
-    private val noopHaptics = object : HapticsService {
-        override fun vibrate() {}
-        override fun heavyThud() {}
-        override fun pulse() {}
-        override fun lightTick() {}
-        override fun winPulse() {}
-        override fun bustThud() {}
-    }
-
-    @Test
-    fun chipEruption_addsToListThenRemovesAfterLifetime() = runTest {
-        val animState = BlackjackAnimationState()
-        val effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 1)
-        val stateFlow = MutableStateFlow(
-            GameState(status = GameStatus.PLAYING)
-        )
-
-        val job = launch {
-            BlackjackAnimationOrchestrator.orchestrate(
-                effects = effects,
-                stateFlow = stateFlow,
-                animState = animState,
-                audioService = noopAudio,
-                hapticsService = noopHaptics,
-            )
+            override fun release() {}
         }
 
-        // Let the orchestrate coroutines start collecting
-        advanceUntilIdle()
+    private val noopHaptics =
+        object : HapticsService {
+            override fun vibrate() {}
 
-        // Emit a ChipEruption effect
-        effects.emit(GameEffect.ChipEruption(amount = 25))
+            override fun heavyThud() {}
 
-        // Advance time to let the collect handler run and launch the inner coroutine
-        advanceTimeBy(10)
+            override fun pulse() {}
 
-        // List should have grown by one
-        assertEquals(1, animState.chipEruptions.size, "chipEruptions should contain 1 item after emission")
-        assertEquals(25, animState.chipEruptions.first().amount, "ChipEruption amount should match")
+            override fun lightTick() {}
 
-        // Advance time past the lifetime
-        advanceTimeBy(AnimationConstants.ChipEruptionLifetimeMs + 100)
+            override fun winPulse() {}
 
-        // List should be empty after lifetime expires
-        assertTrue(animState.chipEruptions.isEmpty(), "chipEruptions should be empty after lifetime expires")
-
-        job.cancel()
-    }
-
-    @Test
-    fun chipLoss_addsToListThenRemovesAfterLifetime() = runTest {
-        val animState = BlackjackAnimationState()
-        val effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 1)
-        val stateFlow = MutableStateFlow(
-            GameState(status = GameStatus.PLAYING)
-        )
-
-        val job = launch {
-            BlackjackAnimationOrchestrator.orchestrate(
-                effects = effects,
-                stateFlow = stateFlow,
-                animState = animState,
-                audioService = noopAudio,
-                hapticsService = noopHaptics,
-            )
+            override fun bustThud() {}
         }
 
-        advanceUntilIdle()
-        effects.emit(GameEffect.ChipLoss(amount = 50))
-        advanceTimeBy(10)
-
-        assertEquals(1, animState.chipLosses.size, "chipLosses should contain 1 item after emission")
-        assertEquals(50, animState.chipLosses.first().amount, "ChipLoss amount should match")
-
-        advanceTimeBy(AnimationConstants.ChipLossLifetimeMs + 100)
-
-        assertTrue(animState.chipLosses.isEmpty(), "chipLosses should be empty after lifetime expires")
-
-        job.cancel()
-    }
-
     @Test
-    fun nearMiss_setsHandIndexThenClearsAfterLifetime() = runTest {
-        val animState = BlackjackAnimationState()
-        val effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 1)
-        val stateFlow = MutableStateFlow(
-            GameState(status = GameStatus.PLAYING)
-        )
+    fun chipEruption_addsToListThenRemovesAfterLifetime() =
+        runTest {
+            val animState = BlackjackAnimationState()
+            val effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 1)
+            val stateFlow =
+                MutableStateFlow(
+                    GameState(status = GameStatus.PLAYING)
+                )
 
-        val job = launch {
-            BlackjackAnimationOrchestrator.orchestrate(
-                effects = effects,
-                stateFlow = stateFlow,
-                animState = animState,
-                audioService = noopAudio,
-                hapticsService = noopHaptics,
-            )
+            val job =
+                launch {
+                    BlackjackAnimationOrchestrator.orchestrate(
+                        effects = effects,
+                        stateFlow = stateFlow,
+                        animState = animState,
+                        audioService = noopAudio,
+                        hapticsService = noopHaptics,
+                    )
+                }
+
+            // Let the orchestrate coroutines start collecting
+            advanceUntilIdle()
+
+            // Emit a ChipEruption effect
+            effects.emit(GameEffect.ChipEruption(amount = 25))
+
+            // Advance time to let the collect handler run and launch the inner coroutine
+            advanceTimeBy(10)
+
+            // List should have grown by one
+            assertEquals(1, animState.chipEruptions.size, "chipEruptions should contain 1 item after emission")
+            assertEquals(25, animState.chipEruptions.first().amount, "ChipEruption amount should match")
+
+            // Advance time past the lifetime
+            advanceTimeBy(AnimationConstants.ChipEruptionLifetimeMs + 100)
+
+            // List should be empty after lifetime expires
+            assertTrue(animState.chipEruptions.isEmpty(), "chipEruptions should be empty after lifetime expires")
+
+            job.cancel()
         }
 
-        advanceUntilIdle()
-        effects.emit(GameEffect.NearMissHighlight(handIndex = 1))
-        advanceTimeBy(10)
+    @Test
+    fun chipLoss_addsToListThenRemovesAfterLifetime() =
+        runTest {
+            val animState = BlackjackAnimationState()
+            val effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 1)
+            val stateFlow =
+                MutableStateFlow(
+                    GameState(status = GameStatus.PLAYING)
+                )
 
-        assertEquals(1, animState.nearMissHandIndex, "nearMissHandIndex should be set after emission")
+            val job =
+                launch {
+                    BlackjackAnimationOrchestrator.orchestrate(
+                        effects = effects,
+                        stateFlow = stateFlow,
+                        animState = animState,
+                        audioService = noopAudio,
+                        hapticsService = noopHaptics,
+                    )
+                }
 
-        advanceTimeBy(AnimationConstants.NearMissLifetimeMs + 100)
+            advanceUntilIdle()
+            effects.emit(GameEffect.ChipLoss(amount = 50))
+            advanceTimeBy(10)
 
-        assertEquals(null, animState.nearMissHandIndex, "nearMissHandIndex should clear after lifetime expires")
+            assertEquals(1, animState.chipLosses.size, "chipLosses should contain 1 item after emission")
+            assertEquals(50, animState.chipLosses.first().amount, "ChipLoss amount should match")
 
-        job.cancel()
-    }
+            advanceTimeBy(AnimationConstants.ChipLossLifetimeMs + 100)
+
+            assertTrue(animState.chipLosses.isEmpty(), "chipLosses should be empty after lifetime expires")
+
+            job.cancel()
+        }
+
+    @Test
+    fun nearMiss_setsHandIndexThenClearsAfterLifetime() =
+        runTest {
+            val animState = BlackjackAnimationState()
+            val effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 1)
+            val stateFlow =
+                MutableStateFlow(
+                    GameState(status = GameStatus.PLAYING)
+                )
+
+            val job =
+                launch {
+                    BlackjackAnimationOrchestrator.orchestrate(
+                        effects = effects,
+                        stateFlow = stateFlow,
+                        animState = animState,
+                        audioService = noopAudio,
+                        hapticsService = noopHaptics,
+                    )
+                }
+
+            advanceUntilIdle()
+            effects.emit(GameEffect.NearMissHighlight(handIndex = 1))
+            advanceTimeBy(10)
+
+            assertEquals(1, animState.nearMissHandIndex, "nearMissHandIndex should be set after emission")
+
+            advanceTimeBy(AnimationConstants.NearMissLifetimeMs + 100)
+
+            assertEquals(null, animState.nearMissHandIndex, "nearMissHandIndex should clear after lifetime expires")
+
+            job.cancel()
+        }
 }

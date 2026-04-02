@@ -30,7 +30,11 @@ fun SplashScreen(component: SplashComponent) {
         // Animate in
         scale.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = AnimationConstants.SplashScaleInDuration, easing = FastOutSlowInEasing)
+            animationSpec =
+                tween(
+                    durationMillis = AnimationConstants.SplashScaleInDuration,
+                    easing = FastOutSlowInEasing
+                )
         )
         alpha.animateTo(
             targetValue = 1f,

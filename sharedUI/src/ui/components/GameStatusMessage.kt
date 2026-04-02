@@ -81,11 +81,16 @@ fun GameStatusMessage(
             targetValue = if (isBlackjack) 1.15f else 1.04f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = if (isBlackjack) AnimationConstants.PulseDurationBlackjack
-                                         else AnimationConstants.PulseDurationNormal,
-                        easing = FastOutSlowInEasing,
-                    ),
+                    animation =
+                        tween(
+                            durationMillis =
+                                if (isBlackjack) {
+                                    AnimationConstants.PulseDurationBlackjack
+                                } else {
+                                    AnimationConstants.PulseDurationNormal
+                                },
+                            easing = FastOutSlowInEasing,
+                        ),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "pulseScale",
@@ -95,16 +100,26 @@ fun GameStatusMessage(
     val shimmerX by shimmerTransition.animateFloat(
         initialValue = -0.5f,
         targetValue = 1.5f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = if (isBlackjack) AnimationConstants.ShimmerDurationBlackjack
-                                 else AnimationConstants.ShimmerDurationNormal,
-                easing = LinearEasing,
-                delayMillis = if (isBlackjack) AnimationConstants.ShimmerDelayBlackjack
-                              else AnimationConstants.ShimmerDelayNormal,
+        animationSpec =
+            infiniteRepeatable(
+                animation =
+                    tween(
+                        durationMillis =
+                            if (isBlackjack) {
+                                AnimationConstants.ShimmerDurationBlackjack
+                            } else {
+                                AnimationConstants.ShimmerDurationNormal
+                            },
+                        easing = LinearEasing,
+                        delayMillis =
+                            if (isBlackjack) {
+                                AnimationConstants.ShimmerDelayBlackjack
+                            } else {
+                                AnimationConstants.ShimmerDelayNormal
+                            },
+                    ),
+                repeatMode = RepeatMode.Restart,
             ),
-            repeatMode = RepeatMode.Restart,
-        ),
         label = "shimmerX",
     )
 

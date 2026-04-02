@@ -78,8 +78,15 @@ fun ControlCenter(
         // Actions for BETTING
         AnimatedVisibility(
             visible = isBetting,
-            enter = fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) + expandVertically(tween(AnimationConstants.ActionPlayingSlideDuration), expandFrom = Alignment.Top),
-            exit = fadeOut(tween(AnimationConstants.ActionPlayingSlideDuration)) + shrinkVertically(tween(AnimationConstants.ActionPlayingSlideDuration), shrinkTowards = Alignment.Top),
+            enter =
+                fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) +
+                    expandVertically(tween(AnimationConstants.ActionPlayingSlideDuration), expandFrom = Alignment.Top),
+            exit =
+                fadeOut(tween(AnimationConstants.ActionPlayingSlideDuration)) +
+                    shrinkVertically(
+                        tween(AnimationConstants.ActionPlayingSlideDuration),
+                        shrinkTowards = Alignment.Top
+                    ),
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BettingActions(

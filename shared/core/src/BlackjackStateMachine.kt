@@ -287,9 +287,7 @@ class BlackjackStateMachine(
         applyInitialOutcome(current, playerHands, dealerHand)
     }
 
-    private suspend fun dealCardsWithAnimation(
-        current: GameState,
-    ): Pair<PersistentList<Hand>, Hand> {
+    private suspend fun dealCardsWithAnimation(current: GameState,): Pair<PersistentList<Hand>, Hand> {
         var deck = getDeck(current).toPersistentList()
         var playerHands = current.playerHands
         var dealerHand = Hand()

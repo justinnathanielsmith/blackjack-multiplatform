@@ -70,16 +70,17 @@ fun BettingSlot(
     val infiniteTransition = rememberInfiniteTransition(label = "bettingSlotGlow")
     // Store without 'by' — reading .value inside drawBehind defers the read to the draw phase,
     // preventing frame-rate recomposition of the entire composable.
-    val glowAlphaState = infiniteTransition.animateFloat(
-        initialValue = if (isSideBet) 0.15f else 0.15f,
-        targetValue = if (amount > 0) (if (isSideBet) 0.5f else 0.7f) else (if (isSideBet) 0.15f else 0.15f),
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-        label = "glowAlpha"
-    )
+    val glowAlphaState =
+        infiniteTransition.animateFloat(
+            initialValue = if (isSideBet) 0.15f else 0.15f,
+            targetValue = if (amount > 0) (if (isSideBet) 0.5f else 0.7f) else (if (isSideBet) 0.15f else 0.15f),
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+            label = "glowAlpha"
+        )
 
     val primaryColor = if (isSideBet) Color.White else PrimaryGold
     val dashEffect =

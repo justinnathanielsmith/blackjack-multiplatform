@@ -139,8 +139,18 @@ fun GameActions(
         ) {
             AnimatedVisibility(
                 visible = status == GameStatus.PLAYING,
-                enter = fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) + expandVertically(tween(AnimationConstants.ActionPlayingSlideDuration), expandFrom = Alignment.Top),
-                exit = fadeOut(tween(AnimationConstants.ActionPlayingSlideDuration)) + shrinkVertically(tween(AnimationConstants.ActionPlayingSlideDuration), shrinkTowards = Alignment.Top),
+                enter =
+                    fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) +
+                        expandVertically(
+                            tween(AnimationConstants.ActionPlayingSlideDuration),
+                            expandFrom = Alignment.Top
+                        ),
+                exit =
+                    fadeOut(tween(AnimationConstants.ActionPlayingSlideDuration)) +
+                        shrinkVertically(
+                            tween(AnimationConstants.ActionPlayingSlideDuration),
+                            shrinkTowards = Alignment.Top
+                        ),
             ) {
                 val canSplit = state.canSplit()
                 val canDouble = state.canDoubleDown()

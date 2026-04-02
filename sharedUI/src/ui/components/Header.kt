@@ -276,7 +276,12 @@ internal fun AutoDealIcon(
         targetValue = if (enabled) 2.0f else 1.0f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(AnimationConstants.AutoDealSonarPulseDuration, delayMillis = AnimationConstants.AutoDealSonarPulseDelay, easing = LinearEasing),
+                animation =
+                    tween(
+                        AnimationConstants.AutoDealSonarPulseDuration,
+                        delayMillis = AnimationConstants.AutoDealSonarPulseDelay,
+                        easing = LinearEasing
+                    ),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "pulseScale2",
@@ -286,7 +291,12 @@ internal fun AutoDealIcon(
         targetValue = 0.0f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(AnimationConstants.AutoDealSonarPulseDuration, delayMillis = AnimationConstants.AutoDealSonarPulseDelay, easing = LinearEasing),
+                animation =
+                    tween(
+                        AnimationConstants.AutoDealSonarPulseDuration,
+                        delayMillis = AnimationConstants.AutoDealSonarPulseDelay,
+                        easing = LinearEasing
+                    ),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "pulseAlpha2",

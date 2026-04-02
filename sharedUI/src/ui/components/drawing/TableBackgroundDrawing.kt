@@ -129,21 +129,23 @@ fun DrawScope.drawRails(railHeight: Float) {
 
     // Bottom rail — felt-to-oak gradient
     drawRect(
-        brush = Brush.verticalGradient(
-            colors = listOf(OakMedium, FeltDeepEdge),
-            startY = size.height - railHeight,
-            endY = size.height,
-        ),
+        brush =
+            Brush.verticalGradient(
+                colors = listOf(OakMedium, FeltDeepEdge),
+                startY = size.height - railHeight,
+                endY = size.height,
+            ),
         topLeft = Offset(0f, size.height - railHeight),
         size = Size(size.width, railHeight),
     )
     // Top rail — oak-to-felt gradient
     drawRect(
-        brush = Brush.verticalGradient(
-            colors = listOf(FeltDeepEdge, OakMedium),
-            startY = 0f,
-            endY = railHeight,
-        ),
+        brush =
+            Brush.verticalGradient(
+                colors = listOf(FeltDeepEdge, OakMedium),
+                startY = 0f,
+                endY = railHeight,
+            ),
         topLeft = Offset.Zero,
         size = Size(size.width, railHeight),
     )

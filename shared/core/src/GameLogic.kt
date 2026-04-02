@@ -1,13 +1,13 @@
 package io.github.smithjustinn.blackjack
 
 import androidx.compose.runtime.Immutable
-import kotlin.random.Random
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.serialization.Serializable
+import kotlin.random.Random
 
 @Serializable
 enum class Suit {
@@ -604,6 +604,7 @@ object BlackjackRules {
      * This orchestrates status transitions (like [GameStatus.INSURANCE_OFFERED]), dealer card
      * reveal, and initial balance updates for natural blackjacks.
      */
+    @Suppress("CyclomaticComplexMethod")
     fun resolveInitialOutcomeValues(
         current: GameState,
         playerHands: List<Hand>,

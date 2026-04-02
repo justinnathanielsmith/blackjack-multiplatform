@@ -112,8 +112,12 @@ internal fun HandOutcomeBadge(
 
     AnimatedVisibility(
         visible = result != HandResult.NONE,
-        enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 400f)) + fadeIn(tween(AnimationConstants.HandContainerEnterDuration)),
-        exit = scaleOut(tween(AnimationConstants.HandContainerExitDuration)) + fadeOut(tween(AnimationConstants.HandContainerExitDuration)),
+        enter =
+            scaleIn(spring(dampingRatio = 0.5f, stiffness = 400f)) +
+                fadeIn(tween(AnimationConstants.HandContainerEnterDuration)),
+        exit =
+            scaleOut(tween(AnimationConstants.HandContainerExitDuration)) +
+                fadeOut(tween(AnimationConstants.HandContainerExitDuration)),
         modifier = modifier,
     ) {
         Box(

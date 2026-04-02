@@ -41,11 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.ui.theme.FeltDark
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.components.drawing.drawChipBody
 import io.github.smithjustinn.blackjack.ui.components.drawing.drawChipDepth
 import io.github.smithjustinn.blackjack.ui.components.drawing.drawChipHighlight
+import io.github.smithjustinn.blackjack.ui.theme.FeltDark
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_chip_amount_k

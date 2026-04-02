@@ -1,10 +1,10 @@
 package io.github.smithjustinn.blackjack.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
