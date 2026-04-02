@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -41,7 +42,7 @@ fun BettingActions(
         targetValue = if (canDeal) 1.05f else 1f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(800, easing = FastOutSlowInEasing),
+                animation = tween(AnimationConstants.BettingActionsGlowDuration, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
             ),
         label = "dealPulse"

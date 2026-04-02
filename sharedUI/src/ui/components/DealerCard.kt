@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.Card
 import io.github.smithjustinn.blackjack.Rank
 import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import kotlinx.coroutines.delay
@@ -80,7 +81,7 @@ fun DealerCard(
 
             repeat(heartbeatCount) {
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                delay(200)
+                delay(AnimationConstants.DealerRevealHapticBeatMs)
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 delay(pauseDuration / heartbeatCount)
             }

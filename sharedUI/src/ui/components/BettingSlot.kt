@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.utils.DropTarget
 import org.jetbrains.compose.resources.stringResource
@@ -72,7 +73,7 @@ fun BettingSlot(
         targetValue = if (amount > 0) (if (isSideBet) 0.5f else 0.7f) else (if (isSideBet) 0.15f else 0.15f),
         animationSpec =
             infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
+                animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
             ),
         label = "glowAlpha"

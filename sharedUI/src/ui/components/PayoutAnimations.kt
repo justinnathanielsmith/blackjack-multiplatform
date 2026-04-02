@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.launch
@@ -55,13 +56,13 @@ private fun PayoutToast(
         launch {
             offsetY.animateTo(
                 targetValue = -100f,
-                animationSpec = tween(durationMillis = 1200, easing = FastOutSlowInEasing)
+                animationSpec = tween(durationMillis = AnimationConstants.PayoutSlideUpDuration, easing = FastOutSlowInEasing)
             )
         }
         launch {
-            alphaAnim.animateTo(1f, tween(300))
-            kotlinx.coroutines.delay(600)
-            alphaAnim.animateTo(0f, tween(300))
+            alphaAnim.animateTo(1f, tween(AnimationConstants.PayoutFadeDuration))
+            kotlinx.coroutines.delay(AnimationConstants.PayoutHoldDuration)
+            alphaAnim.animateTo(0f, tween(AnimationConstants.PayoutFadeDuration))
             onFinished()
         }
     }

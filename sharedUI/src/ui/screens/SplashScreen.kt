@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.presentation.SplashComponent
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.coroutines.delay
 
 @Composable
@@ -29,15 +30,15 @@ fun SplashScreen(component: SplashComponent) {
         // Animate in
         scale.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing)
+            animationSpec = tween(durationMillis = AnimationConstants.SplashScaleInDuration, easing = FastOutSlowInEasing)
         )
         alpha.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 400)
+            animationSpec = tween(durationMillis = AnimationConstants.SplashFadeInDuration)
         )
 
         // Hold for reading
-        delay(1200)
+        delay(AnimationConstants.SplashDisplayDurationMs)
 
         // Trigger finish
         component.onSplashFinished()

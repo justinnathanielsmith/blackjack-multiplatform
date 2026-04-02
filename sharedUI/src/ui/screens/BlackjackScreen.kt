@@ -93,6 +93,7 @@ import io.github.smithjustinn.blackjack.ui.effects.PayoutEffect
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
@@ -220,7 +221,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 if (result == HandResult.WIN) {
                     val bet = state.playerHands.getOrNull(index)?.bet ?: 0
                     if (bet > 0) {
-                        delay(200)
+                        delay(AnimationConstants.PayoutTriggerDelayMs)
                         val zone = dealRegistry.tableLayout?.handZones?.getOrNull(index + 1)
                         val target =
                             if (zone != null) {
@@ -239,12 +240,12 @@ fun BlackjackScreen(component: BlackjackComponent) {
         if (state.status == GameStatus.PLAYER_WON) {
             if (isBlackjack) {
                 flashColor = PrimaryGold
-                flashAlpha.animateTo(0.25f, tween(100))
-                flashAlpha.animateTo(0f, tween(300))
+                flashAlpha.animateTo(0.25f, tween(AnimationConstants.FlashInDuration))
+                flashAlpha.animateTo(0f, tween(AnimationConstants.FlashOutDurationBlackjack))
             } else {
                 flashColor = Color.White
-                flashAlpha.animateTo(0.15f, tween(100))
-                flashAlpha.animateTo(0f, tween(400))
+                flashAlpha.animateTo(0.15f, tween(AnimationConstants.FlashInDuration))
+                flashAlpha.animateTo(0f, tween(AnimationConstants.FlashOutDurationWin))
             }
         }
     }
@@ -255,7 +256,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
             val sideBets = state.lastSideBets
             val rules = appSettings.gameRules
             val handCount = state.handCount
-            delay(if (appSettings.isAutoDealEnabled) 1500L else 2000L)
+            delay(if (appSettings.isAutoDealEnabled) AnimationConstants.AutoDealDelayTerminalMs else AnimationConstants.ManualResetDelayMs)
             if (appSettings.isAutoDealEnabled) autoDealPending = true
             component.onAction(
                 GameAction.NewGame(
@@ -289,7 +290,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
             if (effect is GameEffect.NearMissHighlight) {
                 launch {
                     nearMissHandIndex = effect.handIndex
-                    delay(1500L)
+                    delay(AnimationConstants.NearMissLifetimeMs)
                     nearMissHandIndex = null
                 }
             }
@@ -302,7 +303,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             startOffset = null
                         )
                     chipEruptions.add(instance)
-                    delay(3000L) // Duration of effect
+                    delay(AnimationConstants.ChipEruptionLifetimeMs)
                     chipEruptions.remove(instance)
                 }
             }
@@ -310,7 +311,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 launch {
                     val instance = ChipLossInstance(id = Random.nextLong(), amount = effect.amount)
                     chipLosses.add(instance)
-                    delay(3000L) // Duration of effect
+                    delay(AnimationConstants.ChipLossLifetimeMs)
                     chipLosses.remove(instance)
                 }
             }
@@ -321,10 +322,10 @@ fun BlackjackScreen(component: BlackjackComponent) {
     LaunchedEffect(state.status) {
         if (state.status == GameStatus.DEALER_WON) {
             launch {
-                shakeOffset.animateTo(15f, spring<Float>(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(-15f, spring<Float>(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(10f, spring<Float>(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(-10f, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(AnimationConstants.ShakeDistance, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(-AnimationConstants.ShakeDistance, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(AnimationConstants.ShakeDistanceRebound, spring<Float>(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(-AnimationConstants.ShakeDistanceRebound, spring<Float>(stiffness = Spring.StiffnessHigh))
                 shakeOffset.animateTo(0f, spring<Float>(stiffness = Spring.StiffnessMedium))
             }
         }
@@ -635,8 +636,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             AnimatedVisibility(
                                 visible = state.status == GameStatus.BETTING,
                                 modifier = Modifier.zIndex(5f),
-                                enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(250)),
-                                exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(200)),
+                                enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(tween(AnimationConstants.BettingPhaseEnterDuration)),
+                                exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
                             ) {
                                 BettingPhaseScreen(
                                     state = state,
@@ -649,8 +650,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             AnimatedVisibility(
                                 visible = showSettings,
                                 modifier = Modifier.zIndex(10f),
-                                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.OverlayEnterDuration)),
+                                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
                             ) {
                                 SettingsOverlay(
                                     settings = appSettings,
@@ -663,8 +664,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             AnimatedVisibility(
                                 visible = showRules,
                                 modifier = Modifier.zIndex(10f),
-                                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.OverlayEnterDuration)),
+                                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
                             ) {
                                 RulesOverlay(
                                     onDismiss = onDismissRules
@@ -704,8 +705,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                 AnimatedVisibility(
                     visible = showStrategy,
                     modifier = Modifier.zIndex(10f),
-                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(300)),
-                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(200)),
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.OverlayEnterDuration)),
+                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
                 ) {
                     StrategyGuideOverlay(
                         onDismiss = onDismissStrategy
@@ -759,9 +760,9 @@ private fun BlackjackGameOverlay(
         AnimatedVisibility(
             visible = showStatus,
             enter =
-                fadeIn(animationSpec = tween(200)) +
+                fadeIn(animationSpec = tween(AnimationConstants.StatusMessageEnterDuration)) +
                     scaleIn(initialScale = 0.5f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f)),
-            exit = fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.8f),
+            exit = fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)) + scaleOut(targetScale = 0.8f),
         ) {
             GameStatusMessage(status = status, netPayout = netPayout, isBlackjack = isBlackjack)
         }
@@ -896,8 +897,8 @@ data class ChipLossInstance(
 private fun SideBetResultsOverlay(state: GameState) {
     AnimatedVisibility(
         visible = state.sideBetResults.isNotEmpty(),
-        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(200)),
-        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(150)),
+        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(AnimationConstants.StatusMessageEnterDuration)),
+        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.StatusMessageExitDuration)),
         modifier =
             Modifier
                 .fillMaxSize()

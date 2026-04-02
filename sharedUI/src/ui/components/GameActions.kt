@@ -61,6 +61,7 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
@@ -119,8 +120,8 @@ fun GameActions(
     AnimatedContent(
         targetState = state.status,
         transitionSpec = {
-            fadeIn(animationSpec = tween(500)) togetherWith
-                fadeOut(animationSpec = tween(500))
+            fadeIn(animationSpec = tween(AnimationConstants.ActionStatusFadeDuration)) togetherWith
+                fadeOut(animationSpec = tween(AnimationConstants.ActionStatusFadeDuration))
         },
         label = "GameActionsTransition"
     ) { status ->
@@ -138,8 +139,8 @@ fun GameActions(
         ) {
             AnimatedVisibility(
                 visible = status == GameStatus.PLAYING,
-                enter = fadeIn(tween(300)) + expandVertically(tween(300), expandFrom = Alignment.Top),
-                exit = fadeOut(tween(300)) + shrinkVertically(tween(300), shrinkTowards = Alignment.Top),
+                enter = fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) + expandVertically(tween(AnimationConstants.ActionPlayingSlideDuration), expandFrom = Alignment.Top),
+                exit = fadeOut(tween(AnimationConstants.ActionPlayingSlideDuration)) + shrinkVertically(tween(AnimationConstants.ActionPlayingSlideDuration), shrinkTowards = Alignment.Top),
             ) {
                 val canSplit = state.canSplit()
                 val canDouble = state.canDoubleDown()

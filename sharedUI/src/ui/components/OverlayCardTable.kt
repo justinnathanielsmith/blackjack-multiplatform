@@ -53,6 +53,7 @@ import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.handNetPayout
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -232,7 +233,7 @@ private fun PositionedCardItem(
         }
         launch {
             if (currentScale.value < 1f) {
-                currentScale.animateTo(1.15f, tween(150))
+                currentScale.animateTo(1.15f, tween(AnimationConstants.CardScaleBounceDuration))
             }
             currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
         }
@@ -240,9 +241,9 @@ private fun PositionedCardItem(
         launch {
             val flyingElevPx = with(density) { 16.dp.toPx() }
             val landedElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
-            currentShadow.animateTo(flyingElevPx, tween(100))
+            currentShadow.animateTo(flyingElevPx, tween(AnimationConstants.CardFlightShadowRiseDuration))
             delay(slot.animDuration.toLong() + 150L)
-            currentShadow.animateTo(landedElevPx, tween(300))
+            currentShadow.animateTo(landedElevPx, tween(AnimationConstants.CardShadowLandDuration))
         }
     }
 
@@ -260,7 +261,7 @@ private fun PositionedCardItem(
     }
     LaunchedEffect(isActive, slot.cardIndex) {
         val targetElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
-        currentShadow.animateTo(targetElevPx, tween(300))
+        currentShadow.animateTo(targetElevPx, tween(AnimationConstants.CardShadowLandDuration))
     }
 
     val scaledHalfW = baseCardW * slot.scale / 2f
@@ -339,7 +340,7 @@ private fun PositionedChipItem(
             )
         }
         launch {
-            currentScale.animateTo(1.15f, tween(150))
+            currentScale.animateTo(1.15f, tween(AnimationConstants.CardScaleBounceDuration))
             currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
         }
     }
@@ -380,7 +381,7 @@ private fun ActiveHandGlow(
             targetValue = 0.5f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "glowAlpha",
@@ -391,7 +392,7 @@ private fun ActiveHandGlow(
             targetValue = 1.3f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "glowScale",
@@ -460,7 +461,7 @@ private fun HandZoneHud(
             targetValue = 0.7f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "borderGlowAlpha",
@@ -644,7 +645,7 @@ private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
             targetValue = 10f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(800, easing = FastOutSlowInEasing),
+                    animation = tween(AnimationConstants.ActiveHandIndicatorDuration, easing = FastOutSlowInEasing),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "bounceOffset",

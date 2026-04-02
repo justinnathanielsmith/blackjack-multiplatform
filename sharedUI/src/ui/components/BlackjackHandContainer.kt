@@ -34,6 +34,7 @@ import io.github.smithjustinn.blackjack.BlackjackRules
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.HandOutcome
 import io.github.smithjustinn.blackjack.isTerminal
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.NeutralGray
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -111,8 +112,8 @@ internal fun HandOutcomeBadge(
 
     AnimatedVisibility(
         visible = result != HandResult.NONE,
-        enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 400f)) + fadeIn(tween(200)),
-        exit = scaleOut(tween(150)) + fadeOut(tween(150)),
+        enter = scaleIn(spring(dampingRatio = 0.5f, stiffness = 400f)) + fadeIn(tween(AnimationConstants.HandContainerEnterDuration)),
+        exit = scaleOut(tween(AnimationConstants.HandContainerExitDuration)) + fadeOut(tween(AnimationConstants.HandContainerExitDuration)),
         modifier = modifier,
     ) {
         Box(

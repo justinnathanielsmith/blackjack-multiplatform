@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.isTerminal
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.DeepWine
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
@@ -73,32 +74,39 @@ fun GameStatusMessage(
     isCompact: Boolean = false,
     isBlackjack: Boolean = false,
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val pulseTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by
-        infiniteTransition.animateFloat(
+        pulseTransition.animateFloat(
             initialValue = 0.98f,
             targetValue = if (isBlackjack) 1.15f else 1.04f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(if (isBlackjack) 400 else 600, easing = FastOutSlowInEasing),
+                    animation = tween(
+                        durationMillis = if (isBlackjack) AnimationConstants.PulseDurationBlackjack
+                                         else AnimationConstants.PulseDurationNormal,
+                        easing = FastOutSlowInEasing,
+                    ),
                     repeatMode = RepeatMode.Reverse,
                 ),
             label = "pulseScale",
         )
 
-    val shimmerX = remember { Animatable(-0.5f) }
-    LaunchedEffect(status, isBlackjack) {
-        if (status == GameStatus.PLAYER_WON || status == GameStatus.PUSH || isBlackjack) {
-            while (true) {
-                shimmerX.animateTo(
-                    targetValue = 1.5f,
-                    animationSpec = tween(if (isBlackjack) 800 else 1200, easing = LinearEasing)
-                )
-                shimmerX.snapTo(-0.5f)
-                kotlinx.coroutines.delay(if (isBlackjack) 200 else 400)
-            }
-        }
-    }
+    val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
+    val shimmerX by shimmerTransition.animateFloat(
+        initialValue = -0.5f,
+        targetValue = 1.5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = if (isBlackjack) AnimationConstants.ShimmerDurationBlackjack
+                                 else AnimationConstants.ShimmerDurationNormal,
+                easing = LinearEasing,
+                delayMillis = if (isBlackjack) AnimationConstants.ShimmerDelayBlackjack
+                              else AnimationConstants.ShimmerDelayNormal,
+            ),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "shimmerX",
+    )
 
     val ring1Radius = remember { Animatable(0f) }
     val ring1Alpha = remember { Animatable(0f) }
@@ -115,19 +123,23 @@ fun GameStatusMessage(
             ring2Alpha.snapTo(1f)
             ring3Radius.snapTo(0f)
             ring3Alpha.snapTo(1f)
+            launch { ring1Radius.animateTo(1f, tween(AnimationConstants.RingExpandDuration)) }
+            launch { ring1Alpha.animateTo(0f, tween(AnimationConstants.RingExpandDuration)) }
             launch {
-                launch { ring1Radius.animateTo(1f, tween(600)) }
-                ring1Alpha.animateTo(0f, tween(600))
+                kotlinx.coroutines.delay(AnimationConstants.RingExpandDelay1.toLong())
+                ring2Radius.animateTo(1f, tween(AnimationConstants.RingExpandDuration))
             }
             launch {
-                kotlinx.coroutines.delay(250)
-                launch { ring2Radius.animateTo(1f, tween(600)) }
-                ring2Alpha.animateTo(0f, tween(600))
+                kotlinx.coroutines.delay(AnimationConstants.RingExpandDelay1.toLong())
+                ring2Alpha.animateTo(0f, tween(AnimationConstants.RingExpandDuration))
             }
             launch {
-                kotlinx.coroutines.delay(500)
-                launch { ring3Radius.animateTo(1f, tween(600)) }
-                ring3Alpha.animateTo(0f, tween(600))
+                kotlinx.coroutines.delay(AnimationConstants.RingExpandDelay2.toLong())
+                ring3Radius.animateTo(1f, tween(AnimationConstants.RingExpandDuration))
+            }
+            launch {
+                kotlinx.coroutines.delay(AnimationConstants.RingExpandDelay2.toLong())
+                ring3Alpha.animateTo(0f, tween(AnimationConstants.RingExpandDuration))
             }
         }
     }
@@ -270,8 +282,8 @@ fun GameStatusMessage(
                                         accentColor.copy(alpha = 0.3f),
                                         Color.Transparent
                                     ),
-                                start = Offset(size.width * shimmerX.value, 0f),
-                                end = Offset(size.width * (shimmerX.value + 0.3f), size.height)
+                                start = Offset(size.width * shimmerX, 0f),
+                                end = Offset(size.width * (shimmerX + 0.3f), size.height)
                             )
                         onDrawWithContent {
                             drawContent()

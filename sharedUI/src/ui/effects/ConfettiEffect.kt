@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.rotate
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -97,7 +98,7 @@ fun ConfettiEffect(
 
         // Wave 2 (blackjack only): shower from top edge at 400ms
         if (isBlackjack) {
-            delay(400)
+            delay(AnimationConstants.ConfettiWave2DelayMs)
             repeat(40) {
                 particles.add(
                     Particle(

@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
@@ -121,7 +122,7 @@ fun CasinoButton(
         targetValue = 1f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(2500, easing = LinearEasing, delayMillis = 500),
+                animation = tween(AnimationConstants.ButtonShineDuration, easing = LinearEasing, delayMillis = AnimationConstants.ButtonShineDelay),
                 repeatMode = RepeatMode.Restart
             ),
         label = "shineProgress"

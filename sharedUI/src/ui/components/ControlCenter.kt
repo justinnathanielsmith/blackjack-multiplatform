@@ -38,6 +38,7 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.utils.formatWithCommas
@@ -77,8 +78,8 @@ fun ControlCenter(
         // Actions for BETTING
         AnimatedVisibility(
             visible = isBetting,
-            enter = fadeIn(tween(300)) + expandVertically(tween(300), expandFrom = Alignment.Top),
-            exit = fadeOut(tween(300)) + shrinkVertically(tween(300), shrinkTowards = Alignment.Top),
+            enter = fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) + expandVertically(tween(AnimationConstants.ActionPlayingSlideDuration), expandFrom = Alignment.Top),
+            exit = fadeOut(tween(AnimationConstants.ActionPlayingSlideDuration)) + shrinkVertically(tween(AnimationConstants.ActionPlayingSlideDuration), shrinkTowards = Alignment.Top),
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BettingActions(

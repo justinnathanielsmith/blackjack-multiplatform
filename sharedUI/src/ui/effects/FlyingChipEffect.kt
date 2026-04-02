@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.components.BetChip
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -68,16 +69,16 @@ fun FlyingChipAnimation(
         )
 
         launch {
-            scaleX.animateTo(1.2f, animationSpec = tween(50))
+            scaleX.animateTo(1.2f, animationSpec = tween(AnimationConstants.ChipSquashDuration))
             scaleX.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
         }
         launch {
-            scaleY.animateTo(0.8f, animationSpec = tween(50))
+            scaleY.animateTo(0.8f, animationSpec = tween(AnimationConstants.ChipSquashDuration))
             scaleY.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
         }
 
-        delay(120)
-        alpha.animateTo(0f, animationSpec = tween(180))
+        delay(AnimationConstants.ChipPreFadeDelayMs)
+        alpha.animateTo(0f, animationSpec = tween(AnimationConstants.ChipFadeDuration))
         onAnimationEnd()
     }
 

@@ -50,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
@@ -230,7 +231,7 @@ internal fun AutoDealIcon(
         targetValue = if (enabled) 1.1f else 1.0f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(1200, easing = FastOutSlowInEasing),
+                animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
         label = "breathScale",
@@ -242,7 +243,7 @@ internal fun AutoDealIcon(
         targetValue = if (enabled) 1.0f else 0.3f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(900, easing = LinearEasing),
+                animation = tween(AnimationConstants.AutoDealBorderPulseDuration, easing = LinearEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
         label = "autoBorderAlpha",
@@ -254,7 +255,7 @@ internal fun AutoDealIcon(
         targetValue = if (enabled) 2.0f else 1.0f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(2000, easing = LinearEasing),
+                animation = tween(AnimationConstants.AutoDealSonarPulseDuration, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "pulseScale1",
@@ -264,7 +265,7 @@ internal fun AutoDealIcon(
         targetValue = 0.0f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(2000, easing = LinearEasing),
+                animation = tween(AnimationConstants.AutoDealSonarPulseDuration, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "pulseAlpha1",
@@ -275,7 +276,7 @@ internal fun AutoDealIcon(
         targetValue = if (enabled) 2.0f else 1.0f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(2000, delayMillis = 1000, easing = LinearEasing),
+                animation = tween(AnimationConstants.AutoDealSonarPulseDuration, delayMillis = AnimationConstants.AutoDealSonarPulseDelay, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "pulseScale2",
@@ -285,7 +286,7 @@ internal fun AutoDealIcon(
         targetValue = 0.0f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(2000, delayMillis = 1000, easing = LinearEasing),
+                animation = tween(AnimationConstants.AutoDealSonarPulseDuration, delayMillis = AnimationConstants.AutoDealSonarPulseDelay, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "pulseAlpha2",
