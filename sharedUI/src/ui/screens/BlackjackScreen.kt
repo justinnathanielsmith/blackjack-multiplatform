@@ -1,11 +1,10 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -36,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,11 +57,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
-import io.github.smithjustinn.blackjack.GameEffect
+
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.Card
+import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
+import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
+import io.github.smithjustinn.blackjack.ui.animation.ChipEruptionInstance
+import io.github.smithjustinn.blackjack.ui.animation.ChipLossInstance
+import io.github.smithjustinn.blackjack.ui.animation.PayoutInstance
 import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isStatusVisible
 import io.github.smithjustinn.blackjack.isTerminal
@@ -91,7 +94,6 @@ import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.PayoutEffect
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
-import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -105,7 +107,7 @@ import io.github.smithjustinn.blackjack.utils.DragAndDropContainer
 import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.side_bet_colored_pair
@@ -131,13 +133,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
     var showRules by remember { mutableStateOf(false) }
     val audioService = LocalAppGraph.current.audioService
     val hapticsService = LocalAppGraph.current.hapticsService
-    val shakeOffset = remember { Animatable(0f) }
-    val flashAlpha = remember { Animatable(0f) }
-    var nearMissHandIndex by remember { mutableStateOf<Int?>(null) }
+    val animState = remember { BlackjackAnimationState() }
     var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
-    // List of active chip eruption instances
-    val chipEruptions = remember { mutableStateListOf<ChipEruptionInstance>() }
-    val chipLosses = remember { mutableStateListOf<ChipLossInstance>() }
 
     var selectedAmount by remember { mutableStateOf(10) }
     val onResetBet =
@@ -175,7 +172,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
             state.status == GameStatus.PLAYER_WON && state.playerHands.any { it.isBlackjack }
         }
     }
-    var flashColor by remember { mutableStateOf(Color.White) }
     var autoDealPending by remember { mutableStateOf(false) }
 
     val onAutoDealToggle =
@@ -189,7 +185,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val onDismissRules = remember { { showRules = false } }
     val onDismissStrategy = remember { { showStrategy = false } }
 
-    val activePayouts = remember { mutableStateListOf<PayoutInstance>() }
     val dealRegistry = remember { DealAnimationRegistry() }
 
     LaunchedEffect(state.status) {
@@ -229,30 +224,15 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             } else {
                                 Offset.Zero
                             }
-                        activePayouts.add(PayoutInstance(Random.nextLong(), bet, target))
+                        animState.activePayouts.add(PayoutInstance(Random.nextLong(), bet, target))
                     }
                 }
             }
         }
     }
 
-    LaunchedEffect(state.status) {
-        if (state.status == GameStatus.PLAYER_WON) {
-            if (isBlackjack) {
-                flashColor = PrimaryGold
-                flashAlpha.animateTo(0.25f, tween(AnimationConstants.FlashInDuration))
-                flashAlpha.animateTo(0f, tween(AnimationConstants.FlashOutDurationBlackjack))
-            } else {
-                flashColor = Color.White
-                flashAlpha.animateTo(0.15f, tween(AnimationConstants.FlashInDuration))
-                flashAlpha.animateTo(0f, tween(AnimationConstants.FlashOutDurationWin))
-            }
-        }
-    }
-
     LaunchedEffect(isTerminal) {
         if (isTerminal) {
-            val bet = state.currentBet
             val sideBets = state.lastSideBets
             val rules = appSettings.gameRules
             val handCount = state.handCount
@@ -280,55 +260,15 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
+    // Animation orchestration: effects pipeline + state-driven flash/shake
     LaunchedEffect(component) {
-        component.effects.collect { effect: GameEffect ->
-            handleGameEffect(
-                effect = effect,
-                hapticsService = hapticsService,
-                audioService = audioService
-            )
-            if (effect is GameEffect.NearMissHighlight) {
-                launch {
-                    nearMissHandIndex = effect.handIndex
-                    delay(AnimationConstants.NearMissLifetimeMs)
-                    nearMissHandIndex = null
-                }
-            }
-            if (effect is GameEffect.ChipEruption) {
-                launch {
-                    val instance =
-                        ChipEruptionInstance(
-                            id = Random.nextLong(),
-                            amount = effect.amount,
-                            startOffset = null
-                        )
-                    chipEruptions.add(instance)
-                    delay(AnimationConstants.ChipEruptionLifetimeMs)
-                    chipEruptions.remove(instance)
-                }
-            }
-            if (effect is GameEffect.ChipLoss) {
-                launch {
-                    val instance = ChipLossInstance(id = Random.nextLong(), amount = effect.amount)
-                    chipLosses.add(instance)
-                    delay(AnimationConstants.ChipLossLifetimeMs)
-                    chipLosses.remove(instance)
-                }
-            }
-        }
-    }
-
-    // UI-only: shake animation on dealer win; audio handled via GameEffect pipeline
-    LaunchedEffect(state.status) {
-        if (state.status == GameStatus.DEALER_WON) {
-            launch {
-                shakeOffset.animateTo(AnimationConstants.ShakeDistance, spring<Float>(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(-AnimationConstants.ShakeDistance, spring<Float>(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(AnimationConstants.ShakeDistanceRebound, spring<Float>(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(-AnimationConstants.ShakeDistanceRebound, spring<Float>(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(0f, spring<Float>(stiffness = Spring.StiffnessMedium))
-            }
-        }
+        BlackjackAnimationOrchestrator.orchestrate(
+            effects = component.effects,
+            stateFlow = component.state,
+            animState = animState,
+            audioService = audioService,
+            hapticsService = hapticsService,
+        )
     }
 
     BlackjackTheme {
@@ -511,7 +451,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     radius = highlightRadius
                                 )
                             }
-                        }.graphicsLayer { translationX = shakeOffset.value * density },
+                        }.graphicsLayer { translationX = animState.shakeOffset.value * density },
             ) {
                 // Table printing added to the felt
                 Column(
@@ -614,7 +554,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             // Cards + HUD rendered in overlay (below other overlays)
                             OverlayCardTable(
                                 state = state,
-                                nearMissHandIndex = nearMissHandIndex,
+                                nearMissHandIndex = animState.nearMissHandIndex,
                                 modifier = Modifier.zIndex(1f),
                             )
 
@@ -627,8 +567,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 netPayout = state.totalNetPayout(),
                                 isBlackjack = isBlackjack,
                                 component = component,
-                                flashAlphaProvider = { flashAlpha.value },
-                                flashColorProvider = { flashColor },
+                                flashAlphaProvider = { animState.flashAlpha.value },
+                                flashColorProvider = { animState.flashColor },
                                 showStatus = showStatus,
                                 modifier = Modifier.zIndex(5f),
                             )
@@ -672,8 +612,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 )
                             }
 
-                            for (i in 0 until chipEruptions.size) {
-                                val instance = chipEruptions[i]
+                            for (i in 0 until animState.chipEruptions.size) {
+                                val instance = animState.chipEruptions[i]
                                 key(instance.id) {
                                     ChipEruptionEffect(
                                         amount = instance.amount,
@@ -681,20 +621,20 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     )
                                 }
                             }
-                            for (i in 0 until chipLosses.size) {
-                                val instance = chipLosses[i]
+                            for (i in 0 until animState.chipLosses.size) {
+                                val instance = animState.chipLosses[i]
                                 key(instance.id) {
                                     ChipLossEffect(amount = instance.amount)
                                 }
                             }
 
-                            for (i in 0 until activePayouts.size) {
-                                val instance = activePayouts[i]
+                            for (i in 0 until animState.activePayouts.size) {
+                                val instance = animState.activePayouts[i]
                                 key(instance.id) {
                                     PayoutEffect(
                                         amount = instance.amount,
                                         targetOffset = instance.targetOffset,
-                                        onAnimationEnd = { activePayouts.remove(instance) }
+                                        onAnimationEnd = { animState.activePayouts.remove(instance) }
                                     )
                                 }
                             }
@@ -876,22 +816,8 @@ private fun BlackjackLayout(
     }
 }
 
-data class PayoutInstance(
-    val id: Long,
-    val amount: Int,
-    val targetOffset: Offset
-)
-
-data class ChipEruptionInstance(
-    val id: Long,
-    val amount: Int,
-    val startOffset: Offset?
-)
-
-data class ChipLossInstance(
-    val id: Long,
-    val amount: Int
-)
+// PayoutInstance, ChipEruptionInstance, ChipLossInstance are defined in
+// ui/animation/BlackjackAnimationState.kt
 
 @Composable
 private fun SideBetResultsOverlay(state: GameState) {
