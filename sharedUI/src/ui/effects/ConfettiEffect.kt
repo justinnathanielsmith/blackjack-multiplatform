@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -62,15 +61,22 @@ private class Particle(
 /**
  * A composable that displays a confetti burst effect.
  *
+ * The animation loop suspends automatically while [isPaused] returns `true`,
+ * preventing GPU work when the app is backgrounded. Particle state is preserved
+ * mid-flight so the effect resumes correctly on foreground.
+ *
  * @param modifier The modifier to be applied to the layout.
  * @param particleCount The number of particles to generate.
  * @param isBlackjack Whether this is a blackjack win (uses gold colors and wave 2).
+ * @param isPaused Lambda returning `true` when the host lifecycle is below RESUMED.
+ *   Wire this to [BlackjackAnimationState.isPaused] at the call site.
  */
 @Composable
 fun ConfettiEffect(
     modifier: Modifier = Modifier,
     particleCount: Int = 100,
     isBlackjack: Boolean = false,
+    isPaused: () -> Boolean = { false },
 ) {
     val colors =
         if (isBlackjack) {
@@ -114,19 +120,14 @@ fun ConfettiEffect(
             }
         }
 
-        // Animation loop
-        while (particles.isNotEmpty()) {
-            withFrameNanos { time ->
-                frameState.longValue = time
-
-                // Performance Optimization: Update in O(N) then use removeAll which maps to
-                // an efficient single-pass O(N) removal, rather than O(N^2) backward while loops with removeAt.
-                for (i in 0 until particles.size) {
-                    particles[i].update()
-                }
-                particles.removeAll { it.alpha <= 0f }
-            }
-        }
+        // Animation loop — suspends while backgrounded via isPaused
+        runParticleLoop(
+            particles = particles,
+            frameState = frameState,
+            isPaused = isPaused,
+            update = { p, _ -> p.update() },
+            isDone = { it.alpha <= 0f },
+        )
     }
 
     Canvas(modifier = modifier.fillMaxSize()) {
@@ -195,7 +196,7 @@ private fun fillStarPath(
     path: Path,
     center: Offset,
     outerRadius: Float,
-    innerRadius: Float
+    innerRadius: Float,
 ) {
     path.reset()
     val points = 5

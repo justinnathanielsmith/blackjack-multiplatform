@@ -16,9 +16,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.components.ChipStack
+import kotlinx.coroutines.yield
 
 /**
  * An animation where a stack of chips slides from the house/dealer to a specific player hand.
+ *
+ * The frame loop suspends automatically while [isPaused] returns `true`, preventing
+ * GPU work when the app is backgrounded. Progress state is preserved so the slide
+ * resumes from the correct position on foreground.
+ *
+ * @param isPaused Lambda returning `true` when the host lifecycle is below RESUMED.
+ *   Wire this to [BlackjackAnimationState.isPaused] at the call site.
  */
 @Composable
 fun PayoutEffect(
@@ -26,6 +34,7 @@ fun PayoutEffect(
     targetOffset: Offset,
     onAnimationEnd: () -> Unit,
     modifier: Modifier = Modifier,
+    isPaused: () -> Boolean = { false },
 ) {
     var progress by remember { mutableStateOf(0f) }
 
@@ -34,6 +43,11 @@ fun PayoutEffect(
         val startTime = withFrameNanos { it }
 
         while (progress < 1f) {
+            // Suspend cheaply while backgrounded — preserves progress mid-slide.
+            while (isPaused()) {
+                yield()
+            }
+
             withFrameNanos { time ->
                 val elapsed = (time - startTime) / 1_000_000L
                 progress = (elapsed.toFloat() / duration).coerceIn(0f, 1f)

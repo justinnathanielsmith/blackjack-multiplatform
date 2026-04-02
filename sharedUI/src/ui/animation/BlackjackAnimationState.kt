@@ -18,6 +18,16 @@ class BlackjackAnimationState {
     val chipEruptions = mutableStateListOf<ChipEruptionInstance>()
     val chipLosses = mutableStateListOf<ChipLossInstance>()
     val activePayouts = mutableStateListOf<PayoutInstance>()
+
+    /**
+     * Set to `true` by the platform entry-point when the app moves below the
+     * RESUMED lifecycle state (e.g. backgrounded on Android/iOS, minimized on Desktop).
+     *
+     * All [runParticleLoop] callers read this flag and yield cheaply rather than
+     * driving [withFrameNanos] callbacks that would wake the GPU with no visible output.
+     * Particle state is preserved mid-flight so effects resume correctly on foreground.
+     */
+    var isPaused: Boolean by mutableStateOf(false)
 }
 
 data class PayoutInstance(

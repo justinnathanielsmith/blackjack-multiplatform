@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
@@ -35,12 +34,20 @@ private class ChipParticle(
 
 /**
  * Chips arc from a source (starting hand or side bet slot) toward the balance meter.
+ *
+ * The animation loop suspends automatically while [isPaused] returns `true`,
+ * preventing GPU work when the app is backgrounded. Particle state is preserved
+ * mid-flight so the effect resumes correctly on foreground.
+ *
+ * @param isPaused Lambda returning `true` when the host lifecycle is below RESUMED.
+ *   Wire this to [BlackjackAnimationState.isPaused] at the call site.
  */
 @Composable
 fun ChipEruptionEffect(
     modifier: Modifier = Modifier,
     amount: Int,
     startOffset: Offset? = null,
+    isPaused: () -> Boolean = { false },
 ) {
     val chips =
         remember(amount) {
@@ -60,17 +67,13 @@ fun ChipEruptionEffect(
     val frameState = remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(chips) {
-        while (chips.isNotEmpty()) {
-            withFrameNanos { time ->
-                frameState.longValue = time
-                // Performance Optimization: Update in O(N) then use removeAll which maps to
-                // an efficient single-pass O(N) removal, rather than O(N^2) backward while loops with removeAt.
-                for (i in 0 until chips.size) {
-                    chips[i].update()
-                }
-                chips.removeAll { it.isDone }
-            }
-        }
+        runParticleLoop(
+            particles = chips,
+            frameState = frameState,
+            isPaused = isPaused,
+            update = { p, _ -> p.update() },
+            isDone = { it.isDone },
+        )
     }
 
     Canvas(modifier = modifier.fillMaxSize()) {

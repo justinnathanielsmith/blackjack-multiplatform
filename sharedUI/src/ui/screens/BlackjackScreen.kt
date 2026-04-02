@@ -489,6 +489,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 flashAlphaProvider = { animState.flashAlpha.value },
                                 flashColorProvider = { animState.flashColor },
                                 showStatus = showStatus,
+                                isPaused = { animState.isPaused },
                                 modifier = Modifier.zIndex(5f),
                             )
 
@@ -536,14 +537,18 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 key(instance.id) {
                                     ChipEruptionEffect(
                                         amount = instance.amount,
-                                        startOffset = instance.startOffset
+                                        startOffset = instance.startOffset,
+                                        isPaused = { animState.isPaused },
                                     )
                                 }
                             }
                             for (i in 0 until animState.chipLosses.size) {
                                 val instance = animState.chipLosses[i]
                                 key(instance.id) {
-                                    ChipLossEffect(amount = instance.amount)
+                                    ChipLossEffect(
+                                        amount = instance.amount,
+                                        isPaused = { animState.isPaused },
+                                    )
                                 }
                             }
 
@@ -553,7 +558,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     PayoutEffect(
                                         amount = instance.amount,
                                         targetOffset = instance.targetOffset,
-                                        onAnimationEnd = { animState.activePayouts.remove(instance) }
+                                        onAnimationEnd = { animState.activePayouts.remove(instance) },
+                                        isPaused = { animState.isPaused },
                                     )
                                 }
                             }
@@ -607,6 +613,7 @@ private fun BlackjackGameOverlay(
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
     showStatus: Boolean,
+    isPaused: () -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
     val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
@@ -637,11 +644,12 @@ private fun BlackjackGameOverlay(
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
                 isBlackjack = isBlackjack,
+                isPaused = isPaused,
             )
         }
 
         if (status == GameStatus.PLAYER_WON && isBlackjack) {
-            SparkleEffect()
+            SparkleEffect(isPaused = isPaused)
         }
         // ChipEruption is handled via chipEruptions state list triggered by GameEffect
 

@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -60,9 +59,19 @@ private class SparkleParticle(
 /**
  * 4-pointed star burst effect for blackjack wins.
  * 20 particles evenly spaced, travel outward and fade over ~550ms.
+ *
+ * The animation loop suspends automatically while [isPaused] returns `true`,
+ * preventing GPU work when the app is backgrounded. Particle state is preserved
+ * mid-flight so the effect resumes correctly on foreground.
+ *
+ * @param isPaused Lambda returning `true` when the host lifecycle is below RESUMED.
+ *   Wire this to [BlackjackAnimationState.isPaused] at the call site.
  */
 @Composable
-fun SparkleEffect(modifier: Modifier = Modifier) {
+fun SparkleEffect(
+    modifier: Modifier = Modifier,
+    isPaused: () -> Boolean = { false },
+) {
     val particleCount = 20
     val particles =
         remember {
@@ -84,17 +93,13 @@ fun SparkleEffect(modifier: Modifier = Modifier) {
     val frameState = remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
-        while (particles.isNotEmpty()) {
-            withFrameNanos { time ->
-                frameState.longValue = time
-                // Performance Optimization: Update in O(N) then use removeAll which maps to
-                // an efficient single-pass O(N) removal, rather than O(N^2) backward while loops with removeAt.
-                for (i in 0 until particles.size) {
-                    particles[i].update()
-                }
-                particles.removeAll { it.isDone }
-            }
-        }
+        runParticleLoop(
+            particles = particles,
+            frameState = frameState,
+            isPaused = isPaused,
+            update = { p, _ -> p.update() },
+            isDone = { it.isDone },
+        )
     }
 
     Canvas(modifier = modifier.fillMaxSize()) {
@@ -125,7 +130,7 @@ private fun fillSparklePath(
     path: Path,
     center: Offset,
     outerRadius: Float,
-    innerRadius: Float
+    innerRadius: Float,
 ) {
     path.reset()
     val points = 4
