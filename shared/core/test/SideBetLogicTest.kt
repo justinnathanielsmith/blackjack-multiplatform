@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack
 
-import persistentMapOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

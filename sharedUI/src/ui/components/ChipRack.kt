@@ -2,9 +2,9 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import Arrangement
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import Row
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -17,12 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import Brush
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import BlackjackTheme
-import OakMedium
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 import io.github.smithjustinn.blackjack.utils.DragTarget
 
 private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)

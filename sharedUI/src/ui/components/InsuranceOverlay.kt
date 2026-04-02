@@ -2,10 +2,10 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import Arrangement
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import Column
-import Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,10 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
-import BlackjackTheme
-import GlassDark
-import GlassLight
-import PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
+import io.github.smithjustinn.blackjack.ui.theme.GlassDark
+import io.github.smithjustinn.blackjack.ui.theme.GlassLight
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.insurance_message

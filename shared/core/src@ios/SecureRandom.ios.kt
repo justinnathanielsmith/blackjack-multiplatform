@@ -1,7 +1,7 @@
 package io.github.smithjustinn.blackjack.utils
 
 import platform.posix.arc4random
-import Random
+import kotlin.random.Random
 
 actual val secureRandom: Random =
     object : Random() {

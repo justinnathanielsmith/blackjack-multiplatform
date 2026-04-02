@@ -3,24 +3,24 @@ package io.github.smithjustinn.blackjack.ui.effects
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import LaunchedEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import Size
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.rotate
-import PokerBlack
-import PokerRed
-import PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
+import io.github.smithjustinn.blackjack.ui.theme.PokerRed
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-import Random
+import kotlin.random.Random
 
 private enum class ParticleShape { RECTANGLE, CIRCLE, STAR, STREAMER }
 

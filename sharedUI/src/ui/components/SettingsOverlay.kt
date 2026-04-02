@@ -2,9 +2,9 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import Arrangement
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import Row
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,8 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.BlackjackPayout
 import io.github.smithjustinn.blackjack.data.AppSettings
-import GlassDark
-import PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.GlassDark
+import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.close

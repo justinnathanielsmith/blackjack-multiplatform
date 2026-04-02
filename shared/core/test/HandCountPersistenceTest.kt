@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack
 
-import persistentListOf
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

@@ -1,9 +1,9 @@
 package io.github.smithjustinn.blackjack
 
-import Random
+import kotlin.random.Random
 import measureTimeMillis
 import kotlin.test.Test
-import persistentListOf
+import kotlinx.collections.immutable.persistentListOf
 
 class BenchmarkTest {
     @Test

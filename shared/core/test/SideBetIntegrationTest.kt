@@ -3,8 +3,8 @@
 package io.github.smithjustinn.blackjack
 
 import app.cash.turbine.test
-import persistentListOf
-import persistentMapOf
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest

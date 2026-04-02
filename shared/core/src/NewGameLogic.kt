@@ -1,9 +1,9 @@
 package io.github.smithjustinn.blackjack
 
-import PersistentList
-import PersistentMap
-import persistentListOf
-import persistentMapOf
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
 
 // Pure domain logic for initialising a new betting round — extracted from BlackjackStateMachine.

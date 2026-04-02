@@ -1,8 +1,8 @@
 package io.github.smithjustinn.blackjack.ui.effects
 
-import ChipGreen
-import ChipPurple
-import PokerBlack
+import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
+import io.github.smithjustinn.blackjack.ui.theme.ChipPurple
+import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

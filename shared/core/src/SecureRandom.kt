@@ -1,5 +1,5 @@
 package io.github.smithjustinn.blackjack.utils
 
-import Random
+import kotlin.random.Random
 
 expect val secureRandom: Random
