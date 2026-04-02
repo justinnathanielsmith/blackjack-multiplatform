@@ -831,6 +831,29 @@ sealed class GameAction {
 
     /** Resets all active side bets on the table back to the player's balance. Only valid during [GameStatus.BETTING]. */
     data object ResetSideBets : GameAction()
+
+    // ── Internal engine primitives (dispatched by middleware only) ────────────────
+
+    /** Replaces the current deck with a freshly computed shoe. Dispatched by middleware when reshuffle is needed. */
+    internal data class SetDeck(val deck: PersistentList<Card>) : GameAction()
+
+    /** Draws the top deck card and adds it to a player seat's hand. */
+    internal data class DealCardToPlayer(val seatIndex: Int) : GameAction()
+
+    /** Draws the top deck card and adds it to the dealer's hand. */
+    internal data class DealCardToDealer(val faceDown: Boolean) : GameAction()
+
+    /** Resolves side bets, blackjacks, insurance offering, and early terminal states after the deal animation. */
+    internal data object ApplyInitialOutcome : GameAction()
+
+    /** Flips all face-down dealer cards face-up and pays out insurance if dealer has natural BJ. */
+    internal data object RevealDealerHole : GameAction()
+
+    /** Draws the top deck card and adds it to the dealer's hand during the dealer turn. */
+    internal data object DealerDraw : GameAction()
+
+    /** Calculates final hand results and transitions to a terminal status. */
+    internal data object FinalizeGame : GameAction()
 }
 
 /**

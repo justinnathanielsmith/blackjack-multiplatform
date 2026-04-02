@@ -4,11 +4,6 @@ package io.github.smithjustinn.blackjack
 
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.utils.secureRandom
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.mutate
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -30,12 +25,15 @@ import kotlinx.coroutines.launch
  * The core state machine governing the game of Blackjack.
  *
  * This class serves as the single source of truth for the game state and side effects.
- * It processes [GameAction]s sequentially through a [Channel], ensuring thread-safe
- * mutations of the [GameState].
+ * It processes [GameAction]s sequentially through a [Channel], delegating pure state
+ * transitions to [reduce] and asynchronous animation timing to private middleware coroutines.
  *
- * @param scope The [CoroutineScope] in which the internal action loop and animations run.
+ * The action loop itself **never suspends**, ensuring the UI can dispatch new actions at any
+ * time — even during an in-progress deal or dealer turn animation.
+ *
+ * @param scope The [CoroutineScope] in which the internal action loop and middleware run.
  * @param initialState The starting [GameState]. Defaults to a new game with 1000 balance in [GameStatus.BETTING].
- * @param isTest When true, animations and delays (like [DEALER_TURN_DELAY_MS]) are disabled (0ms).
+ * @param isTest When true, animations and delays are disabled (0ms).
  * @param logger Logger instance for internal state tracking and debugging.
  */
 class BlackjackStateMachine(
@@ -87,7 +85,12 @@ class BlackjackStateMachine(
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 for (action in actionChannel) {
-                    processAction(action)
+                    logger.v { "SM reduce: $action" }
+                    val result = reduce(_state.value, action)
+                    _state.value = result.state
+                    result.effects.forEach { emitEffect(it) }
+                    result.commands.forEach { cmd -> scope.launch { executeCommand(cmd) } }
+                    logger.v { "SM action loop finished: $action" }
                 }
             } catch (e: CancellationException) {
                 logger.d { "SM action loop cancelled" }
@@ -103,71 +106,11 @@ class BlackjackStateMachine(
         }
     }
 
-    private suspend fun processAction(action: GameAction) {
-        logger.v { "SM received action: $action" }
-        when (action) {
-            is GameAction.NewGame -> handleNewGameAction(action)
-            is GameAction.Surrender,
-            is GameAction.Deal,
-            is GameAction.Hit,
-            is GameAction.Stand,
-            is GameAction.DoubleDown,
-            is GameAction.TakeInsurance,
-            is GameAction.DeclineInsurance,
-            is GameAction.Split -> handleGameFlowAction(action)
-            is GameAction.UpdateRules,
-            is GameAction.PlaceBet,
-            is GameAction.ResetBet,
-            is GameAction.ResetSeatBet,
-            is GameAction.SelectHandCount,
-            is GameAction.PlaceSideBet,
-            is GameAction.ResetSideBets -> handleBettingAction(action)
-        }
-        logger.v { "SM action loop finished current item: $action" }
-    }
-
-    private suspend fun handleNewGameAction(action: GameAction.NewGame) {
-        handleNewGame(
-            action.initialBalance,
-            action.rules,
-            action.handCount,
-            action.previousBets,
-            action.lastSideBets
-        )
-    }
-
-    private suspend fun handleGameFlowAction(action: GameAction) {
-        when (action) {
-            is GameAction.Surrender -> handleSurrender()
-            is GameAction.Deal -> handleDeal()
-            is GameAction.Hit -> handleHit()
-            is GameAction.Stand -> handleStand()
-            is GameAction.DoubleDown -> handleDoubleDown()
-            is GameAction.TakeInsurance -> handleInsurance(true)
-            is GameAction.DeclineInsurance -> handleInsurance(false)
-            is GameAction.Split -> handleSplit()
-            else -> {}
-        }
-    }
-
-    private fun handleBettingAction(action: GameAction) {
-        when (action) {
-            is GameAction.UpdateRules -> handleUpdateRules(action.rules)
-            is GameAction.PlaceBet -> handlePlaceBet(action.amount, action.seatIndex)
-            is GameAction.ResetBet -> handleResetBet(null)
-            is GameAction.ResetSeatBet -> handleResetBet(action.seatIndex)
-            is GameAction.SelectHandCount -> handleSelectHandCount(action.count)
-            is GameAction.PlaceSideBet -> handlePlaceSideBet(action.type, action.amount)
-            is GameAction.ResetSideBets -> handlePlaceSideBet(null, 0)
-            else -> {}
-        }
-    }
-
     /**
      * Dispatches a [GameAction] to be processed by the state machine.
      *
-     * Actions are buffered and processed sequentially. Handlers within the state machine
-     * check the current [GameStatus] to ensure the action is valid for the current state.
+     * Actions are buffered and processed sequentially. The reducer checks the current
+     * [GameStatus] to ensure the action is valid for the current state.
      *
      * @param action The [GameAction] to dispatch.
      */
@@ -184,198 +127,84 @@ class BlackjackStateMachine(
         actionChannel.close()
     }
 
-    private fun handlePlaceBet(
-        amount: Int,
-        seatIndex: Int,
-    ) {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        if (amount <= 0 || seatIndex !in 0 until current.handCount) {
-            emitEffect(GameEffect.Vibrate)
-            return
-        }
-        if (amount > current.balance) {
-            emitEffect(GameEffect.Vibrate)
-            return
-        }
-        val currentHand = current.playerHands[seatIndex]
-        _state.value =
-            current.copy(
-                balance = current.balance - amount,
-                playerHands = current.playerHands.set(seatIndex, currentHand.copy(bet = currentHand.bet + amount)),
-            )
-    }
+    // ── Middleware ────────────────────────────────────────────────────────────────
 
-    private fun handleResetBet(seatIndex: Int?) {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        if (seatIndex == null) {
-            // Bolt Performance Optimization: Replace .sumOf with indexed loop to avoid Iterator allocation
-            var refund = 0
-            for (i in 0 until current.playerHands.size) {
-                refund += current.playerHands[i].bet
-            }
-            _state.value =
-                current.copy(
-                    balance = current.balance + refund,
-                    playerHands =
-                        current.playerHands.mutate { builder ->
-                            for (i in 0 until builder.size) {
-                                builder[i] = builder[i].copy(bet = 0)
-                            }
-                        },
-                )
-        } else {
-            if (seatIndex !in 0 until current.handCount) return
-            val currentHand = current.playerHands[seatIndex]
-            val refund = currentHand.bet
-            _state.value =
-                current.copy(
-                    balance = current.balance + refund,
-                    playerHands = current.playerHands.set(seatIndex, currentHand.copy(bet = 0)),
-                )
+    private suspend fun executeCommand(cmd: ReducerCommand) {
+        when (cmd) {
+            is ReducerCommand.RunDealSequence -> executeRunDealSequence()
+            is ReducerCommand.RunDealerTurn   -> executeRunDealerTurn()
         }
     }
 
-    private fun handleSelectHandCount(count: Int) {
+    /**
+     * Middleware: orchestrates the card-by-card deal animation.
+     *
+     * Computes a fresh deck if needed, then dispatches [GameAction.DealCardToPlayer] and
+     * [GameAction.DealCardToDealer] interleaved with [delay]s. Finishes by dispatching
+     * [GameAction.ApplyInitialOutcome] after an optional reveal delay.
+     */
+    private suspend fun executeRunDealSequence() {
         val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        if (count !in 1..3) {
-            emitEffect(GameEffect.Vibrate)
-            return
+        val freshDeck = getDeck(current)
+        if (freshDeck !== current.deck) {
+            dispatch(GameAction.SetDeck(freshDeck.toPersistentList()))
         }
-        val delta = count - current.handCount
-        if (delta == 0) return
-        val newHands: PersistentList<Hand>
-        val balanceDelta: Int
-        if (delta > 0) {
-            newHands = current.playerHands.addAll(List(delta) { Hand() })
-            balanceDelta = 0
-        } else {
-            // Bolt Performance Optimization: Replace .sumOf with indexed loop to avoid Iterator allocation
-            var refund = 0
-            for (i in count until current.handCount) {
-                refund += current.playerHands.getOrNull(i)?.bet ?: 0
-            }
-            newHands = current.playerHands.subList(0, count).toPersistentList()
-            balanceDelta = refund
-        }
-        _state.value =
-            current.copy(
-                handCount = count,
-                playerHands = newHands,
-                balance = current.balance + balanceDelta,
-            )
-    }
 
-    private fun handleUpdateRules(rules: GameRules) {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        _state.value = current.copy(rules = rules)
-    }
-
-    private suspend fun handleDeal() {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING ||
-            current.playerHands.size != current.handCount ||
-            current.playerHands.any { it.bet <= 0 }
-        ) {
-            return
-        }
-        _state.value = current.copy(status = GameStatus.DEALING)
-        val (playerHands, dealerHand) = dealCardsWithAnimation(current)
-        applyInitialOutcome(current, playerHands, dealerHand)
-    }
-
-    private suspend fun dealCardsWithAnimation(current: GameState,): Pair<PersistentList<Hand>, Hand> {
-        var deck = getDeck(current).toPersistentList()
-        var playerHands = current.playerHands
-        var dealerHand = Hand()
-        _state.value =
-            _state.value.copy(dealerHand = dealerHand, deck = deck)
+        // Interleaved deal rounds: (P0..Pn, Dealer) × 2, second dealer card is face-down.
         for (round in 0..1) {
-            for (i in 0 until current.handCount) {
+            val handCount = _state.value.handCount
+            for (i in 0 until handCount) {
                 delay(dealCardDelayMs)
-                val card = deck.firstOrNull() ?: break
-                deck = deck.removeAt(0)
-                playerHands = playerHands.set(i, playerHands[i].copy(cards = playerHands[i].cards.add(card)))
-                _state.value = _state.value.copy(playerHands = playerHands, deck = deck)
-                emitEffect(GameEffect.PlayCardSound)
+                dispatch(GameAction.DealCardToPlayer(i))
             }
             delay(dealCardDelayMs)
-            val card = deck.firstOrNull() ?: break
-            deck = deck.removeAt(0)
-            val dealerCard = if (round == 1) card.copy(isFaceDown = true) else card
-            dealerHand = Hand(dealerHand.cards.add(dealerCard))
-            _state.value = _state.value.copy(dealerHand = dealerHand, deck = deck)
-            emitEffect(GameEffect.PlayCardSound)
+            dispatch(GameAction.DealCardToDealer(faceDown = round == 1))
         }
-        return Pair(playerHands, dealerHand)
+
+        delay(getRevealDelayMs(_state.value.dealerHand))
+        dispatch(GameAction.ApplyInitialOutcome)
     }
 
-    private suspend fun applyInitialOutcome(
-        current: GameState,
-        playerHands: PersistentList<Hand>,
-        dealerHand: Hand,
-    ) {
-        val sideBetUpdate =
-            SideBetLogic.resolveSideBets(
-                sideBets = current.sideBets,
-                playerHand = playerHands[0],
-                dealerUpcard = dealerHand.cards[0],
-            )
+    /**
+     * Middleware: orchestrates the dealer reveal and draw loop.
+     *
+     * Dispatches [GameAction.RevealDealerHole], waits for the reveal delay, then loops
+     * drawing cards (with optional critical-draw tension) until the dealer stands.
+     * Finishes by dispatching [GameAction.FinalizeGame].
+     */
+    private suspend fun executeRunDealerTurn() {
+        dispatch(GameAction.RevealDealerHole)
+        delay(getRevealDelayMs(_state.value.dealerHand))
 
-        val (initialStatus, finalDealerHand, balanceUpdate) =
-            BlackjackRules.resolveInitialOutcomeValues(current, playerHands, dealerHand)
+        while (BlackjackRules.shouldDealerDraw(_state.value.dealerHand, _state.value.rules)) {
+            if (_state.value.deck.isEmpty()) break // safety valve: matches original ?: break behaviour
 
-        if (initialStatus.isTerminal()) {
-            if (finalDealerHand != dealerHand) {
-                _state.value = _state.value.copy(dealerHand = finalDealerHand)
+            val hand = _state.value.dealerHand
+            val isCritical = hand.score in
+                BlackjackRules.DEALER_STIFF_MIN until BlackjackRules.DEALER_STAND_THRESHOLD &&
+                !hand.isSoft
+
+            if (isCritical) {
+                // Emit DealerCriticalDraw BEFORE the card draw so the effect precedes PlayCardSound.
+                emitEffect(GameEffect.DealerCriticalDraw)
+                delay(dealerCriticalPreDelayMs)
             }
-            delay(getRevealDelayMs(dealerHand))
+
+            dispatch(GameAction.DealerDraw)
+            delay(dealerTurnDelayMs)
         }
 
-        _state.value =
-            _state.value.copy(
-                status = initialStatus,
-                dealerHand = finalDealerHand,
-                balance = current.balance + balanceUpdate + sideBetUpdate.payoutTotal,
-                sideBetResults = sideBetUpdate.results,
-                lastSideBets = current.sideBets,
-                sideBets = persistentMapOf(),
-            )
-
-        // Juice: Always emit winning eruptions first.
-        if (balanceUpdate > 0) emitEffect(GameEffect.ChipEruption(balanceUpdate))
-        sideBetUpdate.results.forEach { (type, result) ->
-            if (result.payoutAmount > 0) emitEffect(GameEffect.ChipEruption(result.payoutAmount, type))
-        }
-
-        // Then handle losses and sounds.
-        current.sideBets.forEach { (type, amount) ->
-            if (sideBetUpdate.results[type] == null) {
-                emitEffect(GameEffect.ChipLoss(amount))
-            }
-        }
-
-        if (initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0) {
-            emitEffect(GameEffect.PlayWinSound)
-            if (initialStatus == GameStatus.PLAYER_WON) emitEffect(GameEffect.WinPulse)
-        } else if (initialStatus == GameStatus.DEALER_WON) {
-            emitEffect(GameEffect.PlayLoseSound)
-            emitEffect(GameEffect.ChipLoss(current.currentBet))
-        } else if (initialStatus == GameStatus.PUSH) {
-            emitEffect(GameEffect.PlayPushSound)
-        }
+        dispatch(GameAction.FinalizeGame)
     }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────────
 
     private fun getDeck(current: GameState): List<Card> {
         val totalCards = current.rules.deckCount * BlackjackRules.CARDS_PER_DECK
         val threshold = totalCards / BlackjackRules.RESHUFFLE_THRESHOLD_DIVISOR
 
-        // Casino rules: reshuffle when the deck penetration reaches the threshold.
-        // Bolt Performance Optimization: In test mode, we only reshuffle if the deck is strictly empty to preserve
-        // deterministic sequences provided by tests. In production, we reshuffle at the threshold.
+        // Bolt Performance Optimization: In test mode, only reshuffle when strictly empty to preserve
+        // deterministic sequences provided by tests. In production, reshuffle at the threshold.
         val shouldReshuffle = current.deck.isEmpty() || (current.deck.size <= threshold && !isTest)
 
         return if (shouldReshuffle) {
@@ -385,262 +214,6 @@ class BlackjackStateMachine(
         }
     }
 
-    private fun handleNewGame(
-        initialBalance: Int? = null,
-        rules: GameRules = GameRules(),
-        handCount: Int = 1,
-        previousBets: PersistentList<Int> = persistentListOf(0),
-        lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
-    ) {
-        // Resolve nullable balance here (stateful read) then delegate pure logic to NewGameLogic.
-        val resolvedBalance = initialBalance ?: _state.value.balance
-        // Tutor Fix: Preserve previous round's side bet memory if not explicitly provided in the new round request.
-        val resolvedLastSideBets = if (lastSideBets.isEmpty()) _state.value.lastSideBets else lastSideBets
-
-        _state.value =
-            NewGameLogic.createInitialState(
-                balance = resolvedBalance,
-                rules = rules,
-                handCount = handCount,
-                previousBets = previousBets,
-                lastSideBets = resolvedLastSideBets,
-            )
-    }
-
-    private suspend fun handleSurrender() {
-        val state = _state.value
-        if (state.status != GameStatus.PLAYING ||
-            state.activeHand.cards.size != 2 ||
-            !state.rules.allowSurrender
-        ) {
-            return
-        }
-
-        val refund = state.activeBet / 2
-        val surrenderedHand = state.activeHand.copy(isSurrendered = true)
-        val updatedHands = state.playerHands.set(state.activeHandIndex, surrenderedHand)
-        _state.value =
-            state.copy(
-                balance = state.balance + refund,
-                playerHands = updatedHands,
-            )
-        emitEffect(GameEffect.PlayLoseSound)
-        emitEffect(GameEffect.ChipLoss(state.activeBet - refund))
-        advanceOrEndTurn(_state.value)
-    }
-
-    private suspend fun handleHit() {
-        val outcome = PlayerActionLogic.hit(_state.value)
-        if (outcome == PlayerActionOutcome.noop(_state.value)) return
-        _state.value = outcome.state
-        outcome.effects.forEach(::emitEffect)
-        if (outcome.shouldAdvanceTurn) advanceOrEndTurn(outcome.state)
-    }
-
-    private suspend fun advanceOrEndTurn(state: GameState) {
-        if (state.activeHandIndex < state.playerHands.size - 1) {
-            _state.value = state.copy(activeHandIndex = state.activeHandIndex + 1)
-        } else {
-            _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
-            runDealerTurn()
-        }
-    }
-
-    private suspend fun handleStand() {
-        val outcome = PlayerActionLogic.stand(_state.value)
-        if (outcome == PlayerActionOutcome.noop(_state.value)) return
-        _state.value = outcome.state
-        outcome.effects.forEach(::emitEffect)
-        if (outcome.shouldAdvanceTurn) advanceOrEndTurn(outcome.state)
-    }
-
-    private suspend fun handleSplit() {
-        val outcome = PlayerActionLogic.split(_state.value)
-        if (outcome == PlayerActionOutcome.noop(_state.value)) return
-        _state.value = outcome.state
-        outcome.effects.forEach(::emitEffect)
-        if (outcome.shouldAdvanceTurn) advanceOrEndTurn(outcome.state)
-    }
-
-    private suspend fun handleDoubleDown() {
-        val outcome = PlayerActionLogic.doubleDown(_state.value)
-        if (outcome == PlayerActionOutcome.noop(_state.value)) return
-        _state.value = outcome.state
-        outcome.effects.forEach(::emitEffect)
-        if (outcome.shouldAdvanceTurn) advanceOrEndTurn(outcome.state)
-    }
-
-    private fun revealDealerHoleCard() {
-        _state.value =
-            _state.value.copy(
-                dealerHand =
-                    _state.value.dealerHand.copy(
-                        cards =
-                            _state.value.dealerHand.cards
-                                // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
-                                .mutate { builder ->
-                                    for (i in 0 until builder.size) {
-                                        val card = builder[i]
-                                        if (card.isFaceDown) {
-                                            builder[i] = card.copy(isFaceDown = false)
-                                        }
-                                    }
-                                }
-                    )
-            )
-    }
-
-    private suspend fun runDealerTurn() {
-        if (_state.value.status != GameStatus.DEALER_TURN) {
-            _state.value = _state.value.copy(status = GameStatus.DEALER_TURN)
-        }
-        revealDealerHoleCard()
-        delay(getRevealDelayMs(_state.value.dealerHand))
-
-        handleInsurancePayout()
-
-        var currentDealerHand = _state.value.dealerHand
-        var currentDeck = _state.value.deck
-        val rules = _state.value.rules
-
-        while (BlackjackRules.shouldDealerDraw(currentDealerHand, rules)) {
-            val isCritical =
-                currentDealerHand.score in
-                    BlackjackRules.DEALER_STIFF_MIN until BlackjackRules.DEALER_STAND_THRESHOLD &&
-                    !currentDealerHand.isSoft
-
-            if (isCritical) {
-                _state.value = _state.value.copy(dealerDrawIsCritical = true)
-                emitEffect(GameEffect.DealerCriticalDraw)
-                delay(dealerCriticalPreDelayMs)
-            }
-
-            val newCard = currentDeck.firstOrNull() ?: break
-            currentDealerHand = currentDealerHand.copy(cards = currentDealerHand.cards.add(newCard))
-            currentDeck = currentDeck.drop(1).toPersistentList()
-
-            _state.value =
-                _state.value.copy(
-                    deck = currentDeck,
-                    dealerHand = currentDealerHand,
-                    dealerDrawIsCritical = isCritical,
-                )
-            emitEffect(GameEffect.PlayCardSound)
-            delay(dealerTurnDelayMs)
-
-            if (isCritical) {
-                _state.value = _state.value.copy(dealerDrawIsCritical = false)
-            }
-        }
-        finalizeGame()
-    }
-
-    private fun finalizeGame() {
-        val state = _state.value
-        val dealerScore = state.dealerHand.score
-        val dealerBust = state.dealerHand.isBust
-        val results = BlackjackRules.calculateHandResults(state, dealerScore, dealerBust)
-        val totalPayout = results.totalPayout
-        val anyWin = results.anyWin
-        val allPush = results.allPush
-
-        val finalStatus =
-            when {
-                anyWin -> GameStatus.PLAYER_WON
-                allPush -> GameStatus.PUSH
-                else -> GameStatus.DEALER_WON
-            }
-
-        _state.value = state.copy(status = finalStatus, balance = state.balance + totalPayout)
-
-        if (totalPayout > 0) emitEffect(GameEffect.ChipEruption(totalPayout))
-        // Bolt Performance Optimization: Replace .fold with indexed loop to avoid Iterator allocation
-        var totalBet = 0
-        for (i in 0 until state.playerHands.size) {
-            totalBet += state.playerHands[i].bet
-        }
-        if (totalPayout < totalBet) emitEffect(GameEffect.ChipLoss(totalBet - totalPayout))
-
-        when (finalStatus) {
-            GameStatus.PLAYER_WON -> {
-                emitEffect(GameEffect.PlayWinSound)
-                emitEffect(GameEffect.WinPulse)
-            }
-            GameStatus.DEALER_WON -> {
-                emitEffect(GameEffect.PlayLoseSound)
-                if (state.playerHands.none { it.isBust }) emitEffect(GameEffect.Vibrate)
-            }
-            GameStatus.PUSH -> emitEffect(GameEffect.PlayPushSound)
-            else -> {}
-        }
-    }
-
-    private fun handleInsurancePayout() {
-        val current = _state.value
-        val dealerHasNaturalBJ =
-            current.dealerHand.score == BlackjackRules.BLACKJACK_SCORE &&
-                current.dealerHand.cards.size == 2
-        if (current.insuranceBet > 0 && dealerHasNaturalBJ) {
-            _state.value = current.copy(balance = current.balance + current.insuranceBet * 3)
-        }
-    }
-
-    private suspend fun handleInsurance(take: Boolean) {
-        val state = _state.value
-        if (state.status != GameStatus.INSURANCE_OFFERED) return
-
-        if (take) {
-            val insuranceBet = state.currentBet / 2
-            if (insuranceBet > state.balance) {
-                emitEffect(GameEffect.Vibrate)
-                return
-            }
-            _state.value =
-                state.copy(
-                    balance = state.balance - insuranceBet,
-                    insuranceBet = insuranceBet,
-                    status = GameStatus.PLAYING,
-                )
-        } else {
-            _state.value = state.copy(insuranceBet = 0, status = GameStatus.PLAYING)
-        }
-
-        if (_state.value.dealerHand.score == BlackjackRules.BLACKJACK_SCORE) {
-            runDealerTurn()
-        }
-    }
-
-    private fun handlePlaceSideBet(
-        type: SideBetType?,
-        amount: Int
-    ) {
-        val current = _state.value
-        if (current.status != GameStatus.BETTING) return
-        if (type == null) {
-            var totalRefund = 0
-            for ((_, betAmount) in current.sideBets) {
-                totalRefund += betAmount
-            }
-            _state.value =
-                current.copy(
-                    balance = current.balance + totalRefund,
-                    sideBets = persistentMapOf(),
-                )
-        } else if (amount > 0 && amount <= current.balance) {
-            val newSideBets = current.sideBets.put(type, (current.sideBets[type] ?: 0) + amount)
-            _state.value =
-                current.copy(
-                    balance = current.balance - amount,
-                    sideBets = newSideBets,
-                )
-        }
-    }
-
-    private fun emitEffect(effect: GameEffect) {
-        val emitted = _effects.tryEmit(effect)
-        if (!emitted) logger.w { "Effect dropped (buffer full): $effect" }
-    }
-
     private fun getRevealDelayMs(hand: Hand): Long {
         if (isTest) return 0L
         val isSlowRoll =
@@ -648,5 +221,10 @@ class BlackjackStateMachine(
                 hand.score == 21 &&
                 (hand.cards[0].rank == Rank.ACE || hand.cards[0].rank.value == 10)
         return if (isSlowRoll) SLOW_ROLL_DELAY_MS else REVEAL_DELAY_MS
+    }
+
+    private fun emitEffect(effect: GameEffect) {
+        val emitted = _effects.tryEmit(effect)
+        if (!emitted) logger.w { "Effect dropped (buffer full): $effect" }
     }
 }
