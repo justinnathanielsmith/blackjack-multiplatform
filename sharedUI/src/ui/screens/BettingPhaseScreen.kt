@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
-import io.github.smithjustinn.blackjack.GameState
+import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
@@ -60,7 +60,9 @@ import sharedui.generated.resources.side_bet_twenty_one_plus_three_label
 
 @Composable
 fun BettingPhaseScreen(
-    state: GameState,
+    handCount: Int,
+    sideBets: Map<SideBetType, Int>,
+    playerHands: List<Hand>,
     component: BlackjackComponent,
     audioService: AudioService,
     selectedAmount: Int,
@@ -97,7 +99,7 @@ fun BettingPhaseScreen(
                 .windowInsetsPadding(safeDrawingInsets())
     ) {
         val maxWidth = maxWidth
-        val handCount = state.handCount
+        val handCount = handCount
 
         // Calculate responsive sizes
         val isNarrow = maxWidth < 500.dp
@@ -154,7 +156,7 @@ fun BettingPhaseScreen(
             ) {
                 // Perfect Pairs side bet
                 BettingSlot(
-                    amount = state.sideBets[SideBetType.PERFECT_PAIRS] ?: 0,
+                    amount = sideBets[SideBetType.PERFECT_PAIRS] ?: 0,
                     label = stringResource(Res.string.side_bet_perfect_pairs_label),
                     isSideBet = true,
                     slotSize = sideBetSize,
@@ -178,7 +180,7 @@ fun BettingPhaseScreen(
 
                 // 21+3 side bet
                 BettingSlot(
-                    amount = state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: 0,
+                    amount = sideBets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: 0,
                     label = stringResource(Res.string.side_bet_twenty_one_plus_three_label),
                     isSideBet = true,
                     slotSize = sideBetSize,
@@ -237,7 +239,7 @@ fun BettingPhaseScreen(
                         }
 
                     BettingSlot(
-                        amount = state.playerHands.getOrNull(seatIndex)?.bet ?: 0,
+                        amount = playerHands.getOrNull(seatIndex)?.bet ?: 0,
                         label = seatLabel,
                         modifier = Modifier.offset(y = arcYOffset),
                         slotSize = seatSize,
@@ -269,9 +271,9 @@ fun BettingPhaseScreen(
                 CasinoButton(
                     text = stringResource(Res.string.minus),
                     contentDescription = stringResource(Res.string.remove_seat_description),
-                    enabled = state.handCount > 1,
+                    enabled = handCount > 1,
                     onClick = {
-                        component.onAction(GameAction.SelectHandCount(state.handCount - 1))
+                        component.onAction(GameAction.SelectHandCount(handCount - 1))
                     },
                     contentPadding =
                         PaddingValues(
@@ -281,7 +283,7 @@ fun BettingPhaseScreen(
                 )
 
                 AnimatedContent(
-                    targetState = state.handCount,
+                    targetState = handCount,
                     transitionSpec = {
                         if (targetState > initialState) {
                             // Sliding up when count increases
@@ -314,9 +316,9 @@ fun BettingPhaseScreen(
                 CasinoButton(
                     text = stringResource(Res.string.plus),
                     contentDescription = stringResource(Res.string.add_seat_description),
-                    enabled = state.handCount < 3,
+                    enabled = handCount < 3,
                     onClick = {
-                        component.onAction(GameAction.SelectHandCount(state.handCount + 1))
+                        component.onAction(GameAction.SelectHandCount(handCount + 1))
                     },
                     contentPadding =
                         PaddingValues(

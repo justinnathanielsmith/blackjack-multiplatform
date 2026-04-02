@@ -13,7 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
@@ -81,7 +81,9 @@ private fun PayoutToast(
         fontWeight = FontWeight.Black,
         modifier =
             Modifier
-                .offset(y = offsetY.value.dp)
-                .alpha(alphaAnim.value)
+                .graphicsLayer {
+                    translationY = offsetY.value.dp.toPx()
+                    this.alpha = alphaAnim.value
+                }
     )
 }

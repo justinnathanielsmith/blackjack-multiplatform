@@ -21,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -33,6 +35,7 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.SideBetResult
 import io.github.smithjustinn.blackjack.SideBetType
+import io.github.smithjustinn.blackjack.isStatusVisible
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
@@ -58,11 +61,9 @@ fun GameOverlay(
     status: GameStatus,
     playerHands: List<Hand>,
     netPayout: Int?,
-    isBlackjack: Boolean,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
-    showStatus: Boolean,
     isPaused: () -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
@@ -73,11 +74,9 @@ fun GameOverlay(
             status = status,
             playerHands = playerHands,
             netPayout = netPayout,
-            isBlackjack = isBlackjack,
             component = component,
             flashAlphaProvider = flashAlphaProvider,
             flashColorProvider = flashColorProvider,
-            showStatus = showStatus,
             isPaused = isPaused,
             modifier = Modifier.zIndex(5f),
         )
@@ -89,14 +88,19 @@ private fun BlackjackGameOverlay(
     status: GameStatus,
     playerHands: List<Hand>,
     netPayout: Int?,
-    isBlackjack: Boolean,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
-    showStatus: Boolean,
     isPaused: () -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
+    val showStatus by remember(status) { derivedStateOf { status.isStatusVisible() } }
+    val isBlackjack by remember(status, playerHands) {
+        derivedStateOf {
+            status == GameStatus.PLAYER_WON && playerHands.any { it.isBlackjack }
+        }
+    }
+    
     val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
     val onDeclineInsurance = remember(component) { { component.onAction(GameAction.DeclineInsurance) } }
 

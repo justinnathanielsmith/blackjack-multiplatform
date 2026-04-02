@@ -110,13 +110,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     }
 
     val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
-    val showStatus by remember { derivedStateOf { state.status.isStatusVisible() } }
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
-    val isBlackjack by remember {
-        derivedStateOf {
-            state.status == GameStatus.PLAYER_WON && state.playerHands.any { it.isBlackjack }
-        }
-    }
     var autoDealPending by remember { mutableStateOf(false) }
 
     val onAutoDealToggle =
@@ -344,16 +338,17 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 status = state.status,
                                 playerHands = state.playerHands,
                                 netPayout = state.totalNetPayout(),
-                                isBlackjack = isBlackjack,
                                 component = component,
                                 flashAlphaProvider = { animState.flashAlpha.value },
                                 flashColorProvider = { animState.flashColor },
-                                showStatus = showStatus,
                                 isPaused = { animState.isPaused },
                             )
 
                             BettingLayer(
-                                state = state,
+                                status = state.status,
+                                handCount = state.handCount,
+                                sideBets = state.sideBets,
+                                playerHands = state.playerHands,
                                 animState = animState,
                                 component = component,
                                 audioService = audioService,

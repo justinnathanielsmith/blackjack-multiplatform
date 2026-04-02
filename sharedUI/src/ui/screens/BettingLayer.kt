@@ -10,8 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.Hand
+import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
@@ -22,7 +23,10 @@ import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 
 @Composable
 fun BettingLayer(
-    state: GameState,
+    status: GameStatus,
+    handCount: Int,
+    sideBets: Map<SideBetType, Int>,
+    playerHands: List<Hand>,
     animState: BlackjackAnimationState,
     component: BlackjackComponent,
     audioService: AudioService,
@@ -30,7 +34,7 @@ fun BettingLayer(
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
-        visible = state.status == GameStatus.BETTING,
+        visible = status == GameStatus.BETTING,
         modifier = modifier.zIndex(5f),
         enter =
             slideInVertically(
@@ -39,7 +43,9 @@ fun BettingLayer(
         exit = slideOutVertically(targetOffsetY = { it / 4 }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
     ) {
         BettingPhaseScreen(
-            state = state,
+            handCount = handCount,
+            sideBets = sideBets,
+            playerHands = playerHands,
             component = component,
             audioService = audioService,
             selectedAmount = selectedAmount,

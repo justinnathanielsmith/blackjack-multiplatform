@@ -1,6 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.animation
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -30,18 +31,21 @@ class BlackjackAnimationState {
     var isPaused: Boolean by mutableStateOf(false)
 }
 
+@Immutable
 data class PayoutInstance(
     val id: Long,
     val amount: Int,
     val targetOffset: Offset,
 )
 
+@Immutable
 data class ChipEruptionInstance(
     val id: Long,
     val amount: Int,
     val startOffset: Offset?,
 )
 
+@Immutable
 data class ChipLossInstance(
     val id: Long,
     val amount: Int,

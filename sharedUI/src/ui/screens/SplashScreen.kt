@@ -13,8 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.presentation.SplashComponent
@@ -63,8 +62,11 @@ fun SplashScreen(component: SplashComponent) {
             fontWeight = FontWeight.Bold,
             modifier =
                 Modifier
-                    .scale(scale.value)
-                    .alpha(alpha.value)
+                    .graphicsLayer {
+                        scaleX = scale.value
+                        scaleY = scale.value
+                        this.alpha = alpha.value
+                    }
         )
     }
 }
