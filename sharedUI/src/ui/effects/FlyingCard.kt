@@ -10,6 +10,7 @@ import io.github.smithjustinn.blackjack.ui.components.TableLayout
 class DealAnimationRegistry {
     var overlayOffset by mutableStateOf(Offset.Zero)
     var gameplayAreaOffset by mutableStateOf(Offset.Zero)
+    var shoePosition by mutableStateOf(Offset.Zero)
     var tableLayout by mutableStateOf<TableLayout?>(null)
 }
 

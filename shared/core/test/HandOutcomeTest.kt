@@ -2,6 +2,7 @@ package io.github.smithjustinn.blackjack
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.collections.immutable.persistentListOf
 
 class HandOutcomeTest {
     @Test

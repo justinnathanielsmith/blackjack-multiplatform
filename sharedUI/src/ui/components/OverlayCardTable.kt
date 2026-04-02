@@ -77,8 +77,8 @@ fun OverlayCardTable(
     modifier: Modifier = Modifier,
 ) {
     val registry = LocalDealAnimationRegistry.current
+    val shoePosition = registry.shoePosition
     val density = LocalDensity.current
-    val tableLayout = registry.tableLayout ?: return
 
     val coordOffsetX = registry.gameplayAreaOffset.x - registry.overlayOffset.x
     val coordOffsetY = registry.gameplayAreaOffset.y - registry.overlayOffset.y
@@ -86,97 +86,168 @@ fun OverlayCardTable(
     val baseCardW = with(density) { Dimensions.Card.StandardWidth.toPx() }
     val baseCardH = baseCardW / Dimensions.Card.AspectRatio
 
-    Box(modifier = modifier.fillMaxSize()) {
+    CasinoTableLayout(
+        state = state,
+        shoePosition = shoePosition,
+        coordOffsetY = coordOffsetY,
+        onLayout = { registry.tableLayout = it },
+        modifier = modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                translationX = coordOffsetX
+                translationY = coordOffsetY
+            }
+    ) {
         // 1. Active hand glow behind the cluster
         if (state.status == GameStatus.PLAYING) {
-            var activeZone: HandZone? = null
-            for (i in 0 until tableLayout.handZones.size) {
-                if (tableLayout.handZones[i].handIndex == state.activeHandIndex) {
-                    activeZone = tableLayout.handZones[i]
-                    break
-                }
-            }
-            if (activeZone != null) {
+            val activeHand = state.activeHandIndex
+            if (activeHand >= -1) {
                 ActiveHandGlow(
-                    zone = activeZone,
-                    coordOffsetX = coordOffsetX,
-                    coordOffsetY = coordOffsetY,
+                    coordOffsetX = 0f,
+                    coordOffsetY = 0f,
                     density = density,
+                    modifier = Modifier.nodeId("glow-$activeHand")
                 )
             }
         }
 
-        // 2. Positioned (landed) cards
-        for (i in 0 until tableLayout.cardSlots.size) {
-            val slot = tableLayout.cardSlots[i]
-            val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
-            val isDealer = slot.handIndex == -1
-            val isDimmed = state.status == GameStatus.PLAYING && !isDealer && !isActive
+        var globalCardIndex = 0
 
-            androidx.compose.runtime.key(slot.handIndex, slot.cardIndex) {
+        // 2. Positioned (landed) cards - Dealer
+        val isDealerActive = state.status == GameStatus.PLAYING && state.activeHandIndex == -1
+        state.dealerHand.cards.forEachIndexed { cardIndex, card ->
+            val isDimmed = state.status == GameStatus.PLAYING && state.activeHandIndex != -1
+            val animDelay = globalCardIndex * AnimationConstants.CardDealDelay
+            
+            androidx.compose.runtime.key("dealer", cardIndex) {
                 PositionedCardItem(
-                    slot = slot,
+                    card = card,
+                    animDelay = animDelay,
+                    isFaceUp = card.isFaceUp,
+                    isDealer = true,
                     dealerUpcard = state.dealerHand.cards.getOrNull(0),
                     dealerScore = state.dealerHand.score,
                     baseCardW = baseCardW,
                     baseCardH = baseCardH,
-                    coordOffsetX = coordOffsetX,
-                    coordOffsetY = coordOffsetY,
-                    isNearMiss = slot.handIndex == nearMissHandIndex,
+                    coordOffsetX = 0f,
+                    coordOffsetY = 0f,
+                    isNearMiss = false,
                     density = density,
-                    isActive = isActive,
+                    isActive = isDealerActive,
                     alpha = 1f,
                     isDimmed = isDimmed,
+                    cardIndexInHand = cardIndex,
+                    modifier = Modifier.nodeId("dealer-card-$cardIndex")
                 )
+            }
+            globalCardIndex++
+        }
+
+        // 2. Positioned (landed) cards - Player
+        state.playerHands.forEachIndexed { handIndex, hand ->
+            val isActive = state.status == GameStatus.PLAYING && handIndex == state.activeHandIndex
+            val isDimmed = state.status == GameStatus.PLAYING && handIndex != state.activeHandIndex
+            val isNearMiss = handIndex == nearMissHandIndex
+
+            hand.cards.forEachIndexed { cardIndex, card ->
+                val animDelay = globalCardIndex * AnimationConstants.CardDealDelay
+
+                androidx.compose.runtime.key("player", handIndex, cardIndex) {
+                    PositionedCardItem(
+                        card = card,
+                        animDelay = animDelay,
+                        isFaceUp = card.isFaceUp,
+                        isDealer = false,
+                        dealerUpcard = null,
+                        dealerScore = 0,
+                        baseCardW = baseCardW,
+                        baseCardH = baseCardH,
+                        coordOffsetX = 0f,
+                        coordOffsetY = 0f,
+                        isNearMiss = isNearMiss,
+                        density = density,
+                        isActive = isActive,
+                        alpha = 1f,
+                        isDimmed = isDimmed,
+                        cardIndexInHand = cardIndex,
+                        modifier = Modifier.nodeId("player-card-$handIndex-$cardIndex")
+                    )
+                }
+                globalCardIndex++
             }
         }
 
         // 2.5 Positioned (landed) chips — only after cards are dealt
         if (state.status != GameStatus.BETTING) {
-            for (i in 0 until tableLayout.chipSlots.size) {
-                val slot = tableLayout.chipSlots[i]
-                val isActive = state.status == GameStatus.PLAYING && slot.handIndex == state.activeHandIndex
-                androidx.compose.runtime.key(slot.handIndex) {
-                    PositionedChipItem(
-                        slot = slot,
-                        coordOffsetX = coordOffsetX,
-                        coordOffsetY = coordOffsetY,
-                        density = density,
-                        isActive = isActive,
-                    )
+            state.playerHands.forEachIndexed { handIndex, hand ->
+                if (hand.bet > 0) {
+                    val isActive = state.status == GameStatus.PLAYING && handIndex == state.activeHandIndex
+                    androidx.compose.runtime.key("chip", handIndex) {
+                        PositionedChipItem(
+                            amount = hand.bet,
+                            coordOffsetX = 0f,
+                            coordOffsetY = 0f,
+                            density = density,
+                            isActive = isActive,
+                            modifier = Modifier.nodeId("chip-$handIndex")
+                        )
+                    }
                 }
             }
         }
 
-        // 3. HUD badges per zone, positioned using cluster bounds as anchor
-        for (i in 0 until tableLayout.handZones.size) {
-            val zone = tableLayout.handZones[i]
-            val isActive = state.status == GameStatus.PLAYING && zone.handIndex == state.activeHandIndex
-            val handIndex = zone.handIndex
-            val playerHand = if (handIndex != -1) state.playerHands.getOrNull(handIndex) else null
-            val result = if (handIndex != -1) state.handResult(handIndex) else HandResult.NONE
-            val netPayout = if (handIndex != -1) state.handNetPayout(handIndex) else null
-
+        // 3. HUD badges - Dealer
+        androidx.compose.runtime.key("hud", -1) {
             HandZoneHud(
-                zone = zone,
                 status = state.status,
                 dealerHand = state.dealerHand,
-                playerHand = playerHand,
-                handResult = result,
-                handNetPayout = netPayout,
+                playerHand = null,
+                handResult = HandResult.NONE,
+                handNetPayout = null,
                 handCount = state.playerHands.size,
-                coordOffsetX = coordOffsetX,
-                coordOffsetY = coordOffsetY,
+                coordOffsetX = 0f,
+                coordOffsetY = 0f,
                 density = density,
-                isActive = isActive,
+                isActive = isDealerActive,
+                isDealer = true,
+                handIndex = -1,
+                modifier = Modifier.nodeId("hud--1")
             )
+        }
+
+        // 3. HUD badges - Players
+        state.playerHands.forEachIndexed { handIndex, hand ->
+            val isActive = state.status == GameStatus.PLAYING && handIndex == state.activeHandIndex
+            val result = state.handResult(handIndex)
+            val netPayout = state.handNetPayout(handIndex)
+
+            androidx.compose.runtime.key("hud", handIndex) {
+                HandZoneHud(
+                    status = state.status,
+                    dealerHand = state.dealerHand,
+                    playerHand = hand,
+                    handResult = result,
+                    handNetPayout = netPayout,
+                    handCount = state.playerHands.size,
+                    coordOffsetX = 0f,
+                    coordOffsetY = 0f,
+                    density = density,
+                    isActive = isActive,
+                    isDealer = false,
+                    handIndex = handIndex,
+                    modifier = Modifier.nodeId("hud-$handIndex")
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun PositionedCardItem(
-    slot: CardSlotLayout,
+    card: Card,
+    animDelay: Int,
+    isFaceUp: Boolean,
+    isDealer: Boolean,
     dealerUpcard: Card?,
     dealerScore: Int,
     baseCardW: Float,
@@ -188,23 +259,20 @@ private fun PositionedCardItem(
     isActive: Boolean,
     alpha: Float,
     isDimmed: Boolean = false,
+    cardIndexInHand: Int,
+    modifier: Modifier = Modifier,
 ) {
-    val currentX = remember { Animatable(slot.startOffset.x) }
-    val currentY = remember { Animatable(slot.startOffset.y) }
-    val currentScale = remember { Animatable(0.5f) }
-    val currentRotation = remember { Animatable(if (slot.isDealer) -45f else 45f) }
-    // Shadow elevation and active-hand scale as Animatables whose values are read exclusively
-    // inside the graphicsLayer lambda below — this prevents per-frame recomposition of this
-    // composable while the animations are running.
-    val stackBoostPx = with(density) { (slot.cardIndex * 3).dp.toPx() }
+    val progress = remember { Animatable(0f) }
+
+    val stackBoostPx = with(density) { (cardIndexInHand * 3).dp.toPx() }
     val currentShadow = remember { Animatable(with(density) { 5.dp.toPx() } + stackBoostPx) }
     val animatedScale = remember { Animatable(1f) }
 
-    LaunchedEffect(slot.card, slot.centerOffset) {
-        delay(slot.animDelay.toLong())
+    LaunchedEffect(Unit) {
+        delay(animDelay.toLong())
 
         val zeta = 0.65f
-        val durationSec = slot.animDuration / 1000f
+        val durationSec = AnimationConstants.CardRevealDurationDefault / 1000f
         val stiffness =
             if (durationSec > 0) {
                 val omegaN = 6.9f / (zeta * durationSec)
@@ -214,42 +282,23 @@ private fun PositionedCardItem(
             }
 
         launch {
-            currentX.animateTo(
-                targetValue = slot.centerOffset.x,
+            progress.animateTo(
+                targetValue = 1f,
                 animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
             )
         }
-        launch {
-            currentY.animateTo(
-                targetValue = slot.centerOffset.y,
-                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
-            )
-        }
-        launch {
-            currentRotation.animateTo(
-                targetValue = slot.rotationZ,
-                animationSpec = spring(dampingRatio = 0.6f, stiffness = stiffness)
-            )
-        }
-        launch {
-            if (currentScale.value < 1f) {
-                currentScale.animateTo(1.15f, tween(AnimationConstants.CardScaleBounceDuration))
-            }
-            currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
-        }
-        // Elevate the card during flight then settle to its resting elevation on landing.
+        
         launch {
             val flyingElevPx = with(density) { 16.dp.toPx() }
             val landedElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
             currentShadow.animateTo(flyingElevPx, tween(AnimationConstants.CardFlightShadowRiseDuration))
-            delay(slot.animDuration.toLong() + 150L)
+            delay(AnimationConstants.CardRevealDurationDefault.toLong() + 150L)
             currentShadow.animateTo(landedElevPx, tween(AnimationConstants.CardShadowLandDuration))
         }
     }
 
-    // Keep shadow and scale in sync when the active-hand state changes between deals.
     val targetScale =
-        if (isActive && !slot.isDealer) {
+        if (isActive && !isDealer) {
             1.1f
         } else if (isActive) {
             1.05f
@@ -259,30 +308,23 @@ private fun PositionedCardItem(
     LaunchedEffect(targetScale) {
         animatedScale.animateTo(targetScale, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow))
     }
-    LaunchedEffect(isActive, slot.cardIndex) {
+    LaunchedEffect(isActive, cardIndexInHand) {
         val targetElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
         currentShadow.animateTo(targetElevPx, tween(AnimationConstants.CardShadowLandDuration))
     }
 
-    val scaledHalfW = baseCardW * slot.scale / 2f
-    val scaledHalfH = baseCardH * slot.scale / 2f
-
-    val wasFaceDown = remember(slot.card) { slot.card.isFaceDown }
+    val wasFaceDown = remember(card) { card.isFaceDown }
 
     Box(
         modifier =
-            Modifier
-                .requiredWidth(Dimensions.Card.StandardWidth * slot.scale)
+            modifier
+                .flightProgress(progress.asState())
+                .requiredWidth(Dimensions.Card.StandardWidth)
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
-                    translationX = currentX.value - scaledHalfW + coordOffsetX
-                    translationY = currentY.value - scaledHalfH + coordOffsetY
-                    rotationZ = currentRotation.value
                     this.alpha = alpha
-                    this.scaleX = currentScale.value * animatedScale.value
-                    this.scaleY = currentScale.value * animatedScale.value
-                    // Shadow driven by Animatable — read here so only the layer re-applies
-                    // each frame, not the full composable.
+                    this.scaleX = animatedScale.value
+                    this.scaleY = animatedScale.value
                     shadowElevation = currentShadow.value
                     shape = CardShape
                     clip = false
@@ -290,18 +332,18 @@ private fun PositionedCardItem(
     ) {
         if (wasFaceDown) {
             DealerCard(
-                card = slot.card,
-                isFaceUp = slot.isFaceUp,
+                card = card,
+                isFaceUp = isFaceUp,
                 dealerUpcard = dealerUpcard,
                 dealerScore = dealerScore,
-                scale = slot.scale,
+                scale = 1f,
                 shadowElevation = 0.dp,
             )
         } else {
             PlayingCard(
-                card = slot.card,
-                isFaceUp = slot.isFaceUp,
-                scale = slot.scale,
+                card = card,
+                isFaceUp = isFaceUp,
+                scale = 1f,
                 isNearMiss = isNearMiss,
                 isDimmed = isDimmed,
                 shadowElevation = 0.dp,
@@ -313,68 +355,42 @@ private fun PositionedCardItem(
 
 @Composable
 private fun PositionedChipItem(
-    slot: ChipSlotLayout,
+    amount: Int,
     coordOffsetX: Float,
     coordOffsetY: Float,
     density: Density,
     isActive: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    val currentX = remember { Animatable(slot.startOffset.x) }
-    val currentY = remember { Animatable(slot.startOffset.y) }
-    val currentScale = remember { Animatable(0f) }
+    val progress = remember { Animatable(0f) }
 
-    LaunchedEffect(slot.amount, slot.centerOffset) {
+    LaunchedEffect(amount) {
         val zeta = 0.65f
         val stiffness = Spring.StiffnessMedium
-
-        launch {
-            currentX.animateTo(
-                targetValue = slot.centerOffset.x,
-                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness),
-            )
-        }
-        launch {
-            currentY.animateTo(
-                targetValue = slot.centerOffset.y,
-                animationSpec = spring(dampingRatio = zeta, stiffness = stiffness),
-            )
-        }
-        launch {
-            currentScale.animateTo(1.15f, tween(AnimationConstants.CardScaleBounceDuration))
-            currentScale.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
-        }
+        progress.animateTo(
+            targetValue = 1f,
+            animationSpec = spring(dampingRatio = zeta, stiffness = stiffness),
+        )
     }
-
-    val chipSizeDp = 48.dp * slot.scale
-    val chipHalfW = with(density) { chipSizeDp.toPx() / 2f }
-    val chipHalfH = chipHalfW
 
     Box(
         modifier =
-            Modifier
-                .requiredSize(chipSizeDp)
-                .graphicsLayer {
-                    translationX = currentX.value - chipHalfW + coordOffsetX
-                    translationY = currentY.value - chipHalfH + coordOffsetY
-                    scaleX = currentScale.value
-                    scaleY = currentScale.value
-                },
+            modifier
+                .flightProgress(progress.asState()),
         contentAlignment = Alignment.Center,
     ) {
-        ChipStack(amount = slot.amount, isActive = isActive)
+        ChipStack(amount = amount, isActive = isActive)
     }
 }
 
 @Composable
 private fun ActiveHandGlow(
-    zone: HandZone,
     coordOffsetX: Float,
     coordOffsetY: Float,
     density: Density,
+    modifier: Modifier = Modifier,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
-    // State objects stored without `by` delegate — values are read inside the graphicsLayer
-    // lambda so only the layer re-applies each frame, avoiding per-frame recomposition.
     val glowAlphaState =
         infiniteTransition.animateFloat(
             initialValue = 0.2f,
@@ -398,18 +414,11 @@ private fun ActiveHandGlow(
             label = "glowScale",
         )
 
-    val glowW = zone.clusterSize.width * 1.6f
-    val glowH = zone.clusterSize.height * 1.6f
-
     Box(
         modifier =
-            Modifier
-                .requiredSize(
-                    width = with(density) { glowW.toDp() },
-                    height = with(density) { glowH.toDp() },
-                ).graphicsLayer {
-                    translationX = zone.clusterCenter.x - glowW / 2f + coordOffsetX
-                    translationY = zone.clusterCenter.y - glowH / 2f + coordOffsetY
+            modifier
+                .fillMaxSize()
+                .graphicsLayer {
                     alpha = glowAlphaState.value
                     scaleX = glowScaleState.value
                     scaleY = glowScaleState.value
@@ -431,7 +440,6 @@ private fun ActiveHandGlow(
 
 @Composable
 private fun HandZoneHud(
-    zone: HandZone,
     status: GameStatus,
     dealerHand: Hand,
     playerHand: Hand?,
@@ -442,18 +450,12 @@ private fun HandZoneHud(
     coordOffsetY: Float,
     density: Density,
     isActive: Boolean,
+    isDealer: Boolean,
+    handIndex: Int,
+    modifier: Modifier = Modifier,
 ) {
-    val isDealer = zone.handIndex == -1
     val isBetting = status == GameStatus.BETTING
-    // HUD elements (labels, score badges) use a gentler scale than cards so they stay readable in
-    // 3-hand mode (zone.scale = 0.52 → hudScale ≈ 0.73 instead of shrinking to 52%).
-    val hudScale = (zone.scale * 1.4f).coerceAtMost(1.0f)
-    val clusterW = with(density) { zone.clusterSize.width.toDp() }
-    val clusterH = with(density) { zone.clusterSize.height.toDp() }
-
-    // Always create the infinite transition unconditionally to satisfy Compose composition rules.
-    // The alpha value is read inside drawBehind so only the draw phase re-executes each frame,
-    // not the full HandZoneHud composable.
+    
     val borderGlowTransition = rememberInfiniteTransition(label = "borderGlowTransition")
     val borderGlowAlphaState =
         borderGlowTransition.animateFloat(
@@ -467,18 +469,11 @@ private fun HandZoneHud(
             label = "borderGlowAlpha",
         )
 
-    // Cluster-sized box positioned over the cluster — draws active border and anchors HUD badges.
-    // No graphicsLayer wrapper so child badges can overflow the cluster bounds without being clipped.
     Box(
         modifier =
-            Modifier
-                .requiredSize(clusterW, clusterH)
-                .offset {
-                    IntOffset(
-                        x = (zone.clusterTopLeft.x + coordOffsetX).roundToInt(),
-                        y = (zone.clusterTopLeft.y + coordOffsetY).roundToInt(),
-                    )
-                }.drawBehind {
+            modifier
+                .fillMaxSize() // Custom Layout sets size to exactly clusterW x clusterH
+                .drawBehind {
                     if (isActive) {
                         drawRoundRect(
                             color = PrimaryGold.copy(alpha = borderGlowAlphaState.value),
@@ -493,7 +488,7 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
-                        .offset(y = (-40).dp * zone.scale)
+                        .graphicsLayer { translationY = -40.dp.toPx() }
             )
         }
 
@@ -511,7 +506,7 @@ private fun HandZoneHud(
                         Modifier
                             .align(Alignment.TopCenter)
                             .wrapContentWidth(unbounded = true)
-                            .offset(y = (-24).dp),
+                            .graphicsLayer { translationY = -24.dp.toPx() },
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -519,28 +514,16 @@ private fun HandZoneHud(
                         score = displayScore,
                         state = ScoreBadgeState.DEALER,
                         label = stringResource(Res.string.dealer),
-                        modifier =
-                            Modifier.graphicsLayer {
-                                scaleX = hudScale
-                                scaleY = hudScale
-                            }
                     )
                 }
             }
 
             HandStatusOverlay(
                 hand = dealerHand,
-                modifier =
-                    Modifier.align(Alignment.Center).graphicsLayer {
-                        scaleX = hudScale
-                        scaleY = hudScale
-                    },
+                modifier = Modifier.align(Alignment.Center),
             )
         } else {
-            val handIndex = zone.handIndex
             val hand = playerHand ?: return@Box
-            val result = handResult
-            val netPayout = handNetPayout
             val multiHand = handCount > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
             val label =
@@ -563,35 +546,23 @@ private fun HandZoneHud(
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .offset(y = 20.dp * hudScale)
-                            .graphicsLayer {
-                                scaleX = hudScale
-                                scaleY = hudScale
-                            }
+                            .graphicsLayer { translationY = 20.dp.toPx() }
                 )
             }
 
             HandOutcomeBadge(
-                result = result,
-                netPayout = netPayout,
+                result = handResult,
+                netPayout = handNetPayout,
                 modifier =
                     Modifier
                         .align(Alignment.Center)
-                        .graphicsLayer {
-                            rotationZ = -6f
-                            scaleX = hudScale
-                            scaleY = hudScale
-                        },
+                        .graphicsLayer { rotationZ = -6f },
             )
 
             if (!status.isTerminal()) {
                 HandStatusOverlay(
                     hand = hand,
-                    modifier =
-                        Modifier.align(Alignment.Center).graphicsLayer {
-                            scaleX = hudScale
-                            scaleY = hudScale
-                        },
+                    modifier = Modifier.align(Alignment.Center),
                 )
             }
         }

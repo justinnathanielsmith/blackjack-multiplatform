@@ -400,71 +400,33 @@ private fun BlackjackLayout(
     component: BlackjackComponent,
     dealRegistry: DealAnimationRegistry,
 ) {
-    val shoePosition = remember { mutableStateOf<Offset?>(null) }
-    val density = LocalDensity.current
-
-    // Track all cards to detect additions and face-down changes.
-    // Keyed on dealerHand.cards and playerHands so the list identity only changes when card
-    // content actually changes, preventing computeTableLayout from running on unrelated state
-    // updates (balance, status, etc.).
-    val allCards =
-        remember(state.dealerHand.cards, state.playerHands) {
-            var totalSize = state.dealerHand.cards.size
-            for (i in 0 until state.playerHands.size) {
-                totalSize += state.playerHands[i].cards.size
-            }
-            val cards = ArrayList<Card>(totalSize)
-            for (i in 0 until state.dealerHand.cards.size) {
-                cards.add(state.dealerHand.cards[i])
-            }
-            for (i in 0 until state.playerHands.size) {
-                val handCards = state.playerHands[i].cards
-                for (j in 0 until handCards.size) {
-                    cards.add(handCards[j])
-                }
-            }
-            cards
-        }
-
-    CompositionLocalProvider(LocalShoePosition provides shoePosition) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            val areaW = constraints.maxWidth.toFloat()
-            val areaH = constraints.maxHeight.toFloat()
-
-            // Recompute layout whenever cards change (deals or reveals) or layout bounds change
-            LaunchedEffect(allCards, areaW, areaH, density, shoePosition.value) {
-                val currentShoePos = shoePosition.value ?: Offset(areaW, -100f)
-                val layout = computeTableLayout(state, areaW, areaH, density, currentShoePos)
-                dealRegistry.tableLayout = layout
-            }
-
-            // Shoe widget in top-right corner
-            Box(
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        // Shoe widget in top-right corner
+        Box(
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .onGloballyPositioned { coords ->
+                        val pos = coords.positionInRoot()
+                        dealRegistry.shoePosition =
+                            Offset(
+                                pos.x + coords.size.width / 2f,
+                                pos.y + coords.size.height / 2f,
+                            )
+                    }
+        ) {
+            Shoe(
+                state = state,
                 modifier =
                     Modifier
-                        .align(Alignment.TopEnd)
-                        .onGloballyPositioned { coords ->
-                            val pos = coords.positionInRoot()
-                            shoePosition.value =
-                                Offset(
-                                    pos.x + coords.size.width / 2f,
-                                    pos.y + coords.size.height / 2f,
-                                )
+                        .padding(top = 16.dp, end = 16.dp)
+                        .graphicsLayer {
+                            rotationZ = -15f
+                            rotationX = 10f
+                            translationX = 20.dp.toPx()
+                            translationY = -10.dp.toPx()
                         }
-            ) {
-                Shoe(
-                    state = state,
-                    modifier =
-                        Modifier
-                            .padding(top = 16.dp, end = 16.dp)
-                            .graphicsLayer {
-                                rotationZ = -15f
-                                rotationX = 10f
-                                translationX = 20.dp.toPx()
-                                translationY = -10.dp.toPx()
-                            }
-                )
-            }
+            )
         }
     }
 }
