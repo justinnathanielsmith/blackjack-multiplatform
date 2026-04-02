@@ -103,6 +103,11 @@ import io.github.smithjustinn.blackjack.ui.theme.FeltWarmCenter
 import io.github.smithjustinn.blackjack.ui.theme.LocalShoePosition
 import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawBettingArc
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawFeltGradient
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawFiberTexture
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawRails
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawVignette
 import io.github.smithjustinn.blackjack.utils.DragAndDropContainer
 import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
 import kotlinx.collections.immutable.toPersistentList
@@ -318,110 +323,24 @@ fun BlackjackScreen(component: BlackjackComponent) {
                             val insuranceOffset = 40.dp.toPx()
 
                             onDrawBehind {
-                                // 1. Base Felt Gradient (shifted up towards the dealer)
-                                drawRect(brush = feltBrush)
-
-                                // 1b. Felt Texture (Subtle Noise / Fibers)
-                                val fiberSpacing = 2.dp.toPx()
-                                val fiberAlpha = 0.05f
-                                for (x in 0..(size.width / fiberSpacing).toInt()) {
-                                    drawLine(
-                                        color = Color.Black.copy(alpha = fiberAlpha),
-                                        start = Offset(x * fiberSpacing, 0f),
-                                        end = Offset(x * fiberSpacing, size.height),
-                                        strokeWidth = 0.5.dp.toPx()
-                                    )
-                                }
-                                for (y in 0..(size.height / fiberSpacing).toInt()) {
-                                    drawLine(
-                                        color = Color.Black.copy(alpha = fiberAlpha),
-                                        start = Offset(0f, y * fiberSpacing),
-                                        end = Offset(size.width, y * fiberSpacing),
-                                        strokeWidth = 0.5.dp.toPx()
-                                    )
-                                }
-
-                                // 2. The Classic Table Arc (Betting Line) - Embossed
-                                // Emboss shadow
-                                drawArc(
-                                    color = Color.Black.copy(alpha = 0.25f),
-                                    startAngle = 180f,
-                                    sweepAngle = 180f,
-                                    useCenter = false,
-                                    topLeft = Offset(arcLeft, arcTop + 1.dp.toPx()),
-                                    size = arcSize,
-                                    style = arcStroke
+                                // 1. Base felt gradient
+                                drawFeltGradient(feltBrush)
+                                // 1b. Fiber texture (subtle noise / linen)
+                                drawFiberTexture()
+                                // 2 & 3. Betting arc + insurance arc (embossed)
+                                drawBettingArc(
+                                    arcLeft = arcLeft,
+                                    arcTop = arcTop,
+                                    arcSize = arcSize,
+                                    arcStroke = arcStroke,
+                                    insuranceStroke = insuranceStroke,
+                                    insuranceOffset = insuranceOffset,
+                                    primaryGold = PrimaryGold,
                                 )
-                                drawArc(
-                                    color = PrimaryGold.copy(alpha = 0.15f),
-                                    startAngle = 180f,
-                                    sweepAngle = 180f,
-                                    useCenter = false,
-                                    topLeft = Offset(arcLeft, arcTop),
-                                    size = arcSize,
-                                    style = arcStroke
-                                )
-
-                                // 3. The Insurance Line (Fainter, above the main arc) - Embossed
-                                drawArc(
-                                    color = Color.Black.copy(alpha = 0.2f),
-                                    startAngle = 180f,
-                                    sweepAngle = 180f,
-                                    useCenter = false,
-                                    topLeft = Offset(arcLeft, (arcTop - insuranceOffset) + 1.dp.toPx()),
-                                    size = arcSize,
-                                    style = insuranceStroke
-                                )
-                                drawArc(
-                                    color = PrimaryGold.copy(alpha = 0.08f),
-                                    startAngle = 180f,
-                                    sweepAngle = 180f,
-                                    useCenter = false,
-                                    topLeft = Offset(arcLeft, arcTop - insuranceOffset),
-                                    size = arcSize,
-                                    style = insuranceStroke
-                                )
-
-                                // 4. Heavy Vignette (Simulates the dark leather rail around the table)
-                                drawRect(brush = vignetteBrush)
-
-                                // 4b. Physical Table Rail (Wood bumper)
-                                val railHeight = 20.dp.toPx()
-                                // Bottom Rail
-                                drawRect(
-                                    brush =
-                                        Brush.verticalGradient(
-                                            colors = listOf(OakMedium, FeltDeepEdge),
-                                            startY = size.height - railHeight,
-                                            endY = size.height
-                                        ),
-                                    topLeft = Offset(0f, size.height - railHeight),
-                                    size = Size(size.width, railHeight)
-                                )
-                                // Top Rail
-                                drawRect(
-                                    brush =
-                                        Brush.verticalGradient(
-                                            colors = listOf(FeltDeepEdge, OakMedium),
-                                            startY = 0f,
-                                            endY = railHeight
-                                        ),
-                                    topLeft = Offset.Zero,
-                                    size = Size(size.width, railHeight)
-                                )
-                                // Rail Highlights
-                                drawLine(
-                                    color = Color.White.copy(alpha = 0.1f),
-                                    start = Offset(0f, railHeight),
-                                    end = Offset(size.width, railHeight),
-                                    strokeWidth = 1.dp.toPx()
-                                )
-                                drawLine(
-                                    color = Color.White.copy(alpha = 0.1f),
-                                    start = Offset(0f, size.height - railHeight),
-                                    end = Offset(size.width, size.height - railHeight),
-                                    strokeWidth = 1.dp.toPx()
-                                )
+                                // 4. Heavy vignette (dark leather rail mood)
+                                drawVignette(vignetteBrush)
+                                // 4b. Physical wood table rails
+                                drawRails(railHeight = 20.dp.toPx())
                             }
                         }.drawBehind {
                             // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame.

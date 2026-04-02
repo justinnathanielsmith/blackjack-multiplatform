@@ -43,6 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.FeltDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawChipBody
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawChipDepth
+import io.github.smithjustinn.blackjack.ui.components.drawing.drawChipHighlight
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_chip_amount_k
@@ -168,68 +171,24 @@ fun BetChip(
                     val innerHighlightStroke = Stroke(width = 1.5.dp.toPx())
 
                     onDrawBehind {
-                        // Draw the 3D edge cylinder
-                        // Bottom shadow
-                        drawCircle(
-                            color = Color.Black.copy(alpha = 0.4f),
+                        drawChipDepth(
+                            chipColor = chipColor,
                             radius = radius,
-                            center = center.copy(y = center.y + depthOffset + 2.dp.toPx())
-                        )
-                        // Side of the chip
-                        drawCircle(
-                            color = chipColor.copy(alpha = 0.6f),
-                            radius = radius,
-                            center = center.copy(y = center.y + depthOffset)
-                        )
-                        drawCircle(
-                            color = chipColor.copy(alpha = 0.7f),
-                            radius = radius,
-                            center = center.copy(y = center.y + depthOffset / 2)
-                        )
-
-                        // Main top surface
-                        drawCircle(
-                            brush = mainBrush,
-                            radius = radius,
-                            center = center
-                        )
-
-                        // Outer rim highlights
-                        drawCircle(
-                            color = Color.White.copy(alpha = 0.3f),
-                            radius = radius - 0.5.dp.toPx(),
                             center = center,
-                            style = outerRimStroke
+                            depthOffset = depthOffset,
                         )
-
-                        // Base contrasting rim dashes (clay edge spots)
-                        drawCircle(
-                            color = Color.White,
-                            radius = radius * 0.90f,
-                            center = center,
-                            style = dashedStroke
-                        )
-
-                        // Inner circle recess shadow
-                        drawCircle(
-                            color = Color.Black.copy(alpha = 0.25f),
-                            radius = radius * 0.70f,
-                            center = center,
-                            style = innerHighlightStroke
-                        )
-
-                        // Center inlay area
-                        drawCircle(
-                            color = Color.White.copy(alpha = 0.85f),
-                            radius = radius * 0.65f,
-                            center = center
-                        )
-
-                        // Gloss lighting over the entire top
-                        drawCircle(
-                            brush = topGlossBrush,
+                        drawChipBody(
+                            mainBrush = mainBrush,
+                            outerRimStroke = outerRimStroke,
+                            dashedStroke = dashedStroke,
+                            innerHighlightStroke = innerHighlightStroke,
                             radius = radius,
-                            center = center
+                            center = center,
+                        )
+                        drawChipHighlight(
+                            topGlossBrush = topGlossBrush,
+                            radius = radius,
+                            center = center,
                         )
                     }
                 },

@@ -1,11 +1,8 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -22,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -116,17 +114,26 @@ fun CasinoButton(
         label = "buttonOffset",
     )
 
-    val shineTransition = rememberInfiniteTransition(label = "buttonShine")
-    val shineProgress by shineTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(AnimationConstants.ButtonShineDuration, easing = LinearEasing, delayMillis = AnimationConstants.ButtonShineDelay),
-                repeatMode = RepeatMode.Restart
-            ),
-        label = "shineProgress"
-    )
+    // Conditional shine loop — only consumes GPU when both showShine and enabled are true.
+    // Keying on both cancels the coroutine immediately when either turns false.
+    val shineX = remember { Animatable(-1f) }
+    LaunchedEffect(showShine, enabled) {
+        if (showShine && enabled) {
+            while (true) {
+                shineX.snapTo(-1f)
+                shineX.animateTo(
+                    targetValue = 2f,
+                    animationSpec = tween(
+                        durationMillis = AnimationConstants.ButtonShineDuration,
+                        easing = LinearEasing,
+                    ),
+                )
+                kotlinx.coroutines.delay(AnimationConstants.ButtonShineDelay.toLong())
+            }
+        } else {
+            shineX.snapTo(-1f)
+        }
+    }
 
     val resolvedContainerColor = containerColor ?: if (isStrategic) PrimaryGold else MaterialTheme.colorScheme.secondary
     val resolvedContentColor =
@@ -224,8 +231,11 @@ fun CasinoButton(
                         )
                     }
                 ).drawBehind {
-                    if (showShine && enabled) {
-                        val shineX = -size.width + shineProgress * 3f * size.width
+                    // Read shineX.value inside draw scope — deferred from composition,
+                    // so only this draw lambda re-runs each animation frame.
+                    val currentShineX = shineX.value
+                    if (currentShineX > -1f) {
+                        val pixelX = currentShineX * size.width
                         val bandWidth = size.width * 0.35f
                         drawRect(
                             brush =
@@ -236,8 +246,8 @@ fun CasinoButton(
                                             Color.White.copy(alpha = 0.45f),
                                             Color.Transparent
                                         ),
-                                    start = Offset(shineX, 0f),
-                                    end = Offset(shineX + bandWidth, size.height)
+                                    start = Offset(pixelX, 0f),
+                                    end = Offset(pixelX + bandWidth, size.height)
                                 )
                         )
                     }

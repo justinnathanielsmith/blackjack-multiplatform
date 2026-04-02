@@ -68,7 +68,9 @@ fun BettingSlot(
     onHoverChange: (Boolean) -> Unit = {}
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "bettingSlotGlow")
-    val glowAlpha by infiniteTransition.animateFloat(
+    // Store without 'by' — reading .value inside drawBehind defers the read to the draw phase,
+    // preventing frame-rate recomposition of the entire composable.
+    val glowAlphaState = infiniteTransition.animateFloat(
         initialValue = if (isSideBet) 0.15f else 0.15f,
         targetValue = if (amount > 0) (if (isSideBet) 0.5f else 0.7f) else (if (isSideBet) 0.15f else 0.15f),
         animationSpec =
@@ -144,7 +146,7 @@ fun BettingSlot(
 
                             // Outer Dashed Circle
                             drawCircle(
-                                color = activeColor.copy(alpha = if (isHovered) 0.8f else glowAlpha),
+                                color = activeColor.copy(alpha = if (isHovered) 0.8f else glowAlphaState.value),
                                 style =
                                     Stroke(
                                         width = strokeWidth + (if (isHovered) 2.dp.toPx() else 0f),
