@@ -58,9 +58,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
-import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
@@ -86,33 +84,31 @@ fun GameActions(
     component: BlackjackComponent,
     isCompact: Boolean = false,
 ) {
-    val audioService = LocalAppGraph.current.audioService
-
     val onHit =
-        remember(audioService, component) {
+        remember(component) {
             {
-                audioService.playEffect(AudioService.SoundEffect.DEAL)
+                component.onPlayDeal()
                 component.onAction(GameAction.Hit)
             }
         }
     val onStand =
-        remember(audioService, component) {
+        remember(component) {
             {
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onPlayClick()
                 component.onAction(GameAction.Stand)
             }
         }
     val onDoubleDown =
-        remember(audioService, component) {
+        remember(component) {
             {
-                audioService.playEffect(AudioService.SoundEffect.DEAL)
+                component.onPlayDeal()
                 component.onAction(GameAction.DoubleDown)
             }
         }
     val onSplit =
-        remember(audioService, component) {
+        remember(component) {
             {
-                audioService.playEffect(AudioService.SoundEffect.DEAL)
+                component.onPlayDeal()
                 component.onAction(GameAction.Split)
             }
         }

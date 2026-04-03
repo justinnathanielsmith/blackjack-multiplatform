@@ -11,6 +11,8 @@ import io.github.smithjustinn.blackjack.data.AppSettings
 import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.utils.componentScope
+import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.services.HapticsService
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,12 @@ interface BlackjackComponent {
     val state: StateFlow<GameState>
     val effects: Flow<GameEffect>
     val appSettings: StateFlow<AppSettings>
+    val audioService: AudioService
+    val hapticsService: HapticsService
+
+    fun onPlayClick()
+    fun onPlayDeal()
+    fun onPlayPlink(amount: Int)
 
     fun onAction(action: GameAction)
 
@@ -36,6 +44,8 @@ class DefaultBlackjackComponent(
     componentContext: ComponentContext,
     private val balanceService: BalanceService,
     private val settingsRepository: SettingsRepository,
+    override val audioService: AudioService,
+    override val hapticsService: HapticsService,
     private val logger: Logger,
 ) : BlackjackComponent,
     ComponentContext by componentContext {
@@ -65,6 +75,7 @@ class DefaultBlackjackComponent(
                 settingsRepository.settingsFlow.collect { newSettings ->
                     val oldSettings = _appSettings.value
                     _appSettings.value = newSettings
+                    audioService.isMuted = newSettings.isSoundMuted
 
                     if (newSettings.defaultHandCount != oldSettings.defaultHandCount) {
                         stateMachine.dispatch(GameAction.SelectHandCount(newSettings.defaultHandCount))
@@ -83,6 +94,18 @@ class DefaultBlackjackComponent(
                 }
             }
         }
+    }
+
+    override fun onPlayClick() {
+        audioService.playEffect(AudioService.SoundEffect.CLICK)
+    }
+
+    override fun onPlayDeal() {
+        audioService.playEffect(AudioService.SoundEffect.DEAL)
+    }
+
+    override fun onPlayPlink(amount: Int) {
+        audioService.playEffect(AudioService.SoundEffect.PLINK)
     }
 
     override fun onAction(action: GameAction) {

@@ -10,6 +10,8 @@ import com.arkivanov.decompose.value.Value
 import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import kotlinx.serialization.Serializable
+import io.github.smithjustinn.blackjack.services.AudioService
+import io.github.smithjustinn.blackjack.services.HapticsService
 
 interface RootComponent {
     val childStack: Value<ChildStack<Config, Child>>
@@ -38,6 +40,8 @@ class DefaultRootComponent(
     componentContext: ComponentContext,
     private val balanceService: BalanceService,
     private val settingsRepository: SettingsRepository,
+    private val audioService: AudioService,
+    private val hapticsService: HapticsService,
     private val logger: Logger,
 ) : RootComponent,
     ComponentContext by componentContext {
@@ -72,6 +76,8 @@ class DefaultRootComponent(
                         componentContext = componentContext,
                         balanceService = balanceService,
                         settingsRepository = settingsRepository,
+                        audioService = audioService,
+                        hapticsService = hapticsService,
                         logger = logger
                     )
                 )

@@ -8,6 +8,9 @@ import com.arkivanov.decompose.retainedComponent
 import io.github.smithjustinn.blackjack.data.initDataStore
 import io.github.smithjustinn.blackjack.presentation.DefaultRootComponent
 import io.github.smithjustinn.blackjack.ui.screens.RootScreen
+import io.github.smithjustinn.blackjack.di.commonModule
+import org.koin.core.context.GlobalContext.getOrNull
+import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,19 +18,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         initDataStore(this)
-        val appGraph = AndroidAppGraph(this)
+        val koin = getOrNull() ?: startKoin {
+            modules(commonModule, androidModule(this@MainActivity.applicationContext))
+        }.koin
+
         val root =
             retainedComponent {
                 DefaultRootComponent(
                     it,
-                    appGraph.balanceService,
-                    appGraph.settingsRepository,
-                    appGraph.logger
+                    balanceService = koin.get(),
+                    settingsRepository = koin.get(),
+                    audioService = koin.get(),
+                    hapticsService = koin.get(),
+                    logger = koin.get()
                 )
             }
 
         setContent {
-            RootScreen(root, appGraph)
+            RootScreen(root)
         }
     }
 }

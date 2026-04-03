@@ -36,10 +36,8 @@ import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.di.LocalAppGraph
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
-import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.totalNetPayout
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
@@ -71,38 +69,32 @@ fun BlackjackScreen(component: BlackjackComponent) {
     var showSettings by remember { mutableStateOf(false) }
     var showStrategy by remember { mutableStateOf(false) }
     var showRules by remember { mutableStateOf(false) }
-    val audioService = LocalAppGraph.current.audioService
-    val hapticsService = LocalAppGraph.current.hapticsService
     val animState = remember { BlackjackAnimationState() }
     var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
 
     var selectedAmount by remember { mutableStateOf(10) }
     val onResetBet =
-        remember(audioService, component) {
+        remember(component) {
             {
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onPlayClick()
                 component.onAction(GameAction.ResetBet)
                 component.onAction(GameAction.ResetSideBets)
             }
         }
     val onDeal =
-        remember(audioService, component) {
+        remember(component) {
             {
-                audioService.playEffect(AudioService.SoundEffect.FLIP)
+                component.onPlayDeal()
                 component.onAction(GameAction.Deal)
             }
         }
     val onChipSelected =
-        remember(audioService) {
+        remember(component) {
             { amount: Int ->
                 selectedAmount = amount
-                audioService.playEffect(AudioService.SoundEffect.PLINK)
+                component.onPlayPlink(amount)
             }
         }
-
-    LaunchedEffect(appSettings.isSoundMuted) {
-        audioService.isMuted = appSettings.isSoundMuted
-    }
 
     val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
@@ -206,8 +198,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
             effects = component.effects,
             stateFlow = component.state,
             animState = animState,
-            audioService = audioService,
-            hapticsService = hapticsService,
+            audioService = component.audioService,
+            hapticsService = component.hapticsService,
         )
     }
 
@@ -347,7 +339,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                 playerHands = state.playerHands,
                                 animState = animState,
                                 component = component,
-                                audioService = audioService,
+                                audioService = component.audioService,
                                 selectedAmount = selectedAmount,
                             )
 
