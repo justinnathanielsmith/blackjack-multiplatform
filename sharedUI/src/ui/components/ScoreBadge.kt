@@ -38,6 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.BadgeDarkInner
+import io.github.smithjustinn.blackjack.ui.theme.BadgeNeutralGrey
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
@@ -63,7 +65,8 @@ fun ScoreBadge(
     score: Int,
     state: ScoreBadgeState,
     modifier: Modifier = Modifier,
-    label: String? = null
+    label: String? = null,
+    isWinner: Boolean = false
 ) {
     val isBust = score > 21
     val is21 = score == 21
@@ -71,16 +74,17 @@ fun ScoreBadge(
     val backgroundColor =
         when {
             isBust -> VelvetRed
-            is21 -> ModernGoldLight
-            state == ScoreBadgeState.ACTIVE -> ModernGoldLight
+            is21 || isWinner -> ModernGoldLight
+            state == ScoreBadgeState.ACTIVE -> BadgeNeutralGrey // Neutral for live hands
             state == ScoreBadgeState.DEALER -> BackgroundDark
-            else -> Color(0xFF1A1A1A) // Deep dark for waiting
+            else -> BadgeDarkInner // Deep dark for waiting
         }
 
     val borderColor =
         when {
             isBust -> Color.White.copy(alpha = 0.6f)
-            is21 || state == ScoreBadgeState.ACTIVE -> Color.White.copy(alpha = 0.5f)
+            is21 || isWinner -> Color.White.copy(alpha = 0.5f)
+            state == ScoreBadgeState.ACTIVE -> ModernGoldLight.copy(alpha = 0.4f)
             state == ScoreBadgeState.DEALER -> ModernGoldLight
             else -> Color.White.copy(alpha = 0.15f)
         }
@@ -88,7 +92,8 @@ fun ScoreBadge(
     val textColor =
         when {
             isBust -> Color.White
-            is21 || state == ScoreBadgeState.ACTIVE -> LeatherBlack
+            is21 || isWinner -> LeatherBlack
+            state == ScoreBadgeState.ACTIVE -> Color.White
             state == ScoreBadgeState.DEALER -> ModernGoldLight
             else -> Color.White.copy(alpha = 0.7f)
         }
@@ -117,7 +122,7 @@ fun ScoreBadge(
         val pulseScale = remember { Animatable(1f) }
 
         LaunchedEffect(score, state) {
-            if (state == ScoreBadgeState.ACTIVE || is21 || isBust) {
+            if (state == ScoreBadgeState.ACTIVE || is21 || isBust || isWinner) {
                 pulseScale.animateTo(
                     targetValue = 1.15f,
                     animationSpec =
@@ -151,7 +156,8 @@ fun ScoreBadge(
                             if (state == ScoreBadgeState.ACTIVE ||
                                 state == ScoreBadgeState.DEALER ||
                                 is21 ||
-                                isBust
+                                isBust ||
+                                isWinner
                             ) {
                                 16.dp
                             } else {
@@ -174,7 +180,7 @@ fun ScoreBadge(
                                 radius = glowRadius
                             )
                         onDrawBehind {
-                            if (state == ScoreBadgeState.ACTIVE || is21 || isBust) {
+                            if (state == ScoreBadgeState.ACTIVE || is21 || isBust || isWinner) {
                                 drawRect(glowBrush)
                             }
                         }

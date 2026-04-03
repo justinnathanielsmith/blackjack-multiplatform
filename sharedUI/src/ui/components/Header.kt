@@ -75,6 +75,8 @@ fun Header(
     balance: Int,
     isAutoDealEnabled: Boolean,
     onAutoDealToggle: () -> Unit,
+    remainingCards: Int,
+    totalCards: Int,
     modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit = {},
     onStrategyClick: () -> Unit = {},
@@ -97,6 +99,7 @@ fun Header(
         ) {
             AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
             TableInfoBadge(minBet = 10, maxBet = 500)
+            DeckInfoBadge(remaining = remainingCards, total = totalCards)
         }
 
         // Center: Casino Vault (Balance)
@@ -145,6 +148,42 @@ private fun TableInfoBadge(
             fontWeight = FontWeight.Bold,
             fontSize = 9.sp
         )
+    }
+}
+
+@Composable
+private fun DeckInfoBadge(
+    remaining: Int,
+    total: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.Black.copy(alpha = 0.3f))
+                .border(0.5.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 6.dp, vertical = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "🎴",
+                fontSize = 10.sp,
+                modifier = Modifier.alpha(0.7f)
+            )
+            Text(
+                text = "$remaining / $total",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White.copy(alpha = 0.7f),
+                fontWeight = FontWeight.Medium,
+                fontSize = 9.sp,
+                letterSpacing = 0.5.sp
+            )
+        }
     }
 }
 
@@ -399,6 +438,8 @@ private fun HeaderPreview() {
             balance = 1000,
             isAutoDealEnabled = false,
             onAutoDealToggle = {},
+            remainingCards = 304,
+            totalCards = 312,
             onSettingsClick = {},
             onStrategyClick = {},
             onRulesClick = {}
@@ -415,6 +456,8 @@ private fun HeaderAutoDealPreview() {
             balance = 2500,
             isAutoDealEnabled = true,
             onAutoDealToggle = {},
+            remainingCards = 150,
+            totalCards = 312,
             onSettingsClick = {},
             onStrategyClick = {},
             onRulesClick = {}

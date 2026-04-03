@@ -51,7 +51,10 @@ fun Shoe(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // The Shoe Box + Cards
-        Box(contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.padding(bottom = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
             // Shoe Holder (Physical Box)
             Box(
                 modifier =
@@ -82,36 +85,5 @@ fun Shoe(
                 }
             }
         }
-
-        // Card Count Label
-        ShoeLabel(remaining = remainingCards, total = totalCards)
-    }
-}
-
-@Composable
-private fun ShoeLabel(
-    remaining: Int,
-    total: Int,
-    modifier: Modifier = Modifier
-) {
-    val decksLeft = (remaining / 52.0)
-    val formattedDecks = if (decksLeft < 1.0) "0.5" else decksLeft.toInt().toString()
-
-    Box(
-        modifier =
-            modifier
-                .clip(RoundedCornerShape(4.dp))
-                .background(Color.Black.copy(alpha = 0.6f))
-                .padding(horizontal = 6.dp, vertical = 2.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "$remaining / $total CARDS",
-            style = MaterialTheme.typography.labelSmall,
-            color = PrimaryGold.copy(alpha = 0.9f),
-            fontWeight = FontWeight.Black,
-            fontSize = 8.sp,
-            letterSpacing = 0.5.sp
-        )
     }
 }

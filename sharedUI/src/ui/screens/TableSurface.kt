@@ -1,11 +1,13 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -98,33 +100,38 @@ fun TableSurface(modifier: Modifier = Modifier) {
                     }
                 }
     ) {
-        // Table printing added to the felt
-        Column(
-            modifier = Modifier.fillMaxSize().padding(top = 180.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            Text(
-                text = "BLACKJACK PAYS 3 TO 2",
-                color = PrimaryGold.copy(alpha = 0.12f),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 4.sp
-            )
-            Text(
-                text = "Dealer must draw to 16, and stand on all 17s",
-                color = Color.White.copy(alpha = 0.08f),
-                style = MaterialTheme.typography.bodyMedium,
-                letterSpacing = 1.sp,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Text(
-                text = "INSURANCE PAYS 2 TO 1",
-                color = PrimaryGold.copy(alpha = 0.08f),
-                style = MaterialTheme.typography.bodySmall,
-                letterSpacing = 2.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
+        // Table printing replaced by a subtle "Rule Plate" for a cleaner "High Roller" feel.
+        RulePlate(
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 180.dp)
+        )
+    }
+}
+
+@Composable
+private fun RulePlate(modifier: Modifier = Modifier) {
+    Column(
+        modifier =
+            modifier
+                .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                .border(0.5.dp, PrimaryGold.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "BLACKJACK PAYS 3 TO 2",
+            color = PrimaryGold.copy(alpha = 0.4f),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 2.sp,
+            fontSize = 8.sp
+        )
+        Text(
+            text = "DEALER STANDS ON ALL 17S",
+            color = Color.White.copy(alpha = 0.2f),
+            style = MaterialTheme.typography.labelSmall,
+            letterSpacing = 1.sp,
+            fontSize = 7.sp,
+            modifier = Modifier.padding(top = 2.dp)
+        )
     }
 }

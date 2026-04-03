@@ -28,6 +28,8 @@ val ModernGoldDark = Color(0xFFD4AF37)
 val VelvetRed = Color(0xFF8A1521)
 val DeepWine = Color(0xFF4A0A11)
 val LeatherBlack = Color(0xFF151515)
+val BadgeNeutralGrey = Color(0xFF2A2A2A)
+val BadgeDarkInner = Color(0xFF1A1A1A)
 
 // Casino Chip Colors
 val ChipBlue = Color(0xFF1565C0)

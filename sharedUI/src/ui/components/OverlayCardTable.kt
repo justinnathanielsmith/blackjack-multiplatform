@@ -527,29 +527,21 @@ private fun HandZoneHud(
             )
         } else {
             val hand = playerHand ?: return@Box
-            val multiHand = handCount > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
-            val label =
-                if (multiHand) {
-                    stringResource(
-                        Res.string.hand_number,
-                        handIndex + 1
-                    )
-                } else {
-                    null
-                }
+            val isWinner = handResult == HandResult.WIN
 
             if (!isBetting) {
                 ScoreBadge(
                     score = hand.score,
                     state = badgeState,
-                    label = label,
+                    label = null,
+                    isWinner = isWinner,
                     modifier =
                         Modifier
                             .align(Alignment.BottomEnd)
                             .graphicsLayer {
-                                translationX = 12.dp.toPx()
-                                translationY = 12.dp.toPx()
+                                translationX = 16.dp.toPx()
+                                translationY = 16.dp.toPx()
                             }
                 )
             }

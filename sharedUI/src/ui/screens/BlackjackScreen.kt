@@ -272,6 +272,8 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     balance = state.balance,
                                     isAutoDealEnabled = appSettings.isAutoDealEnabled,
                                     onAutoDealToggle = onAutoDealToggle,
+                                    remainingCards = state.deck.size,
+                                    totalCards = state.rules.deckCount * 52,
                                     onSettingsClick = onSettingsClick,
                                     onStrategyClick = onStrategyClick,
                                     onRulesClick = onRulesClick
