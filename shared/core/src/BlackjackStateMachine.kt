@@ -105,12 +105,11 @@ class BlackjackStateMachine(
                     result.commands.forEach { commandChannel.trySend(it) }
                     logger.v { "SM action loop finished: $action" }
                 }
-            } catch (e: CancellationException) {
-                logger.d { "SM action loop cancelled" }
-                throw e
-            } catch (
-                @Suppress("TooGenericExceptionCaught") e: Exception
-            ) {
+            } catch (e: Exception) {
+                // We catch non-cancellation exceptions here because this is the terminal loop of the 
+                // state machine. Any unhandled exception here is fatal and correctly transitions 
+                // the machine to a shutdown state, making the cause visible for telemetry or debugging.
+                if (e is CancellationException) throw e
                 logger.e(e) { "SM init block caught fatal error" }
                 _shutdownCause.value = e
                 throw e

@@ -7,7 +7,7 @@ settings:
     enabled: true
   kotlin:
     serialization: enabled
-    freeCompilerArgs: ["-P", "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=StrongSkipping"]
+    freeCompilerArgs: []
   android:
     namespace: io.github.smithjustinn.blackjack.shared.ui
 
