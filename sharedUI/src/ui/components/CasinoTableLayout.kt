@@ -7,6 +7,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import io.github.smithjustinn.blackjack.GameState
 import kotlin.math.roundToInt
@@ -52,9 +53,37 @@ fun CasinoTableLayout(
         // Publish so BlackjackScreen can use zone positions for payout / highlight animations.
         onLayout?.invoke(tableLayout)
 
+        // Build a lookup from handIndex → zone for HUD/glow measurement.
+        val zoneByIndex = tableLayout.handZones.associateBy { it.handIndex }
+
         val placeables = measurables.associate { measurable ->
             val id = (measurable.parentData as? NodeIdModifier)?.id ?: ""
-            id to measurable.measure(constraints) // Chips/Cards specify their own size based on scale
+            val measureConstraints = when {
+                // HUD must be exactly the cluster size so fillMaxSize() + Alignment.*
+                // inside HandZoneHud resolve to the correct bounds.
+                id.startsWith("hud-") -> {
+                    val idx = id.removePrefix("hud-").toIntOrNull()
+                    val zone = if (idx != null) zoneByIndex[idx] else null
+                    if (zone != null) {
+                        val w = zone.clusterSize.width.roundToInt().coerceAtLeast(1)
+                        val h = zone.clusterSize.height.roundToInt().coerceAtLeast(1)
+                        Constraints.fixed(w, h)
+                    } else constraints
+                }
+                // Glow is drawn at 1.6× cluster size — measure to match.
+                id.startsWith("glow-") -> {
+                    val idx = id.removePrefix("glow-").toIntOrNull()
+                    val zone = if (idx != null) zoneByIndex[idx] else null
+                    if (zone != null) {
+                        val w = (zone.clusterSize.width * 1.6f).roundToInt().coerceAtLeast(1)
+                        val h = (zone.clusterSize.height * 1.6f).roundToInt().coerceAtLeast(1)
+                        Constraints.fixed(w, h)
+                    } else constraints
+                }
+                // Cards and chips pin their own sizes via requiredSize / requiredWidth.
+                else -> constraints
+            }
+            id to measurable.measure(measureConstraints)
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
