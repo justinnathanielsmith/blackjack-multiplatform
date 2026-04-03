@@ -29,11 +29,10 @@ fun Modifier.nodeId(id: String) = this.then(NodeIdModifier(id))
 fun CasinoTableLayout(
     state: GameState,
     shoePosition: Offset,
-    // coordOffsetY = gameplayAreaOffset.y - overlayOffset.y (i.e. header height).
-    // The custom Layout fills the full overlay, but card positions must be computed
-    // relative to the gameplay area only — so we subtract the header offset from
-    // the overlay height to get the true gameplay area height.
-    coordOffsetY: Float = 0f,
+    // Explicit gameplay area height (excluding header + ControlCenter).
+    // Provided by OverlayCardTable via the registry so computeTableLayout
+    // receives the correct bounded height instead of the full overlay height.
+    gameplayAreaHeight: Float = 0f,
     onLayout: ((TableLayout) -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
@@ -45,8 +44,12 @@ fun CasinoTableLayout(
         modifier = modifier
     ) { measurables, constraints ->
         val areaWidth = constraints.maxWidth.toFloat()
-        // Use gameplay-area height, not the full overlay height.
-        val areaHeight = (constraints.maxHeight.toFloat() - coordOffsetY).coerceAtLeast(1f)
+        // Use the actual gameplay area height when available (first frame = 0f → skip).
+        val areaHeight = if (gameplayAreaHeight > 0f) {
+            gameplayAreaHeight
+        } else {
+            constraints.maxHeight.toFloat()
+        }
 
         // Run the math in the layout phase! Bypasses Composition when dimensions change.
         val tableLayout = computeTableLayout(state, areaWidth, areaHeight, density, shoePosition)

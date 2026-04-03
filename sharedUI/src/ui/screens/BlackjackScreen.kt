@@ -298,6 +298,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                         .fillMaxSize()
                                         .onGloballyPositioned { coords ->
                                             dealRegistry.gameplayAreaOffset = coords.positionInRoot()
+                                            dealRegistry.gameplayAreaSize = coords.size
                                         },
                             ) {
                                 BlackjackLayout(

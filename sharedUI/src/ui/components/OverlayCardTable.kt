@@ -86,10 +86,15 @@ fun OverlayCardTable(
     val baseCardW = with(density) { Dimensions.Card.StandardWidth.toPx() }
     val baseCardH = baseCardW / Dimensions.Card.AspectRatio
 
+    // The actual height of the gameplay area (between header and ControlCenter),
+    // measured by onGloballyPositioned in BlackjackScreen. When 0f (first frame
+    // before layout), CasinoTableLayout falls back to the full overlay height.
+    val gameplayAreaHeight = registry.gameplayAreaSize.height.toFloat()
+
     CasinoTableLayout(
         state = state,
         shoePosition = shoePosition,
-        coordOffsetY = coordOffsetY,
+        gameplayAreaHeight = gameplayAreaHeight,
         onLayout = { registry.tableLayout = it },
         modifier = modifier
             .fillMaxSize()
