@@ -89,3 +89,56 @@ fun dealerHand(
     upRank: Rank,
     holeRank: Rank
 ): Hand = Hand(persistentListOf(card(upRank, Suit.CLUBS), card(holeRank, Suit.DIAMONDS, faceDown = true)))
+/**
+ * A basic strategy bot that decides the next [GameAction] based on [StrategyProvider].
+ */
+fun GameState.decideAction(): GameAction {
+    if (status == GameStatus.INSURANCE_OFFERED) return GameAction.DeclineInsurance
+    if (status != GameStatus.PLAYING) return GameAction.Stand // Should not happen in fuzzing loop
+
+    val hand = activeHand
+    val dealerUpcard = dealerHand.cards[0].rank.value
+    
+    // 1. Pairs Strategy
+    if (canSplit()) {
+        val rank = hand.cards[0].rank
+        val key = if (rank == Rank.ACE) "A,A" else "${rank.value},${rank.value}"
+        val action = StrategyProvider.getPairsStrategy()
+            .find { it.playerValue == key }
+            ?.actions?.get(dealerUpcard)
+
+        if (action == StrategyAction.SPLIT) return GameAction.Split
+    }
+
+    // 2. Soft Strategy
+    if (hand.isSoft && hand.cards.size == 2) {
+        val nonAceRank = if (hand.cards[0].rank == Rank.ACE) hand.cards[1].rank else hand.cards[0].rank
+        val key = "A,${nonAceRank.value}"
+        val action = StrategyProvider.getSoftStrategy()
+            .find { it.playerValue == key }
+            ?.actions?.get(dealerUpcard)
+
+        return when (action) {
+            StrategyAction.DOUBLE -> if (canDoubleDown()) GameAction.DoubleDown else GameAction.Stand
+            StrategyAction.STAND -> GameAction.Stand
+            else -> GameAction.Hit
+        }
+    }
+
+    // 3. Hard Strategy
+    val score = hand.score
+    val key = when {
+        score >= 17 -> "17+"
+        score <= 8 -> "8 or less"
+        else -> score.toString()
+    }
+    val action = StrategyProvider.getHardStrategy()
+        .find { it.playerValue == key }
+        ?.actions?.get(dealerUpcard)
+
+    return when (action) {
+        StrategyAction.DOUBLE -> if (canDoubleDown()) GameAction.DoubleDown else GameAction.Hit
+        StrategyAction.STAND -> GameAction.Stand
+        else -> GameAction.Hit
+    }
+}
