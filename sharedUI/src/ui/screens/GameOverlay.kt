@@ -20,9 +20,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -100,7 +100,7 @@ private fun BlackjackGameOverlay(
             status == GameStatus.PLAYER_WON && playerHands.any { it.isBlackjack }
         }
     }
-    
+
     val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
     val onDeclineInsurance = remember(component) { { component.onAction(GameAction.DeclineInsurance) } }
 

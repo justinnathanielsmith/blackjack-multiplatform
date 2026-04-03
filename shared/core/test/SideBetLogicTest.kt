@@ -1,9 +1,9 @@
 package io.github.smithjustinn.blackjack
 
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue

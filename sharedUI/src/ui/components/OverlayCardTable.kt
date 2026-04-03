@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +41,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.Card
@@ -68,7 +65,6 @@ import sharedui.generated.resources.hand_number
 import sharedui.generated.resources.status_blackjack
 import sharedui.generated.resources.status_bust
 import sharedui.generated.resources.status_twenty_one
-import kotlin.math.roundToInt
 
 @Composable
 fun OverlayCardTable(
@@ -96,12 +92,13 @@ fun OverlayCardTable(
         shoePosition = shoePosition,
         gameplayAreaHeight = gameplayAreaHeight,
         onLayout = { registry.tableLayout = it },
-        modifier = modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                translationX = coordOffsetX
-                translationY = coordOffsetY
-            }
+        modifier =
+            modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    translationX = coordOffsetX
+                    translationY = coordOffsetY
+                }
     ) {
         // 1. Active hand glow behind the cluster
         if (state.status == GameStatus.PLAYING) {
@@ -123,7 +120,7 @@ fun OverlayCardTable(
         state.dealerHand.cards.forEachIndexed { cardIndex, card ->
             val isDimmed = state.status == GameStatus.PLAYING && state.activeHandIndex != -1
             val animDelay = globalCardIndex * AnimationConstants.CardDealDelay
-            
+
             androidx.compose.runtime.key("dealer", cardIndex) {
                 PositionedCardItem(
                     card = card,
@@ -292,7 +289,7 @@ private fun PositionedCardItem(
                 animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
             )
         }
-        
+
         launch {
             val flyingElevPx = with(density) { 16.dp.toPx() }
             val landedElevPx = with(density) { if (isActive) 10.dp.toPx() else 5.dp.toPx() } + stackBoostPx
@@ -460,7 +457,8 @@ private fun HandZoneHud(
     modifier: Modifier = Modifier,
 ) {
     val isBetting = status == GameStatus.BETTING
-    
+    val showActiveIndicators = isActive && handCount > 1
+
     val borderGlowTransition = rememberInfiniteTransition(label = "borderGlowTransition")
     val borderGlowAlphaState =
         borderGlowTransition.animateFloat(
@@ -479,7 +477,7 @@ private fun HandZoneHud(
             modifier
                 .fillMaxSize() // Custom Layout sets size to exactly clusterW x clusterH
                 .drawBehind {
-                    if (isActive) {
+                    if (showActiveIndicators) {
                         drawRoundRect(
                             color = PrimaryGold.copy(alpha = borderGlowAlphaState.value),
                             cornerRadius = CornerRadius(12.dp.toPx()),
@@ -488,7 +486,7 @@ private fun HandZoneHud(
                     }
                 }
     ) {
-        if (isActive) {
+        if (showActiveIndicators) {
             ActiveHandIndicator(
                 modifier =
                     Modifier
@@ -532,7 +530,7 @@ private fun HandZoneHud(
             val multiHand = handCount > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
             val label =
-                if (isActive) {
+                if (showActiveIndicators) {
                     "YOUR TURN"
                 } else if (multiHand) {
                     stringResource(

@@ -132,7 +132,7 @@ class BlackjackStateMachine(
     private suspend fun executeCommand(cmd: ReducerCommand) {
         when (cmd) {
             is ReducerCommand.RunDealSequence -> executeRunDealSequence()
-            is ReducerCommand.RunDealerTurn   -> executeRunDealerTurn()
+            is ReducerCommand.RunDealerTurn -> executeRunDealerTurn()
         }
     }
 
@@ -180,9 +180,10 @@ class BlackjackStateMachine(
             if (_state.value.deck.isEmpty()) break // safety valve: matches original ?: break behaviour
 
             val hand = _state.value.dealerHand
-            val isCritical = hand.score in
-                BlackjackRules.DEALER_STIFF_MIN until BlackjackRules.DEALER_STAND_THRESHOLD &&
-                !hand.isSoft
+            val isCritical =
+                hand.score in
+                    BlackjackRules.DEALER_STIFF_MIN until BlackjackRules.DEALER_STAND_THRESHOLD &&
+                    !hand.isSoft
 
             if (isCritical) {
                 // Emit DealerCriticalDraw BEFORE the card draw so the effect precedes PlayCardSound.

@@ -9,17 +9,21 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.lerp
 import io.github.smithjustinn.blackjack.GameState
 import kotlin.math.roundToInt
-import androidx.compose.ui.util.lerp
 
-class FlightProgressModifier(val progress: State<Float>) : ParentDataModifier {
+class FlightProgressModifier(
+    val progress: State<Float>
+) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?) = this@FlightProgressModifier
 }
 
 fun Modifier.flightProgress(progress: State<Float>) = this.then(FlightProgressModifier(progress))
 
-class NodeIdModifier(val id: String) : ParentDataModifier {
+class NodeIdModifier(
+    val id: String
+) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?) = this@NodeIdModifier
 }
 
@@ -45,11 +49,12 @@ fun CasinoTableLayout(
     ) { measurables, constraints ->
         val areaWidth = constraints.maxWidth.toFloat()
         // Use the actual gameplay area height when available (first frame = 0f → skip).
-        val areaHeight = if (gameplayAreaHeight > 0f) {
-            gameplayAreaHeight
-        } else {
-            constraints.maxHeight.toFloat()
-        }
+        val areaHeight =
+            if (gameplayAreaHeight > 0f) {
+                gameplayAreaHeight
+            } else {
+                constraints.maxHeight.toFloat()
+            }
 
         // Run the math in the layout phase! Bypasses Composition when dimensions change.
         val tableLayout = computeTableLayout(state, areaWidth, areaHeight, density, shoePosition)
@@ -59,35 +64,47 @@ fun CasinoTableLayout(
         // Build a lookup from handIndex → zone for HUD/glow measurement.
         val zoneByIndex = tableLayout.handZones.associateBy { it.handIndex }
 
-        val placeables = measurables.associate { measurable ->
-            val id = (measurable.parentData as? NodeIdModifier)?.id ?: ""
-            val measureConstraints = when {
-                // HUD must be exactly the cluster size so fillMaxSize() + Alignment.*
-                // inside HandZoneHud resolve to the correct bounds.
-                id.startsWith("hud-") -> {
-                    val idx = id.removePrefix("hud-").toIntOrNull()
-                    val zone = if (idx != null) zoneByIndex[idx] else null
-                    if (zone != null) {
-                        val w = zone.clusterSize.width.roundToInt().coerceAtLeast(1)
-                        val h = zone.clusterSize.height.roundToInt().coerceAtLeast(1)
-                        Constraints.fixed(w, h)
-                    } else constraints
-                }
-                // Glow is drawn at 1.6× cluster size — measure to match.
-                id.startsWith("glow-") -> {
-                    val idx = id.removePrefix("glow-").toIntOrNull()
-                    val zone = if (idx != null) zoneByIndex[idx] else null
-                    if (zone != null) {
-                        val w = (zone.clusterSize.width * 1.6f).roundToInt().coerceAtLeast(1)
-                        val h = (zone.clusterSize.height * 1.6f).roundToInt().coerceAtLeast(1)
-                        Constraints.fixed(w, h)
-                    } else constraints
-                }
-                // Cards and chips pin their own sizes via requiredSize / requiredWidth.
-                else -> constraints
+        val placeables =
+            measurables.associate { measurable ->
+                val id = (measurable.parentData as? NodeIdModifier)?.id ?: ""
+                val measureConstraints =
+                    when {
+                        // HUD must be exactly the cluster size so fillMaxSize() + Alignment.*
+                        // inside HandZoneHud resolve to the correct bounds.
+                        id.startsWith("hud-") -> {
+                            val idx = id.removePrefix("hud-").toIntOrNull()
+                            val zone = if (idx != null) zoneByIndex[idx] else null
+                            if (zone != null) {
+                                val w =
+                                    zone.clusterSize.width
+                                        .roundToInt()
+                                        .coerceAtLeast(1)
+                                val h =
+                                    zone.clusterSize.height
+                                        .roundToInt()
+                                        .coerceAtLeast(1)
+                                Constraints.fixed(w, h)
+                            } else {
+                                constraints
+                            }
+                        }
+                        // Glow is drawn at 1.6× cluster size — measure to match.
+                        id.startsWith("glow-") -> {
+                            val idx = id.removePrefix("glow-").toIntOrNull()
+                            val zone = if (idx != null) zoneByIndex[idx] else null
+                            if (zone != null) {
+                                val w = (zone.clusterSize.width * 1.6f).roundToInt().coerceAtLeast(1)
+                                val h = (zone.clusterSize.height * 1.6f).roundToInt().coerceAtLeast(1)
+                                Constraints.fixed(w, h)
+                            } else {
+                                constraints
+                            }
+                        }
+                        // Cards and chips pin their own sizes via requiredSize / requiredWidth.
+                        else -> constraints
+                    }
+                id to measurable.measure(measureConstraints)
             }
-            id to measurable.measure(measureConstraints)
-        }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             // Place dealer cards

@@ -835,13 +835,19 @@ sealed class GameAction {
     // ── Internal engine primitives (dispatched by middleware only) ────────────────
 
     /** Replaces the current deck with a freshly computed shoe. Dispatched by middleware when reshuffle is needed. */
-    internal data class SetDeck(val deck: PersistentList<Card>) : GameAction()
+    internal data class SetDeck(
+        val deck: PersistentList<Card>
+    ) : GameAction()
 
     /** Draws the top deck card and adds it to a player seat's hand. */
-    internal data class DealCardToPlayer(val seatIndex: Int) : GameAction()
+    internal data class DealCardToPlayer(
+        val seatIndex: Int
+    ) : GameAction()
 
     /** Draws the top deck card and adds it to the dealer's hand. */
-    internal data class DealCardToDealer(val faceDown: Boolean) : GameAction()
+    internal data class DealCardToDealer(
+        val faceDown: Boolean
+    ) : GameAction()
 
     /** Resolves side bets, blackjacks, insurance offering, and early terminal states after the deal animation. */
     internal data object ApplyInitialOutcome : GameAction()
