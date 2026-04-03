@@ -4,6 +4,7 @@ package io.github.smithjustinn.blackjack
 
 import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,6 +25,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 assertEquals(GameEffect.PlayCardSound, awaitItem())
                 cancelAndIgnoreRemainingEvents()
@@ -43,6 +45,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // ChipEruption is emitted before PlayWinSound
                 val emitted = buildList { repeat(2) { add(awaitItem()) } }
@@ -65,6 +68,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 // Emissions: PlayCardSound, HeavyCardThud (TEN drawn), BustThud, ChipLoss, PlayLoseSound
                 val emitted = buildList { repeat(5) { add(awaitItem()) } }
@@ -90,6 +94,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
                 assertTrue(GameEffect.HeavyCardThud in emitted)
@@ -111,6 +116,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 val emitted = buildList { repeat(1) { add(awaitItem()) } }
                 assertTrue(GameEffect.HeavyCardThud !in emitted)
@@ -132,6 +138,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
                 assertTrue(GameEffect.Pulse21 in emitted)
@@ -153,6 +160,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
                 assertTrue(GameEffect.HeavyCardThud in emitted)
@@ -175,6 +183,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 // Emissions: PlayCardSound, HeavyCardThud, BustThud, ChipLoss, PlayLoseSound
                 val emitted = buildList { repeat(5) { add(awaitItem()) } }
@@ -198,6 +207,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // ChipLoss is also emitted: ChipLoss, PlayLoseSound, Vibrate
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
@@ -221,6 +231,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 val emitted = buildList { repeat(2) { add(awaitItem()) } }
                 assertTrue(GameEffect.LightTick in emitted)
@@ -243,6 +254,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Hit)
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
                 assertTrue(GameEffect.HeavyCardThud in emitted)
@@ -264,6 +276,7 @@ class GameEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
                 assertTrue(GameEffect.WinPulse in emitted)

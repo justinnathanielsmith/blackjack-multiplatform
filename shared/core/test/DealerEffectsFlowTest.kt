@@ -4,6 +4,7 @@ package io.github.smithjustinn.blackjack
 
 import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -35,6 +36,7 @@ class DealerEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // DealerCriticalDraw, PlayCardSound, ChipEruption(200), PlayWinSound, WinPulse
                 val emitted = buildList { repeat(5) { add(awaitItem()) } }
@@ -58,6 +60,7 @@ class DealerEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // DealerCriticalDraw, PlayCardSound, ChipEruption(200), PlayWinSound, WinPulse
                 val emitted = buildList { repeat(5) { add(awaitItem()) } }
@@ -81,6 +84,7 @@ class DealerEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // PlayCardSound, ChipLoss(100), PlayLoseSound, Vibrate — no DealerCriticalDraw
                 val emitted = buildList { repeat(4) { add(awaitItem()) } }
@@ -103,6 +107,7 @@ class DealerEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // ChipEruption(200), PlayWinSound, WinPulse — no DealerCriticalDraw
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
@@ -126,6 +131,7 @@ class DealerEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // ChipEruption(100) (push returns bet), PlayPushSound
                 val emitted = buildList { repeat(2) { add(awaitItem()) } }
@@ -147,6 +153,7 @@ class DealerEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // ChipEruption(200), PlayWinSound, WinPulse — no PlayPushSound
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
@@ -168,6 +175,7 @@ class DealerEffectsFlowTest {
                 )
 
             sm.effects.test {
+                runCurrent()
                 sm.dispatch(GameAction.Stand)
                 // ChipLoss(100), PlayLoseSound, Vibrate — no PlayPushSound
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }

@@ -4,10 +4,10 @@ package io.github.smithjustinn.blackjack
 
 import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import kotlin.test.assertEquals
 
 class BlackjackStateMachineShutdownTest {
     @Test
@@ -22,17 +22,18 @@ class BlackjackStateMachineShutdownTest {
         }
 
     @Test
-    fun dispatchAfterShutdownThrowsException() =
+    fun dispatchAfterShutdown_isSilentlyIgnored() =
         runTest {
             val sm = testMachine()
+            val stateBefore = sm.state.value
 
             sm.shutdown()
+            advanceUntilIdle()
 
-            // Wait a bit for the shutdown to propagate to the channel
-            // Though shutdown() calls actionChannel.close() immediately.
+            // Should not throw; state must remain unchanged.
+            sm.dispatch(GameAction.Deal)
+            advanceUntilIdle()
 
-            assertFailsWith<ClosedSendChannelException> {
-                sm.dispatch(GameAction.Deal)
-            }
+            assertEquals(stateBefore, sm.state.value)
         }
 }
