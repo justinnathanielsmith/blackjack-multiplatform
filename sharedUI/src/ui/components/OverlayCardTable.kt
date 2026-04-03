@@ -530,9 +530,7 @@ private fun HandZoneHud(
             val multiHand = handCount > 1
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
             val label =
-                if (showActiveIndicators) {
-                    "YOUR TURN"
-                } else if (multiHand) {
+                if (multiHand) {
                     stringResource(
                         Res.string.hand_number,
                         handIndex + 1
@@ -548,8 +546,11 @@ private fun HandZoneHud(
                     label = label,
                     modifier =
                         Modifier
-                            .align(Alignment.BottomCenter)
-                            .graphicsLayer { translationY = 20.dp.toPx() }
+                            .align(Alignment.BottomEnd)
+                            .graphicsLayer {
+                                translationX = 12.dp.toPx()
+                                translationY = 12.dp.toPx()
+                            }
                 )
             }
 
