@@ -3,22 +3,63 @@ package io.github.smithjustinn.blackjack
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 
+/**
+ * Represents the result of a player action processed by [PlayerActionLogic].
+ *
+ * @property state The next [GameState] produced by the action, reflecting the next transition
+ *           in the game's reactive pipeline.
+ * @property effects Auditory and visual [GameEffect]s to be emitted by the UI (e.g., flipping cards, thuds).
+ * @property shouldAdvanceTurn True if the action ends the player's current turn for the
+ *           [GameState.activeHand], signaling the state machine to move to the next hand or dealer.
+ */
 data class PlayerActionOutcome(
     val state: GameState,
     val effects: List<GameEffect> = emptyList(),
     val shouldAdvanceTurn: Boolean = false
 ) {
     companion object {
+        /**
+         * Creates a [PlayerActionOutcome] that returns the provided [state] without any
+         * changes or side effects. Useful for blocked actions or early exits.
+         *
+         * @param state The current or default state to return.
+         * @return A "no-op" outcome.
+         */
         fun noop(state: GameState): PlayerActionOutcome = PlayerActionOutcome(state)
     }
 }
 
+/**
+ * The core engine for player decision logic in Blackjack.
+ *
+ * This implementation handles standard and advanced moves (Hit, Stand, Double Down, Split) and
+ * ensures they comply with house rules and state invariants. It encapsulates:
+ * 1. **Deck Management**: Ensuring cards are drawn correctly and consistently from the shoe.
+ * 2. **Bet Orchestration**: Deducting balances for additional wagers (Split, Double Down).
+ * 3. **Juice & Feedback**: Selection and emission of relevant [GameEffect]s for a premium feel.
+ *
+ * All functions are pure state transitions that return a [PlayerActionOutcome].
+ */
 object PlayerActionLogic {
     private const val BLACKJACK_SCORE = 21
     private const val HIGH_CARD_VALUE = 10
     private const val NEAR_MISS_SCORE = 11
     private const val CARDS_TO_DEAL_ON_SPLIT = 2
 
+    /**
+     * Deals an extra card to the active hand if permissible.
+     *
+     * Hitting is blocked if:
+     * - The game is not in [GameStatus.PLAYING].
+     * - The active hand's score is already 21 or more.
+     * - The hand was created from split Aces (standard Blackjack rule).
+     *
+     * Emits relevant [GameEffect]s based on the drawn card value (thuds, ticks, 21-pulse, near-miss).
+     * If the hand busts, [PlayerActionOutcome.shouldAdvanceTurn] is set to true.
+     *
+     * @param state The current [GameState] determining the active hand and deck shoe.
+     * @return The resulting state and effects.
+     */
     fun hit(state: GameState): PlayerActionOutcome {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
 
@@ -54,6 +95,15 @@ object PlayerActionLogic {
         )
     }
 
+    /**
+     * Finalizes the player's turn for the active hand without drawing further cards.
+     *
+     * Ends the player's interaction for the current hand and marks it as [Hand.isStanding].
+     * Always sets [PlayerActionOutcome.shouldAdvanceTurn] to true.
+     *
+     * @param state The current [GameState] to transition from.
+     * @return A state where the active hand is standing.
+     */
     fun stand(state: GameState): PlayerActionOutcome {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
         val standingHand = state.activeHand.copy(isStanding = true)
@@ -61,6 +111,21 @@ object PlayerActionLogic {
         return PlayerActionOutcome(state = state.copy(playerHands = updatedHands), shouldAdvanceTurn = true)
     }
 
+    /**
+     * Doubles the current bet for the active hand and draws exactly one additional card.
+     *
+     * Valid when:
+     * - The hand has exactly 2 cards.
+     * - After split, if the rules allow doubling-after-split.
+     * - The player balance is sufficient to match the total existing bet.
+     *
+     * Deducts the extra bet amount from the [GameState.balance] and permanently ends the
+     * hand's turn. Emits [GameEffect.HeavyCardThud] for high-value cards and [GameEffect.BustThud] if
+     * the player busts.
+     *
+     * @param state The current [GameState].
+     * @return The next state with the doubled wager and final drawn card.
+     */
     fun doubleDown(state: GameState): PlayerActionOutcome {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
         val hand = state.activeHand
@@ -110,6 +175,20 @@ object PlayerActionLogic {
         )
     }
 
+    /**
+     * Splits a paired hand into two separate hands, each receiving a new card and a matching bet.
+     *
+     * Splitting is valid only when:
+     * - The active hand has exactly 2 cards of equal rank (or value, if rules allow).
+     * - The maximum number of hands ([BlackjackConfig.MAX_HANDS]) has not been reached.
+     * - The player's balance can cover the identical wager for the second hand.
+     *
+     * Special handling for Ace splitting (only one card deal, automatically ends turn).
+     * Pushes the new hand into the player's list and deducts the stake from the balance.
+     *
+     * @param state The current [GameState].
+     * @return The state updated with the split hands and two dealt card effects.
+     */
     fun split(state: GameState): PlayerActionOutcome {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
         val hand = state.activeHand
