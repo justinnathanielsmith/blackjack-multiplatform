@@ -59,6 +59,28 @@ import sharedui.generated.resources.seats_label
 import sharedui.generated.resources.side_bet_perfect_pairs_label
 import sharedui.generated.resources.side_bet_twenty_one_plus_three_label
 
+/**
+ * The primary interaction layer for placing bets and configuring the initial hand count.
+ *
+ * This screen is active during [io.github.smithjustinn.blackjack.GameStatus.BETTING]. It allows
+ * the player to:
+ * 1. Select the number of participating hands ([io.github.smithjustinn.blackjack.BlackjackConfig.MIN_INITIAL_HANDS]-[io.github.smithjustinn.blackjack.BlackjackConfig.MAX_INITIAL_HANDS]).
+ * 2. Place main bets on one or more seats using a drag-and-drop or tap interaction.
+ * 3. Place side bets (Perfect Pairs, 21+3).
+ * 4. Experience "juicy" feedback via flying chip animations and audio cues.
+ *
+ * The layout is responsive, adapting to screen width via [BoxWithConstraints]. It uses a
+ * parabolic arc to position player seats, mimicking the curvature of a physical casino table.
+ *
+ * @param handCount The current number of initial seats enabled for the next round.
+ * @param sideBets A map containing currently active side-wagers keyed by [SideBetType].
+ * @param playerHands The list of [Hand] objects currently held by the player, used to display
+ *        existing bet amounts in each seat.
+ * @param component The [BlackjackComponent] used to dispatch betting and configuration actions.
+ * @param audioService The [AudioService] used to trigger sound effects for chip interactions.
+ * @param selectedAmount The value of the chip currently selected in the UI footer.
+ * @param modifier [Modifier] applied to the root container of this screen.
+ */
 @Composable
 fun BettingPhaseScreen(
     handCount: Int,

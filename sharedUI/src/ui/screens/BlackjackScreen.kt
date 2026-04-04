@@ -61,6 +61,26 @@ import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
+/**
+ * The primary gameplay screen for the Blackjack application.
+ *
+ * This screen serves as the top-level orchestrator for the active game session, managing the
+ * interaction between the [GameState], animations, and user controls. It handles:
+ * 1. **Visual Layout**: Adapts the card table and UI elements to different screen sizes and
+ *    portrait/landscape aspect ratios.
+ * 2. **Animation Orchestration**: Coordinates complex multi-layered animations (dealt cards,
+ *    payout eruptions, screen shakes) via [BlackjackAnimationOrchestrator].
+ * 3. **Feedback Systems**: Bridges game effects (sounds, haptics) to their platform-specific
+ *    services.
+ * 4. **User Input**: Dispatches player actions (Hit, Stand, Double Down, etc.) and configuration
+ *    changes (Auto-Deal, Side Bets) to the [BlackjackComponent].
+ * 5. **Visual Hints**: Displays active-hand highlights and dynamic table reflections to
+ *    enhance the "premium" casino feel.
+ *
+ * @param component The [BlackjackComponent] serving as the state-holder and action dispatcher
+ *        for this screen.
+ * @param modifier [Modifier] applied to the root container of the screen.
+ */
 @Composable
 fun BlackjackScreen(
     component: BlackjackComponent,
