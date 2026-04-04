@@ -81,11 +81,19 @@ fun OverlayCardTable(
     modifier: Modifier = Modifier,
 ) {
     val registry = LocalDealAnimationRegistry.current
-    val shoePosition = registry.shoePosition
     val density = LocalDensity.current
 
     val coordOffsetX = registry.gameplayAreaOffset.x - registry.overlayOffset.x
     val coordOffsetY = registry.gameplayAreaOffset.y - registry.overlayOffset.y
+
+    // shoePosition is captured in root coordinates; convert to CasinoTableLayout's
+    // local space by subtracting gameplayAreaOffset (the graphicsLayer shift applied
+    // to the layout). Without this, cards start ~header-height px below the shoe.
+    val shoePositionLocal =
+        Offset(
+            registry.shoePosition.x - registry.gameplayAreaOffset.x,
+            registry.shoePosition.y - registry.gameplayAreaOffset.y,
+        )
 
     val baseCardW = with(density) { Dimensions.Card.StandardWidth.toPx() }
     val baseCardH = baseCardW / Dimensions.Card.AspectRatio
@@ -97,7 +105,7 @@ fun OverlayCardTable(
 
     CasinoTableLayout(
         state = state,
-        shoePosition = shoePosition,
+        shoePosition = shoePositionLocal,
         gameplayAreaHeight = gameplayAreaHeight,
         onLayout = { registry.tableLayout = it },
         modifier =

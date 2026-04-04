@@ -13,10 +13,16 @@ import androidx.compose.ui.util.lerp
 import io.github.smithjustinn.blackjack.GameState
 import kotlin.math.roundToInt
 
+data class CardParentData(
+    val id: String = "",
+    val flightProgress: State<Float>? = null,
+)
+
 class FlightProgressModifier(
     val progress: State<Float>
 ) : ParentDataModifier {
-    override fun Density.modifyParentData(parentData: Any?) = this@FlightProgressModifier
+    override fun Density.modifyParentData(parentData: Any?): Any =
+        (parentData as? CardParentData ?: CardParentData()).copy(flightProgress = progress)
 }
 
 fun Modifier.flightProgress(progress: State<Float>) = this.then(FlightProgressModifier(progress))
@@ -24,7 +30,8 @@ fun Modifier.flightProgress(progress: State<Float>) = this.then(FlightProgressMo
 class NodeIdModifier(
     val id: String
 ) : ParentDataModifier {
-    override fun Density.modifyParentData(parentData: Any?) = this@NodeIdModifier
+    override fun Density.modifyParentData(parentData: Any?): Any =
+        (parentData as? CardParentData ?: CardParentData()).copy(id = id)
 }
 
 fun Modifier.nodeId(id: String) = this.then(NodeIdModifier(id))
@@ -66,7 +73,7 @@ fun CasinoTableLayout(
 
         val placeables =
             measurables.associate { measurable ->
-                val id = (measurable.parentData as? NodeIdModifier)?.id ?: ""
+                val id = (measurable.parentData as? CardParentData)?.id ?: ""
                 val measureConstraints =
                     when {
                         // HUD must be exactly the cluster size so fillMaxSize() + Alignment.*
@@ -114,7 +121,7 @@ fun CasinoTableLayout(
                     val destX = slot.centerOffset.x - p.width / 2
                     val destY = slot.centerOffset.y - p.height / 2
                     p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
-                        val progress = (p.parentData as? FlightProgressModifier)?.progress?.value ?: 1f
+                        val progress = (p.parentData as? CardParentData)?.flightProgress?.value ?: 1f
                         val startX = shoePosition.x - destX
                         val startY = shoePosition.y - destY
                         translationX = lerp(startX, 0f, progress)
@@ -134,7 +141,7 @@ fun CasinoTableLayout(
                     val destX = slot.centerOffset.x - p.width / 2
                     val destY = slot.centerOffset.y - p.height / 2
                     p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
-                        val progress = (p.parentData as? FlightProgressModifier)?.progress?.value ?: 1f
+                        val progress = (p.parentData as? CardParentData)?.flightProgress?.value ?: 1f
                         val startX = shoePosition.x - destX
                         val startY = shoePosition.y - destY
                         translationX = lerp(startX, 0f, progress)
@@ -154,7 +161,7 @@ fun CasinoTableLayout(
                     val destX = slot.centerOffset.x - p.width / 2
                     val destY = slot.centerOffset.y - p.height / 2
                     p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = 20f) {
-                        val progress = (p.parentData as? FlightProgressModifier)?.progress?.value ?: 1f
+                        val progress = (p.parentData as? CardParentData)?.flightProgress?.value ?: 1f
                         val startX = slot.startOffset.x - destX
                         val startY = slot.startOffset.y - destY
                         translationX = lerp(startX, 0f, progress)
