@@ -638,12 +638,19 @@ private fun HandStatusOverlay(
 
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(tween(AnimationConstants.StatusMessageEnterDuration)) +
-            scaleIn(
-                initialScale = 0.8f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
-            ),
-        exit = fadeOut(tween(AnimationConstants.StatusMessageExitDuration)) + scaleOut(targetScale = 0.9f),
+        enter =
+            fadeIn(tween(AnimationConstants.StatusMessageEnterDuration)) +
+                scaleIn(
+                    initialScale = 0.8f,
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                ),
+        exit =
+            fadeOut(tween(AnimationConstants.StatusMessageExitDuration)) +
+                scaleOut(targetScale = 0.9f),
         modifier = modifier
     ) {
         val (text, color) =
@@ -658,8 +665,7 @@ private fun HandStatusOverlay(
                 Modifier
                     .semantics {
                         liveRegion = LiveRegionMode.Polite
-                    }
-                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    }.shadow(12.dp, RoundedCornerShape(8.dp))
                     .background(color, RoundedCornerShape(8.dp))
                     .border(1.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                     .padding(horizontal = 14.dp, vertical = 6.dp)
