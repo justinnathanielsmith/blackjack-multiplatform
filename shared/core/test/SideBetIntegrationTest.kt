@@ -152,7 +152,7 @@ class SideBetIntegrationTest {
                 assertTrue(results.contains(SideBetType.PERFECT_PAIRS))
                 assertTrue(results.contains(SideBetType.TWENTY_ONE_PLUS_THREE))
 
-                assertEquals(GameEffect.PlayWinSound, awaitItem())
+                assertEquals(GameEffect.BigWin(12700), awaitItem())
 
                 cancelAndIgnoreRemainingEvents()
             }

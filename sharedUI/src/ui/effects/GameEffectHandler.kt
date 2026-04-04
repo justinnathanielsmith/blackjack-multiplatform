@@ -43,6 +43,7 @@ private fun handleAudioEffect(
         GameEffect.DealerCriticalDraw -> audio.playEffect(AudioService.SoundEffect.TENSION)
         GameEffect.PlayPlinkSound -> audio.playEffect(AudioService.SoundEffect.PLINK)
         GameEffect.PlayPushSound -> audio.playEffect(AudioService.SoundEffect.PUSH)
+        is GameEffect.BigWin -> audio.playEffect(AudioService.SoundEffect.THE_NUTS)
         else -> {}
     }
 }

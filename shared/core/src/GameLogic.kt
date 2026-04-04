@@ -953,4 +953,13 @@ sealed class GameEffect {
 
     /** Plays [AudioService.SoundEffect.PUSH] when a hand ends in a tie. */
     data object PlayPushSound : GameEffect()
+
+    /**
+     * Signals a massive side-bet win (payoutMultiplier >= 25).
+     * Suppresses [PlayWinSound]; the orchestrator plays THE_NUTS instead and shows the BigWinBanner.
+     * @param totalPayout Combined side-bet payout amount to display in the banner.
+     */
+    data class BigWin(
+        val totalPayout: Int
+    ) : GameEffect()
 }

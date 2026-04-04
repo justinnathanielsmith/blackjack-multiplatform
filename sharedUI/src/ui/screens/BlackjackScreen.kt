@@ -297,6 +297,8 @@ fun BlackjackScreen(
                                 flashAlphaProvider = { animState.flashAlpha.value },
                                 flashColorProvider = { animState.flashColor },
                                 isPaused = { animState.isPaused },
+                                showBigWinBanner = { animState.showBigWinBanner },
+                                bigWinAmount = { animState.bigWinAmount },
                             )
 
                             BettingLayer(

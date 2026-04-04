@@ -148,6 +148,10 @@ object AnimationConstants {
     // Confetti wave 2 (ConfettiEffect.kt, blackjack only)
     val ConfettiWave2DelayMs = 400L
 
+    // Big Win banner (BigWinBanner.kt)
+    val BigWinFlashOutDuration = 700
+    val BigWinBannerLifetimeMs = 3500L
+
     // Dealer card reveal haptic beat (DealerCard.kt)
     val DealerRevealHapticBeatMs = 200L
 

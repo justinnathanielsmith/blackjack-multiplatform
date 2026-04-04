@@ -29,6 +29,12 @@ class BlackjackAnimationState {
      * Particle state is preserved mid-flight so effects resume correctly on foreground.
      */
     var isPaused: Boolean by mutableStateOf(false)
+
+    /** True while the BigWinBanner composable should be visible. Set by the orchestrator. */
+    var showBigWinBanner: Boolean by mutableStateOf(false)
+
+    /** Payout amount to display inside the BigWinBanner. Valid when [showBigWinBanner] is true. */
+    var bigWinAmount: Int by mutableStateOf(0)
 }
 
 @Immutable

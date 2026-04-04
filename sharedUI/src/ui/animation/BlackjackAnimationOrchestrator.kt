@@ -30,8 +30,22 @@ object BlackjackAnimationOrchestrator {
         audioService: AudioService,
         hapticsService: HapticsService,
     ) = coroutineScope {
-        launchEffectsPipeline(effects, animState, audioService, hapticsService)
-        launchStateDrivenAnimations(stateFlow, animState)
+        // flashJob is shared between the two pipelines so BigWin can cancel the state-driven flash.
+        var flashJob: Job? = null
+        launchEffectsPipeline(
+            effects,
+            animState,
+            audioService,
+            hapticsService,
+            getFlashJob = { flashJob },
+            setFlashJob = { flashJob = it }
+        )
+        launchStateDrivenAnimations(
+            stateFlow,
+            animState,
+            getFlashJob = { flashJob },
+            setFlashJob = { flashJob = it }
+        )
     }
 
     private fun CoroutineScope.launchEffectsPipeline(
@@ -39,6 +53,8 @@ object BlackjackAnimationOrchestrator {
         animState: BlackjackAnimationState,
         audioService: AudioService,
         hapticsService: HapticsService,
+        getFlashJob: () -> Job?,
+        setFlashJob: (Job?) -> Unit,
     ) {
         // 1. Effects pipeline — audio/haptics dispatching + animation state mutations
         launch {
@@ -65,6 +81,18 @@ object BlackjackAnimationOrchestrator {
                             delay(AnimationConstants.ChipLossLifetimeMs)
                             animState.chipLosses.remove(instance)
                         }
+                    is GameEffect.BigWin ->
+                        launch {
+                            getFlashJob()?.cancel()
+                            animState.bigWinAmount = effect.totalPayout
+                            animState.showBigWinBanner = true
+                            animState.flashColor = PrimaryGold
+                            animState.flashAlpha.snapTo(0f)
+                            animState.flashAlpha.animateTo(0.40f, tween(AnimationConstants.FlashInDuration))
+                            animState.flashAlpha.animateTo(0f, tween(AnimationConstants.BigWinFlashOutDuration))
+                            delay(AnimationConstants.BigWinBannerLifetimeMs)
+                            animState.showBigWinBanner = false
+                        }.also { setFlashJob(it) }
                     else -> {}
                 }
             }
@@ -74,29 +102,29 @@ object BlackjackAnimationOrchestrator {
     private fun CoroutineScope.launchStateDrivenAnimations(
         stateFlow: StateFlow<GameState>,
         animState: BlackjackAnimationState,
+        getFlashJob: () -> Job?,
+        setFlashJob: (Job?) -> Unit,
     ) {
         // 2. State-driven flash and shake — cancels the previous animation job on each status change
         launch {
-            var flashJob: Job? = null
             var shakeJob: Job? = null
             stateFlow.distinctUntilChangedBy { it.status }.collect { state ->
                 when (state.status) {
                     GameStatus.PLAYER_WON -> {
-                        flashJob?.cancel()
-                        flashJob =
-                            launch {
-                                val isBlackjack = state.playerHands.any { it.isBlackjack }
-                                animState.flashColor = if (isBlackjack) PrimaryGold else Color.White
-                                val targetAlpha = if (isBlackjack) 0.25f else 0.15f
-                                val outDuration =
-                                    if (isBlackjack) {
-                                        AnimationConstants.FlashOutDurationBlackjack
-                                    } else {
-                                        AnimationConstants.FlashOutDurationWin
-                                    }
-                                animState.flashAlpha.animateTo(targetAlpha, tween(AnimationConstants.FlashInDuration))
-                                animState.flashAlpha.animateTo(0f, tween(outDuration))
-                            }
+                        getFlashJob()?.cancel()
+                        launch {
+                            val isBlackjack = state.playerHands.any { it.isBlackjack }
+                            animState.flashColor = if (isBlackjack) PrimaryGold else Color.White
+                            val targetAlpha = if (isBlackjack) 0.25f else 0.15f
+                            val outDuration =
+                                if (isBlackjack) {
+                                    AnimationConstants.FlashOutDurationBlackjack
+                                } else {
+                                    AnimationConstants.FlashOutDurationWin
+                                }
+                            animState.flashAlpha.animateTo(targetAlpha, tween(AnimationConstants.FlashInDuration))
+                            animState.flashAlpha.animateTo(0f, tween(outDuration))
+                        }.also { setFlashJob(it) }
                     }
                     GameStatus.DEALER_WON -> {
                         shakeJob?.cancel()

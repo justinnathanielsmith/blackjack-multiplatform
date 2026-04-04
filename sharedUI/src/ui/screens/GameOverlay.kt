@@ -39,6 +39,7 @@ import io.github.smithjustinn.blackjack.isStatusVisible
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
+import io.github.smithjustinn.blackjack.ui.effects.BigWinBanner
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
@@ -65,6 +66,8 @@ fun GameOverlay(
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
     isPaused: () -> Boolean = { false },
+    showBigWinBanner: () -> Boolean = { false },
+    bigWinAmount: () -> Int = { 0 },
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -78,6 +81,8 @@ fun GameOverlay(
             flashAlphaProvider = flashAlphaProvider,
             flashColorProvider = flashColorProvider,
             isPaused = isPaused,
+            showBigWinBanner = showBigWinBanner,
+            bigWinAmount = bigWinAmount,
             modifier = Modifier.zIndex(5f),
         )
     }
@@ -92,6 +97,8 @@ private fun BlackjackGameOverlay(
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
     isPaused: () -> Boolean = { false },
+    showBigWinBanner: () -> Boolean = { false },
+    bigWinAmount: () -> Int = { 0 },
     modifier: Modifier = Modifier,
 ) {
     val showStatus by remember(status) { derivedStateOf { status.isStatusVisible() } }
@@ -138,6 +145,11 @@ private fun BlackjackGameOverlay(
         if (status == GameStatus.PLAYER_WON && isBlackjack) {
             SparkleEffect(isPaused = isPaused)
         }
+
+        BigWinBanner(
+            visible = showBigWinBanner(),
+            amount = bigWinAmount(),
+        )
 
         // Bolt Performance Optimization: Defer state read to draw phase to prevent O(Frames) recompositions
         Box(
