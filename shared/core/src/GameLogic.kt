@@ -9,6 +9,9 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
+/**
+ * Represents the four standard suits in a deck of playing cards.
+ */
 @Serializable
 enum class Suit {
     HEARTS,
@@ -17,8 +20,17 @@ enum class Suit {
     SPADES
 }
 
+/**
+ * Represents the rank of a playing card and its associated scoring value in Blackjack.
+ *
+ * Face cards (Jack, Queen, King) are worth 10. Aces are initially worth 11, subject
+ * to value reduction to 1 during [Hand] score calculation if the total would otherwise bust.
+ *
+ * @property value The base Blackjack scoring value for this rank.
+ */
 @Serializable
 enum class Rank(
+    /** The base Blackjack scoring value for this rank. */
     val value: Int
 ) {
     TWO(2),
@@ -36,6 +48,16 @@ enum class Rank(
     ACE(11)
 }
 
+/**
+ * Represents a single playing card with a specific [rank] and [suit].
+ *
+ * In this application, a card also carries a [isFaceDown] state, which determines
+ * its visibility in the UI and whether its score is included in [Hand.visibleScore].
+ *
+ * @property rank The [Rank] of the card (e.g., ACE, KING, TWO).
+ * @property suit The [Suit] of the card (e.g., HEARTS, SPADES).
+ * @property isFaceDown If true, the card's rank and suit are hidden from the player.
+ */
 @Immutable
 @Serializable
 data class Card(
@@ -43,6 +65,7 @@ data class Card(
     val suit: Suit,
     val isFaceDown: Boolean = false,
 ) {
+    /** True if the card is face-up (visible to players). */
     val isFaceUp: Boolean get() = !isFaceDown
 }
 
