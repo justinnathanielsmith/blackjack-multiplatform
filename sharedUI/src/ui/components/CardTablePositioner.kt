@@ -47,7 +47,7 @@ data class TableLayout(
 
 private object TableMetrics {
     const val DEALER_ZONE_CENTER_Y_RATIO = 0.22f
-    const val PLAYER_ZONE_CENTER_Y_RATIO = 0.72f
+    const val PLAYER_ZONE_CENTER_Y_RATIO = 0.65f
     const val PLAYER_SMILE_ARC_RADIUS_RATIO = 0.12f
     const val INTRA_HAND_SMILE_RADIUS_RATIO = 0.06f
     const val FAN_ANGLE_DEGREES_PER_CARD = 6f
@@ -119,7 +119,7 @@ fun computeTableLayout(
 private fun getCardScale(nPlayerHands: Int): Float =
     when (nPlayerHands) {
         1 -> 1.0f
-        2 -> 0.82f
+        2 -> 0.72f
         else -> 0.42f
     }
 
@@ -217,7 +217,7 @@ private fun computePlayerZones(
                 handIndex = handIdx,
                 zoneCenter = playerZoneCenter,
                 shoePosition = shoePosition,
-                availableWidth = zoneWidth * 0.95f,
+                availableWidth = zoneWidth * if (nPlayerHands > 1) 0.80f else 0.95f,
                 params = params,
                 isDealer = false,
                 startIndex = currentCardIndex,
@@ -236,7 +236,7 @@ private fun computePlayerZones(
                     centerOffset =
                         Offset(
                             zone.clusterCenter.x,
-                            zone.clusterTopLeft.y + zone.clusterSize.height + with(density) { 20.dp.toPx() },
+                            zone.clusterTopLeft.y + zone.clusterSize.height + with(density) { (if (nPlayerHands > 1) 36.dp else 20.dp).toPx() },
                         ),
                     scale = params.cardScale,
                 )

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +54,8 @@ import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.delay
@@ -388,13 +391,15 @@ private fun PositionedChipItem(
         ChipStack(amount = amount, isActive = isActive)
 
         // Bet Label overlay — positioned at the top-right of the chips
+        // Bet Label overlay — positioned slightly offset from the chips
         BetAmountBadge(
             amount = amount,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .graphicsLayer {
-                    translationX = 32.dp.toPx()
-                    translationY = (-16).dp.toPx()
+                    // Reduce horizontal bleed for multi-hand layouts
+                    translationX = if (amount > 99) 24.dp.toPx() else 12.dp.toPx()
+                    translationY = (-12).dp.toPx()
                 }
         )
     }
@@ -506,7 +511,7 @@ private fun HandZoneHud(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
-                        .graphicsLayer { translationY = -40.dp.toPx() }
+                        .graphicsLayer { translationY = -32.dp.toPx() }
             )
         }
 
@@ -546,6 +551,13 @@ private fun HandZoneHud(
             val isWinner = handResult == HandResult.WIN
 
             if (!isBetting) {
+                val badgeAlignment = when {
+                    handCount == 2 && handIndex == 0 -> Alignment.BottomStart
+                    handCount == 2 && handIndex == 1 -> Alignment.BottomEnd
+                    handCount > 1 -> Alignment.BottomCenter
+                    else -> Alignment.BottomEnd
+                }
+
                 ScoreBadge(
                     score = hand.score,
                     state = badgeState,
@@ -553,10 +565,15 @@ private fun HandZoneHud(
                     isWinner = isWinner,
                     modifier =
                         Modifier
-                            .align(Alignment.BottomEnd)
+                            .align(badgeAlignment)
                             .graphicsLayer {
-                                translationX = 16.dp.toPx()
-                                translationY = 16.dp.toPx()
+                                translationX = when {
+                                    handCount == 2 && handIndex == 0 -> (-12).dp.toPx()
+                                    handCount == 2 && handIndex == 1 -> 12.dp.toPx()
+                                    handCount > 1 -> 0f
+                                    else -> 20.dp.toPx()
+                                }
+                                translationY = if (handCount > 1) 28.dp.toPx() else 20.dp.toPx()
                             }
                 )
             }
@@ -620,11 +637,10 @@ private fun HandStatusOverlay(
 @Composable
 private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "indicatorTransition")
-    // No `by` delegate — value is read inside graphicsLayer to skip layout passes each frame.
     val bounceOffsetState =
         infiniteTransition.animateFloat(
             initialValue = 0f,
-            targetValue = 10f,
+            targetValue = 8f,
             animationSpec =
                 infiniteRepeatable(
                     animation = tween(AnimationConstants.ActiveHandIndicatorDuration, easing = FastOutSlowInEasing),
@@ -633,24 +649,64 @@ private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
             label = "bounceOffset",
         )
 
+    val glowAlphaState =
+        infiniteTransition.animateFloat(
+            initialValue = 0.4f,
+            targetValue = 0.8f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "indicatorGlowAlpha",
+        )
+
     Box(
         modifier =
             modifier
+                .size(24.dp, 16.dp)
                 .graphicsLayer {
                     translationY = bounceOffsetState.value
-                    shadowElevation = 8.dp.toPx()
-                    shape = RoundedCornerShape(4.dp)
-                    clip = true
-                }.background(PrimaryGold)
-                .padding(4.dp)
-    ) {
-        Text(
-            text = "▼", // Simple chevron
-            color = BackgroundDark,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Black,
-        )
-    }
+                }.drawBehind {
+                    // Draw a premium metallic chevron / arrow
+                    val glowBrush =
+                        Brush.radialGradient(
+                            colors = listOf(PrimaryGold.copy(alpha = glowAlphaState.value * 0.5f), Color.Transparent),
+                            radius = size.maxDimension * 1.5f,
+                        )
+                    drawCircle(brush = glowBrush, radius = size.maxDimension * 1.5f)
+
+                    val path = androidx.compose.ui.graphics.Path().apply {
+                        moveTo(0f, 0f)
+                        lineTo(size.width / 2, size.height)
+                        lineTo(size.width, 0f)
+                        lineTo(size.width / 2, size.height * 0.4f)
+                        close()
+                    }
+
+                    // Shadow/Depth
+                    drawPath(
+                        path = path,
+                        color = Color.Black.copy(alpha = 0.4f),
+                    )
+
+                    // Main Body - Metallic Gold
+                    val metallicBrush = Brush.verticalGradient(
+                        colors = listOf(ModernGoldLight, PrimaryGold, ModernGoldDark)
+                    )
+                    drawPath(
+                        path = path,
+                        brush = metallicBrush,
+                    )
+
+                    // Rim Highlight
+                    drawPath(
+                        path = path,
+                        color = Color.White.copy(alpha = 0.5f),
+                        style = Stroke(width = 1.dp.toPx())
+                    )
+                }
+    )
 }
 
 @Composable

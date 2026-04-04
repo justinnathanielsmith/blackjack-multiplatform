@@ -26,6 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -43,6 +46,7 @@ import io.github.smithjustinn.blackjack.ui.theme.BadgeNeutralGrey
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
 import io.github.smithjustinn.blackjack.ui.theme.VelvetRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -124,10 +128,10 @@ fun ScoreBadge(
         LaunchedEffect(score, state) {
             if (state == ScoreBadgeState.ACTIVE || is21 || isBust || isWinner) {
                 pulseScale.animateTo(
-                    targetValue = 1.15f,
+                    targetValue = 1.12f,
                     animationSpec =
                         spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            dampingRatio = 0.5f,
                             stiffness = Spring.StiffnessHigh
                         )
                 )
@@ -135,8 +139,8 @@ fun ScoreBadge(
                     targetValue = 1f,
                     animationSpec =
                         spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
+                            dampingRatio = 0.6f,
+                            stiffness = Spring.StiffnessMedium
                         )
                 )
             }
@@ -187,17 +191,43 @@ fun ScoreBadge(
                     }.then(
                         if (state == ScoreBadgeState.ACTIVE) {
                             Modifier.border(
-                                2.dp,
-                                ModernGoldLight
-                                    .copy(alpha = 0.8f),
+                                1.5.dp,
+                                Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.5f), ModernGoldLight.copy(alpha = 0.5f))),
                                 BadgeShape
                             )
                         } else {
                             Modifier
                         }
-                    ).background(backgroundColor, BadgeShape)
-                    .border(1.5.dp, borderColor, BadgeShape)
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                    ).drawWithCache {
+                        val isGold = is21 || isWinner
+                        val brush = if (isGold) {
+                            Brush.verticalGradient(listOf(ModernGoldLight, ModernGoldDark))
+                        } else {
+                            Brush.verticalGradient(listOf(backgroundColor.copy(alpha = 0.95f), backgroundColor))
+                        }
+
+                        onDrawBehind {
+                            drawRoundRect(
+                                brush = brush,
+                                cornerRadius = CornerRadius(size.height / 2f)
+                            )
+
+                            // Subtle Leather Grain / Micro-texture
+                            val grainAlpha = 0.04f
+                            for (i in 0..15) {
+                                drawCircle(
+                                    color = Color.Black.copy(alpha = grainAlpha),
+                                    radius = 1.dp.toPx(),
+                                    center = Offset(
+                                        x = (size.width * (i * 0.13f % 1f)),
+                                        y = (size.height * (i * 0.27f % 1f))
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    .border(1.dp, borderColor.copy(alpha = 0.5f), BadgeShape)
+                    .padding(horizontal = 14.dp, vertical = 5.dp),
             contentAlignment = Alignment.Center
         ) {
             Row(

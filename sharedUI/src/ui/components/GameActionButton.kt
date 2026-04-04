@@ -128,20 +128,29 @@ fun GameActionButton(
             val depthOffset = 2.dp.toPx()
 
             if (enabled) {
-                // Side depth
+                // Outer Glow for Strategic Actions
+                if (isStrategic) {
+                    val glowBrush = Brush.radialGradient(
+                        colors = listOf(PrimaryGold.copy(alpha = 0.3f), Color.Transparent),
+                        radius = radius * 1.5f
+                    )
+                    drawCircle(brush = glowBrush, radius = radius * 1.5f)
+                }
+
+                // Side depth (3D effect)
                 drawCircle(
-                    color = baseColor.copy(alpha = 0.5f),
+                    color = Color.Black.copy(alpha = 0.4f),
                     radius = radius,
                     center = center.copy(y = center.y + depthOffset)
                 )
 
-                // Main body
+                // Main body - Metallic Gradient
                 val brush =
                     Brush.verticalGradient(
                         listOf(
-                            baseColor.copy(alpha = 1f).blend(Color.White, 0.15f),
+                            baseColor.blend(Color.White, 0.4f),
                             baseColor,
-                            baseColor.copy(alpha = 1f).blend(Color.Black, 0.15f)
+                            baseColor.blend(Color.Black, 0.3f)
                         )
                     )
 
@@ -151,17 +160,23 @@ fun GameActionButton(
                     center = center
                 )
 
-                // Clean rim highlight
+                // Premium Rim Highlight (Metallic)
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.2f),
-                    radius = radius * 0.95f,
+                    brush = Brush.sweepGradient(
+                        0.0f to Color.White.copy(alpha = 0.6f),
+                        0.2f to Color.White.copy(alpha = 0.1f),
+                        0.5f to Color.White.copy(alpha = 0.6f),
+                        0.8f to Color.White.copy(alpha = 0.1f),
+                        1.0f to Color.White.copy(alpha = 0.6f)
+                    ),
+                    radius = radius * 0.96f,
                     center = center,
                     style = Stroke(width = 2.dp.toPx())
                 )
             } else {
                 // Disabled flat look
                 drawCircle(
-                    color = GlassDark.copy(alpha = 0.5f),
+                    color = Color(0xFF2A2A2A).copy(alpha = 0.5f),
                     radius = radius,
                     center = center
                 )
