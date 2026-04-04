@@ -26,7 +26,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -38,7 +41,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
@@ -59,12 +64,12 @@ import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.dealer
 import sharedui.generated.resources.emoji_crown
-import sharedui.generated.resources.hand_number
 import sharedui.generated.resources.status_blackjack
 import sharedui.generated.resources.status_bust
 import sharedui.generated.resources.status_twenty_one
@@ -116,18 +121,15 @@ fun OverlayCardTable(
             }
         }
 
-        var globalCardIndex = 0
-
         // 2. Positioned (landed) cards - Dealer
         val isDealerActive = state.status == GameStatus.PLAYING && state.activeHandIndex == -1
         state.dealerHand.cards.forEachIndexed { cardIndex, card ->
             val isDimmed = state.status == GameStatus.PLAYING && state.activeHandIndex != -1
-            val animDelay = globalCardIndex * AnimationConstants.CardDealDelay
 
             androidx.compose.runtime.key("dealer", cardIndex) {
                 PositionedCardItem(
                     card = card,
-                    animDelay = animDelay,
+                    animDelay = 0,
                     isFaceUp = card.isFaceUp,
                     isDealer = true,
                     dealerUpcard = state.dealerHand.cards.getOrNull(0),
@@ -145,7 +147,6 @@ fun OverlayCardTable(
                     modifier = Modifier.nodeId("dealer-card-$cardIndex")
                 )
             }
-            globalCardIndex++
         }
 
         // 2. Positioned (landed) cards - Player
@@ -155,13 +156,12 @@ fun OverlayCardTable(
             val isNearMiss = handIndex == nearMissHandIndex
 
             hand.cards.forEachIndexed { cardIndex, card ->
-                val animDelay = globalCardIndex * AnimationConstants.CardDealDelay
                 val isDoubledCard = hand.isDoubleDown && cardIndex == 2
 
                 androidx.compose.runtime.key("player", handIndex, cardIndex) {
                     PositionedCardItem(
                         card = card,
-                        animDelay = animDelay,
+                        animDelay = 0,
                         isFaceUp = card.isFaceUp,
                         isDealer = false,
                         dealerUpcard = null,
@@ -180,7 +180,6 @@ fun OverlayCardTable(
                         modifier = Modifier.nodeId("player-card-$handIndex-$cardIndex")
                     )
                 }
-                globalCardIndex++
             }
         }
 
@@ -271,10 +270,12 @@ private fun PositionedCardItem(
     modifier: Modifier = Modifier,
 ) {
     val progress = remember { Animatable(0f) }
+    var midFlightReached by remember { mutableStateOf(false) }
 
     val stackBoostPx = with(density) { (cardIndexInHand * 3).dp.toPx() }
     val currentShadow = remember { Animatable(with(density) { 5.dp.toPx() } + stackBoostPx) }
     val animatedScale = remember { Animatable(1f) }
+    val haptic = LocalHapticFeedback.current
 
     LaunchedEffect(Unit) {
         delay(animDelay.toLong())
@@ -290,10 +291,17 @@ private fun PositionedCardItem(
             }
 
         launch {
+            snapshotFlow { progress.value }
+                .first { it >= 0.5f }
+            midFlightReached = true
+        }
+
+        launch {
             progress.animateTo(
                 targetValue = 1f,
                 animationSpec = spring(dampingRatio = zeta, stiffness = stiffness)
             )
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
 
         launch {
@@ -321,7 +329,7 @@ private fun PositionedCardItem(
         currentShadow.animateTo(targetElevPx, tween(AnimationConstants.CardShadowLandDuration))
     }
 
-    val wasFaceDown = remember(card) { card.isFaceDown }
+    val wasFaceDown = remember { card.isFaceDown }
 
     Box(
         modifier =
@@ -350,7 +358,7 @@ private fun PositionedCardItem(
         } else {
             PlayingCard(
                 card = card,
-                isFaceUp = isFaceUp,
+                isFaceUp = isFaceUp && midFlightReached,
                 scale = 1f,
                 isNearMiss = isNearMiss,
                 isDimmed = isDimmed,
@@ -394,13 +402,14 @@ private fun PositionedChipItem(
         // Bet Label overlay — positioned slightly offset from the chips
         BetAmountBadge(
             amount = amount,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .graphicsLayer {
-                    // Reduce horizontal bleed for multi-hand layouts
-                    translationX = if (amount > 99) 24.dp.toPx() else 12.dp.toPx()
-                    translationY = (-12).dp.toPx()
-                }
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .graphicsLayer {
+                        // Reduce horizontal bleed for multi-hand layouts
+                        translationX = if (amount > 99) 24.dp.toPx() else 12.dp.toPx()
+                        translationY = (-12).dp.toPx()
+                    }
         )
     }
 }
@@ -551,12 +560,13 @@ private fun HandZoneHud(
             val isWinner = handResult == HandResult.WIN
 
             if (!isBetting) {
-                val badgeAlignment = when {
-                    handCount == 2 && handIndex == 0 -> Alignment.BottomStart
-                    handCount == 2 && handIndex == 1 -> Alignment.BottomEnd
-                    handCount > 1 -> Alignment.BottomCenter
-                    else -> Alignment.BottomEnd
-                }
+                val badgeAlignment =
+                    when {
+                        handCount == 2 && handIndex == 0 -> Alignment.BottomStart
+                        handCount == 2 && handIndex == 1 -> Alignment.BottomEnd
+                        handCount > 1 -> Alignment.BottomCenter
+                        else -> Alignment.BottomEnd
+                    }
 
                 ScoreBadge(
                     score = hand.score,
@@ -567,12 +577,13 @@ private fun HandZoneHud(
                         Modifier
                             .align(badgeAlignment)
                             .graphicsLayer {
-                                translationX = when {
-                                    handCount == 2 && handIndex == 0 -> (-12).dp.toPx()
-                                    handCount == 2 && handIndex == 1 -> 12.dp.toPx()
-                                    handCount > 1 -> 0f
-                                    else -> 20.dp.toPx()
-                                }
+                                translationX =
+                                    when {
+                                        handCount == 2 && handIndex == 0 -> (-12).dp.toPx()
+                                        handCount == 2 && handIndex == 1 -> 12.dp.toPx()
+                                        handCount > 1 -> 0f
+                                        else -> 20.dp.toPx()
+                                    }
                                 translationY = if (handCount > 1) 28.dp.toPx() else 20.dp.toPx()
                             }
                 )
@@ -676,13 +687,14 @@ private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
                         )
                     drawCircle(brush = glowBrush, radius = size.maxDimension * 1.5f)
 
-                    val path = androidx.compose.ui.graphics.Path().apply {
-                        moveTo(0f, 0f)
-                        lineTo(size.width / 2, size.height)
-                        lineTo(size.width, 0f)
-                        lineTo(size.width / 2, size.height * 0.4f)
-                        close()
-                    }
+                    val path =
+                        androidx.compose.ui.graphics.Path().apply {
+                            moveTo(0f, 0f)
+                            lineTo(size.width / 2, size.height)
+                            lineTo(size.width, 0f)
+                            lineTo(size.width / 2, size.height * 0.4f)
+                            close()
+                        }
 
                     // Shadow/Depth
                     drawPath(
@@ -691,9 +703,10 @@ private fun ActiveHandIndicator(modifier: Modifier = Modifier) {
                     )
 
                     // Main Body - Metallic Gold
-                    val metallicBrush = Brush.verticalGradient(
-                        colors = listOf(ModernGoldLight, PrimaryGold, ModernGoldDark)
-                    )
+                    val metallicBrush =
+                        Brush.verticalGradient(
+                            colors = listOf(ModernGoldLight, PrimaryGold, ModernGoldDark)
+                        )
                     drawPath(
                         path = path,
                         brush = metallicBrush,

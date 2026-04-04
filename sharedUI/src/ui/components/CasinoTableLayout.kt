@@ -113,15 +113,16 @@ fun CasinoTableLayout(
                 if (p != null) {
                     val destX = slot.centerOffset.x - p.width / 2
                     val destY = slot.centerOffset.y - p.height / 2
-                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt()) {
+                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
                         val progress = (p.parentData as? FlightProgressModifier)?.progress?.value ?: 1f
                         val startX = shoePosition.x - destX
                         val startY = shoePosition.y - destY
                         translationX = lerp(startX, 0f, progress)
                         translationY = lerp(startY, 0f, progress)
                         rotationZ = lerp(-45f, slot.rotationZ, progress)
-                        scaleX = slot.scale
-                        scaleY = slot.scale
+                        val lerpedScale = lerp(0.5f, slot.scale, progress)
+                        scaleX = lerpedScale
+                        scaleY = lerpedScale
                     }
                 }
             }
@@ -132,15 +133,16 @@ fun CasinoTableLayout(
                 if (p != null) {
                     val destX = slot.centerOffset.x - p.width / 2
                     val destY = slot.centerOffset.y - p.height / 2
-                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt()) {
+                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
                         val progress = (p.parentData as? FlightProgressModifier)?.progress?.value ?: 1f
                         val startX = shoePosition.x - destX
                         val startY = shoePosition.y - destY
                         translationX = lerp(startX, 0f, progress)
                         translationY = lerp(startY, 0f, progress)
                         rotationZ = lerp(45f, slot.rotationZ, progress)
-                        scaleX = slot.scale
-                        scaleY = slot.scale
+                        val lerpedScale = lerp(0.5f, slot.scale, progress)
+                        scaleX = lerpedScale
+                        scaleY = lerpedScale
                     }
                 }
             }
@@ -151,7 +153,7 @@ fun CasinoTableLayout(
                 if (p != null) {
                     val destX = slot.centerOffset.x - p.width / 2
                     val destY = slot.centerOffset.y - p.height / 2
-                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt()) {
+                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = 20f) {
                         val progress = (p.parentData as? FlightProgressModifier)?.progress?.value ?: 1f
                         val startX = slot.startOffset.x - destX
                         val startY = slot.startOffset.y - destY
@@ -171,14 +173,15 @@ fun CasinoTableLayout(
                     val glowH = zone.clusterSize.height * 1.6f
                     val gx = zone.clusterCenter.x - glowW / 2f
                     val gy = zone.clusterCenter.y - glowH / 2f
-                    glowP.placeWithLayer(gx.roundToInt(), gy.roundToInt())
+                    glowP.placeWithLayer(gx.roundToInt(), gy.roundToInt(), zIndex = -1f)
                 }
 
                 val hudP = placeables["hud-${zone.handIndex}"]
                 if (hudP != null) {
                     hudP.placeWithLayer(
                         x = zone.clusterTopLeft.x.roundToInt(),
-                        y = zone.clusterTopLeft.y.roundToInt()
+                        y = zone.clusterTopLeft.y.roundToInt(),
+                        zIndex = 100f
                     )
                 }
             }
