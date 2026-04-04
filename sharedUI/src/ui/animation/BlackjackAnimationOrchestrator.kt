@@ -81,18 +81,23 @@ object BlackjackAnimationOrchestrator {
                             delay(AnimationConstants.ChipLossLifetimeMs)
                             animState.chipLosses.remove(instance)
                         }
-                    is GameEffect.BigWin ->
+                    is GameEffect.BigWin -> {
+                        getFlashJob()?.cancel()
+                        animState.bigWinAmount = effect.totalPayout
+                        animState.showBigWinBanner = true
+                        // Banner lifetime is independent of the flash job — survives PLAYER_WON cancellation
                         launch {
-                            getFlashJob()?.cancel()
-                            animState.bigWinAmount = effect.totalPayout
-                            animState.showBigWinBanner = true
+                            delay(AnimationConstants.BigWinBannerLifetimeMs)
+                            animState.showBigWinBanner = false
+                        }
+                        // Flash animation is stored as flashJob; may be cancelled by PLAYER_WON state handler
+                        launch {
                             animState.flashColor = PrimaryGold
                             animState.flashAlpha.snapTo(0f)
                             animState.flashAlpha.animateTo(0.40f, tween(AnimationConstants.FlashInDuration))
                             animState.flashAlpha.animateTo(0f, tween(AnimationConstants.BigWinFlashOutDuration))
-                            delay(AnimationConstants.BigWinBannerLifetimeMs)
-                            animState.showBigWinBanner = false
                         }.also { setFlashJob(it) }
+                    }
                     else -> {}
                 }
             }
