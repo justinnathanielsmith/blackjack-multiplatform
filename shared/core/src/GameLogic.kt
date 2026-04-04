@@ -72,6 +72,8 @@ data class Hand(
     val wasSplit: Boolean = false,
     val isFromSplitAce: Boolean = false,
     val isSurrendered: Boolean = false,
+    /** True when this hand was doubled down — the 3rd card should render rotated 90°. */
+    val isDoubleDown: Boolean = false,
 ) {
     private data class HandMetrics(
         val score: Int,

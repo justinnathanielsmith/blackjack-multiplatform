@@ -375,6 +375,7 @@ fun PlayingCard(
     isDimmed: Boolean = false,
     shadowElevation: Dp = 6.dp,
     spotColor: Color = Color.Black,
+    isDoubleDown: Boolean = false,
 ) {
     val baseRotation =
         remember(card) {
@@ -391,6 +392,19 @@ fun PlayingCard(
             nearMissAlpha.animateTo(0f, tween(durationMillis = AnimationConstants.NearMissOutDuration))
         } else {
             nearMissAlpha.snapTo(0f)
+        }
+    }
+
+    // Double-down convention: 3rd card is placed sideways (90° Z rotation)
+    val doubleDownRotation = remember { Animatable(0f) }
+    LaunchedEffect(isDoubleDown) {
+        if (isDoubleDown) {
+            doubleDownRotation.animateTo(
+                targetValue = 90f,
+                animationSpec = tween(durationMillis = AnimationConstants.CardFlipDuration, easing = FastOutSlowInEasing)
+            )
+        } else {
+            doubleDownRotation.snapTo(0f)
         }
     }
 
@@ -427,7 +441,7 @@ fun PlayingCard(
                 }.requiredWidth(Dimensions.Card.StandardWidth * scale)
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
-                    rotationZ = baseRotation
+                    rotationZ = baseRotation + doubleDownRotation.value
                     rotationY = rotation
                     scaleX = liftScale
                     scaleY = liftScale

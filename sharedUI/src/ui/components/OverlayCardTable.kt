@@ -153,6 +153,7 @@ fun OverlayCardTable(
 
             hand.cards.forEachIndexed { cardIndex, card ->
                 val animDelay = globalCardIndex * AnimationConstants.CardDealDelay
+                val isDoubledCard = hand.isDoubleDown && cardIndex == 2
 
                 androidx.compose.runtime.key("player", handIndex, cardIndex) {
                     PositionedCardItem(
@@ -172,6 +173,7 @@ fun OverlayCardTable(
                         alpha = 1f,
                         isDimmed = isDimmed,
                         cardIndexInHand = cardIndex,
+                        isDoubleDown = isDoubledCard,
                         modifier = Modifier.nodeId("player-card-$handIndex-$cardIndex")
                     )
                 }
@@ -262,6 +264,7 @@ private fun PositionedCardItem(
     alpha: Float,
     isDimmed: Boolean = false,
     cardIndexInHand: Int,
+    isDoubleDown: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val progress = remember { Animatable(0f) }
@@ -348,6 +351,7 @@ private fun PositionedCardItem(
                 scale = 1f,
                 isNearMiss = isNearMiss,
                 isDimmed = isDimmed,
+                isDoubleDown = isDoubleDown,
                 shadowElevation = 0.dp,
                 spotColor = if (isActive) PrimaryGold else Color.Black
             )

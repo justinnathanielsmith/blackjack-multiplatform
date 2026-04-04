@@ -73,7 +73,7 @@ object PlayerActionLogic {
         val drawnCard = state.deck.firstOrNull() ?: return PlayerActionOutcome.noop(state)
         val remainingDeck = state.deck.drop(1).toPersistentList()
         val originalBet = state.activeHand.bet
-        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(drawnCard), bet = originalBet * 2)
+        val newHand = state.activeHand.copy(cards = state.activeHand.cards.add(drawnCard), bet = originalBet * 2, isDoubleDown = true)
         val updatedHands = state.playerHands.set(state.activeHandIndex, newHand)
 
         // Double the bet for this hand; deduct the extra (original bet) from balance.
