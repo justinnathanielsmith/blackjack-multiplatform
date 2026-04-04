@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -46,6 +47,7 @@ import io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.VelvetRed
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.score_accessibility_blackjack
@@ -122,25 +124,32 @@ fun ScoreBadge(
         modifier = modifier
     ) {
         val pulseScale = remember { Animatable(1f) }
+        val goldGlowAlpha = remember { Animatable(0f) }
 
         LaunchedEffect(score, state) {
             if (state == ScoreBadgeState.ACTIVE || is21 || isBust || isWinner) {
-                pulseScale.animateTo(
-                    targetValue = 1.12f,
-                    animationSpec =
-                        spring(
-                            dampingRatio = 0.5f,
-                            stiffness = Spring.StiffnessHigh
-                        )
-                )
-                pulseScale.animateTo(
-                    targetValue = 1f,
-                    animationSpec =
-                        spring(
-                            dampingRatio = 0.6f,
-                            stiffness = Spring.StiffnessMedium
-                        )
-                )
+                launch {
+                    pulseScale.animateTo(
+                        targetValue = 1.25f,
+                        animationSpec =
+                            spring(
+                                dampingRatio = 0.5f,
+                                stiffness = Spring.StiffnessHigh
+                            )
+                    )
+                    pulseScale.animateTo(
+                        targetValue = 1f,
+                        animationSpec =
+                            spring(
+                                dampingRatio = 0.6f,
+                                stiffness = Spring.StiffnessMedium
+                            )
+                    )
+                }
+                if (state == ScoreBadgeState.ACTIVE) {
+                    goldGlowAlpha.animateTo(0.7f, animationSpec = tween(80))
+                    goldGlowAlpha.animateTo(0f, animationSpec = tween(250))
+                }
             }
         }
 
@@ -184,6 +193,20 @@ fun ScoreBadge(
                         onDrawBehind {
                             if (state == ScoreBadgeState.ACTIVE || is21 || isBust || isWinner) {
                                 drawRect(glowBrush)
+                            }
+                            if (state == ScoreBadgeState.ACTIVE && goldGlowAlpha.value > 0f) {
+                                drawRect(
+                                    brush =
+                                        Brush.radialGradient(
+                                            colors =
+                                                listOf(
+                                                    ModernGoldLight.copy(alpha = goldGlowAlpha.value),
+                                                    Color.Transparent
+                                                ),
+                                            center = Offset(size.width / 2f, size.height / 2f),
+                                            radius = size.maxDimension * 1.4f
+                                        )
+                                )
                             }
                         }
                     }.then(
