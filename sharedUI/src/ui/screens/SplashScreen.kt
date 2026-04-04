@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.presentation.SplashComponent
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.status_blackjack
 
 @Composable
 fun SplashScreen(component: SplashComponent) {
@@ -56,7 +59,7 @@ fun SplashScreen(component: SplashComponent) {
     ) {
         // We'll use a premium looking text layout, maybe similar to a casino sign
         Text(
-            text = "BLACKJACK",
+            text = stringResource(Res.string.status_blackjack),
             color = MaterialTheme.colorScheme.primary, // Gold
             fontSize = 48.sp,
             fontWeight = FontWeight.Bold,
