@@ -85,6 +85,7 @@ import sharedui.generated.resources.ic_surrender
 fun GameActions(
     state: GameState,
     component: BlackjackComponent,
+    modifier: Modifier = Modifier,
     isCompact: Boolean = false,
 ) {
     val onHit =
@@ -136,7 +137,7 @@ fun GameActions(
 
         Column(
             modifier =
-                Modifier
+                modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
                     .graphicsLayer { clip = false },

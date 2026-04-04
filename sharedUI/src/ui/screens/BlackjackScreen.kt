@@ -258,6 +258,7 @@ fun BlackjackScreen(
                                     state = state,
                                     component = component,
                                     dealRegistry = dealRegistry,
+                                    modifier = Modifier.fillMaxSize()
                                 )
                             }
 
@@ -353,8 +354,9 @@ private fun BlackjackLayout(
     state: GameState,
     component: BlackjackComponent,
     dealRegistry: DealAnimationRegistry,
+    modifier: Modifier = Modifier,
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         // Shoe Position Anchor in top-right corner
         Box(
             modifier =
