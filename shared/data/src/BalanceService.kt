@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.data
 
+import io.github.smithjustinn.blackjack.BlackjackConfig
 import kotlinx.coroutines.flow.Flow
 
 interface BalanceService {
@@ -10,6 +11,6 @@ interface BalanceService {
     suspend fun resetBalance()
 
     companion object {
-        const val DEFAULT_BALANCE = 1000
+        const val DEFAULT_BALANCE = BlackjackConfig.INITIAL_BALANCE
     }
 }

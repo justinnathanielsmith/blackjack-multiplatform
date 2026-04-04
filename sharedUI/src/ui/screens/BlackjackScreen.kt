@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import io.github.smithjustinn.blackjack.BlackjackConfig
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
@@ -61,7 +62,10 @@ import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 @Composable
-fun BlackjackScreen(component: BlackjackComponent) {
+fun BlackjackScreen(
+    component: BlackjackComponent,
+    modifier: Modifier = Modifier,
+) {
     val state by component.state.collectAsState()
     val appSettings by component.appSettings.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
@@ -70,7 +74,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     val animState = remember { BlackjackAnimationState() }
     var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
 
-    var selectedAmount by remember { mutableStateOf(10) }
+    var selectedAmount by remember { mutableStateOf(BlackjackConfig.DEFAULT_CHIP_AMOUNT) }
     val onResetBet =
         remember(component) {
             {
@@ -166,7 +170,7 @@ fun BlackjackScreen(component: BlackjackComponent) {
     }
 
     BlackjackTheme {
-        DragAndDropContainer {
+        DragAndDropContainer(modifier = modifier) {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 TableSurface()
 

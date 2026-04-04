@@ -38,7 +38,7 @@ import kotlinx.coroutines.yield
  */
 class BlackjackStateMachine(
     private val scope: CoroutineScope,
-    initialState: GameState = GameState(status = GameStatus.BETTING, balance = 1000),
+    initialState: GameState = GameState(status = GameStatus.BETTING, balance = BlackjackConfig.INITIAL_BALANCE),
     private val isTest: Boolean = false,
     private val logger: Logger = Logger.withTag("BlackjackStateMachine")
 ) {

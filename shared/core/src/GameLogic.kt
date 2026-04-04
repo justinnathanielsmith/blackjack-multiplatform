@@ -279,7 +279,7 @@ data class GameState(
     val handCount: Int = 1,
     val dealerHand: Hand = Hand(),
     val status: GameStatus = GameStatus.IDLE,
-    val balance: Int = 1000,
+    val balance: Int = BlackjackConfig.INITIAL_BALANCE,
     val insuranceBet: Int = 0,
     val sideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val sideBetResults: PersistentMap<SideBetType, SideBetResult> = persistentMapOf(),
@@ -287,14 +287,7 @@ data class GameState(
     val rules: GameRules = GameRules(),
     val dealerDrawIsCritical: Boolean = false,
 ) {
-    companion object {
-        /**
-         * Maximum number of hands reachable via splits (up to 4).
-         * The initial deal is capped at 3 by `handleSelectHandCount` — the 4th hand
-         * is only ever reachable by splitting an existing hand during play.
-         */
-        const val MAX_HANDS = 4
-    }
+
 
     /**
      * Alias for the bet on the first hand. Used for backward compatibility with single-hand
@@ -351,10 +344,10 @@ data class GameState(
      * Returns true if the player can split their [activeHand].
      *
      * Valid when they have exactly 2 cards of equal rank (or value, if configured), sufficient
-     * balance exists, and the total hand count has not reached [MAX_HANDS].
+     * balance exists, and the total hand count has not reached [BlackjackConfig.MAX_HANDS].
      */
     fun canSplit(): Boolean {
-        if (playerHands.size >= MAX_HANDS || activeHand.cards.size != 2 || balance < activeBet) return false
+        if (playerHands.size >= BlackjackConfig.MAX_HANDS || activeHand.cards.size != 2 || balance < activeBet) return false
         val c0 = activeHand.cards[0].rank
         val c1 = activeHand.cards[1].rank
         val rankMatch = if (rules.splitOnValueOnly) c0.value == c1.value else c0 == c1
@@ -437,19 +430,19 @@ data class HandResults(
  */
 object BlackjackRules {
     /** The target score for a natural Blackjack or a non-bust hand. */
-    const val BLACKJACK_SCORE = 21
+    const val BLACKJACK_SCORE = BlackjackConfig.BLACKJACK_SCORE
 
     /** The minimum score a dealer must achieve before they stop drawing (Stand). */
-    const val DEALER_STAND_THRESHOLD = 17
+    const val DEALER_STAND_THRESHOLD = BlackjackConfig.DEALER_STAND_THRESHOLD
 
     /** The lowest score at which a dealer hand is considered "stiff" (risk of busting on next draw). */
-    const val DEALER_STIFF_MIN = 12
+    const val DEALER_STIFF_MIN = BlackjackConfig.DEALER_STIFF_MIN
 
     /** Total number of cards in a standard physical deck. */
-    const val CARDS_PER_DECK = 52
+    const val CARDS_PER_DECK = BlackjackConfig.CARDS_PER_DECK
 
     /** The divisor used to determine when the shoe should be reshuffled (e.g. 4 = reshuffle at 25% remaining). */
-    const val RESHUFFLE_THRESHOLD_DIVISOR = 4
+    const val RESHUFFLE_THRESHOLD_DIVISOR = BlackjackConfig.RESHUFFLE_THRESHOLD_DIVISOR
 
     /**
      * Returns true if the dealer must draw another card according to standard rules.

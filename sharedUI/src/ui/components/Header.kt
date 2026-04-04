@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.blackjack.BlackjackConfig
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -99,7 +100,7 @@ fun Header(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             AutoDealIcon(enabled = isAutoDealEnabled, onClick = onAutoDealToggle)
-            TableInfoBadge(minBet = 10, maxBet = 500)
+            TableInfoBadge(minBet = BlackjackConfig.MIN_BET, maxBet = BlackjackConfig.MAX_BET)
         }
 
         // Center: Casino Vault (Balance)
@@ -108,17 +109,17 @@ fun Header(
         // Right Side: Control Icons
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             HeaderIcon(
-                "rules",
+                BlackjackConfig.NAV_KEY_RULES,
                 contentDescription = stringResource(Res.string.btn_rules_description),
                 onClick = onRulesClick
             )
             HeaderIcon(
-                "strategy",
+                BlackjackConfig.NAV_KEY_STRATEGY,
                 contentDescription = stringResource(Res.string.btn_strategy_description),
                 onClick = onStrategyClick
             )
             HeaderIcon(
-                "settings",
+                BlackjackConfig.NAV_KEY_SETTINGS,
                 contentDescription = stringResource(Res.string.btn_settings_description),
                 onClick = onSettingsClick
             )
@@ -382,9 +383,9 @@ private fun HeaderIcon(
         Text(
             text =
                 when (text) {
-                    "settings" -> stringResource(Res.string.emoji_gear)
-                    "strategy" -> stringResource(Res.string.emoji_bulb)
-                    "rules" -> stringResource(Res.string.emoji_scroll)
+                    BlackjackConfig.NAV_KEY_SETTINGS -> stringResource(Res.string.emoji_gear)
+                    BlackjackConfig.NAV_KEY_STRATEGY -> stringResource(Res.string.emoji_bulb)
+                    BlackjackConfig.NAV_KEY_RULES -> stringResource(Res.string.emoji_scroll)
                     else -> stringResource(Res.string.emoji_clock)
                 },
             fontSize = 14.sp,

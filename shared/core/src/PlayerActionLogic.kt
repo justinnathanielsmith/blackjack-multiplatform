@@ -122,7 +122,7 @@ object PlayerActionLogic {
                 c0 == c1
             }
         val canLogicSplit =
-            state.playerHands.size < GameState.MAX_HANDS &&
+            state.playerHands.size < BlackjackConfig.MAX_HANDS &&
                 hand.cards.size == 2 &&
                 rankMatch == true
 

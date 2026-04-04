@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import io.github.smithjustinn.blackjack.BlackjackConfig
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.SideBetType
@@ -283,7 +284,7 @@ fun BettingPhaseScreen(
                 CasinoButton(
                     text = stringResource(Res.string.minus),
                     contentDescription = stringResource(Res.string.remove_seat_description),
-                    enabled = handCount > 1,
+                    enabled = handCount > BlackjackConfig.MIN_INITIAL_HANDS,
                     onClick = {
                         component.onAction(GameAction.SelectHandCount(handCount - 1))
                     },
@@ -328,7 +329,7 @@ fun BettingPhaseScreen(
                 CasinoButton(
                     text = stringResource(Res.string.plus),
                     contentDescription = stringResource(Res.string.add_seat_description),
-                    enabled = handCount < 3,
+                    enabled = handCount < BlackjackConfig.MAX_INITIAL_HANDS,
                     onClick = {
                         component.onAction(GameAction.SelectHandCount(handCount + 1))
                     },
