@@ -139,7 +139,11 @@ private fun reduceSelectHandCount(
     count: Int
 ): ReducerResult {
     if (state.status != GameStatus.BETTING) return ReducerResult(state)
-    if (count !in BlackjackConfig.MIN_INITIAL_HANDS..BlackjackConfig.MAX_INITIAL_HANDS) return ReducerResult(state, listOf(GameEffect.Vibrate))
+    if (count !in
+        BlackjackConfig.MIN_INITIAL_HANDS..BlackjackConfig.MAX_INITIAL_HANDS
+    ) {
+        return ReducerResult(state, listOf(GameEffect.Vibrate))
+    }
     val delta = count - state.handCount
     if (delta == 0) return ReducerResult(state)
     val newHands: PersistentList<Hand>

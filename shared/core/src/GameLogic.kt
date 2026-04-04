@@ -287,8 +287,6 @@ data class GameState(
     val rules: GameRules = GameRules(),
     val dealerDrawIsCritical: Boolean = false,
 ) {
-
-
     /**
      * Alias for the bet on the first hand. Used for backward compatibility with single-hand
      * systems (like insurance and certain result calculations).
@@ -347,7 +345,12 @@ data class GameState(
      * balance exists, and the total hand count has not reached [BlackjackConfig.MAX_HANDS].
      */
     fun canSplit(): Boolean {
-        if (playerHands.size >= BlackjackConfig.MAX_HANDS || activeHand.cards.size != 2 || balance < activeBet) return false
+        if (playerHands.size >= BlackjackConfig.MAX_HANDS ||
+            activeHand.cards.size != 2 ||
+            balance < activeBet
+        ) {
+            return false
+        }
         val c0 = activeHand.cards[0].rank
         val c1 = activeHand.cards[1].rank
         val rankMatch = if (rules.splitOnValueOnly) c0.value == c1.value else c0 == c1

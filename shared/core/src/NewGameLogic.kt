@@ -29,8 +29,8 @@ object NewGameLogic {
         previousBets: PersistentList<Int> = persistentListOf(0),
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ): GameState {
-        require(handCount in BlackjackConfig.MIN_INITIAL_HANDS..BlackjackConfig.MAX_INITIAL_HANDS) { 
-            "handCount must be between ${BlackjackConfig.MIN_INITIAL_HANDS} and ${BlackjackConfig.MAX_INITIAL_HANDS}" 
+        require(handCount in BlackjackConfig.MIN_INITIAL_HANDS..BlackjackConfig.MAX_INITIAL_HANDS) {
+            "handCount must be between ${BlackjackConfig.MIN_INITIAL_HANDS} and ${BlackjackConfig.MAX_INITIAL_HANDS}"
         }
         // Normalize previousBets length to match handCount.
         // Post-split, previousBets might contain more bets than handCount.
