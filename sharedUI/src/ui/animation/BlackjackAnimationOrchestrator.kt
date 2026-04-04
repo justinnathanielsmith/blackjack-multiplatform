@@ -12,6 +12,7 @@ import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -29,6 +30,16 @@ object BlackjackAnimationOrchestrator {
         audioService: AudioService,
         hapticsService: HapticsService,
     ) = coroutineScope {
+        launchEffectsPipeline(effects, animState, audioService, hapticsService)
+        launchStateDrivenAnimations(stateFlow, animState)
+    }
+
+    private fun CoroutineScope.launchEffectsPipeline(
+        effects: Flow<GameEffect>,
+        animState: BlackjackAnimationState,
+        audioService: AudioService,
+        hapticsService: HapticsService,
+    ) {
         // 1. Effects pipeline — audio/haptics dispatching + animation state mutations
         launch {
             effects.collect { effect ->
@@ -58,7 +69,12 @@ object BlackjackAnimationOrchestrator {
                 }
             }
         }
+    }
 
+    private fun CoroutineScope.launchStateDrivenAnimations(
+        stateFlow: StateFlow<GameState>,
+        animState: BlackjackAnimationState,
+    ) {
         // 2. State-driven flash and shake — cancels the previous animation job on each status change
         launch {
             var flashJob: Job? = null
