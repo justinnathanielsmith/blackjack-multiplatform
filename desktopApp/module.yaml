@@ -3,6 +3,11 @@ product: jvm/app
 settings:
   compose:
     enabled: true
+    version: 1.10.3
+  kotlin:
+    serialization:
+      enabled: true
+      version: 1.10.0
 
 dependencies:
   - ../sharedUI

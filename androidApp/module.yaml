@@ -1,7 +1,13 @@
 product: android/app
 
 settings:
-  compose: enabled
+  compose:
+    enabled: true
+    version: 1.10.3
+  kotlin:
+    serialization:
+      enabled: true
+      version: 1.10.0
   android:
     applicationId: io.github.smithjustinn.blackjack
     namespace: io.github.smithjustinn.blackjack

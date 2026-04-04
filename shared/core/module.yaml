@@ -4,7 +4,9 @@ product:
 
 settings:
   kotlin:
-    serialization: enabled
+    serialization:
+      enabled: true
+      version: 1.10.0
   android:
     namespace: io.github.smithjustinn.blackjack.core
 

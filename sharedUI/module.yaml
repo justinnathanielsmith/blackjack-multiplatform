@@ -5,8 +5,11 @@ product:
 settings:
   compose:
     enabled: true
+    version: 1.10.3
   kotlin:
-    serialization: enabled
+    serialization:
+      enabled: true
+      version: 1.10.0
     freeCompilerArgs: []
   android:
     namespace: io.github.smithjustinn.blackjack.shared.ui
