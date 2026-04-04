@@ -4,11 +4,13 @@ package io.github.smithjustinn.blackjack
 
 import app.cash.turbine.test
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class BettingPhaseTest {
     // ── PlaceBet ──────────────────────────────────────────────────────────────
@@ -114,7 +116,33 @@ class BettingPhaseTest {
             }
         }
 
-    // ── ResetBet ──────────────────────────────────────────────────────────────
+    @Test
+    fun resetSideBet_restoresBalanceAndClearsSpecificSideBet() =
+        runTest {
+            val sm =
+                testMachine(
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 900,
+                        sideBets =
+                            persistentMapOf(
+                                SideBetType.PERFECT_PAIRS to 50,
+                                SideBetType.TWENTY_ONE_PLUS_THREE to 50
+                            )
+                    )
+                )
+            sm.state.test {
+                awaitItem() // initial state
+                sm.dispatch(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
+                val state = awaitItem()
+                assertEquals(950, state.balance)
+                assertNull(state.sideBets[SideBetType.PERFECT_PAIRS])
+                assertEquals(50, state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE])
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    // ── ResetSideBets ─────────────────────────────────────────────────────────
 
     @Test
     fun resetBet_restoresBalanceAndClearsCurrentBet() =

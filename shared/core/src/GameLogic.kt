@@ -845,6 +845,14 @@ sealed class GameAction {
     /** Resets all active side bets on the table back to the player's balance. Only valid during [GameStatus.BETTING]. */
     data object ResetSideBets : GameAction()
 
+    /**
+     * Resets a specific side bet on the table back to the player's balance. Only valid during [GameStatus.BETTING].
+     * @param type The specific [SideBetType] to clear.
+     */
+    data class ResetSideBet(
+        val type: SideBetType
+    ) : GameAction()
+
     // ── Internal engine primitives (dispatched by middleware only) ────────────────
 
     /** Replaces the current deck with a freshly computed shoe. Dispatched by middleware when reshuffle is needed. */

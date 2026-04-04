@@ -56,6 +56,7 @@ internal fun reduce(
         is GameAction.UpdateRules -> reduceUpdateRules(state, action.rules)
         is GameAction.PlaceSideBet -> reducePlaceSideBet(state, action.type, action.amount)
         is GameAction.ResetSideBets -> reduceResetSideBets(state)
+        is GameAction.ResetSideBet -> reduceResetSideBet(state, action.type)
 
         // ── Round lifecycle ───────────────────────────────────────────────────
         is GameAction.NewGame -> reduceNewGame(state, action)
@@ -183,6 +184,17 @@ private fun reduceResetSideBets(state: GameState): ReducerResult {
     for ((_, betAmount) in state.sideBets) totalRefund += betAmount
     return ReducerResult(
         state.copy(balance = state.balance + totalRefund, sideBets = persistentMapOf())
+    )
+}
+
+private fun reduceResetSideBet(
+    state: GameState,
+    type: SideBetType
+): ReducerResult {
+    if (state.status != GameStatus.BETTING) return ReducerResult(state)
+    val betAmount = state.sideBets[type] ?: return ReducerResult(state)
+    return ReducerResult(
+        state.copy(balance = state.balance + betAmount, sideBets = state.sideBets.remove(type))
     )
 }
 

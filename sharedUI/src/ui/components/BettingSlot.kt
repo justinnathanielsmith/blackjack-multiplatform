@@ -10,7 +10,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,12 +56,14 @@ import sharedui.generated.resources.tap_to_place_bet
 import sharedui.generated.resources.tap_to_place_bet_with_label
 import sharedui.generated.resources.tap_to_place_side_bet
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BettingSlot(
     amount: Int,
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     slotSize: Dp = 124.dp,
     isSideBet: Boolean = false,
     onPositioned: (Offset) -> Unit = {},
@@ -165,8 +168,11 @@ fun BettingSlot(
                                 )
                             }
                         }.clip(CircleShape)
-                        .clickable(role = Role.Button) { onClick() }
-                        .semantics {
+                        .combinedClickable(
+                            role = Role.Button,
+                            onClick = onClick,
+                            onLongClick = onLongClick
+                        ).semantics {
                             contentDescription = currentDescription
                         }.onGloballyPositioned {
                             val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)

@@ -166,6 +166,10 @@ fun BettingPhaseScreen(
                         component.onAction(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, selectedAmount))
                         launchChip(offset, offset, selectedAmount)
                     },
+                    onLongClick = {
+                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.onAction(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
+                    },
                     onPositioned = { sideBetOffsets[SideBetType.PERFECT_PAIRS] = it },
                     onDrop = { amount ->
                         val offset = sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
@@ -189,6 +193,10 @@ fun BettingPhaseScreen(
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.onAction(GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, selectedAmount))
                         launchChip(offset, offset, selectedAmount)
+                    },
+                    onLongClick = {
+                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.onAction(GameAction.ResetSideBet(SideBetType.TWENTY_ONE_PLUS_THREE))
                     },
                     onPositioned = { sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it },
                     onDrop = { amount ->
@@ -248,6 +256,10 @@ fun BettingPhaseScreen(
                             audioService.playEffect(AudioService.SoundEffect.CLICK)
                             component.onAction(GameAction.PlaceBet(selectedAmount, seatIndex))
                             launchChip(offset, offset, selectedAmount)
+                        },
+                        onLongClick = {
+                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onAction(GameAction.ResetSeatBet(seatIndex))
                         },
                         onPositioned = { betDisplayOffsets[seatIndex] = it },
                         onDrop = { amount ->
