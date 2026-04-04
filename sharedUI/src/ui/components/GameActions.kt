@@ -81,6 +81,22 @@ import sharedui.generated.resources.ic_split
 import sharedui.generated.resources.ic_stand
 import sharedui.generated.resources.ic_surrender
 
+/**
+ * A reactive container for player gameplay actions (Hit, Stand, Split, etc.).
+ *
+ * This component adapts its layout and available actions based on the current [GameStatus].
+ * It handles the animation transitions between game phases and provides a premium,
+ * interactive play experience through styled action buttons.
+ *
+ * Actions are dispatched via the [BlackjackComponent], which also coordinates the
+ * triggering of auditory feedback (sound effects) for each interaction.
+ *
+ * @param state The current [GameState] determining which actions are enabled and visible.
+ * @param component The [BlackjackComponent] through which player actions are dispatched.
+ * @param modifier [Modifier] applied to the outer layout of the action container.
+ * @param isCompact When true, uses a tighter vertical layout suitable for multi-hand play
+ *        or height-constrained screens.
+ */
 @Composable
 fun GameActions(
     state: GameState,

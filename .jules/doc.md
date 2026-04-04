@@ -14,3 +14,7 @@
 ## 2026-03-30 - SideBetLogic
 **Surprise:** `Perfect Pairs` requires an exact match on `Card.rank` (ordinal rank), not just `Card.rank.value`. A Jack and King, while both 10s, do NOT form a "Mixed Pair". For `21+3`, the "Ace-low straight" is specifically handled (Ace-2-3), which differs from standard numerical sorting of ordinals.
 **Rule:** When documenting Blackjack logic, explicitly state if a "rank match" refers to the literal rank (King == King) or the scoring value (10 == 10), as these have distinct definitions in different betting subsystems.
+
+## 2026-04-04 - GameActions
+**Surprise:** [isCompact] isn't just for mobile portrait; it's triggered by [BlackjackScreen] whenever more than one hand is active to prevent the HUD from overlapping cards. This aspect of responsive layout is managed via direct observation of [GameState.playerHands].
+**Rule:** When documenting layout-related parameters in the HUD, verify if they are aspect-ratio driven (via [LayoutMode]) or state-driven (via [isMultiHand]), as callers need to know which determines the visual density.
