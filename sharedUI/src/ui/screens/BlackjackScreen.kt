@@ -48,7 +48,6 @@ import io.github.smithjustinn.blackjack.ui.components.ControlCenter
 import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.OverlayCardTable
-import io.github.smithjustinn.blackjack.ui.components.Shoe
 import io.github.smithjustinn.blackjack.ui.components.handResult
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
@@ -58,7 +57,6 @@ import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.utils.DragAndDropContainer
 import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -156,7 +154,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
-
     // Animation orchestration: effects pipeline + state-driven flash/shake
     LaunchedEffect(component) {
         BlackjackAnimationOrchestrator.orchestrate(
@@ -237,8 +234,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
                                     balance = state.balance,
                                     isAutoDealEnabled = appSettings.isAutoDealEnabled,
                                     onAutoDealToggle = onAutoDealToggle,
-                                    remainingCards = state.deck.size,
-                                    totalCards = state.rules.deckCount * 52,
                                     onSettingsClick = onSettingsClick,
                                     onStrategyClick = onStrategyClick,
                                     onRulesClick = onRulesClick
@@ -356,11 +351,13 @@ private fun BlackjackLayout(
     dealRegistry: DealAnimationRegistry,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        // Shoe widget in top-right corner
+        // Shoe Position Anchor in top-right corner
         Box(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 16.dp)
+                    .size(80.dp, 110.dp)
                     .onGloballyPositioned { coords ->
                         val pos = coords.positionInRoot()
                         dealRegistry.shoePosition =
@@ -369,19 +366,6 @@ private fun BlackjackLayout(
                                 pos.y + coords.size.height / 2f,
                             )
                     }
-        ) {
-            Shoe(
-                state = state,
-                modifier =
-                    Modifier
-                        .padding(top = 16.dp, end = 16.dp)
-                        .graphicsLayer {
-                            rotationZ = -15f
-                            rotationX = 10f
-                            translationX = 20.dp.toPx()
-                            translationY = -10.dp.toPx()
-                        }
-            )
-        }
+        )
     }
 }

@@ -31,7 +31,7 @@ object NewGameLogic {
     ): GameState {
         require(handCount in 1..3) { "handCount must be between 1 and 3" }
         // Normalize previousBets length to match handCount.
-        // Post-split, previousBets might contain more bets than handCount. 
+        // Post-split, previousBets might contain more bets than handCount.
         // We truncate them down to the pre-split seat count.
         val normalizedLastBets =
             if (previousBets.size >= handCount) {

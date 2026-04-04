@@ -10,11 +10,14 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.data.AppSettings
 import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
+import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.utils.componentScope
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,9 +27,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-import io.github.smithjustinn.blackjack.isTerminal
-import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 
 @Stable
 interface BlackjackComponent {

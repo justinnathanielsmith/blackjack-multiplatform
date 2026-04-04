@@ -747,7 +747,7 @@ sealed class GameAction {
         val seatIndex: Int = 0,
     ) : GameAction()
 
-    /** 
+    /**
      * Resets all main bets on the table back to the player's balance. Only valid during [GameStatus.BETTING].
      * Note: This does not reset side bets. You must also dispatch [ResetSideBets] if you want a full reset.
      */
