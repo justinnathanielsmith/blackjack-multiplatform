@@ -1,6 +1,9 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateFloatAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -35,9 +39,10 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.SideBetResult
 import io.github.smithjustinn.blackjack.SideBetType
-import io.github.smithjustinn.blackjack.isStatusVisible
+import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
+import io.github.smithjustinn.blackjack.ui.components.GameStatusToast
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.effects.BigWinBanner
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
@@ -101,12 +106,26 @@ private fun BlackjackGameOverlay(
     bigWinAmount: () -> Int = { 0 },
     modifier: Modifier = Modifier,
 ) {
-    val showStatus by remember(status) { derivedStateOf { status.isStatusVisible() } }
     val isBlackjack by remember(status, playerHands) {
         derivedStateOf {
             status == GameStatus.PLAYER_WON && playerHands.any { it.isBlackjack }
         }
     }
+    // isProcessState and isTerminalState are mutually exclusive by domain definition
+    val isProcessState by remember(status) {
+        derivedStateOf { status == GameStatus.DEALING || status == GameStatus.DEALER_TURN }
+    }
+    val isTerminalState by remember(status) { derivedStateOf { status.isTerminal() } }
+
+    val scrimAlpha by animateFloatAsState(
+        targetValue = if (isTerminalState) 0.62f else 0f,
+        animationSpec =
+            tween(
+                durationMillis = AnimationConstants.StatusMessageEnterDuration,
+                easing = FastOutSlowInEasing
+            ),
+        label = "terminalScrimAlpha",
+    )
 
     val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
     val onDeclineInsurance = remember(component) { { component.onAction(GameAction.DeclineInsurance) } }
@@ -115,8 +134,37 @@ private fun BlackjackGameOverlay(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
+        // Dark scrim fades in on terminal states, dims table so result panel is always readable
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        if (scrimAlpha > 0f) drawRect(Color.Black.copy(alpha = scrimAlpha))
+                    },
+        )
+
+        // Tier 1 — Process states: compact toast slides in from top
         AnimatedVisibility(
-            visible = showStatus,
+            visible = isProcessState,
+            enter =
+                slideInVertically(
+                    initialOffsetY = { -it },
+                    animationSpec = spring(dampingRatio = 0.75f, stiffness = Spring.StiffnessMedium),
+                ) + fadeIn(animationSpec = tween(AnimationConstants.StatusMessageEnterDuration)),
+            exit =
+                slideOutVertically(
+                    targetOffsetY = { -it },
+                    animationSpec = tween(AnimationConstants.StatusMessageExitDuration),
+                ) + fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)),
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter),
+        ) {
+            GameStatusToast(status = status)
+        }
+
+        // Tier 2 — Terminal states: dramatic centered panel
+        AnimatedVisibility(
+            visible = isTerminalState,
             enter =
                 fadeIn(animationSpec = tween(AnimationConstants.StatusMessageEnterDuration)) +
                     scaleIn(initialScale = 0.5f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f)),

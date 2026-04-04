@@ -10,9 +10,15 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -321,6 +327,106 @@ fun GameStatusMessage(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun GameStatusToast(
+    status: GameStatus,
+    modifier: Modifier = Modifier,
+) {
+    val dotTransition = rememberInfiniteTransition(label = "toastDot")
+    val dotAlpha by dotTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 1.0f,
+        animationSpec =
+            infiniteRepeatable(
+                animation =
+                    tween(
+                        durationMillis = AnimationConstants.PulseDurationNormal,
+                        easing = FastOutSlowInEasing,
+                    ),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "dotAlpha",
+    )
+
+    val statusText =
+        when (status) {
+            GameStatus.DEALING -> stringResource(Res.string.status_dealing)
+            GameStatus.DEALER_TURN -> stringResource(Res.string.status_dealer_turn)
+            else -> ""
+        }
+
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                    contentDescription = statusText
+                }.background(Color.Black.copy(alpha = 0.75f))
+                .drawWithCache {
+                    onDrawBehind {
+                        drawLine(
+                            brush =
+                                Brush.horizontalGradient(
+                                    colors =
+                                        listOf(
+                                            Color.Transparent,
+                                            ModernGoldDark,
+                                            ModernGoldLight,
+                                            ModernGoldDark,
+                                            Color.Transparent,
+                                        )
+                                ),
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.5.dp.toPx(),
+                        )
+                    }
+                },
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(7.dp)
+                        .graphicsLayer { alpha = dotAlpha }
+                        .clip(CircleShape)
+                        .background(ModernGoldLight),
+            )
+            Text(
+                text = statusText.uppercase(),
+                style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 3.sp),
+                color = Color.White.copy(alpha = 0.90f),
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
+private fun GameStatusToastDealingPreview() {
+    BlackjackTheme {
+        GameStatusToast(status = GameStatus.DEALING)
+    }
+}
+
+@Preview
+@Composable
+@Suppress("UnusedPrivateMember") // Used by Compose Preview
+private fun GameStatusToastDealerTurnPreview() {
+    BlackjackTheme {
+        GameStatusToast(status = GameStatus.DEALER_TURN)
     }
 }
 

@@ -319,6 +319,7 @@ fun BlackjackScreen(
                                 isPaused = { animState.isPaused },
                                 showBigWinBanner = { animState.showBigWinBanner },
                                 bigWinAmount = { animState.bigWinAmount },
+                                modifier = Modifier.zIndex(2f),
                             )
 
                             BettingLayer(
