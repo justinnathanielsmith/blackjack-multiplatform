@@ -1,8 +1,7 @@
 package io.github.smithjustinn.blackjack
 
-import io.github.smithjustinn.blackjack.utils.secureRandom
-import kotlin.random.Random
 import kotlinx.collections.immutable.toPersistentList
+import kotlin.random.Random
 
 /**
  * A headless, synchronous engine that drives Blackjack games directly via [reduce].
@@ -22,7 +21,7 @@ internal class MonteCarloEngine(
         history.add(action)
         val result = reduce(state, action)
         state = result.state
-        
+
         // Fulfill commands synchronously
         result.commands.forEach { cmd ->
             when (cmd) {
@@ -77,14 +76,15 @@ internal class MonteCarloEngine(
         sideBets: Map<SideBetType, Int> = emptyMap()
     ): GameState {
         history.clear()
-        
+
         // 1. Initial Setup (Use NewGameLogic to ensure fresh start with empty hands)
-        state = NewGameLogic.createInitialState(
-            balance = state.balance,
-            rules = state.rules,
-            handCount = handCount
-        )
-        
+        state =
+            NewGameLogic.createInitialState(
+                balance = state.balance,
+                rules = state.rules,
+                handCount = handCount
+            )
+
         // 2. Configure round
         sideBets.forEach { (type, amount) ->
             step(GameAction.PlaceSideBet(type, amount))

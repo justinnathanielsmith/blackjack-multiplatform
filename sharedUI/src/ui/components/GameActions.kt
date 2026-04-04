@@ -69,16 +69,16 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.action_surrender
-import sharedui.generated.resources.ic_surrender
 import sharedui.generated.resources.action_double
 import sharedui.generated.resources.action_hit
 import sharedui.generated.resources.action_split
 import sharedui.generated.resources.action_stand
+import sharedui.generated.resources.action_surrender
 import sharedui.generated.resources.ic_double
 import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_split
 import sharedui.generated.resources.ic_stand
+import sharedui.generated.resources.ic_surrender
 
 @Composable
 fun GameActions(

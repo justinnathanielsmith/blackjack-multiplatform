@@ -10,7 +10,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +27,6 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -45,8 +43,8 @@ import io.github.smithjustinn.blackjack.ui.theme.BadgeDarkInner
 import io.github.smithjustinn.blackjack.ui.theme.BadgeNeutralGrey
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
-import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
+import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.VelvetRed
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -192,7 +190,9 @@ fun ScoreBadge(
                         if (state == ScoreBadgeState.ACTIVE) {
                             Modifier.border(
                                 1.5.dp,
-                                Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.5f), ModernGoldLight.copy(alpha = 0.5f))),
+                                Brush.verticalGradient(
+                                    listOf(Color.White.copy(alpha = 0.5f), ModernGoldLight.copy(alpha = 0.5f))
+                                ),
                                 BadgeShape
                             )
                         } else {
@@ -200,11 +200,12 @@ fun ScoreBadge(
                         }
                     ).drawWithCache {
                         val isGold = is21 || isWinner
-                        val brush = if (isGold) {
-                            Brush.verticalGradient(listOf(ModernGoldLight, ModernGoldDark))
-                        } else {
-                            Brush.verticalGradient(listOf(backgroundColor.copy(alpha = 0.95f), backgroundColor))
-                        }
+                        val brush =
+                            if (isGold) {
+                                Brush.verticalGradient(listOf(ModernGoldLight, ModernGoldDark))
+                            } else {
+                                Brush.verticalGradient(listOf(backgroundColor.copy(alpha = 0.95f), backgroundColor))
+                            }
 
                         onDrawBehind {
                             drawRoundRect(
@@ -218,15 +219,15 @@ fun ScoreBadge(
                                 drawCircle(
                                     color = Color.Black.copy(alpha = grainAlpha),
                                     radius = 1.dp.toPx(),
-                                    center = Offset(
-                                        x = (size.width * (i * 0.13f % 1f)),
-                                        y = (size.height * (i * 0.27f % 1f))
-                                    )
+                                    center =
+                                        Offset(
+                                            x = (size.width * (i * 0.13f % 1f)),
+                                            y = (size.height * (i * 0.27f % 1f))
+                                        )
                                 )
                             }
                         }
-                    }
-                    .border(1.dp, borderColor.copy(alpha = 0.5f), BadgeShape)
+                    }.border(1.dp, borderColor.copy(alpha = 0.5f), BadgeShape)
                     .padding(horizontal = 14.dp, vertical = 5.dp),
             contentAlignment = Alignment.Center
         ) {

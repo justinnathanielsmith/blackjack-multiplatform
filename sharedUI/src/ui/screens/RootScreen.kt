@@ -2,7 +2,6 @@ package io.github.smithjustinn.blackjack.ui.screens
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.plus
@@ -12,9 +11,7 @@ import io.github.smithjustinn.blackjack.presentation.RootComponent
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 
 @Composable
-fun RootScreen(
-    component: RootComponent,
-) {
+fun RootScreen(component: RootComponent,) {
     BlackjackTheme {
         Surface {
             Children(

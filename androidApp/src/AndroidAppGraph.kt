@@ -12,10 +12,11 @@ import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import org.koin.dsl.module
 
-fun androidModule(context: Context) = module {
-    single<Logger> { Logger.withTag("Blackjack") }
-    single<AudioService> { AndroidAudioServiceImpl(context, get()) }
-    single<HapticsService> { AndroidHapticsServiceImpl(context) }
-    single<BalanceService> { createBalanceService() }
-    single<SettingsRepository> { createSettingsRepository() }
-}
+fun androidModule(context: Context) =
+    module {
+        single<Logger> { Logger.withTag("Blackjack") }
+        single<AudioService> { AndroidAudioServiceImpl(context, get()) }
+        single<HapticsService> { AndroidHapticsServiceImpl(context) }
+        single<BalanceService> { createBalanceService() }
+        single<SettingsRepository> { createSettingsRepository() }
+    }

@@ -401,7 +401,11 @@ fun PlayingCard(
         if (isDoubleDown) {
             doubleDownRotation.animateTo(
                 targetValue = 90f,
-                animationSpec = tween(durationMillis = AnimationConstants.CardFlipDuration, easing = FastOutSlowInEasing)
+                animationSpec =
+                    tween(
+                        durationMillis = AnimationConstants.CardFlipDuration,
+                        easing = FastOutSlowInEasing
+                    )
             )
         } else {
             doubleDownRotation.snapTo(0f)

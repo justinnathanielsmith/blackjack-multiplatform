@@ -10,7 +10,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.onClosed
-import kotlinx.coroutines.yield
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 
 /**
  * The core state machine governing the game of Blackjack.
@@ -78,20 +78,21 @@ class BlackjackStateMachine(
     private val actionChannel = Channel<GameAction>(Channel.UNLIMITED)
     private val commandChannel = Channel<ReducerCommand>(Channel.UNLIMITED)
 
-    private val middleware = GameFlowMiddleware(
-        state = _state.asStateFlow(),
-        dispatch = { action ->
-            // Always yield after sending so the action loop processes the action before
-            // the middleware reads state back. In production this is redundant (positive
-            // delays already give the loop time), but it is the correct cooperative
-            // semantic and avoids any isTest flag in middleware code.
-            actionChannel.send(action)
-            yield()
-        },
-        emitEffect = ::emitEffect,
-        isTest = isTest,
-        logger = logger,
-    )
+    private val middleware =
+        GameFlowMiddleware(
+            state = _state.asStateFlow(),
+            dispatch = { action ->
+                // Always yield after sending so the action loop processes the action before
+                // the middleware reads state back. In production this is redundant (positive
+                // delays already give the loop time), but it is the correct cooperative
+                // semantic and avoids any isTest flag in middleware code.
+                actionChannel.send(action)
+                yield()
+            },
+            emitEffect = ::emitEffect,
+            isTest = isTest,
+            logger = logger,
+        )
 
     init {
         // 1. Pure state reduction loop — never suspends, processes actions one at a time.
@@ -106,8 +107,8 @@ class BlackjackStateMachine(
                     logger.v { "SM action loop finished: $action" }
                 }
             } catch (e: Exception) {
-                // We catch non-cancellation exceptions here because this is the terminal loop of the 
-                // state machine. Any unhandled exception here is fatal and correctly transitions 
+                // We catch non-cancellation exceptions here because this is the terminal loop of the
+                // state machine. Any unhandled exception here is fatal and correctly transitions
                 // the machine to a shutdown state, making the cause visible for telemetry or debugging.
                 if (e is CancellationException) throw e
                 logger.e(e) { "SM init block caught fatal error" }

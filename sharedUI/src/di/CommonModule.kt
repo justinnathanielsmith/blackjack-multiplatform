@@ -5,7 +5,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import org.koin.dsl.module
 
-val commonModule = module {
-    single<CoroutineDispatchers> { CoroutineDispatchers() }
-    single<CoroutineScope> { MainScope() }
-}
+val commonModule =
+    module {
+        single<CoroutineDispatchers> { CoroutineDispatchers() }
+        single<CoroutineScope> { MainScope() }
+    }

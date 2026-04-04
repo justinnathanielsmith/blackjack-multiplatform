@@ -236,7 +236,8 @@ private fun computePlayerZones(
                     centerOffset =
                         Offset(
                             zone.clusterCenter.x,
-                            zone.clusterTopLeft.y + zone.clusterSize.height + with(density) { (if (nPlayerHands > 1) 36.dp else 20.dp).toPx() },
+                            zone.clusterTopLeft.y + zone.clusterSize.height +
+                                with(density) { (if (nPlayerHands > 1) 36.dp else 20.dp).toPx() },
                         ),
                     scale = params.cardScale,
                 )

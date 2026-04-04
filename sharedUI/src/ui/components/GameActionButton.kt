@@ -130,10 +130,11 @@ fun GameActionButton(
             if (enabled) {
                 // Outer Glow for Strategic Actions
                 if (isStrategic) {
-                    val glowBrush = Brush.radialGradient(
-                        colors = listOf(PrimaryGold.copy(alpha = 0.3f), Color.Transparent),
-                        radius = radius * 1.5f
-                    )
+                    val glowBrush =
+                        Brush.radialGradient(
+                            colors = listOf(PrimaryGold.copy(alpha = 0.3f), Color.Transparent),
+                            radius = radius * 1.5f
+                        )
                     drawCircle(brush = glowBrush, radius = radius * 1.5f)
                 }
 
@@ -162,13 +163,14 @@ fun GameActionButton(
 
                 // Premium Rim Highlight (Metallic)
                 drawCircle(
-                    brush = Brush.sweepGradient(
-                        0.0f to Color.White.copy(alpha = 0.6f),
-                        0.2f to Color.White.copy(alpha = 0.1f),
-                        0.5f to Color.White.copy(alpha = 0.6f),
-                        0.8f to Color.White.copy(alpha = 0.1f),
-                        1.0f to Color.White.copy(alpha = 0.6f)
-                    ),
+                    brush =
+                        Brush.sweepGradient(
+                            0.0f to Color.White.copy(alpha = 0.6f),
+                            0.2f to Color.White.copy(alpha = 0.1f),
+                            0.5f to Color.White.copy(alpha = 0.6f),
+                            0.8f to Color.White.copy(alpha = 0.1f),
+                            1.0f to Color.White.copy(alpha = 0.6f)
+                        ),
                     radius = radius * 0.96f,
                     center = center,
                     style = Stroke(width = 2.dp.toPx())

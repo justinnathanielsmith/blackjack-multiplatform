@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,19 +35,21 @@ fun BetAmountBadge(
     LaunchedEffect(Unit) {
         scale.animateTo(
             targetValue = 1f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            )
+            animationSpec =
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
         )
     }
 
     Box(
-        modifier = modifier
-            .scale(scale.value)
-            .background(LeatherBlack.copy(alpha = 0.9f), CircleShape)
-            .border(1.dp, ModernGoldLight.copy(alpha = 0.6f), CircleShape)
-            .padding(horizontal = 8.dp, vertical = 2.dp),
+        modifier =
+            modifier
+                .scale(scale.value)
+                .background(LeatherBlack.copy(alpha = 0.9f), CircleShape)
+                .border(1.dp, ModernGoldLight.copy(alpha = 0.6f), CircleShape)
+                .padding(horizontal = 8.dp, vertical = 2.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(

@@ -10,9 +10,9 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.data.AppSettings
 import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
-import io.github.smithjustinn.blackjack.utils.componentScope
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
+import io.github.smithjustinn.blackjack.utils.componentScope
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +30,9 @@ interface BlackjackComponent {
     val hapticsService: HapticsService
 
     fun onPlayClick()
+
     fun onPlayDeal()
+
     fun onPlayPlink(amount: Int)
 
     fun onAction(action: GameAction)

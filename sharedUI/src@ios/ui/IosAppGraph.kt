@@ -11,10 +11,11 @@ import io.github.smithjustinn.blackjack.services.IosAudioServiceImpl
 import io.github.smithjustinn.blackjack.services.IosHapticsServiceImpl
 import org.koin.dsl.module
 
-val iosModule = module {
-    single<Logger> { Logger.withTag("Blackjack") }
-    single<AudioService> { IosAudioServiceImpl(get()) }
-    single<HapticsService> { IosHapticsServiceImpl() }
-    single<BalanceService> { createBalanceService() }
-    single<SettingsRepository> { createSettingsRepository() }
-}
+val iosModule =
+    module {
+        single<Logger> { Logger.withTag("Blackjack") }
+        single<AudioService> { IosAudioServiceImpl(get()) }
+        single<HapticsService> { IosHapticsServiceImpl() }
+        single<BalanceService> { createBalanceService() }
+        single<SettingsRepository> { createSettingsRepository() }
+    }

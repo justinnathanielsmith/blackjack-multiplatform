@@ -109,26 +109,29 @@ fun DrawScope.drawBettingArc(
     )
 
     // Stitched Dash Line Effect
-    val dashPath = androidx.compose.ui.graphics.Path().apply {
-        addArc(
-            androidx.compose.ui.geometry.Rect(
-                topLeft = Offset(arcLeft, arcTop - insuranceOffset / 2f),
-                bottomRight = Offset(arcLeft + arcSize.width, arcTop + arcSize.height - insuranceOffset / 2f)
-            ),
-            180f,
-            180f
-        )
-    }
+    val dashPath =
+        androidx.compose.ui.graphics.Path().apply {
+            addArc(
+                androidx.compose.ui.geometry.Rect(
+                    topLeft = Offset(arcLeft, arcTop - insuranceOffset / 2f),
+                    bottomRight = Offset(arcLeft + arcSize.width, arcTop + arcSize.height - insuranceOffset / 2f)
+                ),
+                180f,
+                180f
+            )
+        }
     drawPath(
         path = dashPath,
         color = Color.White.copy(alpha = 0.12f),
-        style = Stroke(
-            width = 1.dp.toPx(),
-            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
-                intervals = floatArrayOf(8.dp.toPx(), 8.dp.toPx()),
-                phase = 0f
+        style =
+            Stroke(
+                width = 1.dp.toPx(),
+                pathEffect =
+                    androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                        intervals = floatArrayOf(8.dp.toPx(), 8.dp.toPx()),
+                        phase = 0f
+                    )
             )
-        )
     )
 }
 
@@ -142,10 +145,11 @@ fun DrawScope.drawVignette(vignetteBrush: Brush) {
     drawRect(brush = vignetteBrush)
     // Deepen the corners for a more focused mood
     drawRect(
-        brush = Brush.radialGradient(
-            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.4f)),
-            radius = size.maxDimension / 2f
-        )
+        brush =
+            Brush.radialGradient(
+                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.4f)),
+                radius = size.maxDimension / 2f
+            )
     )
 }
 
