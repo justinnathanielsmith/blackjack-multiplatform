@@ -382,6 +382,17 @@ private fun PositionedChipItem(
         contentAlignment = Alignment.Center,
     ) {
         ChipStack(amount = amount, isActive = isActive)
+
+        // Bet Label overlay — positioned at the top-right of the chips
+        BetAmountBadge(
+            amount = amount,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .graphicsLayer {
+                    translationX = 32.dp.toPx()
+                    translationY = (-16).dp.toPx()
+                }
+        )
     }
 }
 
