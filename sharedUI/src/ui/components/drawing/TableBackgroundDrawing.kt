@@ -87,6 +87,18 @@ fun DrawScope.drawBettingArc(
         style = arcStroke,
     )
 
+    drawInsuranceArc(arcLeft, arcTop, arcSize, insuranceStroke, insuranceOffset, primaryGold)
+    drawStitchedDashLine(arcLeft, arcTop, arcSize, insuranceOffset)
+}
+
+private fun DrawScope.drawInsuranceArc(
+    arcLeft: Float,
+    arcTop: Float,
+    arcSize: Size,
+    insuranceStroke: Stroke,
+    insuranceOffset: Float,
+    primaryGold: Color,
+) {
     // Insurance arc — shadow pass
     drawArc(
         color = Color.Black.copy(alpha = 0.2f),
@@ -107,7 +119,14 @@ fun DrawScope.drawBettingArc(
         size = arcSize,
         style = insuranceStroke,
     )
+}
 
+private fun DrawScope.drawStitchedDashLine(
+    arcLeft: Float,
+    arcTop: Float,
+    arcSize: Size,
+    insuranceOffset: Float,
+) {
     // Stitched Dash Line Effect
     val dashPath =
         androidx.compose.ui.graphics.Path().apply {

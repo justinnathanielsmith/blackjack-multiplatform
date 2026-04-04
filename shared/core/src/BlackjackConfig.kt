@@ -43,6 +43,9 @@ object BlackjackConfig {
     /** The divisor used to determine when the shoe should be reshuffled (e.g. 4 = reshuffle at 25% remaining). */
     const val RESHUFFLE_THRESHOLD_DIVISOR = 4
 
+    /** The payout multiplier at or above which a side bet win is considered "massive" for UI juice. */
+    const val MASSIVE_WIN_MULTIPLIER = 25
+
     // Internal keys for navigation and UI state strings
     const val NAV_KEY_RULES = "rules"
     const val NAV_KEY_STRATEGY = "strategy"

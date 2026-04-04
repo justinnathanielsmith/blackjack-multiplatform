@@ -46,6 +46,7 @@ import sharedui.generated.resources.result_payout_negative
 import sharedui.generated.resources.result_payout_positive
 import sharedui.generated.resources.result_push
 import sharedui.generated.resources.result_win
+import sharedui.generated.resources.status_announcement_template
 
 enum class HandResult {
     NONE,
@@ -105,7 +106,7 @@ internal fun HandOutcomeBadge(
 
     val screenReaderAnnouncement =
         if (payoutLabel != null) {
-            "$badgeText. $payoutLabel"
+            stringResource(Res.string.status_announcement_template, badgeText, payoutLabel)
         } else {
             badgeText
         }
