@@ -111,13 +111,13 @@ private fun reduceResetBet(
     return if (seatIndex == null) {
         // Bolt Performance Optimization: Replace .sumOf with indexed loop to avoid Iterator allocation.
         var refund = 0
-        for (i in 0 until state.playerHands.size) refund += state.playerHands[i].bet
+        for (i in 0 until state.handCount) refund += state.playerHands[i].bet
         ReducerResult(
             state.copy(
                 balance = state.balance + refund,
                 playerHands =
                     state.playerHands.mutate { builder ->
-                        for (i in 0 until builder.size) builder[i] = builder[i].copy(bet = 0)
+                        for (i in 0 until state.handCount) builder[i] = builder[i].copy(bet = 0)
                     },
             )
         )

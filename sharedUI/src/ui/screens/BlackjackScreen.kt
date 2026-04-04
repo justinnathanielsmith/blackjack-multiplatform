@@ -98,7 +98,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
 
     val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
-    var autoDealPending by remember { mutableStateOf(false) }
 
     val onAutoDealToggle =
         remember(component) {
@@ -157,40 +156,6 @@ fun BlackjackScreen(component: BlackjackComponent) {
         }
     }
 
-    LaunchedEffect(isTerminal) {
-        if (isTerminal) {
-            val sideBets = state.lastSideBets
-            val rules = appSettings.gameRules
-            val handCount = state.handCount
-            delay(
-                if (appSettings.isAutoDealEnabled) {
-                    AnimationConstants.AutoDealDelayTerminalMs
-                } else {
-                    AnimationConstants.ManualResetDelayMs
-                }
-            )
-            if (appSettings.isAutoDealEnabled) autoDealPending = true
-            component.onAction(
-                GameAction.NewGame(
-                    rules = rules,
-                    handCount = handCount,
-                    previousBets = state.playerHands.map { it.bet }.toPersistentList(),
-                    lastSideBets = sideBets,
-                )
-            )
-        }
-    }
-
-    LaunchedEffect(state.status) {
-        if (state.status == GameStatus.BETTING && autoDealPending) {
-            autoDealPending = false
-            if (appSettings.isAutoDealEnabled && state.playerHands.all { it.bet > 0 }) {
-                component.onAction(GameAction.Deal)
-            } else if (appSettings.isAutoDealEnabled && state.playerHands.any { it.bet == 0 }) {
-                component.updateSettings { it.copy(isAutoDealEnabled = false) }
-            }
-        }
-    }
 
     // Animation orchestration: effects pipeline + state-driven flash/shake
     LaunchedEffect(component) {

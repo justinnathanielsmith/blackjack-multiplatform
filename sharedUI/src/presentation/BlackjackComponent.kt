@@ -14,12 +14,19 @@ import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.utils.componentScope
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import io.github.smithjustinn.blackjack.isTerminal
+import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 
 @Stable
 interface BlackjackComponent {
@@ -88,12 +95,55 @@ class DefaultBlackjackComponent(
                 }
             }
 
-            var lastSavedBalance = savedBalance
-            stateMachine.state.collect { gameState ->
-                if (gameState.balance != lastSavedBalance) {
-                    lastSavedBalance = gameState.balance
-                    balanceService.saveBalance(gameState.balance)
+            launch {
+                var lastSavedBalance = savedBalance
+                stateMachine.state.collect { gameState ->
+                    if (gameState.balance != lastSavedBalance) {
+                        lastSavedBalance = gameState.balance
+                        balanceService.saveBalance(gameState.balance)
+                    }
                 }
+            }
+
+            launch {
+                stateMachine.state
+                    .map { it.status.isTerminal() }
+                    .distinctUntilChanged()
+                    .collectLatest { isTerminal ->
+                        if (isTerminal) {
+                            val currentState = stateMachine.state.value
+                            val autoDealEnabled = _appSettings.value.isAutoDealEnabled
+                            val previousBets = currentState.playerHands.map { it.bet }.toPersistentList()
+                            val handCount = currentState.handCount
+                            val lastSideBets = currentState.lastSideBets
+
+                            delay(
+                                if (autoDealEnabled) {
+                                    AnimationConstants.AutoDealDelayTerminalMs
+                                } else {
+                                    AnimationConstants.ManualResetDelayMs
+                                }
+                            )
+
+                            stateMachine.dispatch(
+                                GameAction.NewGame(
+                                    rules = _appSettings.value.gameRules,
+                                    handCount = handCount,
+                                    previousBets = previousBets,
+                                    lastSideBets = lastSideBets,
+                                )
+                            )
+
+                            if (autoDealEnabled) {
+                                val postResetState = stateMachine.state.value
+                                if (postResetState.playerHands.all { it.bet > 0 }) {
+                                    stateMachine.dispatch(GameAction.Deal)
+                                } else {
+                                    updateSettings { it.copy(isAutoDealEnabled = false) }
+                                }
+                            }
+                        }
+                    }
             }
         }
     }

@@ -29,7 +29,10 @@ object NewGameLogic {
         previousBets: PersistentList<Int> = persistentListOf(0),
         lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     ): GameState {
-        // Normalize previousBets length to match handCount
+        require(handCount in 1..3) { "handCount must be between 1 and 3" }
+        // Normalize previousBets length to match handCount.
+        // Post-split, previousBets might contain more bets than handCount. 
+        // We truncate them down to the pre-split seat count.
         val normalizedLastBets =
             if (previousBets.size >= handCount) {
                 previousBets.subList(0, handCount).toPersistentList()

@@ -73,7 +73,7 @@ fun ControlCenter(
 
         val isBetting = state.status == GameStatus.BETTING
         // Domain predicates: betting eligibility belongs in GameState, not the UI layer
-        val canReset = state.canResetBet()
+        val canReset = state.canResetBet
 
         // Actions for BETTING
         AnimatedVisibility(
@@ -90,7 +90,7 @@ fun ControlCenter(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BettingActions(
-                    canDeal = state.canDeal(),
+                    canDeal = state.canDeal,
                     canReset = canReset,
                     onReset = onResetBet,
                     onDeal = onDeal,

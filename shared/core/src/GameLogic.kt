@@ -374,14 +374,14 @@ data class GameState(
      * at least one hand exists and every hand has a non-zero bet placed.
      * Domain predicate — keeps bet validation logic out of the UI layer.
      */
-    fun canDeal(): Boolean = playerHands.isNotEmpty() && playerHands.all { it.bet > 0 }
+    val canDeal: Boolean get() = playerHands.isNotEmpty() && playerHands.all { it.bet > 0 }
 
     /**
      * Returns true if at least one player hand has a bet that can be cleared,
      * meaning the reset-bet action is available during the betting phase.
      * Domain predicate — keeps bet validation logic out of the UI layer.
      */
-    fun canResetBet(): Boolean = playerHands.any { it.bet > 0 }
+    val canResetBet: Boolean get() = playerHands.any { it.bet > 0 }
 }
 
 enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
@@ -747,7 +747,10 @@ sealed class GameAction {
         val seatIndex: Int = 0,
     ) : GameAction()
 
-    /** Resets all main bets on the table back to the player's balance. Only valid during [GameStatus.BETTING]. */
+    /** 
+     * Resets all main bets on the table back to the player's balance. Only valid during [GameStatus.BETTING].
+     * Note: This does not reset side bets. You must also dispatch [ResetSideBets] if you want a full reset.
+     */
     data object ResetBet : GameAction()
 
     /**

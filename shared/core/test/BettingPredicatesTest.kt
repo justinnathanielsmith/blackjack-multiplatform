@@ -15,7 +15,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf()
             )
-        assertFalse(state.canDeal())
+        assertFalse(state.canDeal)
     }
 
     @Test
@@ -25,7 +25,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 0))
             )
-        assertFalse(state.canDeal())
+        assertFalse(state.canDeal)
     }
 
     @Test
@@ -35,7 +35,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf(Hand(bet = 0))
             )
-        assertFalse(state.canDeal())
+        assertFalse(state.canDeal)
     }
 
     @Test
@@ -45,7 +45,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf(Hand(bet = 50), Hand(bet = 100))
             )
-        assertTrue(state.canDeal())
+        assertTrue(state.canDeal)
     }
 
     @Test
@@ -55,7 +55,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf(Hand(bet = 25))
             )
-        assertTrue(state.canDeal())
+        assertTrue(state.canDeal)
     }
 
     // ── canResetBet ───────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 0))
             )
-        assertFalse(state.canResetBet())
+        assertFalse(state.canResetBet)
     }
 
     @Test
@@ -77,7 +77,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 50))
             )
-        assertTrue(state.canResetBet())
+        assertTrue(state.canResetBet)
     }
 
     @Test
@@ -87,7 +87,7 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 200))
             )
-        assertTrue(state.canResetBet())
+        assertTrue(state.canResetBet)
     }
 
     @Test
@@ -97,6 +97,6 @@ class BettingPredicatesTest {
                 status = GameStatus.BETTING,
                 playerHands = persistentListOf()
             )
-        assertFalse(state.canResetBet())
+        assertFalse(state.canResetBet)
     }
 }
