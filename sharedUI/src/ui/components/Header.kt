@@ -63,12 +63,15 @@ import sharedui.generated.resources.btn_auto_deal_description
 import sharedui.generated.resources.btn_rules_description
 import sharedui.generated.resources.btn_settings_description
 import sharedui.generated.resources.btn_strategy_description
+import sharedui.generated.resources.currency_symbol
+import sharedui.generated.resources.currency_template
 import sharedui.generated.resources.emoji_bulb
 import sharedui.generated.resources.emoji_clock
 import sharedui.generated.resources.emoji_gear
 import sharedui.generated.resources.emoji_lightning
 import sharedui.generated.resources.emoji_scroll
 import sharedui.generated.resources.financial_data_content_description
+import sharedui.generated.resources.header_bet_range
 
 @Composable
 fun Header(
@@ -139,7 +142,7 @@ private fun TableInfoBadge(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "$$minBet / $$maxBet",
+            text = stringResource(Res.string.header_bet_range, minBet, maxBet),
             style = MaterialTheme.typography.labelSmall,
             color = PrimaryGold.copy(alpha = 0.8f),
             fontWeight = FontWeight.Bold,
@@ -163,7 +166,7 @@ private fun CasinoVault(
         stringResource(
             Res.string.financial_data_content_description,
             balanceLabel,
-            "\$$formattedBalance"
+            stringResource(Res.string.currency_template, formattedBalance)
         )
 
     Box(
@@ -198,7 +201,7 @@ private fun CasinoVault(
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
-                text = "$",
+                text = stringResource(Res.string.currency_symbol),
                 color = PrimaryGold,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,

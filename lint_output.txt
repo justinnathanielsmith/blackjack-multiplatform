@@ -1,0 +1,58 @@
+[0;32mStarting linting process...[0m
+[0;32mRunning ktlint...[0m
+[0;32mRunning detekt...[0m
+......................................................................................................................................................
+
+150 kotlin files were analyzed.
+/Users/justinsmith/Projects/blackjack/shared/core/test/TestFixtures.kt:96:15: The function decideAction appears to be too complex based on Cyclomatic Complexity (complexity: 20). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+/Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt:46:14: The function reduce appears to be too complex based on Cyclomatic Complexity (complexity: 25). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+/Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt:1:1: File '/Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt' with '20' functions detected. Defined threshold inside files is set to '11' [TooManyFunctions]
+/Users/justinsmith/Projects/blackjack/sharedUI/src/ui/animation/BlackjackAnimationOrchestrator.kt:25:17: The function orchestrate is too long (82). The maximum length is 60. [LongMethod]
+/Users/justinsmith/Projects/blackjack/sharedUI/src/ui/components/drawing/TableBackgroundDrawing.kt:60:15: The function drawBettingArc is too long (62). The maximum length is 60. [LongMethod]
+/Users/justinsmith/Projects/blackjack/shared/core/src/BlackjackStateMachine.kt:109:22: The caught exception is too generic. Prefer catching specific exceptions to the case that is currently handled. [TooGenericExceptionCaught]
+
+/Users/justinsmith/Projects/blackjack/shared/core/test/TestFixtures.kt - 20min debt
+	[33mCyclomaticComplexMethod - 20/15 - [The function decideAction appears to be too complex based on Cyclomatic Complexi(...)] at /Users/justinsmith/Projects/blackjack/shared/core/test/TestFixtures.kt:96:15[0m
+/Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt - 40min debt
+	[33mCyclomaticComplexMethod - 25/15 - [The function reduce appears to be too complex based on Cyclomatic Complexity (co(...)] at /Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt:46:14[0m
+	[33mTooManyFunctions - 20/11 - [File '/Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt' with(...)] at /Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt:1:1[0m
+/Users/justinsmith/Projects/blackjack/sharedUI/src/ui/animation/BlackjackAnimationOrchestrator.kt - 20min debt
+	[33mLongMethod - 82/60 - [The function orchestrate is too long (82). The maximum length is 60.] at /Users/justinsmith/Projects/blackjack/sharedUI/src/ui/animation/BlackjackAnimationOrchestrator.kt:25:17[0m
+/Users/justinsmith/Projects/blackjack/sharedUI/src/ui/components/drawing/TableBackgroundDrawing.kt - 20min debt
+	[33mLongMethod - 62/60 - [The function drawBettingArc is too long (62). The maximum length is 60.] at /Users/justinsmith/Projects/blackjack/sharedUI/src/ui/components/drawing/TableBackgroundDrawing.kt:60:15[0m
+/Users/justinsmith/Projects/blackjack/shared/core/src/BlackjackStateMachine.kt - 20min debt
+	[33mTooGenericExceptionCaught - [The caught exception is too generic. Prefer catching specific exceptions to the (...)] at /Users/justinsmith/Projects/blackjack/shared/core/src/BlackjackStateMachine.kt:109:22[0m
+
+Overall debt: 2h
+
+complexity - 1h 40min debt
+	[33mCyclomaticComplexMethod - 20/15 - [The function decideAction appears to be too complex based on Cyclomatic Complexi(...)] at /Users/justinsmith/Projects/blackjack/shared/core/test/TestFixtures.kt:96:15[0m
+	[33mCyclomaticComplexMethod - 25/15 - [The function reduce appears to be too complex based on Cyclomatic Complexity (co(...)] at /Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt:46:14[0m
+	[33mTooManyFunctions - 20/11 - [File '/Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt' with(...)] at /Users/justinsmith/Projects/blackjack/shared/core/src/GameReducer.kt:1:1[0m
+	[33mLongMethod - 82/60 - [The function orchestrate is too long (82). The maximum length is 60.] at /Users/justinsmith/Projects/blackjack/sharedUI/src/ui/animation/BlackjackAnimationOrchestrator.kt:25:17[0m
+	[33mLongMethod - 62/60 - [The function drawBettingArc is too long (62). The maximum length is 60.] at /Users/justinsmith/Projects/blackjack/sharedUI/src/ui/components/drawing/TableBackgroundDrawing.kt:60:15[0m
+exceptions - 20min debt
+	[33mTooGenericExceptionCaught - [The caught exception is too generic. Prefer catching specific exceptions to the (...)] at /Users/justinsmith/Projects/blackjack/shared/core/src/BlackjackStateMachine.kt:109:22[0m
+
+Overall debt: 2h
+
+Complexity Report:
+	- 22,299 lines of code (loc)
+	- 18,614 source lines of code (sloc)
+	- 13,767 logical lines of code (lloc)
+	- 1,719 comment lines of code (cloc)
+	- 1,761 cyclomatic complexity (mcc)
+	- 1,481 cognitive complexity
+	- 6 number of total code smells
+	- 9% comment source ratio
+	- 127 mcc per 1,000 lloc
+	- 0 code smells per 1,000 lloc
+
+Project Statistics:
+	- number of properties: 1874
+	- number of functions: 684
+	- number of classes: 201
+	- number of packages: 13
+	- number of kt files: 150
+
+Analysis failed with 6 weighted issues.
