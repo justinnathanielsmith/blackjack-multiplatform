@@ -199,6 +199,8 @@ fun OverlayCardTable(
                     androidx.compose.runtime.key("chip", handIndex) {
                         PositionedChipItem(
                             amount = hand.bet,
+                            handIndex = handIndex,
+                            handCount = state.playerHands.size,
                             coordOffsetX = 0f,
                             coordOffsetY = 0f,
                             density = density,
@@ -381,6 +383,8 @@ private fun PositionedCardItem(
 @Composable
 private fun PositionedChipItem(
     amount: Int,
+    handIndex: Int = 0,
+    handCount: Int = 1,
     coordOffsetX: Float,
     coordOffsetY: Float,
     density: Density,
@@ -408,14 +412,18 @@ private fun PositionedChipItem(
 
         // Bet Label overlay — positioned at the top-right of the chips
         // Bet Label overlay — positioned slightly offset from the chips
+        val isRightHand = handCount > 1 && handIndex == handCount - 1
+        val badgeAlignment = if (isRightHand) Alignment.TopStart else Alignment.TopEnd
+        
         BetAmountBadge(
             amount = amount,
             modifier =
                 Modifier
-                    .align(Alignment.TopEnd)
+                    .align(badgeAlignment)
                     .graphicsLayer {
-                        // Reduce horizontal bleed for multi-hand layouts
-                        translationX = if (amount > 99) 24.dp.toPx() else 12.dp.toPx()
+                        // Inward bleed for multi-hand layouts to prevent offscreen clipping
+                        val baseTranslation = if (amount > 99) 24.dp.toPx() else 12.dp.toPx()
+                        translationX = if (isRightHand) -baseTranslation else baseTranslation
                         translationY = (-12).dp.toPx()
                     }
         )

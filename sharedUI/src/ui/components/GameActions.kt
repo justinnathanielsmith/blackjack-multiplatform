@@ -402,8 +402,8 @@ private fun ModernActionButton(
                     color = if (enabled) contentColor else contentColor.copy(alpha = 0.4f),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Black,
-                    fontSize = 9.sp,
-                    letterSpacing = 1.sp,
+                    fontSize = 8.sp,
+                    letterSpacing = 0.5.sp,
                     maxLines = 1,
                     modifier = Modifier.padding(top = 2.dp)
                 )
