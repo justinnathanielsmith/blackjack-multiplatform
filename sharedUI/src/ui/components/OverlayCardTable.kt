@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -9,6 +10,10 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +49,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
@@ -626,8 +634,18 @@ private fun HandStatusOverlay(
     val isBlackjack = hand.isBlackjack
     // Domain predicate: 3+-card 21 that is not a natural blackjack; see Hand.isTwentyOne
     val isTwentyOne = hand.isTwentyOne
+    val visible = isBust || isBlackjack || isTwentyOne
 
-    if (isBust || isBlackjack || isTwentyOne) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(tween(AnimationConstants.StatusMessageEnterDuration)) +
+            scaleIn(
+                initialScale = 0.8f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+            ),
+        exit = fadeOut(tween(AnimationConstants.StatusMessageExitDuration)) + scaleOut(targetScale = 0.9f),
+        modifier = modifier
+    ) {
         val (text, color) =
             when {
                 isBust -> stringResource(Res.string.status_bust) to TacticalRed
@@ -637,7 +655,10 @@ private fun HandStatusOverlay(
 
         Box(
             modifier =
-                modifier
+                Modifier
+                    .semantics {
+                        liveRegion = LiveRegionMode.Polite
+                    }
                     .shadow(12.dp, RoundedCornerShape(8.dp))
                     .background(color, RoundedCornerShape(8.dp))
                     .border(1.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
