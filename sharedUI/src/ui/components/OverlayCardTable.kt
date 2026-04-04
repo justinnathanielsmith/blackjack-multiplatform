@@ -411,20 +411,13 @@ private fun PositionedChipItem(
         ChipStack(amount = amount, isActive = isActive)
 
         // Bet Label overlay — positioned at the top-right of the chips
-        // Bet Label overlay — positioned slightly offset from the chips
-        val isRightHand = handCount > 1 && handIndex == handCount - 1
-        val badgeAlignment = if (isRightHand) Alignment.TopStart else Alignment.TopEnd
-        
         BetAmountBadge(
             amount = amount,
             modifier =
                 Modifier
-                    .align(badgeAlignment)
+                    .align(Alignment.TopCenter)
                     .graphicsLayer {
-                        // Inward bleed for multi-hand layouts to prevent offscreen clipping
-                        val baseTranslation = if (amount > 99) 24.dp.toPx() else 12.dp.toPx()
-                        translationX = if (isRightHand) -baseTranslation else baseTranslation
-                        translationY = (-12).dp.toPx()
+                        translationY = (-16).dp.toPx()
                     }
         )
     }
@@ -542,10 +535,10 @@ private fun HandZoneHud(
 
         if (isDealer) {
             val displayScore =
-                if (status == GameStatus.PLAYING) {
-                    dealerHand.visibleScore
-                } else {
+                if (status == GameStatus.DEALER_TURN || status.isTerminal()) {
                     dealerHand.score
+                } else {
+                    dealerHand.visibleScore
                 }
 
             if (!isBetting) {

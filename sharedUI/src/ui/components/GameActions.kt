@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameAction
@@ -402,9 +403,11 @@ private fun ModernActionButton(
                     color = if (enabled) contentColor else contentColor.copy(alpha = 0.4f),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Black,
-                    fontSize = 8.sp,
-                    letterSpacing = 0.5.sp,
+                    fontSize = 7.sp,
+                    letterSpacing = 0.sp,
                     maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Visible,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
