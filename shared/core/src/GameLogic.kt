@@ -360,6 +360,15 @@ data class GameState(
     }
 
     /**
+     * Returns true if the player can surrender their [activeHand].
+     *
+     * Valid at the start of a turn (exactly 2 cards) if the hand was not created via a split
+     * and the house rules allow surrender. Surrendering forfeits half the bet.
+     */
+    fun canSurrender(): Boolean =
+        activeHand.cards.size == 2 && !activeHand.wasSplit && rules.allowSurrender
+
+    /**
      * Returns true if the deal action is available during the betting phase:
      * at least one hand exists and every hand has a non-zero bet placed.
      * Domain predicate — keeps bet validation logic out of the UI layer.

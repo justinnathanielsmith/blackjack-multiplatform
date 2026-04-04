@@ -69,6 +69,8 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
+import sharedui.generated.resources.action_surrender
+import sharedui.generated.resources.ic_surrender
 import sharedui.generated.resources.action_double
 import sharedui.generated.resources.action_hit
 import sharedui.generated.resources.action_split
@@ -112,6 +114,13 @@ fun GameActions(
                 component.onAction(GameAction.Split)
             }
         }
+    val onSurrender =
+        remember(component) {
+            {
+                component.onPlayClick()
+                component.onAction(GameAction.Surrender)
+            }
+        }
 
     AnimatedContent(
         targetState = state.status,
@@ -150,16 +159,28 @@ fun GameActions(
             ) {
                 val canSplit = state.canSplit()
                 val canDouble = state.canDoubleDown()
+                val canSurrender = state.canSurrender()
 
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val buttonModifier = Modifier.weight(1f).defaultMinSize(minHeight = buttonHeight)
+
+                    ModernActionButton(
+                        icon = Res.drawable.ic_surrender,
+                        label = stringResource(Res.string.action_surrender),
+                        onClick = onSurrender,
+                        enabled = canSurrender,
+                        containerColor = GlassDark,
+                        contentColor = Color.White,
+                        borderColor = Color.White.copy(alpha = 0.5f),
+                        modifier = buttonModifier
+                    )
 
                     ModernActionButton(
                         icon = Res.drawable.ic_double,
@@ -172,18 +193,16 @@ fun GameActions(
                         modifier = buttonModifier
                     )
 
-                    if (canSplit) {
-                        ModernActionButton(
-                            icon = Res.drawable.ic_split,
-                            label = stringResource(Res.string.action_split),
-                            onClick = onSplit,
-                            enabled = true,
-                            containerColor = GlassDark,
-                            contentColor = PrimaryGold,
-                            borderColor = PrimaryGold.copy(alpha = 0.5f),
-                            modifier = buttonModifier
-                        )
-                    }
+                    ModernActionButton(
+                        icon = Res.drawable.ic_split,
+                        label = stringResource(Res.string.action_split),
+                        onClick = onSplit,
+                        enabled = canSplit,
+                        containerColor = GlassDark,
+                        contentColor = PrimaryGold,
+                        borderColor = PrimaryGold.copy(alpha = 0.5f),
+                        modifier = buttonModifier
+                    )
 
                     ModernActionButton(
                         icon = Res.drawable.ic_hit,
@@ -197,7 +216,7 @@ fun GameActions(
                     )
 
                     val activeHand = state.playerHands.getOrNull(state.activeHandIndex)
-                    val tension = activeHand?.tension ?: 0.0f // Domain predicate: tension lives in Hand
+                    val tension = activeHand?.tension ?: 0.0f
 
                     ModernActionButton(
                         icon = Res.drawable.ic_stand,

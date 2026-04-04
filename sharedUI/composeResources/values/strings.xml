@@ -22,6 +22,7 @@
     <string name="action_split">Split</string>
     <string name="double_down">Double</string>
     <string name="action_double">Double</string>
+    <string name="action_surrender">Surrender</string>
     <string name="new_game">New Game</string>
     <string name="dealer">Dealer</string>
     <string name="you">You</string>
