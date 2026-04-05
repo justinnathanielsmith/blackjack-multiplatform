@@ -44,6 +44,7 @@ import io.github.smithjustinn.blackjack.ui.effects.FlyingChip
 import io.github.smithjustinn.blackjack.ui.effects.FlyingChipAnimation
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.add_seat_description
@@ -250,24 +251,7 @@ fun BettingPhaseScreen(
                         }
                     val arcYOffset = (relPos * relPos * (if (isNarrow) 10 else 14)).dp
 
-                    val seatLabel =
-                        when {
-                            handCount == 1 -> stringResource(Res.string.seat_main)
-                            handCount == 2 ->
-                                if (seatIndex ==
-                                    0
-                                ) {
-                                    stringResource(Res.string.seat_left)
-                                } else {
-                                    stringResource(Res.string.seat_right)
-                                }
-                            else ->
-                                when (seatIndex) {
-                                    0 -> stringResource(Res.string.seat_left)
-                                    1 -> stringResource(Res.string.seat_center)
-                                    else -> stringResource(Res.string.seat_right)
-                                }
-                        }
+                    val seatLabel = stringResource(getSeatLabelResource(handCount, seatIndex))
 
                     BettingSlot(
                         amount = playerHands.getOrNull(seatIndex)?.bet ?: 0,
@@ -379,3 +363,18 @@ fun BettingPhaseScreen(
         }
     }
 }
+
+private fun getSeatLabelResource(
+    handCount: Int,
+    seatIndex: Int
+): StringResource =
+    when {
+        handCount == 1 -> Res.string.seat_main
+        handCount == 2 -> if (seatIndex == 0) Res.string.seat_left else Res.string.seat_right
+        else ->
+            when (seatIndex) {
+                0 -> Res.string.seat_left
+                1 -> Res.string.seat_center
+                else -> Res.string.seat_right
+            }
+    }

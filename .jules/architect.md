@@ -9,5 +9,4 @@
 **PR:** architect/payout-logic-to-domain
 
 ## Known Violations (Future Work)
-- `LaunchedEffect(isTerminal)` in `BlackjackScreen.kt` contains game flow orchestration (NewGame dispatch with delay) — could be moved to component layer.
-- `seatLabel` inline `when` inside composable loop in `BettingPhaseScreen.kt` — minor, could be extracted to a pure function.
+- None currently explicitly tracked.
