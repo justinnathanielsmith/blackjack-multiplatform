@@ -1,0 +1,13 @@
+⚡ Bolt: Eliminate GC churn in ParticleLoop
+
+## ⚡ Bolt Performance Boost
+
+💡 **What:** Replaced `particles.removeAll { isDone(it) }` with a zero-allocation, index-based two-pointer compaction algorithm in `runParticleLoop`.
+
+🎯 **Why:** `MutableList.removeAll {}` allocates an `Iterator` object on every call. Because this loop runs inside `withFrameNanos`, the continuous GC churn causes micro-stutters during particle animations.
+
+📊 **Impact:** Reduces `Iterator` allocation inside `ParticleLoop` from 1 per frame per effect to 0.
+
+🔬 **Measurement:** Enable Android Studio Profiler (Memory) and trigger a payout eruption. Observe the memory allocations drop, and confirm smooth frame times via Layout Inspector.
+
+🏷️ **Platform scope:** All platforms

@@ -68,8 +68,24 @@ suspend fun <P> runParticleLoop(
             for (i in 0 until particles.size) {
                 update(particles[i], time)
             }
-            // O(N) single-pass removal — avoids O(N²) backward removeAt loops
-            particles.removeAll { isDone(it) }
+            // Bolt Performance Optimization: Zero-allocation two-pointer compaction
+            // Avoids MutableList.removeAll {} which allocates an Iterator on every frame
+            var writeIndex = 0
+            for (readIndex in 0 until particles.size) {
+                val particle = particles[readIndex]
+                if (!isDone(particle)) {
+                    if (writeIndex != readIndex) {
+                        particles[writeIndex] = particle
+                    }
+                    writeIndex++
+                }
+            }
+            // Remove trailing elements from the end to avoid O(N²) shifting
+            var removeIndex = particles.size - 1
+            while (removeIndex >= writeIndex) {
+                particles.removeAt(removeIndex)
+                removeIndex--
+            }
         }
     }
 }
