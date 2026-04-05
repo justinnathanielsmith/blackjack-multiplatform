@@ -108,6 +108,10 @@ The codebase is optimized for AI-assisted development with specialized subagents
 | `/bolt` | **Performance** | Implements data-driven performance optimizations (Canvas, memory). |
 | `/palette` | **UX Specialist** | Refines micro-interactions, animations, and visual polish. |
 | `/architect` | **Integrity** | Audits architectural violations and enforces clean layer separation. |
+| `/linter` | **Style Audit** | Enforces ktlint/detekt consistency and fixes resource naming violations. |
+| `/bumper` | **Dependency** | Audits and upgrades KMP libraries while ensuring Compose compatibility. |
+| `/doc` | **Documentation** | Generates KDoc for public APIs and maintains documentation consistency. |
+| `/sentinel` | **Security** | Audits the codebase for potential security vulnerabilities and leaks. |
 | `/claude` | **Reasoning** | Senior KMP/Compose agent for deep reasoning and debugging. |
 
 For a complete guide, see the [AI Subagent & Workflow Guide](docs/AI_AGENTS_GUIDE.md).
