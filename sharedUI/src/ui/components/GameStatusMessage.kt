@@ -5,9 +5,11 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +39,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -64,15 +67,12 @@ import sharedui.generated.resources.net_result_lost
 import sharedui.generated.resources.net_result_push
 import sharedui.generated.resources.net_result_won
 import sharedui.generated.resources.status_announcement_template
-import sharedui.generated.resources.status_betting
 import sharedui.generated.resources.status_blackjack_exclamation
+import sharedui.generated.resources.status_bust
 import sharedui.generated.resources.status_dealer_turn
 import sharedui.generated.resources.status_dealer_won
 import sharedui.generated.resources.status_dealing
-import sharedui.generated.resources.status_idle
 import sharedui.generated.resources.status_player_won
-import sharedui.generated.resources.status_playing
-import sharedui.generated.resources.status_push
 
 @Composable
 fun GameStatusMessage(
@@ -81,6 +81,7 @@ fun GameStatusMessage(
     netPayout: Int? = null,
     isCompact: Boolean = false,
     isBlackjack: Boolean = false,
+    isBust: Boolean = false,
 ) {
     val pulseTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by
@@ -138,6 +139,41 @@ fun GameStatusMessage(
     val ring3Radius = remember { Animatable(0f) }
     val ring3Alpha = remember { Animatable(0f) }
 
+    val borderRotationTransition = rememberInfiniteTransition(label = "borderRotation")
+    val borderRotation by borderRotationTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(AnimationConstants.BorderRotationDuration, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "borderRotation",
+    )
+
+    val reflectionTransition = rememberInfiniteTransition(label = "reflection")
+    val reflectionX by reflectionTransition.animateFloat(
+        initialValue = -1f,
+        targetValue = 2f,
+        animationSpec =
+            infiniteRepeatable(
+                animation =
+                    tween(
+                        durationMillis = AnimationConstants.GlassReflectionDuration,
+                        easing = FastOutSlowInEasing,
+                    ),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "reflectionX",
+    )
+
+    // Count-up animation for net payout
+    val animatedPayout by animateIntAsState(
+        targetValue = netPayout ?: 0,
+        animationSpec = tween(durationMillis = AnimationConstants.PayoutCountUpDuration, easing = FastOutSlowInEasing),
+        label = "animatedPayout",
+    )
+
     LaunchedEffect(status, isBlackjack) {
         if (status == GameStatus.PLAYER_WON) {
             ring1Radius.snapTo(0f)
@@ -170,31 +206,27 @@ fun GameStatusMessage(
     val statusText =
         when {
             isBlackjack -> stringResource(Res.string.status_blackjack_exclamation)
-            status == GameStatus.BETTING -> stringResource(Res.string.status_betting)
-            status == GameStatus.IDLE -> stringResource(Res.string.status_idle)
-            status == GameStatus.DEALING -> stringResource(Res.string.status_dealing)
-            status == GameStatus.PLAYING -> stringResource(Res.string.status_playing)
-            status == GameStatus.DEALER_TURN -> stringResource(Res.string.status_dealer_turn)
+            isBust -> stringResource(Res.string.status_bust)
             status == GameStatus.PLAYER_WON -> stringResource(Res.string.status_player_won)
             status == GameStatus.DEALER_WON -> stringResource(Res.string.status_dealer_won)
-            status == GameStatus.PUSH -> stringResource(Res.string.status_push)
             else -> ""
         }
 
     val accentColor =
         when (status) {
             GameStatus.PLAYER_WON -> ModernGoldLight
-            GameStatus.DEALER_WON -> DeepWine
+            GameStatus.DEALER_WON -> TacticalRed
             GameStatus.PUSH -> Color.White
-            else ->
-                ModernGoldLight
-                    .copy(alpha = 0.8f)
+            else -> ModernGoldLight.copy(alpha = 0.8f)
         }
 
     val bannerBackgroundTopColor =
         when {
-            status == GameStatus.PLAYER_WON || isBlackjack -> FeltGreen
-            else -> DeepWine
+            isBlackjack -> PrimaryGold.copy(alpha = 0.15f)
+            status == GameStatus.PLAYER_WON -> FeltGreen.copy(alpha = 0.85f)
+            status == GameStatus.DEALER_WON -> DeepWine.copy(alpha = 0.85f)
+            status == GameStatus.PUSH -> Color.Gray.copy(alpha = 0.85f)
+            else -> DeepWine.copy(alpha = 0.85f)
         }
 
     // Delegate to the authoritative domain extension — consistent with all other sharedUI consumers.
@@ -228,56 +260,92 @@ fun GameStatusMessage(
                     scaleX = pulseScale
                     scaleY = pulseScale
                 }.drawWithCache {
-                    val glowBrush =
-                        Brush.radialGradient(
-                            colors = listOf(accentColor.copy(alpha = 0.25f), Color.Transparent),
-                            radius = size.maxDimension * 0.9f
+                    val borderBrush =
+                        Brush.sweepGradient(
+                            colors =
+                                if (isTerminal) {
+                                    listOf(
+                                        accentColor.copy(alpha = 0.1f),
+                                        accentColor,
+                                        accentColor.copy(alpha = 0.1f)
+                                    )
+                                } else {
+                                    listOf(ModernGoldDark, ModernGoldLight, ModernGoldDark)
+                                }
                         )
+
                     onDrawBehind {
+                        // 1. Ambient Glow
                         drawCircle(
-                            color = accentColor.copy(alpha = ring1Alpha.value * 0.65f),
-                            radius = ring1Radius.value * size.maxDimension * 0.7f,
-                            style = Stroke(3.dp.toPx()),
+                            brush =
+                                Brush.radialGradient(
+                                    colors = listOf(accentColor.copy(alpha = 0.2f), Color.Transparent),
+                                    radius = size.maxDimension * 0.8f
+                                ),
+                            radius = size.maxDimension * 0.8f
                         )
-                        drawCircle(
-                            color = accentColor.copy(alpha = ring2Alpha.value * 0.5f),
-                            radius = ring2Radius.value * size.maxDimension * 0.7f,
-                            style = Stroke(2.dp.toPx()),
-                        )
-                        drawCircle(
-                            color = accentColor.copy(alpha = ring3Alpha.value * 0.35f),
-                            radius = ring3Radius.value * size.maxDimension * 0.7f,
-                            style = Stroke(1.dp.toPx()),
-                        )
-                        drawRoundRect(
-                            brush = glowBrush,
-                            cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx())
-                        )
+
+                        // 2. Win Rings
+                        if (status == GameStatus.PLAYER_WON) {
+                            drawCircle(
+                                color = accentColor.copy(alpha = ring1Alpha.value * 0.65f),
+                                radius = ring1Radius.value * size.maxDimension * 0.7f,
+                                style = Stroke(3.dp.toPx()),
+                            )
+                            drawCircle(
+                                color = accentColor.copy(alpha = ring2Alpha.value * 0.5f),
+                                radius = ring2Radius.value * size.maxDimension * 0.7f,
+                                style = Stroke(2.dp.toPx()),
+                            )
+                        }
+
+                        // 3. Rotating Border
+                        rotate(borderRotation) {
+                            drawRoundRect(
+                                brush = borderBrush,
+                                cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx()),
+                                style = Stroke(2.dp.toPx()),
+                                alpha = 0.8f
+                            )
+                        }
                     }
-                }.clip(RoundedCornerShape(12.dp))
+                }.clip(RoundedCornerShape(16.dp))
+                .background(Color.Black.copy(alpha = 0.75f)) // Base glass dark
                 .background(
                     Brush.verticalGradient(
                         colors =
                             listOf(
                                 bannerBackgroundTopColor,
-                                Color.Black.copy(alpha = 0.9f)
+                                Color.Black.copy(alpha = 0.4f)
                             )
                     )
                 ).border(
-                    width = 2.dp,
-                    brush =
-                        Brush.horizontalGradient(
-                            colors =
-                                listOf(
-                                    ModernGoldDark,
-                                    ModernGoldLight,
-                                    ModernGoldDark
-                                )
-                        ),
-                    shape = RoundedCornerShape(12.dp),
-                ).padding(horizontal = 48.dp, vertical = 20.dp),
+                    width = 1.dp,
+                    color = Color.White.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(16.dp)
+                ).padding(horizontal = 56.dp, vertical = 24.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Reflection overlay
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val reflectionWidth = size.width * 0.4f
+            drawRect(
+                brush =
+                    Brush.linearGradient(
+                        colors =
+                            listOf(
+                                Color.Transparent,
+                                Color.White.copy(alpha = 0.05f),
+                                Color.White.copy(alpha = 0.12f),
+                                Color.White.copy(alpha = 0.05f),
+                                Color.Transparent
+                            ),
+                        start = Offset(size.width * reflectionX - reflectionWidth / 2f, 0f),
+                        end = Offset(size.width * reflectionX + reflectionWidth / 2f, size.height)
+                    ),
+                blendMode = BlendMode.Overlay
+            )
+        }
         val netLabelColor =
             when {
                 netPayout != null && netPayout > 0 -> PrimaryGold
@@ -337,10 +405,17 @@ fun GameStatusMessage(
             )
             if (netLabel != null) {
                 Text(
-                    text = netLabel,
+                    text =
+                        if (animatedPayout > 0) {
+                            stringResource(Res.string.net_result_won, animatedPayout)
+                        } else if (animatedPayout < 0) {
+                            stringResource(Res.string.net_result_lost, -animatedPayout)
+                        } else {
+                            stringResource(Res.string.net_result_push)
+                        },
                     color = netLabelColor,
                     fontWeight = FontWeight.Black,
-                    style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 2.sp),
+                    style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 3.sp),
                     textAlign = TextAlign.Center,
                 )
             }

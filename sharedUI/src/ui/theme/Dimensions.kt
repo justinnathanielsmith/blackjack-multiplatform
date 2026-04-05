@@ -159,4 +159,10 @@ object AnimationConstants {
     val SplashScaleInDuration = 800
     val SplashFadeInDuration = 400
     val SplashDisplayDurationMs = 1200L
+
+    // Premium Outcome Banner (GameStatusMessage.kt)
+    val BannerPopDuration = 600
+    val BorderRotationDuration = 3000
+    val PayoutCountUpDuration = 1000
+    val GlassReflectionDuration = 4000
 }

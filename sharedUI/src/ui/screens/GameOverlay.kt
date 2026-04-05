@@ -26,7 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -39,7 +41,6 @@ import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.SideBetResult
 import io.github.smithjustinn.blackjack.SideBetType
-import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.GameStatusToast
@@ -113,9 +114,35 @@ private fun BlackjackGameOverlay(
     }
     // isProcessState and isTerminalState are mutually exclusive by domain definition
     val isProcessState by remember(status) {
-        derivedStateOf { status == GameStatus.DEALING || status == GameStatus.DEALER_TURN }
+        derivedStateOf {
+            status == GameStatus.DEALING ||
+                status == GameStatus.DEALER_TURN
+        }
     }
-    val isTerminalState by remember(status) { derivedStateOf { status.isTerminal() } }
+    val isTerminalState by remember(status) {
+        derivedStateOf {
+            status == GameStatus.PLAYER_WON ||
+                status == GameStatus.DEALER_WON ||
+                status == GameStatus.PUSH
+        }
+    }
+    val isBust by remember(status, playerHands) {
+        derivedStateOf {
+            status == GameStatus.DEALER_WON && playerHands.all { it.isBust }
+        }
+    }
+
+    var cachedStatus by remember { mutableStateOf(status) }
+    var cachedPayout by remember { mutableStateOf(netPayout) }
+    var cachedIsBlackjack by remember { mutableStateOf(isBlackjack) }
+    var cachedIsBust by remember { mutableStateOf(isBust) }
+
+    if (isTerminalState) {
+        cachedStatus = status
+        cachedPayout = netPayout
+        cachedIsBlackjack = isBlackjack
+        cachedIsBust = isBust
+    }
 
     val scrimAlpha by animateFloatAsState(
         targetValue = if (isTerminalState) 0.62f else 0f,
@@ -172,7 +199,12 @@ private fun BlackjackGameOverlay(
                 fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)) +
                     scaleOut(targetScale = 0.8f),
         ) {
-            GameStatusMessage(status = status, netPayout = netPayout, isBlackjack = isBlackjack)
+            GameStatusMessage(
+                status = cachedStatus,
+                netPayout = cachedPayout,
+                isBlackjack = cachedIsBlackjack,
+                isBust = cachedIsBust
+            )
         }
 
         if (status == GameStatus.INSURANCE_OFFERED) {
