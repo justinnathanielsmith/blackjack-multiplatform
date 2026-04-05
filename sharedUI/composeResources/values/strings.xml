@@ -60,6 +60,7 @@
     <string name="status_blackjack">BLACKJACK</string>
     <string name="status_blackjack_exclamation">Blackjack!</string>
     <string name="status_twenty_one">21</string>
+    <string name="big_win_banner_text">BIG WIN!</string>
     <string name="result_win">Win</string>
     <string name="result_loss">Loss</string>
     <string name="result_push">Push</string>

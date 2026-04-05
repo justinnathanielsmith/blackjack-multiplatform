@@ -48,6 +48,9 @@ import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.big_win_banner_text
 
 @Composable
 fun BigWinBanner(
@@ -173,7 +176,7 @@ private fun BigWinBannerContent(amount: Int) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "BIG WIN!",
+                text = stringResource(Res.string.big_win_banner_text),
                 style = MaterialTheme.typography.displayLarge.copy(letterSpacing = 6.sp),
                 color = Color.White,
                 fontWeight = FontWeight.Black,
