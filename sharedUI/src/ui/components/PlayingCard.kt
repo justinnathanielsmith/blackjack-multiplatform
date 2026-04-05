@@ -30,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
@@ -457,18 +456,25 @@ fun PlayingCard(
                 Modifier
                     .fillMaxSize()
                     .shadow(elevation = shadowElevation, shape = CardShape, spotColor = spotColor)
-                    .drawWithContent {
-                        drawContent()
-                        val alpha = nearMissAlpha.value
-                        val borderWidth = if (alpha > 0f) 2.dp.toPx() else 0.5.dp.toPx()
-                        val borderColor =
-                            if (alpha > 0f) PrimaryGold.copy(alpha = alpha) else Color.Black.copy(alpha = 0.1f)
-                        drawRoundRect(
-                            color = borderColor,
-                            size = size,
-                            cornerRadius = CornerRadius(8.dp.toPx()),
-                            style = Stroke(width = borderWidth)
-                        )
+                    .drawWithCache {
+                        // Cache border geometry — only recreated on canvas size change, not per frame.
+                        // Eliminates ~120 Stroke + CornerRadius allocations/sec during the near-miss
+                        // glow animation (nearMissAlpha animates at 60fps and invalidates the draw scope).
+                        val normalStroke = Stroke(width = 0.5.dp.toPx())
+                        val nearMissStroke = Stroke(width = 2.dp.toPx())
+                        val cornerRadius = CornerRadius(8.dp.toPx())
+                        onDrawWithContent {
+                            drawContent()
+                            val alpha = nearMissAlpha.value
+                            val borderColor =
+                                if (alpha > 0f) PrimaryGold.copy(alpha = alpha) else Color.Black.copy(alpha = 0.1f)
+                            drawRoundRect(
+                                color = borderColor,
+                                size = size,
+                                cornerRadius = cornerRadius,
+                                style = if (alpha > 0f) nearMissStroke else normalStroke,
+                            )
+                        }
                     },
             shape = CardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
