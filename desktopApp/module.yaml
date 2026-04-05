@@ -9,6 +9,10 @@ settings:
 
 dependencies:
   - ../sharedUI
+  - $libs.compose.ui
+  - $libs.compose.runtime
+  - $libs.kotlinx.serialization.core
+  - $libs.kotlinx.serialization.json
   - $libs.kotlinx.coroutines.swing
   - $libs.decompose
   - $libs.essenty.lifecycle
@@ -19,4 +23,3 @@ dependencies:
   - $libs.javafx.controls
   - $libs.javafx.swing
   - $compose.desktop.currentOs
-  - $compose.ui

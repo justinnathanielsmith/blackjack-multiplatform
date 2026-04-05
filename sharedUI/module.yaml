@@ -22,6 +22,8 @@ dependencies@jvm:
 dependencies:
   - ../shared/core: exported
   - ../shared/data: exported
+  - $libs.kotlinx.serialization.core
+  - $libs.kotlinx.serialization.json
   - $libs.decompose
   - $libs.decompose.extensions.compose
   - $libs.coil

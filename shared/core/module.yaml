@@ -10,9 +10,10 @@ settings:
     namespace: io.github.smithjustinn.blackjack.core
 
 dependencies:
-  - $libs.compose.runtime
+  - $libs.compose.runtime: exported
   - $libs.kotlinx.coroutines.core
-  - $libs.kotlinx.serialization.json
+  - $libs.kotlinx.serialization.core: exported
+  - $libs.kotlinx.serialization.json: exported
   - $libs.kotlinx.datetime
   - $libs.kotlinx.collections.immutable
   - $libs.kermit

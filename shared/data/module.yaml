@@ -10,8 +10,9 @@ settings:
     namespace: io.github.smithjustinn.blackjack.data
 
 dependencies:
-  - ../core
-  - $libs.kotlinx.serialization.json
+  - ../core: exported
+  - $libs.kotlinx.serialization.core: exported
+  - $libs.kotlinx.serialization.json: exported
   - $libs.room.runtime
   - $libs.sqlite.bundled
   - $libs.datastore.preferences: exported

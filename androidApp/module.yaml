@@ -15,6 +15,9 @@ settings:
 
 dependencies:
   - ../sharedUI
+  - $libs.compose.runtime
+  - $libs.kotlinx.serialization.core
+  - $libs.kotlinx.serialization.json
   - $libs.androidx.activity.compose
   - $libs.kotlinx.coroutines.android
   - $libs.decompose.extensions.android
