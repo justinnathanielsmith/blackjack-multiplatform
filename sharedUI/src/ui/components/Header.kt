@@ -56,6 +56,8 @@ import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import io.github.smithjustinn.blackjack.ui.theme.VaultDarkBottom
+import io.github.smithjustinn.blackjack.ui.theme.VaultDarkTop
 import io.github.smithjustinn.blackjack.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
@@ -180,9 +182,9 @@ private fun CasinoVault(
                 }.background(
                     brush =
                         Brush.verticalGradient(
-                            0.0f to Color(0xFF2C2C2C),
+                            0.0f to VaultDarkTop,
                             0.5f to Color.Black,
-                            1.0f to Color(0xFF1A1A1A)
+                            1.0f to VaultDarkBottom
                         ),
                     shape = RoundedCornerShape(percent = 50)
                 ).border(

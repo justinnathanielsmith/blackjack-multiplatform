@@ -31,6 +31,15 @@ val LeatherBlack = Color(0xFF151515)
 val BadgeNeutralGrey = Color(0xFF2A2A2A)
 val BadgeDarkInner = Color(0xFF1A1A1A)
 
+// Specialized UI Element Colors
+val VaultDarkTop = Color(0xFF2C2C2C)
+val VaultDarkBottom = Color(0xFF1A1A1A)
+val TrayDarkTop = Color(0xFF111111)
+val TrayDarkBottom = Color(0xFF222222)
+val TableWoodDeep = Color(0xFF2A1C12)
+val TableWoodRim = Color(0xFF5A3A22)
+val TableWoodEdge = Color(0xFF1A100A)
+
 // Casino Chip Colors
 val ChipBlue = Color(0xFF1565C0)
 val ChipGreen = Color(0xFF2E7D32)

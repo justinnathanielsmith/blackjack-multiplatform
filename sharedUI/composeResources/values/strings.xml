@@ -13,38 +13,38 @@
     <string name="audio_tension">tension</string>
 
     <!-- Game actions -->
-    <string name="hit">Hit</string>
-    <string name="action_hit">Hit</string>
-    <string name="stand">Stand</string>
-    <string name="action_stand">Stand</string>
-    <string name="deal">Deal</string>
-    <string name="split">Split</string>
-    <string name="action_split">Split</string>
-    <string name="double_down">Double</string>
     <string name="action_double">Double</string>
+    <string name="action_hit">Hit</string>
+    <string name="action_split">Split</string>
+    <string name="action_stand">Stand</string>
     <string name="action_surrender">Surrender</string>
-    <string name="new_game">New Game</string>
+    <string name="deal">Deal</string>
     <string name="dealer">Dealer</string>
+    <string name="double_down">Double</string>
+    <string name="hit">Hit</string>
+    <string name="new_game">New Game</string>
+    <string name="split">Split</string>
+    <string name="stand">Stand</string>
     <string name="you">You</string>
 
     <!-- Betting -->
+    <string name="add_seat_description">Add seat</string>
     <string name="auto_deal">AUTO</string>
-    <string name="status_betting">Place your bet</string>
     <string name="balance">Balance</string>
     <string name="bet">Bet</string>
+    <string name="bet_multiplier">x%1$d</string>
+    <string name="bet_total_label">Total Bet</string>
+    <string name="currency_symbol">$</string>
+    <string name="currency_template">$%1$s</string>
+    <string name="hand_count_label">Hands</string>
+    <string name="hand_number">Hand %1$d</string>
+    <string name="header_bet_range">$%1$d / $%2$d</string>
+    <string name="remove_seat_description">Remove seat</string>
     <string name="reset_bet">Reset</string>
     <string name="reset_bet_description">Clear current bet</string>
-    <string name="hand_count_label">Hands</string>
     <string name="seats_label">Seats</string>
-    <string name="add_seat_description">Add seat</string>
-    <string name="remove_seat_description">Remove seat</string>
+    <string name="status_betting">Place your bet</string>
     <string name="total_bet">Total: %1$s</string>
-    <string name="bet_total_label">Total Bet</string>
-    <string name="bet_multiplier">x%1$d</string>
-    <string name="hand_number">Hand %1$d</string>
-    <string name="currency_template">$%1$s</string>
-    <string name="currency_symbol">$</string>
-    <string name="header_bet_range">$%1$d / $%2$d</string>
 
     <!-- Game status messages -->
     <string name="status_idle">Idle</string>
@@ -130,30 +130,30 @@
     <string name="strategy_legend_split">Split</string>
 
     <!-- Accessibility descriptions -->
-    <string name="btn_settings_description">Settings</string>
-    <string name="btn_strategy_description">Strategy Guide</string>
-    <string name="btn_rules_description">Game Rules</string>
-    <string name="btn_auto_deal_description">Auto Deal</string>
-    <string name="deal_description">Deal cards and start the game</string>
+    <string name="bet_chip_amount_k">%1$dK</string>
     <string name="bet_chip_description">Bet chip %1$s</string>
-    <string name="btn_close_description">Close</string>
     <string name="bet_spot_description">Bet spot with %1$d</string>
     <string name="bet_spot_description_with_label">Bet spot %1$s with %2$d</string>
+    <string name="btn_auto_deal_description">Auto Deal</string>
+    <string name="btn_close_description">Close</string>
+    <string name="btn_rules_description">Game Rules</string>
+    <string name="btn_settings_description">Settings</string>
+    <string name="btn_strategy_description">Strategy Guide</string>
+    <string name="bullet_point_template">• %1$s</string>
+    <string name="deal_description">Deal cards and start the game</string>
+    <string name="financial_data_content_description">%1$s: %2$s</string>
+    <string name="minus">−</string>
+    <string name="plus">+</string>
+    <string name="score_accessibility_blackjack">Blackjack! Score 21</string>
+    <string name="score_accessibility_bust">Bust, score %1$d</string>
+    <string name="score_accessibility_dealer">Dealer score %1$d</string>
+    <string name="score_accessibility_generic">Score %1$d</string>
+    <string name="seats_count_template">%1$d %2$s</string>
     <string name="side_bet_spot_description">Side bet %1$s with %2$d</string>
+    <string name="status_announcement_template">%1$s. %2$s</string>
     <string name="tap_to_place_bet">Tap to place bet</string>
     <string name="tap_to_place_bet_with_label">Tap to place %1$s bet</string>
     <string name="tap_to_place_side_bet">Tap to place %1$s side bet</string>
-    <string name="score_accessibility_bust">Bust, score %1$d</string>
-    <string name="score_accessibility_blackjack">Blackjack! Score 21</string>
-    <string name="score_accessibility_dealer">Dealer score %1$d</string>
-    <string name="score_accessibility_generic">Score %1$d</string>
-    <string name="status_announcement_template">%1$s. %2$s</string>
-    <string name="financial_data_content_description">%1$s: %2$s</string>
-    <string name="plus">+</string>
-    <string name="minus">−</string>
-    <string name="bullet_point_template">• %1$s</string>
-    <string name="seats_count_template">%1$d %2$s</string>
-    <string name="bet_chip_amount_k">%1$dK</string>
 
     <string name="settings_payout_3_2">3:2</string>
     <string name="settings_payout_6_5">6:5</string>

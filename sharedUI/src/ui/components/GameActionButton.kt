@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
+import io.github.smithjustinn.blackjack.ui.theme.BadgeNeutralGrey
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -178,7 +179,7 @@ fun GameActionButton(
             } else {
                 // Disabled flat look
                 drawCircle(
-                    color = Color(0xFF2A2A2A).copy(alpha = 0.5f),
+                    color = BadgeNeutralGrey.copy(alpha = 0.5f),
                     radius = radius,
                     center = center
                 )
