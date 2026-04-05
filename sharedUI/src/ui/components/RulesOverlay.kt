@@ -73,9 +73,9 @@ fun RulesOverlay(
 @Composable
 private fun RuleSection(
     title: String,
+    modifier: Modifier = Modifier,
     content: String? = null,
     items: List<String>? = null,
-    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(bottom = 20.dp)) {
         Text(
