@@ -247,7 +247,10 @@ private fun BlackjackGameOverlay(
 }
 
 @Composable
-private fun SideBetResultsOverlay(sideBetResults: Map<SideBetType, SideBetResult>) {
+private fun SideBetResultsOverlay(
+    sideBetResults: Map<SideBetType, SideBetResult>,
+    modifier: Modifier = Modifier,
+) {
     AnimatedVisibility(
         visible = sideBetResults.isNotEmpty(),
         enter =
@@ -257,7 +260,7 @@ private fun SideBetResultsOverlay(sideBetResults: Map<SideBetType, SideBetResult
                 targetOffsetY = { it }
             ) + fadeOut(tween(AnimationConstants.StatusMessageExitDuration)),
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(bottom = 8.dp)
                 .zIndex(4f),

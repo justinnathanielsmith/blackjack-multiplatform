@@ -75,7 +75,10 @@ fun BigWinBanner(
 }
 
 @Composable
-private fun BigWinBannerContent(amount: Int) {
+private fun BigWinBannerContent(
+    amount: Int,
+    modifier: Modifier = Modifier,
+) {
     val shimmerTransition = rememberInfiniteTransition(label = "bigWinShimmer")
     val shimmerX by shimmerTransition.animateFloat(
         initialValue = -0.5f,
@@ -123,7 +126,7 @@ private fun BigWinBannerContent(amount: Int) {
     Box(
         contentAlignment = Alignment.Center,
         modifier =
-            Modifier
+            modifier
                 .graphicsLayer {
                     scaleX = pulseScale
                     scaleY = pulseScale
