@@ -117,7 +117,7 @@ fun BetChip(
                                 interactionSource = interactionSource,
                                 indication = null,
                                 enabled = enabled,
-                                role = Role.Button,
+                                role = Role.RadioButton,
                                 onClick = onClick,
                             ).semantics {
                                 contentDescription = chipDescription

@@ -48,3 +48,6 @@
 ## 2026-03-29 - ChipStack Pulse Animation
 **Learning:** Reading `Animatable.value` inside a `graphicsLayer { ... }` block defers state reads to the rendering layer phase, preventing expensive full composable recompositions when adding quick micro-interactions (like a chip stack scaling pulse).
 **Action:** Use `graphicsLayer { scaleX = anim.value }` instead of passing the animated value directly to a modifier or drawing it outside a lambda.
+## 2024-04-02 - Correct Semantic Roles for Selectable Elements
+**Learning:** Using `Modifier.selectable` with the generic `Role.Button` fails to expose the current active/selected state to screen readers. For mutually exclusive options, `Role.RadioButton` must be used so that screen readers correctly announce when the element is selected.
+**Action:** When implementing selectable elements like chips or custom tabs, explicitly pass `role = Role.RadioButton` (or `Role.Tab`) to `Modifier.selectable` to ensure granular accessibility announcements for the selection state.
