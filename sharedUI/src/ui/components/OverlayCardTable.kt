@@ -282,10 +282,10 @@ private fun PositionedCardItem(
     density: Density,
     isActive: Boolean,
     alpha: Float,
-    isDimmed: Boolean = false,
     cardIndexInHand: Int,
-    isDoubleDown: Boolean = false,
     modifier: Modifier = Modifier,
+    isDimmed: Boolean = false,
+    isDoubleDown: Boolean = false,
 ) {
     val progress = remember { Animatable(0f) }
     var midFlightReached by remember { mutableStateOf(false) }
@@ -391,13 +391,13 @@ private fun PositionedCardItem(
 @Composable
 private fun PositionedChipItem(
     amount: Int,
-    handIndex: Int = 0,
-    handCount: Int = 1,
     coordOffsetX: Float,
     coordOffsetY: Float,
     density: Density,
     isActive: Boolean,
     modifier: Modifier = Modifier,
+    handIndex: Int = 0,
+    handCount: Int = 1,
 ) {
     val progress = remember { Animatable(0f) }
 
