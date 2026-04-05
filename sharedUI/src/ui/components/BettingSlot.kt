@@ -22,10 +22,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
@@ -86,11 +87,15 @@ fun BettingSlot(
         )
 
     val primaryColor = if (isSideBet) Color.White else PrimaryGold
+    // Bolt: memoize PathEffect + FloatArray — isSideBet never changes for a given slot instance,
+    // so this allocation happens once instead of on every recomposition.
     val dashEffect =
-        if (isSideBet) {
-            PathEffect.dashPathEffect(floatArrayOf(16f, 12f), 0f)
-        } else {
-            null // Solid painted line for the main bet
+        remember(isSideBet) {
+            if (isSideBet) {
+                PathEffect.dashPathEffect(floatArrayOf(16f, 12f), 0f)
+            } else {
+                null // Solid painted line for the main bet
+            }
         }
 
     val currentDescription =
@@ -136,36 +141,37 @@ fun BettingSlot(
                         .graphicsLayer {
                             scaleX = scale
                             scaleY = scale
-                        }.drawBehind {
+                        }.drawWithCache {
                             val strokeWidth =
-                                if (isSideBet &&
-                                    amount > 0
-                                ) {
+                                if (isSideBet && amount > 0) {
                                     2.dp.toPx()
                                 } else {
-                                    (if (isSideBet) 1.dp.toPx() else 2.dp.toPx())
+                                    if (isSideBet) 1.dp.toPx() else 2.dp.toPx()
                                 }
+                            // Pre-allocate both hover variants — eliminates ~300 Stroke allocs/sec
+                            // (5 slots × 60fps) during the betting phase's continuous glow animation.
+                            val normalStroke = Stroke(width = strokeWidth, pathEffect = dashEffect)
+                            val hoveredStroke = Stroke(width = strokeWidth + 2.dp.toPx(), pathEffect = dashEffect)
+                            val innerStroke = Stroke(width = 1.dp.toPx())
 
-                            val activeColor = if (isHovered) Color.White else primaryColor
+                            onDrawBehind {
+                                val activeColor = if (isHovered) Color.White else primaryColor
 
-                            // Outer Dashed Circle
-                            drawCircle(
-                                color = activeColor.copy(alpha = if (isHovered) 0.8f else glowAlphaState.value),
-                                style =
-                                    Stroke(
-                                        width = strokeWidth + (if (isHovered) 2.dp.toPx() else 0f),
-                                        pathEffect = dashEffect
-                                    ),
-                                radius = size.minDimension / 2f
-                            )
-
-                            if (!isSideBet) {
-                                // Inner Thin Circle for main bet
+                                // Outer Dashed Circle
                                 drawCircle(
-                                    color = activeColor.copy(alpha = if (isHovered) 0.3f else 0.15f),
-                                    style = Stroke(width = 1.dp.toPx()),
-                                    radius = size.minDimension / 2.3f
+                                    color = activeColor.copy(alpha = if (isHovered) 0.8f else glowAlphaState.value),
+                                    style = if (isHovered) hoveredStroke else normalStroke,
+                                    radius = size.minDimension / 2f
                                 )
+
+                                if (!isSideBet) {
+                                    // Inner Thin Circle for main bet
+                                    drawCircle(
+                                        color = activeColor.copy(alpha = if (isHovered) 0.3f else 0.15f),
+                                        style = innerStroke,
+                                        radius = size.minDimension / 2.3f
+                                    )
+                                }
                             }
                         }.clip(CircleShape)
                         .combinedClickable(
