@@ -83,9 +83,13 @@ fun GameStatusMessage(
     isBlackjack: Boolean = false,
     isBust: Boolean = false,
 ) {
-    val pulseTransition = rememberInfiniteTransition(label = "pulse")
+    // Bolt ⚡: Consolidate 4 separate InfiniteTransition instances into one.
+    // Each transition registers its own 60fps frame-clock callback; merging them
+    // cuts animation-system overhead from 4 callbacks/frame → 1 while this
+    // component is on screen (any terminal game state: WIN / LOSS / PUSH).
+    val statusTransition = rememberInfiniteTransition(label = "statusMessage")
     val pulseScale by
-        pulseTransition.animateFloat(
+        statusTransition.animateFloat(
             initialValue = 0.98f,
             targetValue = if (isBlackjack) 1.15f else 1.04f,
             animationSpec =
@@ -105,8 +109,7 @@ fun GameStatusMessage(
             label = "pulseScale",
         )
 
-    val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
-    val shimmerX by shimmerTransition.animateFloat(
+    val shimmerX by statusTransition.animateFloat(
         initialValue = -0.5f,
         targetValue = 1.5f,
         animationSpec =
@@ -139,8 +142,7 @@ fun GameStatusMessage(
     val ring3Radius = remember { Animatable(0f) }
     val ring3Alpha = remember { Animatable(0f) }
 
-    val borderRotationTransition = rememberInfiniteTransition(label = "borderRotation")
-    val borderRotation by borderRotationTransition.animateFloat(
+    val borderRotation by statusTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec =
@@ -151,8 +153,7 @@ fun GameStatusMessage(
         label = "borderRotation",
     )
 
-    val reflectionTransition = rememberInfiniteTransition(label = "reflection")
-    val reflectionX by reflectionTransition.animateFloat(
+    val reflectionX by statusTransition.animateFloat(
         initialValue = -1f,
         targetValue = 2f,
         animationSpec =
