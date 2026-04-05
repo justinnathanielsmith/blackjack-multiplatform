@@ -56,3 +56,9 @@
 **Learning:** For `kotlinx.collections.immutable.PersistentList`, using `.map { ... }.toPersistentList()` to update elements creates intermediate `ArrayList` allocations and extra iterations.
 **Action:** Use `.mutate { builder -> ... }` with an indexed loop to modify the persistent list builder in-place, which is significantly more efficient for small updates or full-list transformations.
 
+## 2026-04-02 - Do not optimize inline map with explicit ArrayLists for small lists
+**Learning:** In Kotlin, standard collection extension functions like  are `inline` and compile down to highly optimized loops. Replacing them with manual `for` loops and pre-sized collections for small item counts (e.g., 1-4 items) is a micro-optimization that reduces code readability without measurable performance gains.
+**Action:** Avoid rewriting simple `.map` calls for small lists into manual loop accumulator logic, unless profiling dictates that an intermediate collection is actually causing GC pressure on a hot path.
+## 2026-04-02 - Do not optimize inline map with explicit ArrayLists for small lists
+**Learning:** In Kotlin, standard collection extension functions like map are `inline` and compile down to highly optimized loops. Replacing them with manual `for` loops and pre-sized collections for small item counts (e.g., 1-4 items) is a micro-optimization that reduces code readability without measurable performance gains.
+**Action:** Avoid rewriting simple .map calls for small lists into manual loop accumulator logic, unless profiling dictates that an intermediate collection is actually causing GC pressure on a hot path.
