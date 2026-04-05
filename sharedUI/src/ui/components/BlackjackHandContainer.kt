@@ -30,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.BlackjackRules
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.HandOutcome
 import io.github.smithjustinn.blackjack.isTerminal
@@ -58,8 +57,8 @@ enum class HandResult {
 // Maps domain HandOutcome to UI HandResult — co-located with the HandResult type it returns.
 internal fun GameState.handResult(index: Int): HandResult {
     if (!status.isTerminal()) return HandResult.NONE
-    val hand = playerHands.getOrNull(index) ?: return HandResult.NONE
-    return when (BlackjackRules.determineHandOutcome(hand, dealerHand.score, dealerHand.isBust)) {
+    val domainOutcome = handOutcomes.getOrNull(index) ?: return HandResult.NONE
+    return when (domainOutcome) {
         HandOutcome.WIN, HandOutcome.NATURAL_WIN -> HandResult.WIN
         HandOutcome.PUSH -> HandResult.PUSH
         HandOutcome.LOSS -> HandResult.LOSS

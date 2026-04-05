@@ -354,6 +354,7 @@ data class GameState(
     val lastBets: PersistentList<Int> = persistentListOf(0),
     val rules: GameRules = GameRules(),
     val dealerDrawIsCritical: Boolean = false,
+    val handOutcomes: PersistentList<HandOutcome> = persistentListOf(),
 ) {
     /**
      * Alias for the bet on the first hand. Used for backward compatibility with single-hand

@@ -140,11 +140,23 @@ internal fun reduceFinalizeGame(state: GameState): ReducerResult {
             results.allPush -> GameStatus.PUSH
             else -> GameStatus.DEALER_WON
         }
+
+    val outcomes =
+        state.playerHands
+            .map { hand ->
+                if (hand.isSurrendered) {
+                    HandOutcome.LOSS
+                } else {
+                    BlackjackRules.determineHandOutcome(hand, dealerScore, dealerBust)
+                }
+            }.toPersistentList()
+
     val newState =
         state.copy(
             status = finalStatus,
             balance = state.balance + results.totalPayout,
             dealerDrawIsCritical = false,
+            handOutcomes = outcomes,
         )
 
     val effects =
