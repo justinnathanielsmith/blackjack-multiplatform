@@ -42,6 +42,7 @@
     <string name="remove_seat_description">Remove seat</string>
     <string name="reset_bet">Reset</string>
     <string name="reset_bet_description">Clear current bet</string>
+    <string name="seat_label">Seat</string>
     <string name="seats_label">Seats</string>
     <string name="status_betting">Place your bet</string>
     <string name="total_bet">Total: %1$s</string>

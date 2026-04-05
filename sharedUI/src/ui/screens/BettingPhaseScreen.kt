@@ -52,6 +52,7 @@ import sharedui.generated.resources.minus
 import sharedui.generated.resources.plus
 import sharedui.generated.resources.remove_seat_description
 import sharedui.generated.resources.seat_center
+import sharedui.generated.resources.seat_label
 import sharedui.generated.resources.seat_left
 import sharedui.generated.resources.seat_main
 import sharedui.generated.resources.seat_right
@@ -323,7 +324,13 @@ fun BettingPhaseScreen(
                             stringResource(
                                 Res.string.seats_count_template,
                                 count,
-                                stringResource(Res.string.seats_label)
+                                if (count ==
+                                    1
+                                ) {
+                                    stringResource(Res.string.seat_label)
+                                } else {
+                                    stringResource(Res.string.seats_label)
+                                }
                             ),
                         style = MaterialTheme.typography.labelLarge,
                         color = PrimaryGold,
