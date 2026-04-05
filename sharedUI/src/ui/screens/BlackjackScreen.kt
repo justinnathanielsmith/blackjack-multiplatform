@@ -308,9 +308,7 @@ fun BlackjackScreen(
 
                             // Game Overlays & Status
                             GameOverlay(
-                                sideBetResults = state.sideBetResults,
-                                status = state.status,
-                                playerHands = state.playerHands,
+                                state = state,
                                 netPayout = state.totalNetPayout(),
                                 component = component,
                                 flashAlphaProvider = { animState.flashAlpha.value },

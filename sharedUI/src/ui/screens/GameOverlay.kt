@@ -36,10 +36,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
+import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.SideBetResult
 import io.github.smithjustinn.blackjack.SideBetType
+import io.github.smithjustinn.blackjack.isProcess
+import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.GameStatusToast
@@ -63,9 +65,7 @@ import sharedui.generated.resources.side_bet_three_of_a_kind
 
 @Composable
 fun GameOverlay(
-    sideBetResults: Map<SideBetType, SideBetResult>,
-    status: GameStatus,
-    playerHands: List<Hand>,
+    state: GameState,
     netPayout: Int?,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
@@ -76,11 +76,10 @@ fun GameOverlay(
     bigWinAmount: () -> Int = { 0 },
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        SideBetResultsOverlay(sideBetResults = sideBetResults)
+        SideBetResultsOverlay(sideBetResults = state.sideBetResults)
 
         BlackjackGameOverlay(
-            status = status,
-            playerHands = playerHands,
+            state = state,
             netPayout = netPayout,
             component = component,
             flashAlphaProvider = flashAlphaProvider,
@@ -95,8 +94,7 @@ fun GameOverlay(
 
 @Composable
 private fun BlackjackGameOverlay(
-    status: GameStatus,
-    playerHands: List<Hand>,
+    state: GameState,
     netPayout: Int?,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
@@ -106,20 +104,19 @@ private fun BlackjackGameOverlay(
     showBigWinBanner: () -> Boolean = { false },
     bigWinAmount: () -> Int = { 0 },
 ) {
-    val isBlackjack = status == GameStatus.PLAYER_WON && playerHands.any { it.isBlackjack }
-    // isProcessState and isTerminalState are mutually exclusive by domain definition
-    val isProcessState = status == GameStatus.DEALING || status == GameStatus.DEALER_TURN
-    val isTerminalState =
-        status == GameStatus.PLAYER_WON || status == GameStatus.DEALER_WON || status == GameStatus.PUSH
-    val isBust = status == GameStatus.DEALER_WON && playerHands.all { it.isBust }
+    val isBlackjack = state.hasPlayerBlackjackWin
+    // isProcess() and isTerminal() are mutually exclusive by domain definition
+    val isProcessState = state.status.isProcess()
+    val isTerminalState = state.status.isTerminal()
+    val isBust = state.hasPlayerBustLoss
 
-    var cachedStatus by remember { mutableStateOf(status) }
+    var cachedState by remember { mutableStateOf(state) }
     var cachedPayout by remember { mutableStateOf(netPayout) }
     var cachedIsBlackjack by remember { mutableStateOf(isBlackjack) }
     var cachedIsBust by remember { mutableStateOf(isBust) }
 
     if (isTerminalState) {
-        cachedStatus = status
+        cachedState = state
         cachedPayout = netPayout
         cachedIsBlackjack = isBlackjack
         cachedIsBust = isBust
@@ -167,7 +164,7 @@ private fun BlackjackGameOverlay(
                 ) + fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)),
             modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter),
         ) {
-            GameStatusToast(status = status)
+            GameStatusToast(status = state.status)
         }
 
         // Tier 2 — Terminal states: dramatic centered panel
@@ -181,21 +178,21 @@ private fun BlackjackGameOverlay(
                     scaleOut(targetScale = 0.8f),
         ) {
             GameStatusMessage(
-                status = cachedStatus,
+                status = cachedState.status,
                 netPayout = cachedPayout,
                 isBlackjack = cachedIsBlackjack,
                 isBust = cachedIsBust
             )
         }
 
-        if (status == GameStatus.INSURANCE_OFFERED) {
+        if (state.status == GameStatus.INSURANCE_OFFERED) {
             InsuranceOverlay(
                 onInsure = onTakeInsurance,
                 onDecline = onDeclineInsurance,
             )
         }
 
-        if (status == GameStatus.PLAYER_WON) {
+        if (state.status == GameStatus.PLAYER_WON) {
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
                 isBlackjack = isBlackjack,
@@ -203,7 +200,7 @@ private fun BlackjackGameOverlay(
             )
         }
 
-        if (status == GameStatus.PLAYER_WON && isBlackjack) {
+        if (state.status == GameStatus.PLAYER_WON && isBlackjack) {
             SparkleEffect(isPaused = isPaused)
         }
 

@@ -268,8 +268,11 @@ enum class GameStatus {
 
 fun GameStatus.isTerminal() = this == GameStatus.PLAYER_WON || this == GameStatus.DEALER_WON || this == GameStatus.PUSH
 
+// Statuses representing active engine animations where player input is locked.
+fun GameStatus.isProcess() = this == GameStatus.DEALING || this == GameStatus.DEALER_TURN
+
 // Statuses during which the game result overlay is shown; complements isTerminal() for UI gating.
-fun GameStatus.isStatusVisible() = this == GameStatus.DEALING || this == GameStatus.DEALER_TURN || this.isTerminal()
+fun GameStatus.isStatusVisible() = this.isProcess() || this.isTerminal()
 
 /**
  * Identifies the specific type of side bet a player can wager on.
@@ -447,6 +450,14 @@ data class GameState(
      * Domain predicate — keeps bet validation logic out of the UI layer.
      */
     val canResetBet: Boolean get() = playerHands.any { it.bet > 0 }
+
+    /** True if the game ended with the player winning via at least one Blackjack. */
+    val hasPlayerBlackjackWin: Boolean
+        get() = status == GameStatus.PLAYER_WON && playerHands.any { it.isBlackjack }
+
+    /** True if the game ended with the dealer winning because all player hands busted. */
+    val hasPlayerBustLoss: Boolean
+        get() = status == GameStatus.DEALER_WON && playerHands.all { it.isBust }
 }
 
 /**
