@@ -52,6 +52,7 @@ import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.DeepWine
+import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -190,6 +191,12 @@ fun GameStatusMessage(
                     .copy(alpha = 0.8f)
         }
 
+    val bannerBackgroundTopColor =
+        when {
+            status == GameStatus.PLAYER_WON || isBlackjack -> FeltGreen
+            else -> DeepWine
+        }
+
     // Delegate to the authoritative domain extension — consistent with all other sharedUI consumers.
     val isTerminal = status.isTerminal()
 
@@ -252,7 +259,7 @@ fun GameStatusMessage(
                     Brush.verticalGradient(
                         colors =
                             listOf(
-                                DeepWine,
+                                bannerBackgroundTopColor,
                                 Color.Black.copy(alpha = 0.9f)
                             )
                     )
