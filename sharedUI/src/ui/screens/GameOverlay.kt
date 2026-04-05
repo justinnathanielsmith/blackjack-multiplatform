@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -107,30 +106,12 @@ private fun BlackjackGameOverlay(
     showBigWinBanner: () -> Boolean = { false },
     bigWinAmount: () -> Int = { 0 },
 ) {
-    val isBlackjack by remember(status, playerHands) {
-        derivedStateOf {
-            status == GameStatus.PLAYER_WON && playerHands.any { it.isBlackjack }
-        }
-    }
+    val isBlackjack = status == GameStatus.PLAYER_WON && playerHands.any { it.isBlackjack }
     // isProcessState and isTerminalState are mutually exclusive by domain definition
-    val isProcessState by remember(status) {
-        derivedStateOf {
-            status == GameStatus.DEALING ||
-                status == GameStatus.DEALER_TURN
-        }
-    }
-    val isTerminalState by remember(status) {
-        derivedStateOf {
-            status == GameStatus.PLAYER_WON ||
-                status == GameStatus.DEALER_WON ||
-                status == GameStatus.PUSH
-        }
-    }
-    val isBust by remember(status, playerHands) {
-        derivedStateOf {
-            status == GameStatus.DEALER_WON && playerHands.all { it.isBust }
-        }
-    }
+    val isProcessState = status == GameStatus.DEALING || status == GameStatus.DEALER_TURN
+    val isTerminalState =
+        status == GameStatus.PLAYER_WON || status == GameStatus.DEALER_WON || status == GameStatus.PUSH
+    val isBust = status == GameStatus.DEALER_WON && playerHands.all { it.isBust }
 
     var cachedStatus by remember { mutableStateOf(status) }
     var cachedPayout by remember { mutableStateOf(netPayout) }

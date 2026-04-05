@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -120,20 +120,10 @@ fun DropTarget(
     content: @Composable (isHovered: Boolean) -> Unit
 ) {
     val state = LocalDragAndDropState.current
-    var isHovered by remember { mutableStateOf(false) }
     var bounds by remember { mutableStateOf(Rect.Zero) }
 
-    // Use derivedStateOf to avoid unnecessary recompositions
-    val isCurrentlyHovered =
-        remember(bounds, state.isDragging, state.dragPosition) {
-            state.isDragging && bounds.contains(state.dragPosition)
-        }
-
-    // Update isHovered state
-    SideEffect {
-        if (state.isDragging) {
-            isHovered = isCurrentlyHovered
-        }
+    val isCurrentlyHovered by remember {
+        derivedStateOf { state.isDragging && bounds.contains(state.dragPosition) }
     }
 
     Box(
@@ -150,15 +140,14 @@ fun DropTarget(
                         )
                 }
     ) {
-        content(isHovered)
+        content(isCurrentlyHovered)
     }
 
-    // Effect to handle drop when dragging ends while hovering
+    // Effect to handle drop when dragging ends while hovering over this target
     LaunchedEffect(state.isDragging) {
-        if (!state.isDragging && isHovered) {
+        if (!state.isDragging && bounds.contains(state.dragPosition)) {
             state.dragItem?.let { onDrop(it) }
             state.clearDragItem()
-            isHovered = false
         }
     }
 }

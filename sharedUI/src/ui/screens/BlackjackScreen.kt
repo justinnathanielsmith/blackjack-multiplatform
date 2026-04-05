@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -118,8 +117,8 @@ fun BlackjackScreen(
             }
         }
 
-    val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
-    val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
+    val isTerminal = state.status.isTerminal()
+    val isMultiHand = state.playerHands.size > 1
 
     val onAutoDealToggle =
         remember(component) {

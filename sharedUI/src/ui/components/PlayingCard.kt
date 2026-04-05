@@ -377,8 +377,8 @@ fun PlayingCard(
     isDoubleDown: Boolean = false,
 ) {
     val baseRotation =
-        remember(card) {
-            val hash = card.hashCode()
+        remember(card.rank, card.suit) {
+            val hash = (card.rank.hashCode() * 31) + card.suit.hashCode()
             ((hash % 100) / 100f) * 4f - 2f
         }
 
