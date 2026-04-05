@@ -71,10 +71,10 @@ fun GameOverlay(
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
+    modifier: Modifier = Modifier,
     isPaused: () -> Boolean = { false },
     showBigWinBanner: () -> Boolean = { false },
     bigWinAmount: () -> Int = { 0 },
-    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         SideBetResultsOverlay(sideBetResults = sideBetResults)
@@ -102,10 +102,10 @@ private fun BlackjackGameOverlay(
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
+    modifier: Modifier = Modifier,
     isPaused: () -> Boolean = { false },
     showBigWinBanner: () -> Boolean = { false },
     bigWinAmount: () -> Int = { 0 },
-    modifier: Modifier = Modifier,
 ) {
     val isBlackjack by remember(status, playerHands) {
         derivedStateOf {

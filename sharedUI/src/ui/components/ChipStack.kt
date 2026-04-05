@@ -24,8 +24,8 @@ private val DENOMINATIONS = listOf(500, 100, 50, 25, 10, 5, 1)
 @Composable
 fun ChipStack(
     amount: Int,
-    isActive: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isActive: Boolean = false
 ) {
     val pulseScale = remember { Animatable(1f) }
 

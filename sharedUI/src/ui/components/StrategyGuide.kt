@@ -171,7 +171,10 @@ private fun StrategyTabs(
 }
 
 @Composable
-private fun ColumnScope.StrategyChart(tab: StrategyTab) {
+private fun ColumnScope.StrategyChart(
+    tab: StrategyTab,
+    modifier: Modifier = Modifier,
+) {
     val data =
         when (tab) {
             StrategyTab.Hard -> StrategyProvider.getHardStrategy()
@@ -181,7 +184,7 @@ private fun ColumnScope.StrategyChart(tab: StrategyTab) {
 
     val dealerCards = listOf(2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
 
-    Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
+    Column(modifier = modifier.fillMaxWidth().weight(1f)) {
         // Dealer Header
         Row(modifier = Modifier.fillMaxWidth().background(GlassLight)) {
             Box(modifier = Modifier.width(60.dp).padding(4.dp)) {

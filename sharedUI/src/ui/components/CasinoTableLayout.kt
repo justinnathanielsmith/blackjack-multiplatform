@@ -40,12 +40,9 @@ fun Modifier.nodeId(id: String) = this.then(NodeIdModifier(id))
 fun CasinoTableLayout(
     state: GameState,
     shoePosition: Offset,
-    // Explicit gameplay area height (excluding header + ControlCenter).
-    // Provided by OverlayCardTable via the registry so computeTableLayout
-    // receives the correct bounded height instead of the full overlay height.
+    modifier: Modifier = Modifier,
     gameplayAreaHeight: Float = 0f,
     onLayout: ((TableLayout) -> Unit)? = null,
-    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     val density = LocalDensity.current
