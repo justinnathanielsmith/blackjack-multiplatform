@@ -50,7 +50,8 @@ fun OverlayLayer(
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
     ) {
         RulesOverlay(
-            onDismiss = onDismissRules
+            onDismiss = onDismissRules,
+            modifier = modifier
         )
     }
 
@@ -61,7 +62,8 @@ fun OverlayLayer(
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(tween(AnimationConstants.OverlayExitDuration)),
     ) {
         StrategyGuideOverlay(
-            onDismiss = onDismissStrategy
+            onDismiss = onDismissStrategy,
+            modifier = modifier
         )
     }
 }

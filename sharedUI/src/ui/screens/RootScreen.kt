@@ -11,9 +11,12 @@ import io.github.smithjustinn.blackjack.presentation.RootComponent
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 
 @Composable
-fun RootScreen(component: RootComponent,) {
+fun RootScreen(
+    component: RootComponent,
+    modifier: Modifier = Modifier,
+) {
     BlackjackTheme {
-        Surface {
+        Surface(modifier = modifier) {
             Children(
                 stack = component.childStack,
                 animation = stackAnimation(fade() + scale())

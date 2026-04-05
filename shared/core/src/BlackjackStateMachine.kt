@@ -97,6 +97,7 @@ class BlackjackStateMachine(
     init {
         // 1. Pure state reduction loop — never suspends, processes actions one at a time.
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            @Suppress("TooGenericExceptionCaught")
             try {
                 for (action in actionChannel) {
                     logger.v { "SM reduce: $action" }

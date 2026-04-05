@@ -49,6 +49,7 @@ fun BettingLayer(
             component = component,
             audioService = audioService,
             selectedAmount = selectedAmount,
+            modifier = modifier,
         )
     }
 

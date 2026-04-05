@@ -95,44 +95,59 @@ fun dealerHand(
  */
 fun GameState.decideAction(): GameAction {
     if (status == GameStatus.INSURANCE_OFFERED) return GameAction.DeclineInsurance
-    if (status != GameStatus.PLAYING) return GameAction.Stand // Should not happen in fuzzing loop
+    if (status != GameStatus.PLAYING) return GameAction.Stand
 
     val hand = activeHand
     val dealerUpcard = dealerHand.cards[0].rank.value
 
-    // 1. Pairs Strategy
-    if (canSplit()) {
-        val rank = hand.cards[0].rank
-        val key = if (rank == Rank.ACE) "A,A" else "${rank.value},${rank.value}"
-        val action =
-            StrategyProvider
-                .getPairsStrategy()
-                .find { it.playerValue == key }
-                ?.actions
-                ?.get(dealerUpcard)
+    return decideActionPairs(hand, dealerUpcard)
+        ?: decideActionSoft(hand, dealerUpcard)
+        ?: decideActionHard(hand, dealerUpcard)
+}
 
-        if (action == StrategyAction.SPLIT) return GameAction.Split
+private fun GameState.decideActionPairs(
+    hand: Hand,
+    dealerUpcard: Int
+): GameAction? {
+    if (!canSplit()) return null
+    val rank = hand.cards[0].rank
+    val key = if (rank == Rank.ACE) "A,A" else "${rank.value},${rank.value}"
+    val action =
+        StrategyProvider
+            .getPairsStrategy()
+            .find { it.playerValue == key }
+            ?.actions
+            ?.get(dealerUpcard)
+
+    return if (action == StrategyAction.SPLIT) GameAction.Split else null
+}
+
+private fun GameState.decideActionSoft(
+    hand: Hand,
+    dealerUpcard: Int
+): GameAction? {
+    if (!hand.isSoft || hand.cards.size != 2) return null
+    val nonAceRank = if (hand.cards[0].rank == Rank.ACE) hand.cards[1].rank else hand.cards[0].rank
+    val key = "A,${nonAceRank.value}"
+    val action =
+        StrategyProvider
+            .getSoftStrategy()
+            .find { it.playerValue == key }
+            ?.actions
+            ?.get(dealerUpcard)
+
+    return when (action) {
+        StrategyAction.DOUBLE -> if (canDoubleDown()) GameAction.DoubleDown else GameAction.Stand
+        StrategyAction.STAND -> GameAction.Stand
+        StrategyAction.HIT -> GameAction.Hit
+        else -> null
     }
+}
 
-    // 2. Soft Strategy
-    if (hand.isSoft && hand.cards.size == 2) {
-        val nonAceRank = if (hand.cards[0].rank == Rank.ACE) hand.cards[1].rank else hand.cards[0].rank
-        val key = "A,${nonAceRank.value}"
-        val action =
-            StrategyProvider
-                .getSoftStrategy()
-                .find { it.playerValue == key }
-                ?.actions
-                ?.get(dealerUpcard)
-
-        return when (action) {
-            StrategyAction.DOUBLE -> if (canDoubleDown()) GameAction.DoubleDown else GameAction.Stand
-            StrategyAction.STAND -> GameAction.Stand
-            else -> GameAction.Hit
-        }
-    }
-
-    // 3. Hard Strategy
+private fun GameState.decideActionHard(
+    hand: Hand,
+    dealerUpcard: Int
+): GameAction {
     val score = hand.score
     val key =
         when {
