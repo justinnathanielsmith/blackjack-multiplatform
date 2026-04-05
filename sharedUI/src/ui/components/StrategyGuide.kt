@@ -71,12 +71,15 @@ import sharedui.generated.resources.strategy_tab_pairs
 import sharedui.generated.resources.strategy_tab_soft
 
 @Composable
-fun StrategyGuideOverlay(onDismiss: () -> Unit) {
+fun StrategyGuideOverlay(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val selectedTab = remember { mutableStateOf<StrategyTab>(StrategyTab.Hard) }
 
     Surface(
         color = FeltDark.copy(alpha = 0.95f),
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Column(
             modifier =
@@ -125,7 +128,8 @@ fun StrategyGuideOverlay(onDismiss: () -> Unit) {
 @Composable
 private fun StrategyTabs(
     selectedTab: StrategyTab,
-    onTabSelected: (StrategyTab) -> Unit
+    onTabSelected: (StrategyTab) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val tabs =
         listOf(
@@ -136,7 +140,7 @@ private fun StrategyTabs(
 
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .background(GlassDark)
@@ -271,9 +275,9 @@ private fun StrategyActionCell(
 }
 
 @Composable
-private fun StrategyLegend() {
+private fun StrategyLegend(modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        modifier = modifier.fillMaxWidth().padding(top = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         LegendItem(StrategyAction.HIT, stringResource(Res.string.strategy_legend_hit))
@@ -286,9 +290,13 @@ private fun StrategyLegend() {
 @Composable
 private fun LegendItem(
     action: StrategyAction,
-    label: String
+    label: String,
+    modifier: Modifier = Modifier,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         StrategyActionCell(action = action, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = label, fontSize = 12.sp, color = Color.White)

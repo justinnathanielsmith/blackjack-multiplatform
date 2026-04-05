@@ -154,7 +154,10 @@
     <string name="seats_count_template">%1$d %2$s</string>
     <string name="bet_chip_amount_k">%1$dK</string>
 
-
+    <string name="settings_payout_3_2">3:2</string>
+    <string name="settings_payout_6_5">6:5</string>
+    <string name="table_rules_payout">BLACKJACK PAYS 3 TO 2</string>
+    <string name="table_rules_dealer_stand">DEALER STANDS ON ALL 17S</string>
 
     <string name="seat_left">LEFT</string>
     <string name="seat_center">CENTER</string>

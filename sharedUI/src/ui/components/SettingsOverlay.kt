@@ -46,6 +46,8 @@ import sharedui.generated.resources.settings_decks
 import sharedui.generated.resources.settings_game_rules
 import sharedui.generated.resources.settings_mute
 import sharedui.generated.resources.settings_payout
+import sharedui.generated.resources.settings_payout_3_2
+import sharedui.generated.resources.settings_payout_6_5
 import sharedui.generated.resources.settings_reset_balance
 import sharedui.generated.resources.settings_reset_balance_confirmation
 import sharedui.generated.resources.settings_rule_disclaimer
@@ -58,13 +60,15 @@ fun SettingsOverlay(
     settings: AppSettings,
     onUpdateSettings: ((AppSettings) -> AppSettings) -> Unit,
     onResetBalance: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var showResetConfirmation by remember { mutableStateOf(false) }
 
     BaseOverlay(
         title = stringResource(Res.string.settings_title),
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        modifier = modifier
     ) {
         // App Settings
         SettingsToggle(
@@ -103,23 +107,24 @@ fun SettingsOverlay(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        val payout32 = stringResource(Res.string.settings_payout_3_2)
+        val payout65 = stringResource(Res.string.settings_payout_6_5)
+
         SettingsDropdown(
             title = stringResource(Res.string.settings_payout),
             currentValue =
                 when (settings.gameRules.blackjackPayout) {
-                    BlackjackPayout.THREE_TO_TWO -> "3:2"
-                    BlackjackPayout.SIX_TO_FIVE -> "6:5"
+                    BlackjackPayout.THREE_TO_TWO -> payout32
+                    BlackjackPayout.SIX_TO_FIVE -> payout65
                 },
-            options = listOf("3:2", "6:5"),
+            options = listOf(payout32, payout65),
             onOptionSelected = { option ->
                 onUpdateSettings {
                     it.copy(
                         gameRules =
                             it.gameRules.copy(
                                 blackjackPayout =
-                                    if (option ==
-                                        "3:2"
-                                    ) {
+                                    if (option == payout32) {
                                         BlackjackPayout.THREE_TO_TWO
                                     } else {
                                         BlackjackPayout.SIX_TO_FIVE
@@ -226,11 +231,12 @@ fun SettingsOverlay(
 private fun SettingsToggle(
     title: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .toggleable(
@@ -259,13 +265,14 @@ private fun SettingsDropdown(
     title: String,
     currentValue: String,
     options: List<String>,
-    onOptionSelected: (String) -> Unit
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(role = Role.DropdownList) { expanded = true }

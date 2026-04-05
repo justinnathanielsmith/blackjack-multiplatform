@@ -108,12 +108,11 @@ class BlackjackStateMachine(
                 }
             } catch (ce: CancellationException) {
                 throw ce
-            } catch (
-                @Suppress("TooGenericExceptionCaught") e: Exception
-            ) {
-                // We catch non-cancellation exceptions here because this is the terminal loop of the
-                // state machine. Any unhandled exception here is fatal and correctly transitions
-                // the machine to a shutdown state, making the cause visible for telemetry or debugging.
+            } catch (e: Throwable) {
+                // We catch Throwable here because this is the terminal loop of the
+                // state machine. Any unhandled exception or error here is fatal and correctly
+                // transitions the machine to a shutdown state, making the cause visible
+                // for telemetry or debugging. We rethrow to ensure the loop terminates.
                 logger.e(e) { "SM init block caught fatal error" }
                 _shutdownCause.value = e
                 throw e

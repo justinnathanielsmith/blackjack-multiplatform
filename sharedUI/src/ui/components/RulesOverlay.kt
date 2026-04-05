@@ -29,10 +29,14 @@ import sharedui.generated.resources.rules_variations_content
 import sharedui.generated.resources.rules_variations_title
 
 @Composable
-fun RulesOverlay(onDismiss: () -> Unit) {
+fun RulesOverlay(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     BaseOverlay(
         title = stringResource(Res.string.rules_title),
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        modifier = modifier
     ) {
         RuleSection(
             title = stringResource(Res.string.rules_core_title),
@@ -70,9 +74,10 @@ fun RulesOverlay(onDismiss: () -> Unit) {
 private fun RuleSection(
     title: String,
     content: String? = null,
-    items: List<String>? = null
+    items: List<String>? = null,
+    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = Modifier.padding(bottom = 20.dp)) {
+    Column(modifier = modifier.padding(bottom = 20.dp)) {
         Text(
             text = title.uppercase(),
             style = MaterialTheme.typography.labelLarge,

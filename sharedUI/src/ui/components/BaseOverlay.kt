@@ -31,12 +31,13 @@ import sharedui.generated.resources.close
 fun BaseOverlay(
     title: String,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier =
-                Modifier
+                modifier
                     .fillMaxWidth()
                     .padding(16.dp),
             shape = RoundedCornerShape(16.dp),

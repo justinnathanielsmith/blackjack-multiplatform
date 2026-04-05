@@ -38,7 +38,8 @@ fun OverlayLayer(
             settings = appSettings,
             onUpdateSettings = component::updateSettings,
             onResetBalance = component::resetBalance,
-            onDismiss = onDismissSettings
+            onDismiss = onDismissSettings,
+            modifier = modifier
         )
     }
 

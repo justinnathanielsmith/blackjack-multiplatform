@@ -47,7 +47,6 @@ import io.github.smithjustinn.blackjack.ui.theme.LeatherBlack
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.VelvetRed
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.score_accessibility_blackjack
@@ -128,24 +127,22 @@ fun ScoreBadge(
 
         LaunchedEffect(score, state) {
             if (state == ScoreBadgeState.ACTIVE || is21 || isBust || isWinner) {
-                launch {
-                    pulseScale.animateTo(
-                        targetValue = 1.25f,
-                        animationSpec =
-                            spring(
-                                dampingRatio = 0.5f,
-                                stiffness = Spring.StiffnessHigh
-                            )
-                    )
-                    pulseScale.animateTo(
-                        targetValue = 1f,
-                        animationSpec =
-                            spring(
-                                dampingRatio = 0.6f,
-                                stiffness = Spring.StiffnessMedium
-                            )
-                    )
-                }
+                pulseScale.animateTo(
+                    targetValue = 1.25f,
+                    animationSpec =
+                        spring(
+                            dampingRatio = 0.5f,
+                            stiffness = Spring.StiffnessHigh
+                        )
+                )
+                pulseScale.animateTo(
+                    targetValue = 1f,
+                    animationSpec =
+                        spring(
+                            dampingRatio = 0.6f,
+                            stiffness = Spring.StiffnessMedium
+                        )
+                )
                 if (state == ScoreBadgeState.ACTIVE) {
                     goldGlowAlpha.animateTo(0.7f, animationSpec = tween(80))
                     goldGlowAlpha.animateTo(0f, animationSpec = tween(250))

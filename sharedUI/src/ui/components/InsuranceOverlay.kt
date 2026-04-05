@@ -42,6 +42,7 @@ import sharedui.generated.resources.status_announcement_template
 fun InsuranceOverlay(
     onInsure: () -> Unit,
     onDecline: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val title = stringResource(Res.string.insurance_title)
     val message = stringResource(Res.string.insurance_message)
@@ -49,7 +50,7 @@ fun InsuranceOverlay(
 
     Box(
         modifier =
-            Modifier
+            modifier
                 .semantics {
                     liveRegion = LiveRegionMode.Polite
                     contentDescription = announcement

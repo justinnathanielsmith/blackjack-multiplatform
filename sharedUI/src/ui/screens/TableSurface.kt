@@ -30,6 +30,10 @@ import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.FeltWarmCenter
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.table_rules_dealer_stand
+import sharedui.generated.resources.table_rules_payout
 
 @Composable
 fun TableSurface(modifier: Modifier = Modifier) {
@@ -117,7 +121,7 @@ private fun RulePlate(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "BLACKJACK PAYS 3 TO 2",
+            text = stringResource(Res.string.table_rules_payout),
             color = PrimaryGold.copy(alpha = 0.4f),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
@@ -125,7 +129,7 @@ private fun RulePlate(modifier: Modifier = Modifier) {
             fontSize = 8.sp
         )
         Text(
-            text = "DEALER STANDS ON ALL 17S",
+            text = stringResource(Res.string.table_rules_dealer_stand),
             color = Color.White.copy(alpha = 0.2f),
             style = MaterialTheme.typography.labelSmall,
             letterSpacing = 1.sp,
