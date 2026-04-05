@@ -91,4 +91,37 @@ class LastBetPersistenceTest {
             // But lastBets should still store the attempt
             assertEquals(previousBets, newState.playerHands.map { it.lastBet }.toPersistentList())
         }
+
+    @Test
+    fun testLastBetsCapturedAtDeal_IgnoresDoubleDown() =
+        runTest {
+            val sm = testMachine()
+            // Deterministic deck: Player 5,10. Dealer 10,7. (Total 15 player, total 17 dealer)
+            // Sequence: P1=5, D1=10, P2=6, D2=7
+            val deck = deckOf(Rank.FIVE, Rank.TEN, Rank.SIX, Rank.SEVEN, Rank.TWO)
+
+            // 1. Start game, place 10
+            sm.dispatch(GameAction.NewGame(initialBalance = 1000, handCount = 1))
+            sm.dispatch(GameAction.PlaceBet(amount = 10))
+            sm.dispatch(GameAction.SetDeck(deck)) // Use fixed deck
+            testScheduler.advanceUntilIdle()
+
+            // 2. Deal — this should capture the 10
+            sm.dispatch(GameAction.Deal)
+            testScheduler.advanceUntilIdle()
+            assertEquals(listOf(10), sm.state.value.lastBets)
+            assertEquals(GameStatus.PLAYING, sm.state.value.status)
+
+            // 3. Double Down — this increases bet to 20
+            sm.dispatch(GameAction.DoubleDown)
+            testScheduler.advanceUntilIdle()
+
+            // 4. Current bet is 20, but lastBets MUST remain 10
+            assertEquals(
+                20,
+                sm.state.value.playerHands[0]
+                    .bet
+            )
+            assertEquals(listOf(10), sm.state.value.lastBets)
+        }
 }

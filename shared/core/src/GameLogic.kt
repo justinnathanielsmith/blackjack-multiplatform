@@ -307,6 +307,7 @@ data class GameState(
     val sideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
     val sideBetResults: PersistentMap<SideBetType, SideBetResult> = persistentMapOf(),
     val lastSideBets: PersistentMap<SideBetType, Int> = persistentMapOf(),
+    val lastBets: PersistentList<Int> = persistentListOf(0),
     val rules: GameRules = GameRules(),
     val dealerDrawIsCritical: Boolean = false,
 ) {

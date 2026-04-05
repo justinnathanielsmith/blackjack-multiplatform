@@ -16,7 +16,6 @@ import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.utils.componentScope
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -113,7 +112,7 @@ class DefaultBlackjackComponent(
                         if (isTerminal) {
                             val currentState = stateMachine.state.value
                             val autoDealEnabled = _appSettings.value.isAutoDealEnabled
-                            val previousBets = currentState.playerHands.map { it.bet }.toPersistentList()
+                            val previousBets = currentState.lastBets
                             val handCount = currentState.handCount
                             val lastSideBets = currentState.lastSideBets
 

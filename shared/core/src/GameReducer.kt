@@ -228,8 +228,13 @@ private fun reduceDeal(state: GameState): ReducerResult {
     ) {
         return ReducerResult(state)
     }
+    val capturedBets = state.playerHands.map { it.bet }.toPersistentList()
     return ReducerResult(
-        state = state.copy(status = GameStatus.DEALING),
+        state =
+            state.copy(
+                status = GameStatus.DEALING,
+                lastBets = capturedBets
+            ),
         commands = listOf(ReducerCommand.RunDealSequence),
     )
 }

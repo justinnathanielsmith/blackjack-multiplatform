@@ -86,6 +86,7 @@ object NewGameLogic {
             balance = postSideBetBalance,
             sideBets = finalSideBets,
             lastSideBets = lastSideBets,
+            lastBets = previousBets,
             playerHands =
                 List(handCount) { i ->
                     Hand(bet = finalBets[i], lastBet = normalizedLastBets[i])
