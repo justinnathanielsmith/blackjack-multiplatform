@@ -60,6 +60,10 @@ import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PokerBlack
 import io.github.smithjustinn.blackjack.ui.theme.PokerRed
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.playing_card_face_down_description
+import sharedui.generated.resources.playing_card_face_up_description
 
 internal val CardShape = RoundedCornerShape(8.dp)
 
@@ -434,7 +438,16 @@ fun PlayingCard(
 
     val showBack = rotation < 90f
 
-    val cardDescription = if (isFaceUp) "${card.rank.name} of ${card.suit.name}" else "Card face down"
+    val cardDescription =
+        if (isFaceUp) {
+            stringResource(
+                Res.string.playing_card_face_up_description,
+                card.rank.name,
+                card.suit.name
+            )
+        } else {
+            stringResource(Res.string.playing_card_face_down_description)
+        }
 
     Box(
         modifier =
