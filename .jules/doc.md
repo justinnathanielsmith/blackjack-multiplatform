@@ -18,3 +18,7 @@
 ## 2026-04-04 - GameActions
 **Surprise:** [isCompact] isn't just for mobile portrait; it's triggered by [BlackjackScreen] whenever more than one hand is active to prevent the HUD from overlapping cards. This aspect of responsive layout is managed via direct observation of [GameState.playerHands].
 **Rule:** When documenting layout-related parameters in the HUD, verify if they are aspect-ratio driven (via [LayoutMode]) or state-driven (via [isMultiHand]), as callers need to know which determines the visual density.
+
+## 2026-04-05 - HandOutcome
+**Surprise:** The `HandOutcome` enum has `NATURAL_WIN` alongside `WIN`, separating a natural blackjack win from a normal score win independently of payout definitions or wagers. This isolated enum helps avoid conflating payout logic (e.g., 3:2 vs 1:1) from hand resolution logic in `BlackjackRules`.
+**Rule:** When documenting game progression boundaries, clearly decouple abstract structural statuses (like `HandOutcome.NATURAL_WIN`) from explicit numerical behavior (like `BlackjackPayout.THREE_TO_TWO`).

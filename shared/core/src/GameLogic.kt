@@ -183,15 +183,39 @@ data class Hand(
     val isSoft: Boolean get() = metrics.isSoft
 }
 
+/**
+ * Represents the payout ratio for a natural Blackjack (an Ace and a 10-value card on the initial deal).
+ *
+ * Standard casino rules offer 3:2, though some rule variations offer 6:5 which increases the house edge.
+ *
+ * @property numerator The multiple of the bet returned as profit.
+ * @property denominator The base unit of the bet used to calculate the multiplied profit.
+ */
 @Serializable
 enum class BlackjackPayout(
     val numerator: Int,
     val denominator: Int
 ) {
+    /** Standard payout: a $2 bet returns $3 profit. */
     THREE_TO_TWO(3, 2),
+
+    /** Reduced payout: a $5 bet returns $6 profit. */
     SIX_TO_FIVE(6, 5),
 }
 
+/**
+ * Configuration options governing the house rules and payouts for the Blackjack game.
+ *
+ * Modifying these rules affects player odds, strategy charts, and whether certain actions
+ * (like surrendering or doubling after a split) are permitted.
+ *
+ * @property dealerHitsSoft17 If true, the dealer must draw another card on a soft 17 (an Ace and a 6). If false, dealer stands.
+ * @property allowDoubleAfterSplit If true, the player can double down on hands resulting from a split.
+ * @property allowSurrender If true, the player can forfeit their hand at the start of their turn for half their bet.
+ * @property blackjackPayout The payout ratio for a natural Blackjack (e.g. 3:2).
+ * @property deckCount The number of 52-card decks used in the shoe.
+ * @property splitOnValueOnly If true, any two cards with the same point value may be split.
+ */
 @Serializable
 data class GameRules(
     val dealerHitsSoft17: Boolean = true,
@@ -247,19 +271,38 @@ fun GameStatus.isTerminal() = this == GameStatus.PLAYER_WON || this == GameStatu
 // Statuses during which the game result overlay is shown; complements isTerminal() for UI gating.
 fun GameStatus.isStatusVisible() = this == GameStatus.DEALING || this == GameStatus.DEALER_TURN || this.isTerminal()
 
+/**
+ * Identifies the specific type of side bet a player can wager on.
+ *
+ * Side bets are resolved independently of the main Blackjack hand outcome using the
+ * initial dealt cards before any player actions are taken.
+ */
 @Serializable
 enum class SideBetType {
+    /** Poker-style hands formed using the player's two initial cards and the dealer's upcard. */
     TWENTY_ONE_PLUS_THREE,
+
+    /** Wagers that the player's initial two cards form a pair based on rank, color, or suit. */
     PERFECT_PAIRS
 }
 
+/**
+ * Contains the settled resolution of a specific side bet after the initial cards are dealt.
+ *
+ * This immutable result is stored in the [GameState] and is used by the UI to present
+ * specific bet winnings and their categorical names (e.g., "Straight Flush") in the result banner.
+ *
+ * @property type The [SideBetType] that this result corresponds to.
+ * @property payoutMultiplier The ratio at which the initial wager is multiplied to calculate profit.
+ * @property payoutAmount The total chips (original bet + profit) returned to the player.
+ * @property outcomeName A domain-specific string identifying the winning hand (e.g. "Perfect Pair", "Flush").
+ */
 @Immutable
 @Serializable
 data class SideBetResult(
     val type: SideBetType,
     val payoutMultiplier: Int,
     val payoutAmount: Int,
-    // e.g., "Flush", "Perfect Pair"
     val outcomeName: String
 )
 
@@ -289,6 +332,7 @@ data class SideBetResult(
  * @property sideBets The set of active side bets (fixed until settled) currently on the table.
  * @property sideBetResults Settled results for side bets, calculated immediately after the deal.
  * @property lastSideBets Captured side bets from the previous round, enabling "repeat bet".
+ * @property lastBets Captured main bets from the previous round across hands, enabling "repeat bet".
  * @property rules The [GameRules] currently in effect for this session.
  * @property dealerDrawIsCritical True if the dealer is currently in a state that triggers
  *           visual "critical" indications (e.g., potentially busting or drawing on the edge).
@@ -404,7 +448,23 @@ data class GameState(
     val canResetBet: Boolean get() = playerHands.any { it.bet > 0 }
 }
 
-enum class HandOutcome { NATURAL_WIN, WIN, PUSH, LOSS }
+/**
+ * Represents the isolated win/loss result of a player hand against the dealer's score,
+ * independent of payout ratios or wagers.
+ */
+enum class HandOutcome {
+    /** A 2-card 21 (Natural Blackjack). Out-ranks a normal 21 and typically pays 3:2. */
+    NATURAL_WIN,
+
+    /** Player beat the dealer by score or the dealer busted. Typically pays 1:1. */
+    WIN,
+
+    /** Tie score with the dealer. Bet is returned to the player. */
+    PUSH,
+
+    /** Player busted or dealer achieved a higher score. Bet is forfeited. */
+    LOSS
+}
 
 // Domain layer: per-hand and total net payout helpers so UI never re-implements bet math.
 
@@ -633,6 +693,14 @@ object BlackjackRules {
      *
      * This orchestrates status transitions (like [GameStatus.INSURANCE_OFFERED]), dealer card
      * reveal, and initial balance updates for natural blackjacks.
+     *
+     * @param current The current [GameState].
+     * @param playerHands The list of player [Hand]s.
+     * @param dealerHand The dealer's [Hand].
+     * @return A [Triple] containing:
+     *         1. The updated [GameStatus] (e.g., INSURANCE_OFFERED, PLAYING, or a terminal state).
+     *         2. The possibly revealed dealer [Hand].
+     *         3. The net change to the player's balance.
      */
     @Suppress("CyclomaticComplexMethod")
     fun resolveInitialOutcomeValues(

@@ -28,6 +28,16 @@ import sharedui.generated.resources.rules_title
 import sharedui.generated.resources.rules_variations_content
 import sharedui.generated.resources.rules_variations_title
 
+/**
+ * A modal overlay displaying the comprehensive rules, available actions, and side bet details for the Blackjack game.
+ *
+ * This component organizes the game's manual into distinct thematic sections (e.g., Core Rules, Actions,
+ * Variations, and Side Bets) to provide players with a quick, in-game reference guide. It utilizes [BaseOverlay]
+ * for consistent modal presentation and dismissal behavior across the application.
+ *
+ * @param onDismiss Callback invoked when the user requests to close the overlay (e.g., by tapping a close button or dismissing the modal).
+ * @param modifier [Modifier] applied to the root layout of this overlay.
+ */
 @Composable
 fun RulesOverlay(
     onDismiss: () -> Unit,
