@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -293,6 +294,11 @@ fun GameStatusMessage(
                 textAlign = TextAlign.Center,
                 modifier =
                     Modifier.drawWithCache {
+                        // Brush is created once per size/accentColor change — shimmerX is
+                        // intentionally NOT read here, so the cache is NOT invalidated on
+                        // every animation frame (~60fps). This eliminates per-frame Brush,
+                        // List<Color>, and Offset allocations during win/push celebrations.
+                        val bandWidth = size.width * 0.3f
                         val shimmerBrush =
                             Brush.linearGradient(
                                 colors =
@@ -303,14 +309,19 @@ fun GameStatusMessage(
                                         accentColor.copy(alpha = 0.3f),
                                         Color.Transparent
                                     ),
-                                start = Offset(size.width * shimmerX, 0f),
-                                end = Offset(size.width * (shimmerX + 0.3f), size.height)
+                                start = Offset.Zero,
+                                end = Offset(bandWidth, size.height)
                             )
                         onDrawWithContent {
                             drawContent()
                             if (status == GameStatus.PLAYER_WON || status == GameStatus.PUSH) {
+                                // shimmerX read here: plain Float math, no allocation.
+                                // The band is centred on shimmerX * size.width and drawn 2× bandWidth
+                                // wide so the gradient fades are visible on both edges.
                                 drawRect(
                                     brush = shimmerBrush,
+                                    topLeft = Offset(size.width * shimmerX - bandWidth / 2f, 0f),
+                                    size = Size(bandWidth * 2f, size.height),
                                     blendMode = BlendMode.SrcAtop
                                 )
                             }
