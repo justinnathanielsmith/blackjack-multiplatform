@@ -41,7 +41,7 @@ data class PlayerActionOutcome(
  * All functions are pure state transitions that return a [PlayerActionOutcome].
  */
 object PlayerActionLogic {
-    private const val BLACKJACK_SCORE = 21
+    // Score threshold sourced from BlackjackConfig — single authoritative constant for the whole domain.
     private const val HIGH_CARD_VALUE = 10
     private const val NEAR_MISS_SCORE = 11
     private const val CARDS_TO_DEAL_ON_SPLIT = 2
@@ -64,7 +64,7 @@ object PlayerActionLogic {
         if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
 
         // Block hits on 21 or higher.
-        if (state.activeHand.score >= BLACKJACK_SCORE) {
+        if (state.activeHand.score >= BlackjackConfig.BLACKJACK_SCORE) {
             return PlayerActionOutcome.noop(state)
         }
 
@@ -84,7 +84,7 @@ object PlayerActionLogic {
                 add(GameEffect.PlayCardSound)
                 if (newCard.rank.value < HIGH_CARD_VALUE) add(GameEffect.LightTick)
                 if (newCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
-                if (newHand.score == BLACKJACK_SCORE) add(GameEffect.Pulse21)
+                if (newHand.score == BlackjackConfig.BLACKJACK_SCORE) add(GameEffect.Pulse21)
                 if (newHand.score == NEAR_MISS_SCORE) add(GameEffect.NearMissHighlight(state.activeHandIndex))
                 if (newHand.isBust) add(GameEffect.BustThud)
             }
@@ -160,7 +160,7 @@ object PlayerActionLogic {
             buildList {
                 add(GameEffect.PlayCardSound)
                 if (drawnCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
-                if (newHand.score == BLACKJACK_SCORE) add(GameEffect.Pulse21)
+                if (newHand.score == BlackjackConfig.BLACKJACK_SCORE) add(GameEffect.Pulse21)
                 if (newHand.isBust) {
                     add(GameEffect.PlayLoseSound)
                     add(GameEffect.BustThud)
