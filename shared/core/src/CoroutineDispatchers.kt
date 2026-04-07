@@ -3,7 +3,8 @@ package io.github.smithjustinn.blackjack.utils
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
-expect val ioDispatcher: CoroutineDispatcher
+// Dispatchers.IO is common-API since coroutines 1.7 — no platform actuals needed.
+val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 
 data class CoroutineDispatchers(
     val main: CoroutineDispatcher = Dispatchers.Main,
