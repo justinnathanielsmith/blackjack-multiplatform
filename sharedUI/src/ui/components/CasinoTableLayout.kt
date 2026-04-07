@@ -13,11 +13,28 @@ import androidx.compose.ui.util.lerp
 import io.github.smithjustinn.blackjack.GameState
 import kotlin.math.roundToInt
 
+/**
+ * Metadata passed from children to the [CasinoTableLayout] via [ParentDataModifier].
+ *
+ * This data class allows the layout engine to identify specific children (like cards or HUDs)
+ * and access their animation state (like flight progress) during the layout and placement phases.
+ *
+ * @property id A unique identifier for the child, used for lookup in the [measurables] list.
+ * @property flightProgress A [State] emitting a float from 0.0 (at shoe) to 1.0 (at destination).
+ */
 data class CardParentData(
     val id: String = "",
     val flightProgress: State<Float>? = null,
 )
 
+/**
+ * A [ParentDataModifier] that attaches a [flightProgress] state to a child.
+ *
+ * This progress is used by [CasinoTableLayout] to interpolate the child's position
+ * and rotation between the shoe and its final table destination.
+ *
+ * @property progress The current animation progress (0.0 to 1.0).
+ */
 class FlightProgressModifier(
     val progress: State<Float>
 ) : ParentDataModifier {
@@ -25,8 +42,21 @@ class FlightProgressModifier(
         (parentData as? CardParentData ?: CardParentData()).copy(flightProgress = progress)
 }
 
+/**
+ * Attaches [flightProgress] metadata to a composable.
+ *
+ * @param progress The [State] emitting the animation interval [0, 1].
+ */
 fun Modifier.flightProgress(progress: State<Float>) = this.then(FlightProgressModifier(progress))
 
+/**
+ * A [ParentDataModifier] that attaches a unique [id] to a child.
+ *
+ * This ID is used by [CasinoTableLayout] to differentiate between dealer cards,
+ * player cards, HUDs, and glows during measurement and placement.
+ *
+ * @property id The identifier string (e.g., "dealer-card-0", "hud-1").
+ */
 class NodeIdModifier(
     val id: String
 ) : ParentDataModifier {
@@ -34,8 +64,31 @@ class NodeIdModifier(
         (parentData as? CardParentData ?: CardParentData()).copy(id = id)
 }
 
+/**
+ * Attaches a [nodeId] metadata to a composable.
+ *
+ * @param id The unique identifier for this layout node.
+ */
 fun Modifier.nodeId(id: String) = this.then(NodeIdModifier(id))
 
+/**
+ * A custom layout engine that orchestrates the complex "parabolic arc" card table UI.
+ *
+ * Matches the physical curvature of a casino blackjack table. It uses `computeTableLayout`
+ * to calculate exact destination coordinates for every card, chip stack, and HUD zone
+ * based on the current [GameState] and available screen area.
+ *
+ * The layout performs its heavy math during the layout phase to prevent composition
+ * overhead when animations are running. It supports "flight" animations by reading
+ * [CardParentData.flightProgress] to lerp positions from the [shoePosition].
+ *
+ * @param state The current [GameState] containing hands, bets, and round status.
+ * @param shoePosition The absolute [Offset] of the card shoe (source for deal animations).
+ * @param modifier [Modifier] applied to this layout container.
+ * @param gameplayAreaHeight The measured height of the gameplay area. If 0, [Constraints.maxHeight] is used.
+ * @param onLayout Callback invoked when a new `TableLayout` is calculated, publishing zone data to external animators.
+ * @param content The composable content containing nodes marked with [nodeId] and [flightProgress].
+ */
 @Composable
 fun CasinoTableLayout(
     state: GameState,
