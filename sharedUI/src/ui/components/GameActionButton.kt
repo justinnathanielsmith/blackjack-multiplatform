@@ -57,6 +57,30 @@ import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_stand
 import sharedui.generated.resources.stand
 
+/**
+ * A premium, metallic action button used for primary gameplay decisions like Hit and Stand.
+ *
+ * This component features a sophisticated visual style including:
+ * - A vertical metallic gradient with a "3D depth" shadow effect.
+ * - A sweep-gradient rim highlight to simulate light reflecting off a metallic edge.
+ * - A "strategic breathing" animation (glowing and pulsing) when [isStrategic] is true,
+ *   used to guide players toward mathematically optimal moves.
+ * - Tactically responsive scaling animations on press using a spring spec.
+ *
+ * @param icon The [DrawableResource] to be rendered as the button's central icon.
+ * @param onClick Callback invoked when the button is clicked. Disabled if [enabled] is false.
+ * @param modifier [Modifier] to be applied to the root [Box] of this component.
+ * @param enabled Controls the enabled state of the button. When false, the button is
+ *        desaturated and ignores interactions.
+ * @param isStrategic When true and [enabled], triggers a periodic "breathing" scale and
+ *        glow effect to highlight the button as the recommended strategic choice.
+ * @param containerColor Optional override for the button's base metallic color. If null,
+ *        defaults to [PrimaryGold] for strategic actions or [GlassDark] for standard actions.
+ * @param contentColor Optional override for the icon and label color. If null, defaults
+ *        to [BackgroundDark] for strategic actions or [Color.White] for standard actions.
+ * @param label Optional text string displayed in uppercase below the [icon]. If provided,
+ *        the icon size is reduced to maintain layout balance.
+ */
 @Composable
 fun GameActionButton(
     icon: DrawableResource,

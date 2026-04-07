@@ -22,3 +22,6 @@
 ## 2026-04-05 - HandOutcome
 **Surprise:** The `HandOutcome` enum has `NATURAL_WIN` alongside `WIN`, separating a natural blackjack win from a normal score win independently of payout definitions or wagers. This isolated enum helps avoid conflating payout logic (e.g., 3:2 vs 1:1) from hand resolution logic in `BlackjackRules`.
 **Rule:** When documenting game progression boundaries, clearly decouple abstract structural statuses (like `HandOutcome.NATURAL_WIN`) from explicit numerical behavior (like `BlackjackPayout.THREE_TO_TWO`).
+## 2026-04-07 - GameActionButton
+**Surprise:** The `isStrategic` parameter doesn't just change colors; it triggers a "breathing" animation (pulsing scale and glow) using an `infiniteRepeatable` transition. This is designed to draw the player's eye to the mathematically "correct" move if one is suggested by the game.
+**Rule:** When documenting interactive components, look for "breathing" or "pulsing" logic in the implementation—these often signal high-level game mechanics (like strategic advice) that need to be explained to developers using the component.
