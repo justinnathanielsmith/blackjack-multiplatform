@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -119,7 +120,7 @@ fun ChipRack(
                                         if (isTopChip) {
                                             it.clip(CircleShape)
                                         } else {
-                                            it
+                                            it.clearAndSetSemantics {} // Decorative — suppress from a11y tree
                                         }
                                     }
 

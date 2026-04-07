@@ -1,6 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -61,7 +62,10 @@ fun ControlCenter(
     isCompact: Boolean = false,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .animateContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Floating Action Buttons

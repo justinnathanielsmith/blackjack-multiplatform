@@ -2,6 +2,7 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -156,7 +157,8 @@ fun GameActions(
                 modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
-                    .graphicsLayer { clip = false },
+                    .graphicsLayer { clip = false }
+                    .animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
