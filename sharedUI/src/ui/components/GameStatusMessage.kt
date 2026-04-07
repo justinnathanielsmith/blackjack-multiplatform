@@ -261,6 +261,11 @@ fun GameStatusMessage(
                     scaleX = pulseScale
                     scaleY = pulseScale
                 }.drawWithCache {
+                    // Bolt ⚡: Hoist all geometry and brush objects into the cache scope so they
+                    // are allocated once per size/color change, not on every draw frame (~60fps).
+                    // Previous cost: 6 heap allocations/frame (3× Stroke, 1× CornerRadius,
+                    // 1× Brush.radialGradient, 1× List<Color>) × 60fps ≈ 360 allocs/sec while
+                    // the status banner is visible. Now: 0 allocations in the hot draw path.
                     val borderBrush =
                         Brush.sweepGradient(
                             colors =
@@ -274,29 +279,32 @@ fun GameStatusMessage(
                                     listOf(ModernGoldDark, ModernGoldLight, ModernGoldDark)
                                 }
                         )
+                    val glowRadius = size.maxDimension * 0.8f
+                    val ambientGlowBrush =
+                        Brush.radialGradient(
+                            colors = listOf(accentColor.copy(alpha = 0.2f), Color.Transparent),
+                            radius = glowRadius,
+                        )
+                    val ringMaxRadius = size.maxDimension * 0.7f
+                    val ringStroke3 = Stroke(3.dp.toPx())
+                    val ringStroke2 = Stroke(2.dp.toPx())
+                    val borderCornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx())
 
                     onDrawBehind {
                         // 1. Ambient Glow
-                        drawCircle(
-                            brush =
-                                Brush.radialGradient(
-                                    colors = listOf(accentColor.copy(alpha = 0.2f), Color.Transparent),
-                                    radius = size.maxDimension * 0.8f
-                                ),
-                            radius = size.maxDimension * 0.8f
-                        )
+                        drawCircle(brush = ambientGlowBrush, radius = glowRadius)
 
-                        // 2. Win Rings
+                        // 2. Win Rings — alpha values are read here (they animate), geometry is cached.
                         if (status == GameStatus.PLAYER_WON) {
                             drawCircle(
                                 color = accentColor.copy(alpha = ring1Alpha.value * 0.65f),
-                                radius = ring1Radius.value * size.maxDimension * 0.7f,
-                                style = Stroke(3.dp.toPx()),
+                                radius = ring1Radius.value * ringMaxRadius,
+                                style = ringStroke3,
                             )
                             drawCircle(
                                 color = accentColor.copy(alpha = ring2Alpha.value * 0.5f),
-                                radius = ring2Radius.value * size.maxDimension * 0.7f,
-                                style = Stroke(2.dp.toPx()),
+                                radius = ring2Radius.value * ringMaxRadius,
+                                style = ringStroke2,
                             )
                         }
 
@@ -304,8 +312,8 @@ fun GameStatusMessage(
                         rotate(borderRotation) {
                             drawRoundRect(
                                 brush = borderBrush,
-                                cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx()),
-                                style = Stroke(2.dp.toPx()),
+                                cornerRadius = borderCornerRadius,
+                                style = ringStroke2,
                                 alpha = 0.8f
                             )
                         }

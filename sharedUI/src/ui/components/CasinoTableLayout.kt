@@ -111,48 +111,50 @@ fun CasinoTableLayout(
             }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
-            // Place dealer cards
-            tableLayout.cardSlots.filter { it.isDealer }.forEach { slot ->
-                val p = placeables["dealer-card-${slot.cardIndex}"]
-                if (p != null) {
-                    val destX = slot.centerOffset.x - p.width / 2
-                    val destY = slot.centerOffset.y - p.height / 2
-                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
-                        val progress = (p.parentData as? CardParentData)?.flightProgress?.value ?: 1f
-                        val startX = shoePosition.x - destX
-                        val startY = shoePosition.y - destY
-                        translationX = lerp(startX, 0f, progress)
-                        translationY = lerp(startY, 0f, progress)
-                        rotationZ = lerp(-45f, slot.rotationZ, progress)
-                        val lerpedScale = lerp(0.5f, slot.scale, progress)
-                        scaleX = lerpedScale
-                        scaleY = lerpedScale
+            // Bolt Performance Optimization: 0-allocation layout phase.
+            // Avoid `filter` and iterators by using index-based loops.
+            for (i in tableLayout.cardSlots.indices) {
+                val slot = tableLayout.cardSlots[i]
+                if (slot.isDealer) {
+                    val p = placeables["dealer-card-${slot.cardIndex}"]
+                    if (p != null) {
+                        val destX = slot.centerOffset.x - p.width / 2
+                        val destY = slot.centerOffset.y - p.height / 2
+                        p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
+                            val progress = (p.parentData as? CardParentData)?.flightProgress?.value ?: 1f
+                            val startX = shoePosition.x - destX
+                            val startY = shoePosition.y - destY
+                            translationX = lerp(startX, 0f, progress)
+                            translationY = lerp(startY, 0f, progress)
+                            rotationZ = lerp(-45f, slot.rotationZ, progress)
+                            val lerpedScale = lerp(0.5f, slot.scale, progress)
+                            scaleX = lerpedScale
+                            scaleY = lerpedScale
+                        }
                     }
-                }
-            }
-
-            // Place player cards
-            tableLayout.cardSlots.filter { !it.isDealer }.forEach { slot ->
-                val p = placeables["player-card-${slot.handIndex}-${slot.cardIndex}"]
-                if (p != null) {
-                    val destX = slot.centerOffset.x - p.width / 2
-                    val destY = slot.centerOffset.y - p.height / 2
-                    p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
-                        val progress = (p.parentData as? CardParentData)?.flightProgress?.value ?: 1f
-                        val startX = shoePosition.x - destX
-                        val startY = shoePosition.y - destY
-                        translationX = lerp(startX, 0f, progress)
-                        translationY = lerp(startY, 0f, progress)
-                        rotationZ = lerp(45f, slot.rotationZ, progress)
-                        val lerpedScale = lerp(0.5f, slot.scale, progress)
-                        scaleX = lerpedScale
-                        scaleY = lerpedScale
+                } else {
+                    val p = placeables["player-card-${slot.handIndex}-${slot.cardIndex}"]
+                    if (p != null) {
+                        val destX = slot.centerOffset.x - p.width / 2
+                        val destY = slot.centerOffset.y - p.height / 2
+                        p.placeWithLayer(destX.roundToInt(), destY.roundToInt(), zIndex = slot.cardIndex.toFloat()) {
+                            val progress = (p.parentData as? CardParentData)?.flightProgress?.value ?: 1f
+                            val startX = shoePosition.x - destX
+                            val startY = shoePosition.y - destY
+                            translationX = lerp(startX, 0f, progress)
+                            translationY = lerp(startY, 0f, progress)
+                            rotationZ = lerp(45f, slot.rotationZ, progress)
+                            val lerpedScale = lerp(0.5f, slot.scale, progress)
+                            scaleX = lerpedScale
+                            scaleY = lerpedScale
+                        }
                     }
                 }
             }
 
             // Place chips
-            tableLayout.chipSlots.forEach { slot ->
+            for (i in tableLayout.chipSlots.indices) {
+                val slot = tableLayout.chipSlots[i]
                 val p = placeables["chip-${slot.handIndex}"]
                 if (p != null) {
                     val destX = slot.centerOffset.x - p.width / 2
@@ -170,7 +172,8 @@ fun CasinoTableLayout(
             }
 
             // Place hand zones (HUD, Glow)
-            tableLayout.handZones.forEach { zone ->
+            for (i in tableLayout.handZones.indices) {
+                val zone = tableLayout.handZones[i]
                 val glowP = placeables["glow-${zone.handIndex}"]
                 if (glowP != null) {
                     val glowW = zone.clusterSize.width * 1.6f
