@@ -1,7 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.effects
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,51 +55,52 @@ fun PayoutEffect(
         onAnimationEnd()
     }
 
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val density = LocalDensity.current
-        val chipHalfPx = with(density) { 24.dp.toPx() }
-        val width = constraints.maxWidth.toFloat()
-        val height = constraints.maxHeight.toFloat()
+    val density = LocalDensity.current
+    val chipHalfPx = with(density) { 24.dp.toPx() }
 
-        // Start from house (top centerish)
-        val startX = width * 0.5f
-        val startY = height * 0.15f
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    val p = progress
+                    val width = size.width
+                    val height = size.height
 
-        // Quad ease in out for the glide
-        val t =
-            if (progress < 0.5f) {
-                2f * progress * progress
-            } else {
-                val inv = -2f * progress + 2f
-                1f - (inv * inv) / 2f
-            }
+                    // Start from house (top centerish)
+                    val startX = width * 0.5f
+                    val startY = height * 0.15f
 
-        val currentX = startX + (targetOffset.x - startX) * t
-        val currentY = startY + (targetOffset.y - startY) * t
+                    // Quad ease in out for the glide
+                    val t =
+                        if (p < 0.5f) {
+                            2f * p * p
+                        } else {
+                            val inv = -2f * p + 2f
+                            1f - (inv * inv) / 2f
+                        }
 
-        // Fade in at start, fade out at very end
-        val alpha =
-            when {
-                progress < 0.1f -> progress / 0.1f
-                progress > 0.9f -> 1f - (progress - 0.9f) / 0.1f
-                else -> 1f
-            }
+                    val currentX = startX + (targetOffset.x - startX) * t
+                    val currentY = startY + (targetOffset.y - startY) * t
 
-        // Scaling effect (slight pop)
-        val scale = if (progress < 0.5f) 1.0f + (progress * 0.4f) else 1.2f - ((progress - 0.5f) * 0.4f)
+                    // Fade in at start, fade out at very end
+                    val alpha =
+                        when {
+                            p < 0.1f -> p / 0.1f
+                            p > 0.9f -> 1f - (p - 0.9f) / 0.1f
+                            else -> 1f
+                        }
 
-        Box(
-            modifier =
-                Modifier
-                    .graphicsLayer {
-                        translationX = currentX - chipHalfPx
-                        translationY = currentY - chipHalfPx
-                        scaleX = scale
-                        scaleY = scale
-                        this.alpha = alpha
-                    }
-        ) {
-            ChipStack(amount = amount)
-        }
+                    // Scaling effect (slight pop)
+                    val scale = if (p < 0.5f) 1.0f + (p * 0.4f) else 1.2f - ((p - 0.5f) * 0.4f)
+
+                    translationX = currentX - chipHalfPx
+                    translationY = currentY - chipHalfPx
+                    scaleX = scale
+                    scaleY = scale
+                    this.alpha = alpha
+                }
+    ) {
+        ChipStack(amount = amount)
     }
 }
