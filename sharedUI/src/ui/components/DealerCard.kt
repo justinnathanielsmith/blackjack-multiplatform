@@ -48,7 +48,7 @@ fun DealerCard(
     card: Card,
     isFaceUp: Boolean,
     dealerUpcard: Card?,
-    dealerScore: Int,
+    isDealerBlackjack: Boolean = false,
     modifier: Modifier = Modifier,
     scale: Float = 1f,
     shadowElevation: Dp = 6.dp,
@@ -59,7 +59,7 @@ fun DealerCard(
     val density = LocalDensity.current
 
     // Tension Logic: Slow Roll if upcard is Ace/10 and hole card completes Blackjack
-    val isBlackjack = dealerScore == 21 && card.rank.value + (dealerUpcard?.rank?.value ?: 0) == 21
+    val isBlackjack = isDealerBlackjack // Domain predicate passed in; removes hardcoded score thresholds
     val isTensionVisible = dealerUpcard?.rank == Rank.ACE || dealerUpcard?.rank?.value == 10
     val isSlowRoll = isBlackjack && isTensionVisible
 
@@ -192,7 +192,7 @@ private fun DealerCardHiddenPreview() {
             card = Card(Rank.TEN, Suit.SPADES),
             isFaceUp = false,
             dealerUpcard = Card(Rank.ACE, Suit.HEARTS),
-            dealerScore = 21
+            isDealerBlackjack = true
         )
     }
 }
@@ -206,7 +206,7 @@ private fun DealerCardRevealedPreview() {
             card = Card(Rank.TEN, Suit.SPADES),
             isFaceUp = true,
             dealerUpcard = Card(Rank.ACE, Suit.HEARTS),
-            dealerScore = 21
+            isDealerBlackjack = true
         )
     }
 }
