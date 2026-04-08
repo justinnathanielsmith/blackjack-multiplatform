@@ -208,7 +208,12 @@ private fun ColumnScope.StrategyChart(
         }
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(data) { cell ->
+            // Bolt Performance Optimization: Provide a stable `key` to `items` so Compose can
+            // track list items efficiently, avoiding full recreation on updates.
+            items(
+                items = data,
+                key = { it.playerValue }
+            ) { cell ->
                 Row(
                     modifier = Modifier.fillMaxWidth().border(0.5.dp, Color.White.copy(alpha = 0.1f)),
                     verticalAlignment = Alignment.CenterVertically
