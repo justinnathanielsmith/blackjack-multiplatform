@@ -6,6 +6,7 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import io.github.smithjustinn.blackjack.utils.secureRandom
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
@@ -775,13 +776,24 @@ object BlackjackRules {
     }
 
     /**
+     * Creates a new randomized shoe of cards based on the specified rule set using
+     * the system's [secureRandom] provider.
+     *
+     * @param rules The [GameRules] defining the number of decks to include.
+     * @return A cryptographically-secure shuffled [List] of [Card]s.
+     */
+    fun createDeck(
+        rules: GameRules
+    ): List<Card> = createDeck(rules, secureRandom)
+
+    /**
      * Creates a new randomized shoe of cards based on the specified rule set.
      *
      * @param rules The [GameRules] defining the number of decks to include.
      * @param random The [Random] generator used for shuffling.
      * @return A shuffled [List] of [Card]s.
      */
-    fun createDeck(
+    internal fun createDeck(
         rules: GameRules,
         random: Random
     ): List<Card> {

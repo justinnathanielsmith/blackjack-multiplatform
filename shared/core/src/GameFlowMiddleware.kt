@@ -1,7 +1,6 @@
 package io.github.smithjustinn.blackjack
 
 import co.touchlab.kermit.Logger
-import io.github.smithjustinn.blackjack.utils.secureRandom
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -123,7 +122,7 @@ internal class GameFlowMiddleware(
         val shouldReshuffle = current.deck.isEmpty() || (current.deck.size <= threshold && !isTest)
 
         return if (shouldReshuffle) {
-            BlackjackRules.createDeck(current.rules, secureRandom)
+            BlackjackRules.createDeck(current.rules)
         } else {
             current.deck
         }
