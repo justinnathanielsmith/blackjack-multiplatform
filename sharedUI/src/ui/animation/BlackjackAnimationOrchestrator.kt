@@ -3,12 +3,16 @@ package io.github.smithjustinn.blackjack.ui.animation
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import io.github.smithjustinn.blackjack.GameEffect
 import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
+import io.github.smithjustinn.blackjack.ui.components.HandResult
+import io.github.smithjustinn.blackjack.ui.components.handResult
+import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -29,6 +33,7 @@ object BlackjackAnimationOrchestrator {
         animState: BlackjackAnimationState,
         audioService: AudioService,
         hapticsService: HapticsService,
+        dealRegistry: DealAnimationRegistry,
     ) = coroutineScope {
         // flashJob is shared between the two pipelines so BigWin can cancel the state-driven flash.
         var flashJob: Job? = null
@@ -43,6 +48,7 @@ object BlackjackAnimationOrchestrator {
         launchStateDrivenAnimations(
             stateFlow,
             animState,
+            dealRegistry,
             getFlashJob = { flashJob },
             setFlashJob = { flashJob = it }
         )
@@ -107,6 +113,7 @@ object BlackjackAnimationOrchestrator {
     private fun CoroutineScope.launchStateDrivenAnimations(
         stateFlow: StateFlow<GameState>,
         animState: BlackjackAnimationState,
+        dealRegistry: DealAnimationRegistry,
         getFlashJob: () -> Job?,
         setFlashJob: (Job?) -> Unit,
     ) {
@@ -130,6 +137,9 @@ object BlackjackAnimationOrchestrator {
                             animState.flashAlpha.animateTo(targetAlpha, tween(AnimationConstants.FlashInDuration))
                             animState.flashAlpha.animateTo(0f, tween(outDuration))
                         }.also { setFlashJob(it) }
+                        // Animation orchestrator owns all payout mutations — keeps the screen
+                        // composable free of win-detection and animState.activePayouts writes.
+                        launch { triggerPayoutAnimations(state, animState, dealRegistry) }
                     }
                     GameStatus.DEALER_WON -> {
                         shakeJob?.cancel()
@@ -158,6 +168,30 @@ object BlackjackAnimationOrchestrator {
                             }
                     }
                     else -> {}
+                }
+            }
+        }
+    }
+
+    private suspend fun triggerPayoutAnimations(
+        state: GameState,
+        animState: BlackjackAnimationState,
+        dealRegistry: DealAnimationRegistry,
+    ) {
+        delay(AnimationConstants.PayoutTriggerDelayMs)
+        for (index in state.playerHands.indices) {
+            val result = state.handResult(index)
+            if (result == HandResult.WIN) {
+                val bet = state.playerHands.getOrNull(index)?.bet ?: 0
+                if (bet > 0) {
+                    val zone = dealRegistry.tableLayout?.handZones?.getOrNull(index + 1)
+                    val target =
+                        if (zone != null) {
+                            zone.clusterCenter + dealRegistry.gameplayAreaOffset
+                        } else {
+                            Offset.Zero
+                        }
+                    animState.activePayouts.add(PayoutInstance(Random.nextLong(), bet, target))
                 }
             }
         }

@@ -5,6 +5,7 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
+import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -61,6 +62,7 @@ class BlackjackAnimationOrchestratorTest {
                         animState = animState,
                         audioService = noopAudio,
                         hapticsService = noopHaptics,
+                        dealRegistry = DealAnimationRegistry(),
                     )
                 }
 
@@ -104,6 +106,7 @@ class BlackjackAnimationOrchestratorTest {
                         animState = animState,
                         audioService = noopAudio,
                         hapticsService = noopHaptics,
+                        dealRegistry = DealAnimationRegistry(),
                     )
                 }
 
@@ -139,6 +142,7 @@ class BlackjackAnimationOrchestratorTest {
                         animState = animState,
                         audioService = noopAudio,
                         hapticsService = noopHaptics,
+                        dealRegistry = DealAnimationRegistry(),
                     )
                 }
 

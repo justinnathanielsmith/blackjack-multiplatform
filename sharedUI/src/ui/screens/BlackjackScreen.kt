@@ -41,24 +41,18 @@ import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.totalNetPayout
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
-import io.github.smithjustinn.blackjack.ui.animation.PayoutInstance
 import io.github.smithjustinn.blackjack.ui.components.BetChip
 import io.github.smithjustinn.blackjack.ui.components.ChipUtils
 import io.github.smithjustinn.blackjack.ui.components.ControlCenter
-import io.github.smithjustinn.blackjack.ui.components.HandResult
 import io.github.smithjustinn.blackjack.ui.components.Header
 import io.github.smithjustinn.blackjack.ui.components.OverlayCardTable
-import io.github.smithjustinn.blackjack.ui.components.handResult
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
-import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.utils.DragAndDropContainer
 import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
-import kotlinx.coroutines.delay
-import kotlin.random.Random
 
 /**
  * The primary gameplay screen for the Blackjack application.
@@ -154,30 +148,7 @@ fun BlackjackScreen(
             label = "activeHandHighlight",
         )
 
-    // Trigger payout animations when results are calculated and it's a win
-    LaunchedEffect(state.status, state.playerHands) {
-        if (state.status.isTerminal()) {
-            for (index in 0 until state.playerHands.size) {
-                val result = state.handResult(index)
-                if (result == HandResult.WIN) {
-                    val bet = state.playerHands.getOrNull(index)?.bet ?: 0
-                    if (bet > 0) {
-                        delay(AnimationConstants.PayoutTriggerDelayMs)
-                        val zone = dealRegistry.tableLayout?.handZones?.getOrNull(index + 1)
-                        val target =
-                            if (zone != null) {
-                                zone.clusterCenter + dealRegistry.gameplayAreaOffset
-                            } else {
-                                Offset.Zero
-                            }
-                        animState.activePayouts.add(PayoutInstance(Random.nextLong(), bet, target))
-                    }
-                }
-            }
-        }
-    }
-
-    // Animation orchestration: effects pipeline + state-driven flash/shake
+    // Animation orchestration: effects pipeline + state-driven flash/shake/payouts
     LaunchedEffect(component) {
         BlackjackAnimationOrchestrator.orchestrate(
             effects = component.effects,
@@ -185,6 +156,7 @@ fun BlackjackScreen(
             animState = animState,
             audioService = component.audioService,
             hapticsService = component.hapticsService,
+            dealRegistry = dealRegistry,
         )
     }
 
