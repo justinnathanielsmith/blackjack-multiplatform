@@ -33,18 +33,7 @@ class IosAudioServiceImpl(
     private var soundVolume = 1.0f
 
     init {
-        scope.launch {
-            AudioService.SoundEffect.entries.forEach { effect ->
-                val resource = effect.toResource()
-                loadAudioData(resource)?.let { data ->
-                    withContext(Dispatchers.Main) {
-                        audioDataMap[resource] = data
-                        // Pre-warm a player for each sound
-                        createPlayerForPool(resource, data)
-                    }
-                }
-            }
-        }
+        initializeEffects()
     }
 
     @OptIn(ExperimentalResourceApi::class, ExperimentalForeignApi::class)
@@ -119,6 +108,16 @@ class IosAudioServiceImpl(
             logger.e(e) { "Exception creating player for pool" }
         }
         return null
+    }
+
+    override suspend fun loadEffect(resource: StringResource) {
+        loadAudioData(resource)?.let { data ->
+            withContext(Dispatchers.Main) {
+                audioDataMap[resource] = data
+                // Pre-warm a player for each sound
+                createPlayerForPool(resource, data)
+            }
+        }
     }
 
     override fun playEffect(effect: AudioService.SoundEffect) {

@@ -25,11 +25,7 @@ class JvmAudioServiceImpl(
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
 
     init {
-        scope.launch {
-            AudioService.SoundEffect.entries.forEach { effect ->
-                prepareSound(effect.toResource())
-            }
-        }
+        initializeEffects()
     }
 
     @OptIn(ExperimentalResourceApi::class)
@@ -83,6 +79,10 @@ class JvmAudioServiceImpl(
                 logger.e(e) { "Error playing sound: $resource" }
             }
         }
+    }
+
+    override suspend fun loadEffect(resource: StringResource) {
+        prepareSound(resource)
     }
 
     override fun playEffect(effect: AudioService.SoundEffect) {

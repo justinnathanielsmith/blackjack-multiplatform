@@ -48,12 +48,7 @@ class AndroidAudioServiceImpl(
                 loadedSounds.add(sampleId)
             }
         }
-
-        scope.launch {
-            AudioService.SoundEffect.entries.forEach { effect ->
-                loadSound(effect.toResource())
-            }
-        }
+        initializeEffects()
     }
 
     @OptIn(ExperimentalResourceApi::class)
@@ -153,6 +148,10 @@ class AndroidAudioServiceImpl(
             newPlayer.release()
             fallbackPlayers.remove(resource)?.release()
         }
+    }
+
+    override suspend fun loadEffect(resource: StringResource) {
+        loadSound(resource)
     }
 
     override fun playEffect(effect: AudioService.SoundEffect) {
