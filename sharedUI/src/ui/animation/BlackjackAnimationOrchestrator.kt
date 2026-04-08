@@ -150,7 +150,8 @@ object BlackjackAnimationOrchestrator {
                     GameStatus.PLAYER_WON -> {
                         getFlashJob()?.cancel()
                         launch {
-                            val isBlackjack = state.playerHands.any { it.isBlackjack }
+                            // Domain predicate — GameState.hasPlayerBlackjackWin is equivalent within PLAYER_WON branch.
+                            val isBlackjack = state.hasPlayerBlackjackWin
                             animState.flashColor = if (isBlackjack) PrimaryGold else Color.White
                             val targetAlpha = if (isBlackjack) 0.25f else 0.15f
                             val outDuration =
