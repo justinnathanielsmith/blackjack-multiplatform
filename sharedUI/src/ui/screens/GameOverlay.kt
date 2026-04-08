@@ -36,7 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
-import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.SideBetResult
 import io.github.smithjustinn.blackjack.SideBetType
@@ -66,7 +65,10 @@ import sharedui.generated.resources.side_bet_three_of_a_kind
 
 @Composable
 fun GameOverlay(
-    state: GameState,
+    status: GameStatus,
+    sideBetResults: Map<SideBetType, SideBetResult>,
+    isBlackjack: Boolean,
+    isBust: Boolean,
     netPayout: Int?,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
@@ -77,10 +79,12 @@ fun GameOverlay(
     bigWinAmount: () -> Int = { 0 },
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        SideBetResultsOverlay(sideBetResults = state.sideBetResults)
+        SideBetResultsOverlay(sideBetResults = sideBetResults)
 
         BlackjackGameOverlay(
-            state = state,
+            status = status,
+            isBlackjack = isBlackjack,
+            isBust = isBust,
             netPayout = netPayout,
             component = component,
             flashAlphaProvider = flashAlphaProvider,
@@ -95,7 +99,9 @@ fun GameOverlay(
 
 @Composable
 private fun BlackjackGameOverlay(
-    state: GameState,
+    status: GameStatus,
+    isBlackjack: Boolean,
+    isBust: Boolean,
     netPayout: Int?,
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
@@ -105,19 +111,20 @@ private fun BlackjackGameOverlay(
     showBigWinBanner: () -> Boolean = { false },
     bigWinAmount: () -> Int = { 0 },
 ) {
-    val isBlackjack = state.hasPlayerBlackjackWin
     // isProcess() and isTerminal() are mutually exclusive by domain definition
-    val isProcessState = state.status.isProcess()
-    val isTerminalState = state.status.isTerminal()
-    val isBust = state.hasPlayerBustLoss
+    val isProcessState = status.isProcess()
+    val isTerminalState = status.isTerminal()
 
-    var cachedState by remember { mutableStateOf(state) }
+    // Bolt Performance Optimization: Pass primitive/narrow domain properties instead of
+    // the entire GameState. This allows Compose to skip recomposition of the heavy GameOverlay
+    // (and its nested particle systems) when unrelated state (e.g. deck, balance) changes.
+    var cachedStatus by remember { mutableStateOf(status) }
     var cachedPayout by remember { mutableStateOf(netPayout) }
     var cachedIsBlackjack by remember { mutableStateOf(isBlackjack) }
     var cachedIsBust by remember { mutableStateOf(isBust) }
 
     if (isTerminalState) {
-        cachedState = state
+        cachedStatus = status
         cachedPayout = netPayout
         cachedIsBlackjack = isBlackjack
         cachedIsBust = isBust
@@ -165,7 +172,7 @@ private fun BlackjackGameOverlay(
                 ) + fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)),
             modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter),
         ) {
-            GameStatusToast(status = state.status)
+            GameStatusToast(status = status)
         }
 
         // Tier 2 — Terminal states: dramatic centered panel
@@ -181,7 +188,7 @@ private fun BlackjackGameOverlay(
             GameStatusMessage(
                 uiState =
                     rememberGameStatusUiState(
-                        status = cachedState.status,
+                        status = cachedStatus,
                         isBlackjack = cachedIsBlackjack,
                         isBust = cachedIsBust,
                         netPayout = cachedPayout,
@@ -189,14 +196,14 @@ private fun BlackjackGameOverlay(
             )
         }
 
-        if (state.status == GameStatus.INSURANCE_OFFERED) {
+        if (status == GameStatus.INSURANCE_OFFERED) {
             InsuranceOverlay(
                 onInsure = onTakeInsurance,
                 onDecline = onDeclineInsurance,
             )
         }
 
-        if (state.status == GameStatus.PLAYER_WON) {
+        if (status == GameStatus.PLAYER_WON) {
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
                 isBlackjack = isBlackjack,
@@ -204,7 +211,7 @@ private fun BlackjackGameOverlay(
             )
         }
 
-        if (state.status == GameStatus.PLAYER_WON && isBlackjack) {
+        if (status == GameStatus.PLAYER_WON && isBlackjack) {
             SparkleEffect(isPaused = isPaused)
         }
 

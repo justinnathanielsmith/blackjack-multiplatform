@@ -280,7 +280,10 @@ fun BlackjackScreen(
 
                             // Game Overlays & Status
                             GameOverlay(
-                                state = state,
+                                status = state.status,
+                                sideBetResults = state.sideBetResults,
+                                isBlackjack = state.hasPlayerBlackjackWin,
+                                isBust = state.hasPlayerBustLoss,
                                 netPayout = state.totalNetPayout(),
                                 component = component,
                                 flashAlphaProvider = { animState.flashAlpha.value },
@@ -290,7 +293,6 @@ fun BlackjackScreen(
                                 bigWinAmount = { animState.bigWinAmount },
                                 modifier = Modifier.zIndex(2f),
                             )
-
                             BettingLayer(
                                 status = state.status,
                                 handCount = state.handCount,
