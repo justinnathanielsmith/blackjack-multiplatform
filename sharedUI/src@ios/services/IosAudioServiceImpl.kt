@@ -5,9 +5,7 @@ import io.github.smithjustinn.blackjack.services.AudioService.Companion.toResour
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -25,10 +23,7 @@ import sharedui.generated.resources.Res
 @OptIn(ExperimentalForeignApi::class)
 class IosAudioServiceImpl(
     private val logger: Logger,
-) : AudioService {
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.Default + job)
-
+) : BaseAudioService(Dispatchers.Default) {
     // Player pool for each sound effect to allow simultaneous playback
     private val soundPools = mutableMapOf<StringResource, MutableList<AVAudioPlayer>>()
     private val audioDataMap = mutableMapOf<StringResource, NSData>()
@@ -155,8 +150,7 @@ class IosAudioServiceImpl(
         }
     }
 
-    override fun release() {
-        job.cancel()
+    override fun onRelease() {
         soundPools.values.forEach { pool ->
             pool.forEach { it.stop() }
         }

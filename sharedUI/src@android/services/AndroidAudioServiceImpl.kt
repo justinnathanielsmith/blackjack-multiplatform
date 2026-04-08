@@ -6,9 +6,7 @@ import android.media.MediaPlayer
 import android.media.SoundPool
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.services.AudioService.Companion.toResource
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,10 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 class AndroidAudioServiceImpl(
     private val context: Context,
     private val logger: Logger,
-) : AudioService {
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
-
+) : BaseAudioService(Dispatchers.IO) {
     private val soundPool =
         SoundPool
             .Builder()
@@ -164,8 +159,7 @@ class AndroidAudioServiceImpl(
         playSound(effect.toResource())
     }
 
-    override fun release() {
-        job.cancel()
+    override fun onRelease() {
         soundPool.release()
         fallbackPlayers.values.forEach { it.release() }
         fallbackPlayers.clear()
