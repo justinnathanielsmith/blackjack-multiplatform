@@ -1,11 +1,14 @@
 package io.github.smithjustinn.blackjack
 
+import co.touchlab.kermit.Logger
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 
 class BenchmarkTest {
+    private val logger = Logger.withTag("BenchmarkTest")
+
     @Test
     fun runHandBenchmark() {
         val cards =
@@ -33,13 +36,13 @@ class BenchmarkTest {
                 repeat(1_000_000) { runNewApproach(cards) }
             }
 
-        println("===============================")
-        println("Old approach: $timeOld ms")
-        println("New approach: $timeNew ms")
+        logger.i { "===============================" }
+        logger.i { "Old approach: $timeOld ms" }
+        logger.i { "New approach: $timeNew ms" }
         if (timeOld > 0) {
-            println("Improvement: ${(timeOld - timeNew).toDouble() / timeOld * 100}%")
+            logger.i { "Improvement: ${(timeOld - timeNew).toDouble() / timeOld * 100}%" }
         }
-        println("===============================")
+        logger.i { "===============================" }
     }
 
     private fun runOldApproach(cards: List<Card>) {
@@ -75,7 +78,7 @@ class BenchmarkTest {
         val random = Random(123)
 
         // Run benchmarks multiple times to get a stable result
-        println("===============================")
+        logger.i { "===============================" }
         var totalOld = 0L
         var totalNew = 0L
         val iterations = 5
@@ -97,15 +100,15 @@ class BenchmarkTest {
 
             totalOld += timeOld
             totalNew += timeNew
-            println("Iteration $i - Old: $timeOld ms, New: $timeNew ms")
+            logger.i { "Iteration $i - Old: $timeOld ms, New: $timeNew ms" }
         }
 
-        println("Deck Average Old: ${totalOld / iterations} ms")
-        println("Deck Average New: ${totalNew / iterations} ms")
+        logger.i { "Deck Average Old: ${totalOld / iterations} ms" }
+        logger.i { "Deck Average New: ${totalNew / iterations} ms" }
         if (totalOld > 0) {
-            println("Average Improvement: ${(totalOld - totalNew).toDouble() / totalOld * 100}%")
+            logger.i { "Average Improvement: ${(totalOld - totalNew).toDouble() / totalOld * 100}%" }
         }
-        println("===============================")
+        logger.i { "===============================" }
     }
 
     private fun createDeckOld(
