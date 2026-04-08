@@ -51,37 +51,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
-import io.github.smithjustinn.blackjack.ui.theme.DeepWine
-import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
-import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.ui.theme.TacticalRed
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.net_result_lost
 import sharedui.generated.resources.net_result_push
 import sharedui.generated.resources.net_result_won
-import sharedui.generated.resources.status_announcement_template
-import sharedui.generated.resources.status_blackjack_exclamation
-import sharedui.generated.resources.status_bust
 import sharedui.generated.resources.status_dealer_turn
-import sharedui.generated.resources.status_dealer_won
 import sharedui.generated.resources.status_dealing
-import sharedui.generated.resources.status_player_won
 
 @Composable
 fun GameStatusMessage(
-    status: GameStatus,
+    uiState: GameStatusUiState,
     modifier: Modifier = Modifier,
-    netPayout: Int? = null,
     isCompact: Boolean = false,
-    isBlackjack: Boolean = false,
-    isBust: Boolean = false,
 ) {
     // Bolt ⚡: Consolidate 4 separate InfiniteTransition instances into one.
     // Each transition registers its own 60fps frame-clock callback; merging them
@@ -91,13 +78,13 @@ fun GameStatusMessage(
     val pulseScale by
         statusTransition.animateFloat(
             initialValue = 0.98f,
-            targetValue = if (isBlackjack) 1.15f else 1.04f,
+            targetValue = if (uiState.isBlackjack) 1.15f else 1.04f,
             animationSpec =
                 infiniteRepeatable(
                     animation =
                         tween(
                             durationMillis =
-                                if (isBlackjack) {
+                                if (uiState.isBlackjack) {
                                     AnimationConstants.PulseDurationBlackjack
                                 } else {
                                     AnimationConstants.PulseDurationNormal
@@ -117,14 +104,14 @@ fun GameStatusMessage(
                 animation =
                     tween(
                         durationMillis =
-                            if (isBlackjack) {
+                            if (uiState.isBlackjack) {
                                 AnimationConstants.ShimmerDurationBlackjack
                             } else {
                                 AnimationConstants.ShimmerDurationNormal
                             },
                         easing = LinearEasing,
                         delayMillis =
-                            if (isBlackjack) {
+                            if (uiState.isBlackjack) {
                                 AnimationConstants.ShimmerDelayBlackjack
                             } else {
                                 AnimationConstants.ShimmerDelayNormal
@@ -170,13 +157,13 @@ fun GameStatusMessage(
 
     // Count-up animation for net payout
     val animatedPayout by animateIntAsState(
-        targetValue = netPayout ?: 0,
+        targetValue = uiState.netPayout ?: 0,
         animationSpec = tween(durationMillis = AnimationConstants.PayoutCountUpDuration, easing = FastOutSlowInEasing),
         label = "animatedPayout",
     )
 
-    LaunchedEffect(status, isBlackjack) {
-        if (status == GameStatus.PLAYER_WON) {
+    LaunchedEffect(uiState.isPlayerWon, uiState.isBlackjack) {
+        if (uiState.isPlayerWon) {
             ring1Radius.snapTo(0f)
             ring1Alpha.snapTo(1f)
             ring2Radius.snapTo(0f)
@@ -204,59 +191,12 @@ fun GameStatusMessage(
         }
     }
 
-    val statusText =
-        when {
-            isBlackjack -> stringResource(Res.string.status_blackjack_exclamation)
-            isBust -> stringResource(Res.string.status_bust)
-            status == GameStatus.PLAYER_WON -> stringResource(Res.string.status_player_won)
-            status == GameStatus.DEALER_WON -> stringResource(Res.string.status_dealer_won)
-            else -> ""
-        }
-
-    val accentColor =
-        when (status) {
-            GameStatus.PLAYER_WON -> ModernGoldLight
-            GameStatus.DEALER_WON -> TacticalRed
-            GameStatus.PUSH -> Color.White
-            else -> ModernGoldLight.copy(alpha = 0.8f)
-        }
-
-    val bannerBackgroundTopColor =
-        when {
-            isBlackjack -> PrimaryGold.copy(alpha = 0.15f)
-            status == GameStatus.PLAYER_WON -> FeltGreen.copy(alpha = 0.85f)
-            status == GameStatus.DEALER_WON -> DeepWine.copy(alpha = 0.85f)
-            status == GameStatus.PUSH -> Color.Gray.copy(alpha = 0.85f)
-            else -> DeepWine.copy(alpha = 0.85f)
-        }
-
-    // Delegate to the authoritative domain extension — consistent with all other sharedUI consumers.
-    val isTerminal = status.isTerminal()
-
-    val netLabel: String? =
-        if (isTerminal && netPayout != null) {
-            when {
-                netPayout > 0 -> stringResource(Res.string.net_result_won, netPayout)
-                netPayout < 0 -> stringResource(Res.string.net_result_lost, -netPayout)
-                else -> stringResource(Res.string.net_result_push)
-            }
-        } else {
-            null
-        }
-
-    val screenReaderAnnouncement =
-        if (netLabel != null) {
-            stringResource(Res.string.status_announcement_template, statusText, netLabel)
-        } else {
-            statusText
-        }
-
     Box(
         modifier =
             modifier
                 .semantics {
                     liveRegion = LiveRegionMode.Polite
-                    contentDescription = screenReaderAnnouncement
+                    contentDescription = uiState.screenReaderAnnouncement
                 }.graphicsLayer {
                     scaleX = pulseScale
                     scaleY = pulseScale
@@ -269,11 +209,11 @@ fun GameStatusMessage(
                     val borderBrush =
                         Brush.sweepGradient(
                             colors =
-                                if (isTerminal) {
+                                if (uiState.isTerminal) {
                                     listOf(
-                                        accentColor.copy(alpha = 0.1f),
-                                        accentColor,
-                                        accentColor.copy(alpha = 0.1f)
+                                        uiState.accentColor.copy(alpha = 0.1f),
+                                        uiState.accentColor,
+                                        uiState.accentColor.copy(alpha = 0.1f)
                                     )
                                 } else {
                                     listOf(ModernGoldDark, ModernGoldLight, ModernGoldDark)
@@ -282,7 +222,7 @@ fun GameStatusMessage(
                     val glowRadius = size.maxDimension * 0.8f
                     val ambientGlowBrush =
                         Brush.radialGradient(
-                            colors = listOf(accentColor.copy(alpha = 0.2f), Color.Transparent),
+                            colors = listOf(uiState.accentColor.copy(alpha = 0.2f), Color.Transparent),
                             radius = glowRadius,
                         )
                     val ringMaxRadius = size.maxDimension * 0.7f
@@ -295,14 +235,14 @@ fun GameStatusMessage(
                         drawCircle(brush = ambientGlowBrush, radius = glowRadius)
 
                         // 2. Win Rings — alpha values are read here (they animate), geometry is cached.
-                        if (status == GameStatus.PLAYER_WON) {
+                        if (uiState.isPlayerWon) {
                             drawCircle(
-                                color = accentColor.copy(alpha = ring1Alpha.value * 0.65f),
+                                color = uiState.accentColor.copy(alpha = ring1Alpha.value * 0.65f),
                                 radius = ring1Radius.value * ringMaxRadius,
                                 style = ringStroke3,
                             )
                             drawCircle(
-                                color = accentColor.copy(alpha = ring2Alpha.value * 0.5f),
+                                color = uiState.accentColor.copy(alpha = ring2Alpha.value * 0.5f),
                                 radius = ring2Radius.value * ringMaxRadius,
                                 style = ringStroke2,
                             )
@@ -324,7 +264,7 @@ fun GameStatusMessage(
                     Brush.verticalGradient(
                         colors =
                             listOf(
-                                bannerBackgroundTopColor,
+                                uiState.bannerBackgroundTopColor,
                                 Color.Black.copy(alpha = 0.4f)
                             )
                     )
@@ -355,18 +295,11 @@ fun GameStatusMessage(
                 blendMode = BlendMode.Overlay
             )
         }
-        val netLabelColor =
-            when {
-                netPayout != null && netPayout > 0 -> PrimaryGold
-                netPayout != null && netPayout < 0 -> TacticalRed
-                else -> Color.White.copy(alpha = 0.7f)
-            }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = statusText.uppercase(),
+                text = uiState.statusText.uppercase(),
                 style =
                     if (isCompact) {
                         MaterialTheme.typography.displaySmall
@@ -388,9 +321,9 @@ fun GameStatusMessage(
                                 colors =
                                     listOf(
                                         Color.Transparent,
-                                        accentColor.copy(alpha = 0.3f),
-                                        accentColor,
-                                        accentColor.copy(alpha = 0.3f),
+                                        uiState.accentColor.copy(alpha = 0.3f),
+                                        uiState.accentColor,
+                                        uiState.accentColor.copy(alpha = 0.3f),
                                         Color.Transparent
                                     ),
                                 start = Offset.Zero,
@@ -398,7 +331,7 @@ fun GameStatusMessage(
                             )
                         onDrawWithContent {
                             drawContent()
-                            if (status == GameStatus.PLAYER_WON || status == GameStatus.PUSH) {
+                            if (uiState.showShimmer) {
                                 // shimmerX read here: plain Float math, no allocation.
                                 // The band is centred on shimmerX * size.width and drawn 2× bandWidth
                                 // wide so the gradient fades are visible on both edges.
@@ -412,7 +345,7 @@ fun GameStatusMessage(
                         }
                     },
             )
-            if (netLabel != null) {
+            if (uiState.netLabel != null) {
                 Text(
                     text =
                         if (animatedPayout > 0) {
@@ -422,7 +355,7 @@ fun GameStatusMessage(
                         } else {
                             stringResource(Res.string.net_result_push)
                         },
-                    color = netLabelColor,
+                    color = uiState.netLabelColor,
                     fontWeight = FontWeight.Black,
                     style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 3.sp),
                     textAlign = TextAlign.Center,
@@ -538,7 +471,15 @@ private fun GameStatusToastDealerTurnPreview() {
 private fun GameStatusMessagePlayerWonPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
-            GameStatusMessage(status = GameStatus.PLAYER_WON, netPayout = 200)
+            GameStatusMessage(
+                uiState =
+                    rememberGameStatusUiState(
+                        status = GameStatus.PLAYER_WON,
+                        isBlackjack = false,
+                        isBust = false,
+                        netPayout = 200,
+                    )
+            )
         }
     }
 }
@@ -549,7 +490,15 @@ private fun GameStatusMessagePlayerWonPreview() {
 private fun GameStatusMessageBlackjackPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
-            GameStatusMessage(status = GameStatus.PLAYER_WON, netPayout = 300, isBlackjack = true)
+            GameStatusMessage(
+                uiState =
+                    rememberGameStatusUiState(
+                        status = GameStatus.PLAYER_WON,
+                        isBlackjack = true,
+                        isBust = false,
+                        netPayout = 300,
+                    )
+            )
         }
     }
 }
@@ -560,7 +509,15 @@ private fun GameStatusMessageBlackjackPreview() {
 private fun GameStatusMessageDealerWonPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
-            GameStatusMessage(status = GameStatus.DEALER_WON, netPayout = -100)
+            GameStatusMessage(
+                uiState =
+                    rememberGameStatusUiState(
+                        status = GameStatus.DEALER_WON,
+                        isBlackjack = false,
+                        isBust = false,
+                        netPayout = -100,
+                    )
+            )
         }
     }
 }
@@ -571,7 +528,15 @@ private fun GameStatusMessageDealerWonPreview() {
 private fun GameStatusMessagePushPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(32.dp)) {
-            GameStatusMessage(status = GameStatus.PUSH, netPayout = 0)
+            GameStatusMessage(
+                uiState =
+                    rememberGameStatusUiState(
+                        status = GameStatus.PUSH,
+                        isBlackjack = false,
+                        isBust = false,
+                        netPayout = 0,
+                    )
+            )
         }
     }
 }

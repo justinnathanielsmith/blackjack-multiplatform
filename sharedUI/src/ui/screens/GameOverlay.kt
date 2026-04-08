@@ -46,6 +46,7 @@ import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.GameStatusToast
 import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
+import io.github.smithjustinn.blackjack.ui.components.rememberGameStatusUiState
 import io.github.smithjustinn.blackjack.ui.effects.BigWinBanner
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
@@ -178,10 +179,13 @@ private fun BlackjackGameOverlay(
                     scaleOut(targetScale = 0.8f),
         ) {
             GameStatusMessage(
-                status = cachedState.status,
-                netPayout = cachedPayout,
-                isBlackjack = cachedIsBlackjack,
-                isBust = cachedIsBust
+                uiState =
+                    rememberGameStatusUiState(
+                        status = cachedState.status,
+                        isBlackjack = cachedIsBlackjack,
+                        isBust = cachedIsBust,
+                        netPayout = cachedPayout,
+                    )
             )
         }
 
