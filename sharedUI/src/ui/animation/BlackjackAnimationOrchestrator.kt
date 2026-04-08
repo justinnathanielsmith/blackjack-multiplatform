@@ -26,7 +26,32 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
+/**
+ * The central coordinator for Blackjack UI sensory feedback, including animations, audio, and haptics.
+ *
+ * This orchestrator bridges the gap between the domain model (represented by [GameState] and [GameEffect] flows)
+ * and the platform-specific presentation layers. It ensures that game logic transitions are
+ * reflected visually and tactilely with specific timing and priority.
+ *
+ * The orchestration logic is divided into two primary pipelines:
+ * 1. **Effect-driven**: Responds to discrete [GameEffect]s emitted by the state machine (e.g., card plinks, chips).
+ * 2. **State-driven**: Reacts to transitions in [GameStatus] (e.g., flashing on a win, shaking on a loss).
+ */
 object BlackjackAnimationOrchestrator {
+    /**
+     * Initiates the twin orchestration pipelines within the provided [coroutineScope].
+     *
+     * This function suspends until the [effects] and [stateFlow] terminators are reached or the scope
+     * is cancelled. It maintains shared state for animation jobs (like screen flashes and shakes) to
+     * ensure that new transitions correctly preempt or complement in-progress animations.
+     *
+     * @param effects A [Flow] of [GameEffect]s dispatched by the state machine's reduction loop.
+     * @param stateFlow A [StateFlow] providing the single source of truth for the game's current state.
+     * @param animState A mutable holder for animation-related observables (offsets, alphas, eruption lists).
+     * @param audioService Service interface for triggering platform-specific sound effects.
+     * @param hapticsService Service interface for triggering platform-specific vibrations.
+     * @param dealRegistry Registry for mapping between domain hand indices and layout-specific table coordinates.
+     */
     suspend fun orchestrate(
         effects: Flow<GameEffect>,
         stateFlow: StateFlow<GameState>,

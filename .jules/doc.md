@@ -22,6 +22,11 @@
 ## 2026-04-05 - HandOutcome
 **Surprise:** The `HandOutcome` enum has `NATURAL_WIN` alongside `WIN`, separating a natural blackjack win from a normal score win independently of payout definitions or wagers. This isolated enum helps avoid conflating payout logic (e.g., 3:2 vs 1:1) from hand resolution logic in `BlackjackRules`.
 **Rule:** When documenting game progression boundaries, clearly decouple abstract structural statuses (like `HandOutcome.NATURAL_WIN`) from explicit numerical behavior (like `BlackjackPayout.THREE_TO_TWO`).
+
+## 2026-04-08 - BlackjackAnimationOrchestrator
+**Surprise:** The orchestrator manages two distinct asynchronous pipelines (effect-driven and state-driven) that share a `flashJob`. This allows a high-priority "Big Win" effect to cancel a routine "Win" flash. Additionally, it leverages `distinctUntilChangedBy { it.status }` to ensure that animation triggers (like payout eruptions or screen shakes) only fire once per lifecycle transition, preventing duplicates on minor state changes (like balance updates).
+**Rule:** When orchestrating sensory feedback, separate discrete event handlers from status-based lifecycle reactions. Explicitly document where jobs are shared across these pipelines to avoid race conditions or animation flickering.
+
 ## 2026-04-07 - GameActionButton
 **Surprise:** The `isStrategic` parameter doesn't just change colors; it triggers a "breathing" animation (pulsing scale and glow) using an `infiniteRepeatable` transition. This is designed to draw the player's eye to the mathematically "correct" move if one is suggested by the game.
 **Rule:** When documenting interactive components, look for "breathing" or "pulsing" logic in the implementation—these often signal high-level game mechanics (like strategic advice) that need to be explained to developers using the component.
