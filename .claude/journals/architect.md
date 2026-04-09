@@ -1,5 +1,9 @@
 # Architect Journal
 
+## 2026-04-08 - Timing Constants Can Masquerade as Animation Constants
+**Learning:** `AutoDealDelayTerminalMs` and `ManualResetDelayMs` were grouped into `AnimationConstants` (ui.theme) because they're millisecond values — visually identical to animation durations. But they drive state machine *behavior* (when to dispatch `GameAction.NewGame`), not visual appearance. The result was an inverted layer dependency: presentation imported from UI. The distinction to apply: *does changing this value alter what the user sees, or when the next game state fires?* If the latter, it belongs in the presentation layer.
+**Action:** When placing a timing constant, ask whether it controls animation interpolation/duration (ui.theme) or controls when a GameAction is dispatched (presentation layer). If the constant appears in a `delay()` inside a `coroutineScope.launch` in a Component, it belongs in the presentation package.
+
 ## 2026-03-29 - BalanceService Interface Extraction Was Zero-Friction
 **Learning:** When extracting an interface from a concrete class, naming the interface identically to the old class means zero consumer changes — imports, type annotations, and AppGraph declarations all stay untouched. The only files that change are the data layer itself and tests that directly construct the concrete type. This repo's `SettingsRepository` / `DataStoreSettingsRepository` split is the canonical pattern; every future service extraction should mirror it exactly.
 **Action:** Before extracting a service interface, check whether keeping the interface name identical to the old concrete class avoids a cascade of consumer edits. If the class is already named as a noun/capability (`BalanceService`, `AudioService`) rather than an impl (`BalanceServiceImpl`), reuse the name for the interface.

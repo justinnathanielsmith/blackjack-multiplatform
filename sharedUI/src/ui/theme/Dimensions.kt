@@ -90,10 +90,6 @@ object AnimationConstants {
     val ChipLossLifetimeMs = 3000L
     val NearMissLifetimeMs = 1500L
 
-    // Auto-deal and reset delays (BlackjackScreen)
-    val AutoDealDelayTerminalMs = 1500L
-    val ManualResetDelayMs = 2000L
-
     // Payout animation trigger (BlackjackScreen)
     val PayoutTriggerDelayMs = 200L
 

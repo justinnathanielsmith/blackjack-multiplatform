@@ -14,7 +14,6 @@ import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.state.BlackjackStateMachine
-import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +25,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+
+// Presentation-layer timing for auto-deal state machine loop; kept here to avoid
+// the presentation layer depending on the UI theme package.
+private const val AUTO_DEAL_DELAY_TERMINAL_MS = 1500L
+private const val MANUAL_RESET_DELAY_MS = 2000L
 
 @Stable
 interface BlackjackComponent {
@@ -118,9 +122,9 @@ class DefaultBlackjackComponent(
 
                             delay(
                                 if (autoDealEnabled) {
-                                    AnimationConstants.AutoDealDelayTerminalMs
+                                    AUTO_DEAL_DELAY_TERMINAL_MS
                                 } else {
-                                    AnimationConstants.ManualResetDelayMs
+                                    MANUAL_RESET_DELAY_MS
                                 }
                             )
 
