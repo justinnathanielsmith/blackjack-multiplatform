@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack.data
 
-import io.github.smithjustinn.blackjack.GameRules
+import io.github.smithjustinn.blackjack.logic.GameRules
 import kotlinx.serialization.Serializable
 
 @Serializable

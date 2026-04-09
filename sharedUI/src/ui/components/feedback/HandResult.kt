@@ -1,8 +1,8 @@
 package io.github.smithjustinn.blackjack.ui.components.feedback
 
-import io.github.smithjustinn.blackjack.GameState
-import io.github.smithjustinn.blackjack.HandOutcome
-import io.github.smithjustinn.blackjack.isTerminal
+import io.github.smithjustinn.blackjack.model.GameState
+import io.github.smithjustinn.blackjack.model.HandOutcome
+import io.github.smithjustinn.blackjack.model.isTerminal
 
 enum class HandResult {
     NONE,

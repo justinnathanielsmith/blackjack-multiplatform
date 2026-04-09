@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.lerp
-import io.github.smithjustinn.blackjack.GameState
+import io.github.smithjustinn.blackjack.model.GameState
 import kotlin.math.roundToInt
 
 /**

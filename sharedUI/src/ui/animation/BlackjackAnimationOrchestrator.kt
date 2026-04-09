@@ -5,9 +5,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import io.github.smithjustinn.blackjack.GameEffect
-import io.github.smithjustinn.blackjack.GameState
-import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.action.GameEffect
+import io.github.smithjustinn.blackjack.model.GameState
+import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.ui.components.feedback.HandResult

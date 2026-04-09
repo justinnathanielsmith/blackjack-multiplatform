@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack.ui.effects
 
-import io.github.smithjustinn.blackjack.GameEffect
+import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import kotlin.test.Test

@@ -57,9 +57,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.GameAction
-import io.github.smithjustinn.blackjack.GameState
-import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.action.GameAction
+import io.github.smithjustinn.blackjack.model.GameState
+import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen

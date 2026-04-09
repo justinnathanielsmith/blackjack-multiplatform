@@ -5,7 +5,7 @@ import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
 import io.github.smithjustinn.blackjack.data.createBalanceService
 import io.github.smithjustinn.blackjack.data.createSettingsRepository
-import io.github.smithjustinn.blackjack.utils.CoroutineDispatchers
+import io.github.smithjustinn.blackjack.infra.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import org.koin.dsl.module

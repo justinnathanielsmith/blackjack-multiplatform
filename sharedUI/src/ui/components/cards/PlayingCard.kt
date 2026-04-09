@@ -48,9 +48,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.Card
-import io.github.smithjustinn.blackjack.Rank
-import io.github.smithjustinn.blackjack.Suit
+import io.github.smithjustinn.blackjack.model.Card
+import io.github.smithjustinn.blackjack.model.Rank
+import io.github.smithjustinn.blackjack.model.Suit
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.DeepWine

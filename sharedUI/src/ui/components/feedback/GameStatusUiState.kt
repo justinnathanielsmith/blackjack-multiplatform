@@ -2,8 +2,8 @@ package io.github.smithjustinn.blackjack.ui.components.feedback
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.isTerminal
+import io.github.smithjustinn.blackjack.model.GameStatus
+import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.ui.theme.DeepWine
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight

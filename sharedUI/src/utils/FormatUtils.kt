@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.utils
+package io.github.smithjustinn.blackjack.ui.utils
 
 internal fun Int.formatWithCommas(): String {
     val s = this.toString()

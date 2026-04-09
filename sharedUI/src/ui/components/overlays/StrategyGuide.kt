@@ -39,9 +39,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.StrategyAction
-import io.github.smithjustinn.blackjack.StrategyProvider
-import io.github.smithjustinn.blackjack.StrategyTab
+import io.github.smithjustinn.blackjack.logic.StrategyAction
+import io.github.smithjustinn.blackjack.logic.StrategyProvider
+import io.github.smithjustinn.blackjack.logic.StrategyTab
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen

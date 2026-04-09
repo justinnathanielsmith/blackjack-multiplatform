@@ -49,7 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.BlackjackConfig
+import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
@@ -58,7 +58,7 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import io.github.smithjustinn.blackjack.ui.theme.VaultDarkBottom
 import io.github.smithjustinn.blackjack.ui.theme.VaultDarkTop
-import io.github.smithjustinn.blackjack.utils.formatWithCommas
+import io.github.smithjustinn.blackjack.ui.utils.formatWithCommas
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.balance

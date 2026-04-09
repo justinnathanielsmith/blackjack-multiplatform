@@ -1,8 +1,8 @@
 package io.github.smithjustinn.blackjack.ui.animation
 
-import io.github.smithjustinn.blackjack.GameEffect
-import io.github.smithjustinn.blackjack.GameState
-import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.action.GameEffect
+import io.github.smithjustinn.blackjack.model.GameState
+import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry

@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack.data
 
-import io.github.smithjustinn.blackjack.BlackjackConfig
+import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import kotlinx.coroutines.flow.Flow
 
 interface BalanceService {

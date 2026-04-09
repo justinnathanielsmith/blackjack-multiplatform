@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.GameStatus
-import io.github.smithjustinn.blackjack.Hand
-import io.github.smithjustinn.blackjack.SideBetType
+import io.github.smithjustinn.blackjack.model.GameStatus
+import io.github.smithjustinn.blackjack.model.Hand
+import io.github.smithjustinn.blackjack.model.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
