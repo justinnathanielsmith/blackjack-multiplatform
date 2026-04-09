@@ -109,7 +109,7 @@ private fun GameState.decideActionPairs(
     hand: Hand,
     dealerUpcard: Int
 ): GameAction? {
-    if (!canSplit()) return null
+    if (!canSplit) return null
     val rank = hand.cards[0].rank
     val key = if (rank == Rank.ACE) "A,A" else "${rank.value},${rank.value}"
     val action =
@@ -137,7 +137,7 @@ private fun GameState.decideActionSoft(
             ?.get(dealerUpcard)
 
     return when (action) {
-        StrategyAction.DOUBLE -> if (canDoubleDown()) GameAction.DoubleDown else GameAction.Stand
+        StrategyAction.DOUBLE -> if (canDoubleDown) GameAction.DoubleDown else GameAction.Stand
         StrategyAction.STAND -> GameAction.Stand
         StrategyAction.HIT -> GameAction.Hit
         else -> null
@@ -163,7 +163,7 @@ private fun GameState.decideActionHard(
             ?.get(dealerUpcard)
 
     return when (action) {
-        StrategyAction.DOUBLE -> if (canDoubleDown()) GameAction.DoubleDown else GameAction.Hit
+        StrategyAction.DOUBLE -> if (canDoubleDown) GameAction.DoubleDown else GameAction.Hit
         StrategyAction.STAND -> GameAction.Stand
         else -> GameAction.Hit
     }

@@ -189,7 +189,7 @@ class DoubleDownTest {
                     deck = deckOf(Rank.TWO),
                     rules = GameRules(allowDoubleAfterSplit = false),
                 )
-            assertTrue(state.canDoubleDown())
+            assertTrue(state.canDoubleDown)
         }
 
     @Test
@@ -208,7 +208,7 @@ class DoubleDownTest {
                     activeHandIndex = 1,
                     rules = GameRules(allowDoubleAfterSplit = true),
                 )
-            assertTrue(state.canDoubleDown())
+            assertTrue(state.canDoubleDown)
         }
 
     @Test
@@ -227,7 +227,7 @@ class DoubleDownTest {
                     activeHandIndex = 1,
                     rules = GameRules(allowDoubleAfterSplit = false),
                 )
-            assertFalse(state.canDoubleDown())
+            assertFalse(state.canDoubleDown)
         }
 
     @Test
@@ -244,10 +244,10 @@ class DoubleDownTest {
                         ),
                     rules = GameRules(allowDoubleAfterSplit = true),
                 )
-            assertTrue(state1.canDoubleDown(), "Should allow double after split when rules permit")
+            assertTrue(state1.canDoubleDown, "Should allow double after split when rules permit")
 
             val state2 = state1.copy(rules = GameRules(allowDoubleAfterSplit = false))
-            assertFalse(state2.canDoubleDown(), "Should NOT allow double after split when rules forbid")
+            assertFalse(state2.canDoubleDown, "Should NOT allow double after split when rules forbid")
         }
 
     @Test
@@ -257,7 +257,7 @@ class DoubleDownTest {
                 playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                 balance = 100
             )
-        assertTrue(state.canDoubleDown())
+        assertTrue(state.canDoubleDown)
     }
 
     @Test
@@ -270,7 +270,7 @@ class DoubleDownTest {
                     ),
                 balance = 100
             )
-        assertFalse(state.canDoubleDown())
+        assertFalse(state.canDoubleDown)
     }
 
     @Test
@@ -280,7 +280,7 @@ class DoubleDownTest {
                 playerHands = persistentListOf(hand(Rank.FIVE).copy(bet = 100)),
                 balance = 100
             )
-        assertFalse(state.canDoubleDown())
+        assertFalse(state.canDoubleDown)
     }
 
     @Test
@@ -290,7 +290,7 @@ class DoubleDownTest {
                 playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
                 balance = 99
             )
-        assertFalse(state.canDoubleDown())
+        assertFalse(state.canDoubleDown)
     }
 
     @Test
@@ -308,7 +308,7 @@ class DoubleDownTest {
                 balance = 200,
                 activeHandIndex = 1
             )
-        assertTrue(state.canDoubleDown(), "Should use active hand (index 1) which has 2 cards and sufficient balance")
+        assertTrue(state.canDoubleDown, "Should use active hand (index 1) which has 2 cards and sufficient balance")
 
         val stateInsufficientBalanceForActive =
             GameState(
@@ -320,6 +320,6 @@ class DoubleDownTest {
                 balance = 150,
                 activeHandIndex = 1
             )
-        assertFalse(stateInsufficientBalanceForActive.canDoubleDown(), "Balance (150) is less than active bet (200)")
+        assertFalse(stateInsufficientBalanceForActive.canDoubleDown, "Balance (150) is less than active bet (200)")
     }
 }

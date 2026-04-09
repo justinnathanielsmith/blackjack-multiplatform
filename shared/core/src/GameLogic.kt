@@ -431,38 +431,44 @@ data class GameState(
      *
      * Valid when the hand has exactly 2 cards, sufficient balance exists, and the game rules
      * allow doubling in this state (e.g., after a split if [GameRules.allowDoubleAfterSplit] is true).
+     * Domain predicate — keeps action-eligibility logic out of the UI layer.
      */
-    fun canDoubleDown(): Boolean =
-        activeHand.cards.size == 2 &&
-            balance >= activeBet &&
-            (!activeHand.wasSplit || rules.allowDoubleAfterSplit)
+    val canDoubleDown: Boolean
+        get() =
+            activeHand.cards.size == 2 &&
+                balance >= activeBet &&
+                (!activeHand.wasSplit || rules.allowDoubleAfterSplit)
 
     /**
      * Returns true if the player can split their [activeHand].
      *
      * Valid when they have exactly 2 cards of equal rank (or value, if configured), sufficient
      * balance exists, and the total hand count has not reached [BlackjackConfig.MAX_HANDS].
+     * Domain predicate — keeps action-eligibility logic out of the UI layer.
      */
-    fun canSplit(): Boolean {
-        if (playerHands.size >= BlackjackConfig.MAX_HANDS ||
-            activeHand.cards.size != 2 ||
-            balance < activeBet
-        ) {
-            return false
+    val canSplit: Boolean
+        get() {
+            if (playerHands.size >= BlackjackConfig.MAX_HANDS ||
+                activeHand.cards.size != 2 ||
+                balance < activeBet
+            ) {
+                return false
+            }
+            val c0 = activeHand.cards[0].rank
+            val c1 = activeHand.cards[1].rank
+            val rankMatch = if (rules.splitOnValueOnly) c0.value == c1.value else c0 == c1
+            return rankMatch
         }
-        val c0 = activeHand.cards[0].rank
-        val c1 = activeHand.cards[1].rank
-        val rankMatch = if (rules.splitOnValueOnly) c0.value == c1.value else c0 == c1
-        return rankMatch
-    }
 
     /**
      * Returns true if the player can surrender their [activeHand].
      *
      * Valid at the start of a turn (exactly 2 cards) if the hand was not created via a split
      * and the house rules allow surrender. Surrendering forfeits half the bet.
+     * Domain predicate — keeps action-eligibility logic out of the UI layer.
      */
-    fun canSurrender(): Boolean = activeHand.cards.size == 2 && !activeHand.wasSplit && rules.allowSurrender
+    val canSurrender: Boolean
+        get() = activeHand.cards.size == 2 && !activeHand.wasSplit && rules.allowSurrender
 
     /**
      * Returns true if the deal action is available during the betting phase:

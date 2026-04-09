@@ -29,7 +29,7 @@ class RuleVariationsExpansionTest {
                 status = GameStatus.PLAYING,
                 rules = GameRules(splitOnValueOnly = false)
             )
-        assertFalse(state.canSplit(), "King and Queen should NOT be splittable when splitOnValueOnly is false")
+        assertFalse(state.canSplit, "King and Queen should NOT be splittable when splitOnValueOnly is false")
     }
 
     @Test
@@ -42,7 +42,7 @@ class RuleVariationsExpansionTest {
                 status = GameStatus.PLAYING,
                 rules = GameRules(splitOnValueOnly = false)
             )
-        assertTrue(state.canSplit(), "Two Kings should be splittable even when splitOnValueOnly is false")
+        assertTrue(state.canSplit, "Two Kings should be splittable even when splitOnValueOnly is false")
     }
 
     @Test
@@ -55,7 +55,7 @@ class RuleVariationsExpansionTest {
                 status = GameStatus.PLAYING,
                 rules = GameRules(splitOnValueOnly = true)
             )
-        assertTrue(state.canSplit(), "King and Queen SHOULD be splittable when splitOnValueOnly is true")
+        assertTrue(state.canSplit, "King and Queen SHOULD be splittable when splitOnValueOnly is true")
     }
 
     @Test
@@ -68,7 +68,7 @@ class RuleVariationsExpansionTest {
                 status = GameStatus.PLAYING,
                 rules = GameRules(splitOnValueOnly = true)
             )
-        assertTrue(state.canSplit(), "10 and Jack SHOULD be splittable when splitOnValueOnly is true")
+        assertTrue(state.canSplit, "10 and Jack SHOULD be splittable when splitOnValueOnly is true")
     }
 
     // ── ResetSeatBet tests ────────────────────────────────────────────────────

@@ -14,7 +14,7 @@ class CanSplitTest {
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
-        assertTrue(state.canSplit())
+        assertTrue(state.canSplit)
     }
 
     @Test
@@ -31,7 +31,7 @@ class CanSplitTest {
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
-        assertFalse(state.canSplit())
+        assertFalse(state.canSplit)
     }
 
     @Test
@@ -42,7 +42,7 @@ class CanSplitTest {
                 balance = 50,
                 status = GameStatus.PLAYING
             )
-        assertFalse(state.canSplit())
+        assertFalse(state.canSplit)
     }
 
     @Test
@@ -53,7 +53,7 @@ class CanSplitTest {
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
-        assertFalse(state.canSplit())
+        assertFalse(state.canSplit)
     }
 
     @Test
@@ -66,7 +66,7 @@ class CanSplitTest {
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
-        assertFalse(state.canSplit())
+        assertFalse(state.canSplit)
     }
 
     @Test
@@ -77,7 +77,7 @@ class CanSplitTest {
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
-        assertFalse(state1.canSplit())
+        assertFalse(state1.canSplit)
 
         val state3 =
             GameState(
@@ -85,7 +85,7 @@ class CanSplitTest {
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
-        assertFalse(state3.canSplit())
+        assertFalse(state3.canSplit)
     }
 
     @Test
@@ -101,9 +101,9 @@ class CanSplitTest {
                 balance = 1000,
                 status = GameStatus.PLAYING
             )
-        assertFalse(state.canSplit())
+        assertFalse(state.canSplit)
 
         val state0 = state.copy(activeHandIndex = 0)
-        assertTrue(state0.canSplit())
+        assertTrue(state0.canSplit)
     }
 }

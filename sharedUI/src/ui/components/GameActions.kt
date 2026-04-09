@@ -177,9 +177,10 @@ fun GameActions(
                             shrinkTowards = Alignment.Top
                         ),
             ) {
-                val canSplit = state.canSplit()
-                val canDouble = state.canDoubleDown()
-                val canSurrender = state.canSurrender()
+                // Domain predicates: read as properties — no () — matching canDeal/canResetBet pattern.
+                val canSplit = state.canSplit
+                val canDouble = state.canDoubleDown
+                val canSurrender = state.canSurrender
 
                 Row(
                     modifier =
