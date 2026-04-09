@@ -1,11 +1,8 @@
 package io.github.smithjustinn.blackjack.model
-import io.github.smithjustinn.blackjack.action.*
-import io.github.smithjustinn.blackjack.infra.*
-import io.github.smithjustinn.blackjack.logic.*
-import io.github.smithjustinn.blackjack.middleware.*
-import io.github.smithjustinn.blackjack.model.*
-import io.github.smithjustinn.blackjack.state.*
-import io.github.smithjustinn.blackjack.util.*
+import io.github.smithjustinn.blackjack.model.Card
+import io.github.smithjustinn.blackjack.model.Hand
+import io.github.smithjustinn.blackjack.model.Rank
+import io.github.smithjustinn.blackjack.model.Suit
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
 import kotlin.test.assertEquals

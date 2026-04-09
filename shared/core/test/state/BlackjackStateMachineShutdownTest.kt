@@ -2,13 +2,8 @@
 
 package io.github.smithjustinn.blackjack.state
 import app.cash.turbine.test
-import io.github.smithjustinn.blackjack.action.*
-import io.github.smithjustinn.blackjack.infra.*
-import io.github.smithjustinn.blackjack.logic.*
-import io.github.smithjustinn.blackjack.middleware.*
-import io.github.smithjustinn.blackjack.model.*
-import io.github.smithjustinn.blackjack.state.*
-import io.github.smithjustinn.blackjack.util.*
+import io.github.smithjustinn.blackjack.action.GameAction
+import io.github.smithjustinn.blackjack.util.testMachine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
