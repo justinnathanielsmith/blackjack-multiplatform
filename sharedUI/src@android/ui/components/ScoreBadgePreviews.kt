@@ -2,6 +2,8 @@ package io.github.smithjustinn.blackjack.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import io.github.smithjustinn.blackjack.ui.components.feedback.ScoreBadge
+import io.github.smithjustinn.blackjack.ui.components.feedback.ScoreBadgeState
 
 @Preview(name = "Waiting state")
 @Composable
