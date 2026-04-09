@@ -26,6 +26,9 @@ object ChipVisuals {
                 )
         )
     }
+    private val STANDARD_PARTICLE_STROKE by lazy {
+        Stroke(width = STANDARD_RADIUS * 0.1f)
+    }
 
     // Single source of truth for chip denomination-to-color mapping
     private val DENOMINATIONS: List<Pair<Int, Color>> =
@@ -100,7 +103,7 @@ object ChipVisuals {
             Color.White.copy(alpha = alpha * 0.5f),
             radius * 0.92f,
             center,
-            style = Stroke(width = radius * 0.1f)
+            style = if (radius == STANDARD_RADIUS) STANDARD_PARTICLE_STROKE else Stroke(width = radius * 0.1f)
         )
     }
 

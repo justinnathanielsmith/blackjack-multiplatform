@@ -8,8 +8,10 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.components.chips.ChipUtils
+import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.STANDARD_RADIUS
 import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawParticleChip
 import kotlin.random.Random
 
@@ -101,12 +103,17 @@ fun ChipEruptionEffect(
             val alpha = if (t > 0.8f) 1f - (t - 0.8f) / 0.2f else 1f
             val scale = 1.2f - 0.5f * t
 
-            drawParticleChip(
-                color = ChipUtils.chipColor(chip.amount),
-                alpha = alpha.coerceIn(0f, 1f),
-                radius = chipRadius * scale,
-                center = Offset(x, y),
-            )
+            withTransform({
+                translate(x, y)
+                scale(scale, scale)
+            }) {
+                drawParticleChip(
+                    color = ChipUtils.chipColor(chip.amount),
+                    alpha = alpha.coerceIn(0f, 1f),
+                    radius = STANDARD_RADIUS,
+                    center = Offset.Zero,
+                )
+            }
         }
     }
 }

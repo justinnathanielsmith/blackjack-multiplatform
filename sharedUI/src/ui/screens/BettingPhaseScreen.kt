@@ -18,10 +18,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -39,8 +36,6 @@ import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.actions.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.chips.BettingSlot
-import io.github.smithjustinn.blackjack.ui.components.chips.ChipUtils
-import io.github.smithjustinn.blackjack.ui.effects.FlyingChip
 import io.github.smithjustinn.blackjack.ui.effects.FlyingChipAnimation
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -93,29 +88,8 @@ fun BettingPhaseScreen(
     selectedAmount: Int,
     modifier: Modifier = Modifier,
 ) {
-    val flyingChips = remember { List(15) { FlyingChip(it.toLong()) } }
-    val betDisplayOffsets = remember { mutableStateMapOf<Int, Offset>() }
-    val sideBetOffsets = remember { mutableStateMapOf<SideBetType, Offset>() }
-
-    fun launchChip(
-        startOffset: Offset,
-        targetOffset: Offset,
-        amount: Int
-    ) {
-        if (startOffset == Offset.Zero) return
-        val chip = flyingChips.firstOrNull { !it.isActive } ?: return
-
-        chip.startOffset =
-            Offset(
-                x = startOffset.x + (-10..10).random(),
-                y = startOffset.y + (-10..10).random(),
-            )
-        chip.targetOffset = targetOffset
-        chip.amount = amount
-        chip.color = ChipUtils.chipColor(amount)
-        chip.textColor = ChipUtils.chipTextColor(amount)
-        chip.isActive = true
-    }
+    // Chip pool, offset maps, and launch logic are managed by a dedicated state holder.
+    val animationState = rememberBettingAnimationState()
 
     BoxWithConstraints(
         modifier =
@@ -186,16 +160,16 @@ fun BettingPhaseScreen(
                     isSideBet = true,
                     slotSize = sideBetSize,
                     onClick = {
-                        val offset = sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
+                        val offset = animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.onAction(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, selectedAmount))
-                        launchChip(offset, offset, selectedAmount)
+                        animationState.launchChip(offset, offset, selectedAmount)
                     },
                     onLongClick = {
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.onAction(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
                     },
-                    onPositioned = { sideBetOffsets[SideBetType.PERFECT_PAIRS] = it },
+                    onPositioned = { animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] = it },
                 )
 
                 // 21+3 side bet
@@ -205,16 +179,16 @@ fun BettingPhaseScreen(
                     isSideBet = true,
                     slotSize = sideBetSize,
                     onClick = {
-                        val offset = sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
+                        val offset = animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.onAction(GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, selectedAmount))
-                        launchChip(offset, offset, selectedAmount)
+                        animationState.launchChip(offset, offset, selectedAmount)
                     },
                     onLongClick = {
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.onAction(GameAction.ResetSideBet(SideBetType.TWENTY_ONE_PLUS_THREE))
                     },
-                    onPositioned = { sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it },
+                    onPositioned = { animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it },
                 )
             }
 
@@ -242,16 +216,16 @@ fun BettingPhaseScreen(
                         modifier = Modifier.offset(y = arcYOffset),
                         slotSize = seatSize,
                         onClick = {
-                            val offset = betDisplayOffsets[seatIndex] ?: Offset.Zero
+                            val offset = animationState.betDisplayOffsets[seatIndex] ?: Offset.Zero
                             audioService.playEffect(AudioService.SoundEffect.CLICK)
                             component.onAction(GameAction.PlaceBet(selectedAmount, seatIndex))
-                            launchChip(offset, offset, selectedAmount)
+                            animationState.launchChip(offset, offset, selectedAmount)
                         },
                         onLongClick = {
                             audioService.playEffect(AudioService.SoundEffect.CLICK)
                             component.onAction(GameAction.ResetSeatBet(seatIndex))
                         },
-                        onPositioned = { betDisplayOffsets[seatIndex] = it },
+                        onPositioned = { animationState.betDisplayOffsets[seatIndex] = it },
                     )
                 }
             }
@@ -329,8 +303,8 @@ fun BettingPhaseScreen(
         }
 
         // Flying chip animations layer
-        for (i in 0 until flyingChips.size) {
-            val chip = flyingChips[i]
+        for (i in 0 until animationState.flyingChips.size) {
+            val chip = animationState.flyingChips[i]
             if (chip.isActive) {
                 key(chip.id) {
                     FlyingChipAnimation(
