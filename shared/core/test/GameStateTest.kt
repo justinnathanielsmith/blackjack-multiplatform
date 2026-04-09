@@ -148,6 +148,70 @@ class GameStateTest {
         assertEquals(0, state.totalNetPayout())
     }
 
+    // -- dealerDisplayScore: phase-visibility predicate --
+
+    @Test
+    fun dealerDisplayScore_returnsVisibleScore_duringPlaying() {
+        val state =
+            GameState(
+                status = GameStatus.PLAYING,
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+        // Only the face-up Ten (10) should be visible
+        assertEquals(10, state.dealerDisplayScore)
+    }
+
+    @Test
+    fun dealerDisplayScore_returnsVisibleScore_duringDealing() {
+        val state =
+            GameState(
+                status = GameStatus.DEALING,
+                dealerHand = dealerHand(upRank = Rank.ACE, holeRank = Rank.KING),
+            )
+        // Only the face-up Ace (11) should be visible
+        assertEquals(11, state.dealerDisplayScore)
+    }
+
+    @Test
+    fun dealerDisplayScore_returnsFullScore_duringDealerTurn() {
+        val state =
+            GameState(
+                status = GameStatus.DEALER_TURN,
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+        assertEquals(17, state.dealerDisplayScore)
+    }
+
+    @Test
+    fun dealerDisplayScore_returnsFullScore_whenPlayerWon() {
+        val state =
+            GameState(
+                status = GameStatus.PLAYER_WON,
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+        assertEquals(17, state.dealerDisplayScore)
+    }
+
+    @Test
+    fun dealerDisplayScore_returnsFullScore_whenDealerWon() {
+        val state =
+            GameState(
+                status = GameStatus.DEALER_WON,
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+        assertEquals(17, state.dealerDisplayScore)
+    }
+
+    @Test
+    fun dealerDisplayScore_returnsFullScore_whenPush() {
+        val state =
+            GameState(
+                status = GameStatus.PUSH,
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+        assertEquals(17, state.dealerDisplayScore)
+    }
+
     @Test
     fun totalNetPayout_calculatesCorrectly_forSurrenderedHand() {
         val state =

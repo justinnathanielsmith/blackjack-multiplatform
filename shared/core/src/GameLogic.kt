@@ -491,6 +491,17 @@ data class GameState(
     /** True if the game ended with the dealer winning because all player hands busted. */
     val hasPlayerBustLoss: Boolean
         get() = status == GameStatus.DEALER_WON && playerHands.all { it.isBust }
+
+    /** The dealer score visible to the player given the current game phase.
+     *  Returns full score during/after the dealer's turn; otherwise only the upcard score.
+     *  Domain predicate — keeps phase-visibility logic out of the UI layer. */
+    val dealerDisplayScore: Int
+        get() =
+            if (status == GameStatus.DEALER_TURN || status.isTerminal()) {
+                dealerHand.score
+            } else {
+                dealerHand.visibleScore
+            }
 }
 
 /**

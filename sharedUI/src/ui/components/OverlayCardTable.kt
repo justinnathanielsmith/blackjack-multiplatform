@@ -224,6 +224,7 @@ fun OverlayCardTable(
             HandZoneHud(
                 status = state.status,
                 dealerHand = state.dealerHand,
+                dealerDisplayScore = state.dealerDisplayScore,
                 playerHand = null,
                 handResult = HandResult.NONE,
                 handNetPayout = null,
@@ -248,6 +249,7 @@ fun OverlayCardTable(
                 HandZoneHud(
                     status = state.status,
                     dealerHand = state.dealerHand,
+                    dealerDisplayScore = state.dealerDisplayScore,
                     playerHand = hand,
                     handResult = result,
                     handNetPayout = netPayout,
@@ -489,6 +491,7 @@ private fun ActiveHandGlow(
 private fun HandZoneHud(
     status: GameStatus,
     dealerHand: Hand,
+    dealerDisplayScore: Int,
     playerHand: Hand?,
     handResult: HandResult,
     handNetPayout: Int?,
@@ -541,13 +544,6 @@ private fun HandZoneHud(
         }
 
         if (isDealer) {
-            val displayScore =
-                if (status == GameStatus.DEALER_TURN || status.isTerminal()) {
-                    dealerHand.score
-                } else {
-                    dealerHand.visibleScore
-                }
-
             if (!isBetting) {
                 Row(
                     modifier =
@@ -559,7 +555,7 @@ private fun HandZoneHud(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     ScoreBadge(
-                        score = displayScore,
+                        score = dealerDisplayScore,
                         state = ScoreBadgeState.DEALER,
                         label = stringResource(Res.string.dealer),
                     )
