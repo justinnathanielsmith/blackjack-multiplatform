@@ -1,8 +1,5 @@
 package io.github.smithjustinn.blackjack.ui.screens
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateOffsetAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -15,12 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -32,15 +23,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
-import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.model.totalNetPayout
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
-import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
-import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
 import io.github.smithjustinn.blackjack.ui.components.layout.ControlCenter
 import io.github.smithjustinn.blackjack.ui.components.layout.Header
 import io.github.smithjustinn.blackjack.ui.components.overlays.OverlayCardTable
@@ -58,7 +43,7 @@ import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
  * 1. **Visual Layout**: Adapts the card table and UI elements to different screen sizes and
  *    portrait/landscape aspect ratios.
  * 2. **Animation Orchestration**: Coordinates complex multi-layered animations (dealt cards,
- *    payout eruptions, screen shakes) via [BlackjackAnimationOrchestrator].
+ *    payout eruptions, screen shakes) via [BlackjackScreenState].
  * 3. **Feedback Systems**: Bridges game effects (sounds, haptics) to their platform-specific
  *    services.
  * 4. **User Input**: Dispatches player actions (Hit, Stand, Double Down, etc.) and configuration
@@ -75,86 +60,8 @@ fun BlackjackScreen(
     component: BlackjackComponent,
     modifier: Modifier = Modifier,
 ) {
-    val state by component.state.collectAsState()
-    val appSettings by component.appSettings.collectAsState()
-    var showSettings by remember { mutableStateOf(false) }
-    var showStrategy by remember { mutableStateOf(false) }
-    var showRules by remember { mutableStateOf(false) }
-    val animState = remember { BlackjackAnimationState() }
-    var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
-
-    var selectedAmount by remember { mutableStateOf(BlackjackConfig.DEFAULT_CHIP_AMOUNT) }
-    val onResetBet =
-        remember(component) {
-            {
-                component.onPlayClick()
-                component.onAction(GameAction.ResetBet)
-                component.onAction(GameAction.ResetSideBets)
-            }
-        }
-    val onDeal =
-        remember(component) {
-            {
-                component.onPlayDeal()
-                component.onAction(GameAction.Deal)
-            }
-        }
-    val onChipSelected =
-        remember(component) {
-            { amount: Int ->
-                selectedAmount = amount
-                component.onPlayPlink(amount)
-            }
-        }
-
-    val isTerminal = state.status.isTerminal()
-    val isMultiHand = state.playerHands.size > 1
-
-    val onAutoDealToggle =
-        remember(component) {
-            { component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) } }
-        }
-    val onSettingsClick = remember { { showSettings = true } }
-    val onStrategyClick = remember { { showStrategy = true } }
-    val onRulesClick = remember { { showRules = true } }
-    val onDismissSettings = remember { { showSettings = false } }
-    val onDismissRules = remember { { showRules = false } }
-    val onDismissStrategy = remember { { showStrategy = false } }
-
-    val dealRegistry = remember { DealAnimationRegistry() }
-
-    LaunchedEffect(state.status) {
-        if (state.status == GameStatus.BETTING) {
-            dealRegistry.tableLayout = null
-        }
-    }
-
-    // handZones[0] = dealer, handZones[1..N] = player hands
-    // Bolt Performance Optimization: Remove delegated 'by' and read .value in draw scope to avoid screen-wide recomposition during animation.
-    val activeHandHighlightPositionState =
-        animateOffsetAsState(
-            targetValue =
-                if (state.status == GameStatus.PLAYING) {
-                    val zone = dealRegistry.tableLayout?.handZones?.getOrNull(state.activeHandIndex + 1)
-                    if (zone != null) zone.clusterCenter + dealRegistry.gameplayAreaOffset else Offset.Zero
-                } else {
-                    Offset.Zero
-                },
-            animationSpec = spring(stiffness = Spring.StiffnessLow),
-            label = "activeHandHighlight",
-        )
-
-    // Animation orchestration: effects pipeline + state-driven flash/shake/payouts
-    LaunchedEffect(component) {
-        BlackjackAnimationOrchestrator.orchestrate(
-            effects = component.effects,
-            stateFlow = component.state,
-            animState = animState,
-            audioService = component.audioService,
-            hapticsService = component.hapticsService,
-            dealRegistry = dealRegistry,
-        )
-    }
+    val screenState = rememberBlackjackScreenState(component)
+    val insets = safeDrawingInsets()
 
     BlackjackTheme {
         Box(modifier = modifier) {
@@ -175,7 +82,7 @@ fun BlackjackScreen(
                         gameModifier
                             .drawBehind {
                                 // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame.
-                                val highlightPos = activeHandHighlightPositionState.value
+                                val highlightPos = screenState.activeHandHighlightPositionState.value
                                 if (highlightPos != Offset.Zero) {
                                     val highlightRadius = size.maxDimension * 0.35f
                                     // Inner intense spot
@@ -203,31 +110,35 @@ fun BlackjackScreen(
                                 }
                             }.graphicsLayer {
                                 val densityVal = density
-                                translationX = animState.shakeOffset.value * densityVal
+                                translationX = screenState.animState.shakeOffset.value * densityVal
                             },
                 ) {
-                    CompositionLocalProvider(LocalDealAnimationRegistry provides dealRegistry) {
+                    CompositionLocalProvider(LocalDealAnimationRegistry provides screenState.dealRegistry) {
                         Column(
                             modifier =
                                 Modifier
                                     .fillMaxSize()
-                                    .windowInsetsPadding(safeDrawingInsets().only(WindowInsetsSides.Horizontal)),
+                                    .windowInsetsPadding(
+                                        insets.only(WindowInsetsSides.Horizontal)
+                                    ),
                         ) {
                             Box(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
                                         .onGloballyPositioned {
-                                            headerBalanceOffset = it.positionInRoot() + Offset(80.dp.value, 40.dp.value)
+                                            screenState.onHeaderPositioned(
+                                                it.positionInRoot() + Offset(80.dp.value, 40.dp.value)
+                                            )
                                         }
                             ) {
                                 Header(
-                                    balance = state.balance,
-                                    isAutoDealEnabled = appSettings.isAutoDealEnabled,
-                                    onAutoDealToggle = onAutoDealToggle,
-                                    onSettingsClick = onSettingsClick,
-                                    onStrategyClick = onStrategyClick,
-                                    onRulesClick = onRulesClick
+                                    balance = screenState.state.balance,
+                                    isAutoDealEnabled = screenState.appSettings.isAutoDealEnabled,
+                                    onAutoDealToggle = screenState.onAutoDealToggle,
+                                    onSettingsClick = screenState.onSettingsClick,
+                                    onStrategyClick = screenState.onStrategyClick,
+                                    onRulesClick = screenState.onRulesClick
                                 )
                             }
 
@@ -237,26 +148,27 @@ fun BlackjackScreen(
                                         .weight(1f)
                                         .fillMaxSize()
                                         .onGloballyPositioned { coords ->
-                                            dealRegistry.gameplayAreaOffset = coords.positionInRoot()
-                                            dealRegistry.gameplayAreaSize = coords.size
+                                            screenState.dealRegistry.gameplayAreaOffset =
+                                                coords.positionInRoot()
+                                            screenState.dealRegistry.gameplayAreaSize = coords.size
                                         },
                             ) {
                                 BlackjackLayout(
-                                    state = state,
+                                    state = screenState.state,
                                     component = component,
-                                    dealRegistry = dealRegistry,
+                                    dealRegistry = screenState.dealRegistry,
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
 
                             ControlCenter(
-                                state = state,
+                                state = screenState.state,
                                 component = component,
-                                selectedAmount = selectedAmount,
-                                onChipSelected = onChipSelected,
-                                onResetBet = onResetBet,
-                                onDeal = onDeal,
-                                isCompact = isMultiHand,
+                                selectedAmount = screenState.selectedAmount,
+                                onChipSelected = screenState.onChipSelected,
+                                onResetBet = screenState.onResetBet,
+                                onDeal = screenState.onDeal,
+                                isCompact = screenState.isMultiHand,
                             )
                         }
 
@@ -264,51 +176,51 @@ fun BlackjackScreen(
                         Box(
                             modifier =
                                 Modifier.fillMaxSize().onGloballyPositioned { coords ->
-                                    dealRegistry.overlayOffset = coords.positionInRoot()
+                                    screenState.dealRegistry.overlayOffset = coords.positionInRoot()
                                 }
                         ) {
                             // Cards + HUD rendered in overlay (below other overlays)
                             OverlayCardTable(
-                                state = state,
-                                nearMissHandIndex = animState.nearMissHandIndex,
+                                state = screenState.state,
+                                nearMissHandIndex = screenState.animState.nearMissHandIndex,
                                 modifier = Modifier.zIndex(1f),
                             )
 
                             // Game Overlays & Status
                             GameOverlay(
-                                status = state.status,
-                                sideBetResults = state.sideBetResults,
-                                isBlackjack = state.hasPlayerBlackjackWin,
-                                isBust = state.hasPlayerBustLoss,
-                                netPayout = state.totalNetPayout(),
+                                status = screenState.state.status,
+                                sideBetResults = screenState.state.sideBetResults,
+                                isBlackjack = screenState.state.hasPlayerBlackjackWin,
+                                isBust = screenState.state.hasPlayerBustLoss,
+                                netPayout = screenState.state.totalNetPayout(),
                                 component = component,
-                                flashAlphaProvider = { animState.flashAlpha.value },
-                                flashColorProvider = { animState.flashColor },
-                                isPaused = { animState.isPaused },
-                                showBigWinBanner = { animState.showBigWinBanner },
-                                bigWinAmount = { animState.bigWinAmount },
+                                flashAlphaProvider = { screenState.animState.flashAlpha.value },
+                                flashColorProvider = { screenState.animState.flashColor },
+                                isPaused = { screenState.animState.isPaused },
+                                showBigWinBanner = { screenState.animState.showBigWinBanner },
+                                bigWinAmount = { screenState.animState.bigWinAmount },
                                 modifier = Modifier.zIndex(2f),
                             )
                             BettingLayer(
-                                status = state.status,
-                                handCount = state.handCount,
-                                sideBets = state.sideBets,
-                                playerHands = state.playerHands,
-                                animState = animState,
+                                status = screenState.state.status,
+                                handCount = screenState.state.handCount,
+                                sideBets = screenState.state.sideBets,
+                                playerHands = screenState.state.playerHands,
+                                animState = screenState.animState,
                                 component = component,
                                 audioService = component.audioService,
-                                selectedAmount = selectedAmount,
+                                selectedAmount = screenState.selectedAmount,
                             )
 
                             OverlayLayer(
-                                showSettings = showSettings,
-                                showRules = showRules,
-                                showStrategy = showStrategy,
-                                appSettings = appSettings,
+                                showSettings = screenState.showSettings,
+                                showRules = screenState.showRules,
+                                showStrategy = screenState.showStrategy,
+                                appSettings = screenState.appSettings,
                                 component = component,
-                                onDismissSettings = onDismissSettings,
-                                onDismissRules = onDismissRules,
-                                onDismissStrategy = onDismissStrategy,
+                                onDismissSettings = screenState.onDismissSettings,
+                                onDismissRules = screenState.onDismissRules,
+                                onDismissStrategy = screenState.onDismissStrategy,
                             )
                         }
                     } // CompositionLocalProvider
