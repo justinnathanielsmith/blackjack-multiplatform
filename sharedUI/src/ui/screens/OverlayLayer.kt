@@ -11,9 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.data.AppSettings
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
-import io.github.smithjustinn.blackjack.ui.components.RulesOverlay
-import io.github.smithjustinn.blackjack.ui.components.SettingsOverlay
-import io.github.smithjustinn.blackjack.ui.components.StrategyGuideOverlay
+import io.github.smithjustinn.blackjack.ui.components.overlays.RulesOverlay
+import io.github.smithjustinn.blackjack.ui.components.overlays.SettingsOverlay
+import io.github.smithjustinn.blackjack.ui.components.overlays.StrategyGuideOverlay
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 
 @Composable

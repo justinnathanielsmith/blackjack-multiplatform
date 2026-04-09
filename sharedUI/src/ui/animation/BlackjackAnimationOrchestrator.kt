@@ -10,8 +10,8 @@ import io.github.smithjustinn.blackjack.GameState
 import io.github.smithjustinn.blackjack.GameStatus
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
-import io.github.smithjustinn.blackjack.ui.components.HandResult
-import io.github.smithjustinn.blackjack.ui.components.handResult
+import io.github.smithjustinn.blackjack.ui.components.feedback.HandResult
+import io.github.smithjustinn.blackjack.ui.components.feedback.handResult
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants

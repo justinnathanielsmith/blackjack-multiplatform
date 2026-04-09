@@ -21,11 +21,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawBettingArc
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawFeltGradient
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawFiberTexture
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawRails
-import io.github.smithjustinn.blackjack.ui.components.drawing.drawVignette
+import io.github.smithjustinn.blackjack.ui.components.layout.drawing.drawBettingArc
+import io.github.smithjustinn.blackjack.ui.components.layout.drawing.drawFeltGradient
+import io.github.smithjustinn.blackjack.ui.components.layout.drawing.drawFiberTexture
+import io.github.smithjustinn.blackjack.ui.components.layout.drawing.drawRails
+import io.github.smithjustinn.blackjack.ui.components.layout.drawing.drawVignette
 import io.github.smithjustinn.blackjack.ui.theme.FeltDeepEdge
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
 import io.github.smithjustinn.blackjack.ui.theme.FeltWarmCenter

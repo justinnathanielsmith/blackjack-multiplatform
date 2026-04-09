@@ -41,11 +41,11 @@ import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.totalNetPayout
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
-import io.github.smithjustinn.blackjack.ui.components.BetChip
-import io.github.smithjustinn.blackjack.ui.components.ChipUtils
-import io.github.smithjustinn.blackjack.ui.components.ControlCenter
-import io.github.smithjustinn.blackjack.ui.components.Header
-import io.github.smithjustinn.blackjack.ui.components.OverlayCardTable
+import io.github.smithjustinn.blackjack.ui.components.chips.BetChip
+import io.github.smithjustinn.blackjack.ui.components.chips.ChipUtils
+import io.github.smithjustinn.blackjack.ui.components.layout.ControlCenter
+import io.github.smithjustinn.blackjack.ui.components.layout.Header
+import io.github.smithjustinn.blackjack.ui.components.overlays.OverlayCardTable
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets

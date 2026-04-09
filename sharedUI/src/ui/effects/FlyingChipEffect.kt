@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.components.BetChip
+import io.github.smithjustinn.blackjack.ui.components.chips.BetChip
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

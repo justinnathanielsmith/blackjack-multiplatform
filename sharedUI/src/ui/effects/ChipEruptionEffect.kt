@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.components.ChipUtils
+import io.github.smithjustinn.blackjack.ui.components.chips.ChipUtils
 import io.github.smithjustinn.blackjack.ui.effects.ChipVisuals.drawParticleChip
 import kotlin.random.Random
 

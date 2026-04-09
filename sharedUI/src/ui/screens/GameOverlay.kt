@@ -43,10 +43,10 @@ import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.isProcess
 import io.github.smithjustinn.blackjack.isTerminal
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
-import io.github.smithjustinn.blackjack.ui.components.GameStatusMessage
-import io.github.smithjustinn.blackjack.ui.components.GameStatusToast
-import io.github.smithjustinn.blackjack.ui.components.InsuranceOverlay
-import io.github.smithjustinn.blackjack.ui.components.rememberGameStatusUiState
+import io.github.smithjustinn.blackjack.ui.components.feedback.GameStatusMessage
+import io.github.smithjustinn.blackjack.ui.components.feedback.GameStatusToast
+import io.github.smithjustinn.blackjack.ui.components.feedback.rememberGameStatusUiState
+import io.github.smithjustinn.blackjack.ui.components.overlays.InsuranceOverlay
 import io.github.smithjustinn.blackjack.ui.effects.BigWinBanner
 import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect

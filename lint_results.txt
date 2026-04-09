@@ -1,0 +1,34 @@
+[0;32mStarting linting process...[0m
+[0;32mRunning ktlint...[0m
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/Users/justinsmith/Projects/blackjack/ktlint)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[0;32mRunning detekt...[0m
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.ConcurrentLongObjectHashMap (file:/Users/justinsmith/Projects/blackjack/tools/detekt-cli-1.23.7/lib/detekt-cli-1.23.7-all.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.ConcurrentLongObjectHashMap
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+....................................................................................................................................................................
+
+164 kotlin files were analyzed.
+Complexity Report:
+	- 24,588 lines of code (loc)
+	- 20,201 source lines of code (sloc)
+	- 14,994 logical lines of code (lloc)
+	- 2,299 comment lines of code (cloc)
+	- 1,844 cyclomatic complexity (mcc)
+	- 1,534 cognitive complexity
+	- 0 number of total code smells
+	- 11% comment source ratio
+	- 122 mcc per 1,000 lloc
+	- 0 code smells per 1,000 lloc
+
+Project Statistics:
+	- number of properties: 2029
+	- number of functions: 730
+	- number of classes: 217
+	- number of packages: 20
+	- number of kt files: 164
+
+[0;32mLinting process completed successfully![0m

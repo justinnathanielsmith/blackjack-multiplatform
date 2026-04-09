@@ -37,9 +37,9 @@ import io.github.smithjustinn.blackjack.Hand
 import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.services.AudioService
-import io.github.smithjustinn.blackjack.ui.components.BettingSlot
-import io.github.smithjustinn.blackjack.ui.components.CasinoButton
-import io.github.smithjustinn.blackjack.ui.components.ChipUtils
+import io.github.smithjustinn.blackjack.ui.components.actions.CasinoButton
+import io.github.smithjustinn.blackjack.ui.components.chips.BettingSlot
+import io.github.smithjustinn.blackjack.ui.components.chips.ChipUtils
 import io.github.smithjustinn.blackjack.ui.effects.FlyingChip
 import io.github.smithjustinn.blackjack.ui.effects.FlyingChipAnimation
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets

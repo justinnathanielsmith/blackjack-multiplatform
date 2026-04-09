@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
-import io.github.smithjustinn.blackjack.ui.components.TableLayout
+import io.github.smithjustinn.blackjack.ui.components.layout.TableLayout
 
 class DealAnimationRegistry {
     var overlayOffset by mutableStateOf(Offset.Zero)

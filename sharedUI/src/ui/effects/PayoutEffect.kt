@@ -14,7 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.ui.components.ChipStack
+import io.github.smithjustinn.blackjack.ui.components.chips.ChipStack
 import kotlinx.coroutines.yield
 
 /**
