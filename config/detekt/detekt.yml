@@ -18,6 +18,7 @@ complexity:
     active: true
     excludes: ['**/ui/**', '**/screens/**', '**/components/**', '**/test/**', '**/androidTest/**']
     thresholdInClasses: 30
+    thresholdInObjects: 20
   LongMethod:
     active: true
     ignoreAnnotated:

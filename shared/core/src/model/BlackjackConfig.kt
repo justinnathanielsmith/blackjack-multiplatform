@@ -50,4 +50,16 @@ object BlackjackConfig {
     const val NAV_KEY_RULES = "rules"
     const val NAV_KEY_STRATEGY = "strategy"
     const val NAV_KEY_SETTINGS = "settings"
+
+    // Hand Tension Thresholds
+    const val TENSION_SCORE_MAX = 20
+    const val TENSION_SCORE_HIGH = 19
+    const val TENSION_SCORE_MED = 18
+    const val TENSION_SCORE_LOW = 17
+
+    const val TENSION_VALUE_MAX = 1.0f
+    const val TENSION_VALUE_HIGH = 0.7f
+    const val TENSION_VALUE_MED = 0.4f
+    const val TENSION_VALUE_LOW = 0.2f
+    const val TENSION_VALUE_NONE = 0.0f
 }

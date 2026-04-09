@@ -100,14 +100,13 @@ data class Hand(
      * A [0.0, 1.0] weight representing how dangerous this hand is to hit.
      * Scores 17–20 are the standing-risk zone; scores below 17 carry no tension.
      */
-    @Suppress("MagicNumber") // Blackjack standing-risk thresholds are self-documenting domain values
     val tension: Float by lazy {
         when {
-            score >= 20 -> 1.0f
-            score == 19 -> 0.7f
-            score == 18 -> 0.4f
-            score == 17 -> 0.2f
-            else -> 0.0f
+            score >= BlackjackConfig.TENSION_SCORE_MAX -> BlackjackConfig.TENSION_VALUE_MAX
+            score == BlackjackConfig.TENSION_SCORE_HIGH -> BlackjackConfig.TENSION_VALUE_HIGH
+            score == BlackjackConfig.TENSION_SCORE_MED -> BlackjackConfig.TENSION_VALUE_MED
+            score == BlackjackConfig.TENSION_SCORE_LOW -> BlackjackConfig.TENSION_VALUE_LOW
+            else -> BlackjackConfig.TENSION_VALUE_NONE
         }
     }
 

@@ -205,34 +205,15 @@ object BlackjackRules {
      *         2. The possibly revealed dealer [Hand].
      *         3. The net change to the player's balance.
      */
-    @Suppress("CyclomaticComplexMethod")
     fun resolveInitialOutcomeValues(
         current: GameState,
         playerHands: List<Hand>,
         dealerHand: Hand,
     ): Triple<GameStatus, Hand, Int> {
-        // Bolt Performance Optimization: Replace .any with indexed loop to avoid iterator allocation.
-        var anyPlayerHasBJ = false
-        for (i in 0 until playerHands.size) {
-            if (playerHands[i].isBlackjack) {
-                anyPlayerHasBJ = true
-                break
-            }
-        }
+        val anyPlayerHasBJ = hasAnyBlackjack(playerHands)
 
         val shouldOfferInsurance = current.handCount == 1 && !anyPlayerHasBJ && dealerHand.cards[0].rank == Rank.ACE
-        // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
-        val dealerHandRevealed =
-            Hand(
-                dealerHand.cards.mutate { builder ->
-                    for (i in 0 until builder.size) {
-                        val card = builder[i]
-                        if (card.isFaceDown) {
-                            builder[i] = card.copy(isFaceDown = false)
-                        }
-                    }
-                }
-            )
+        val dealerHandRevealed = revealHoleCard(dealerHand)
 
         val initialStatus =
             if (shouldOfferInsurance) {
@@ -242,27 +223,61 @@ object BlackjackRules {
             }
 
         val finalDealerHand = if (initialStatus.isTerminal()) dealerHandRevealed else dealerHand
-
-        var balanceOutcome = 0
-        val dealerHasBJ = dealerHandRevealed.isBlackjack
-
-        if (initialStatus.isTerminal() || anyPlayerHasBJ) {
-            for (i in 0 until playerHands.size) {
-                val hand = playerHands[i]
-                if (hand.isBlackjack) {
-                    if (dealerHasBJ) {
-                        balanceOutcome += hand.bet
-                    } else {
-                        balanceOutcome += (hand.bet * current.rules.blackjackPayout.numerator) /
-                            current.rules.blackjackPayout.denominator + hand.bet
-                    }
-                } else if (dealerHasBJ) {
-                    // Hand lost, no payout.
-                }
+        val balanceOutcome =
+            if (initialStatus.isTerminal() || anyPlayerHasBJ) {
+                calculateInitialPayout(current, playerHands, dealerHandRevealed.isBlackjack)
+            } else {
+                0
             }
-        }
 
         return Triple(initialStatus, finalDealerHand, balanceOutcome)
+    }
+
+    private fun hasAnyBlackjack(playerHands: List<Hand>): Boolean {
+        // Bolt Performance Optimization: Replace .any with indexed loop to avoid iterator allocation.
+        for (i in 0 until playerHands.size) {
+            if (playerHands[i].isBlackjack) return true
+        }
+        return false
+    }
+
+    private fun revealHoleCard(dealerHand: Hand): Hand {
+        // Bolt Performance Optimization: Prevent reallocation of already face-up cards to preserve reference equality.
+        return Hand(
+            dealerHand.cards.mutate { builder ->
+                for (i in 0 until builder.size) {
+                    val card = builder[i]
+                    if (card.isFaceDown) {
+                        builder[i] = card.copy(isFaceDown = false)
+                    }
+                }
+            }
+        )
+    }
+
+    private fun calculateInitialPayout(
+        current: GameState,
+        playerHands: List<Hand>,
+        dealerHasBJ: Boolean
+    ): Int {
+        var balanceOutcome = 0
+        for (i in 0 until playerHands.size) {
+            val hand = playerHands[i]
+            if (hand.isBlackjack) {
+                balanceOutcome +=
+                    if (dealerHasBJ) {
+                        hand.bet
+                    } else {
+                        val profit =
+                            (hand.bet * current.rules.blackjackPayout.numerator) /
+                                current.rules.blackjackPayout.denominator
+                        profit + hand.bet
+                    }
+            } else if (dealerHasBJ) {
+                // Hand lost, no payout.
+            }
+        }
+        return balanceOutcome
     }
 
     /**
