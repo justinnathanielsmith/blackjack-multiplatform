@@ -297,15 +297,34 @@ enum class SideBetType {
 }
 
 /**
+ * Typed discriminator for a winning side-bet hand — replaces raw English strings so the UI can
+ * match exhaustively and the compiler enforces coverage when new outcomes are added.
+ */
+@Serializable
+enum class SideBetOutcome {
+    // Perfect Pairs outcomes
+    PERFECT_PAIR,
+    COLORED_PAIR,
+    MIXED_PAIR,
+
+    // 21+3 outcomes
+    SUITED_TRIPLE,
+    STRAIGHT_FLUSH,
+    THREE_OF_A_KIND,
+    STRAIGHT,
+    FLUSH,
+}
+
+/**
  * Contains the settled resolution of a specific side bet after the initial cards are dealt.
  *
  * This immutable result is stored in the [GameState] and is used by the UI to present
- * specific bet winnings and their categorical names (e.g., "Straight Flush") in the result banner.
+ * specific bet winnings and their categorical names in the result banner.
  *
  * @property type The [SideBetType] that this result corresponds to.
  * @property payoutMultiplier The ratio at which the initial wager is multiplied to calculate profit.
  * @property payoutAmount The total chips (original bet + profit) returned to the player.
- * @property outcomeName A domain-specific string identifying the winning hand (e.g. "Perfect Pair", "Flush").
+ * @property outcome A typed [SideBetOutcome] identifying the winning hand (e.g. [SideBetOutcome.FLUSH]).
  */
 @Immutable
 @Serializable
@@ -313,7 +332,8 @@ data class SideBetResult(
     val type: SideBetType,
     val payoutMultiplier: Int,
     val payoutAmount: Int,
-    val outcomeName: String
+    // Typed discriminator; exhaustiveness enforced at every when-site
+    val outcome: SideBetOutcome,
 )
 
 /**

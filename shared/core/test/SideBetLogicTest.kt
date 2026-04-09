@@ -22,7 +22,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(25, result.payoutMultiplier)
-        assertEquals("Perfect Pair", result.outcomeName)
+        assertEquals(SideBetOutcome.PERFECT_PAIR, result.outcome)
     }
 
     @Test
@@ -43,7 +43,7 @@ class SideBetLogicTest {
             )
         assertNotNull(coloredResult)
         assertEquals(12, coloredResult.payoutMultiplier)
-        assertEquals("Colored Pair", coloredResult.outcomeName)
+        assertEquals(SideBetOutcome.COLORED_PAIR, coloredResult.outcome)
     }
 
     @Test
@@ -59,7 +59,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(5, result.payoutMultiplier)
-        assertEquals("Mixed Pair", result.outcomeName)
+        assertEquals(SideBetOutcome.MIXED_PAIR, result.outcome)
     }
 
     @Test
@@ -76,7 +76,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(100, result.payoutMultiplier)
-        assertEquals("Suited Triple", result.outcomeName)
+        assertEquals(SideBetOutcome.SUITED_TRIPLE, result.outcome)
     }
 
     @Test
@@ -93,7 +93,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(40, result.payoutMultiplier)
-        assertEquals("Straight Flush", result.outcomeName)
+        assertEquals(SideBetOutcome.STRAIGHT_FLUSH, result.outcome)
     }
 
     @Test
@@ -110,7 +110,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(5, result.payoutMultiplier)
-        assertEquals("Flush", result.outcomeName)
+        assertEquals(SideBetOutcome.FLUSH, result.outcome)
     }
 
     @Test
@@ -127,7 +127,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(10, result.payoutMultiplier)
-        assertEquals("Straight", result.outcomeName)
+        assertEquals(SideBetOutcome.STRAIGHT, result.outcome)
     }
 
     @Test
@@ -144,7 +144,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(10, result.payoutMultiplier)
-        assertEquals("Straight", result.outcomeName)
+        assertEquals(SideBetOutcome.STRAIGHT, result.outcome)
     }
 
     @Test
@@ -161,7 +161,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(30, result.payoutMultiplier)
-        assertEquals("Three of a Kind", result.outcomeName)
+        assertEquals(SideBetOutcome.THREE_OF_A_KIND, result.outcome)
     }
 
     @Test
@@ -224,7 +224,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(10, result.payoutMultiplier)
-        assertEquals("Straight", result.outcomeName)
+        assertEquals(SideBetOutcome.STRAIGHT, result.outcome)
     }
 
     @Test
@@ -242,7 +242,7 @@ class SideBetLogicTest {
             )
         assertNotNull(result)
         assertEquals(10, result.payoutMultiplier)
-        assertEquals("Straight", result.outcomeName)
+        assertEquals(SideBetOutcome.STRAIGHT, result.outcome)
     }
 
     @Test

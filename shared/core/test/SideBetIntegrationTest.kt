@@ -110,7 +110,7 @@ class SideBetIntegrationTest {
             assertEquals(10900, state.balance)
             val sideResult = state.sideBetResults[SideBetType.TWENTY_ONE_PLUS_THREE]
             assertNotNull(sideResult)
-            assertEquals("Suited Triple", sideResult.outcomeName)
+            assertEquals(SideBetOutcome.SUITED_TRIPLE, sideResult.outcome)
         }
 
     @Test

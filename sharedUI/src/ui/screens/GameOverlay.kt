@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.GameAction
 import io.github.smithjustinn.blackjack.GameStatus
+import io.github.smithjustinn.blackjack.SideBetOutcome
 import io.github.smithjustinn.blackjack.SideBetResult
 import io.github.smithjustinn.blackjack.SideBetType
 import io.github.smithjustinn.blackjack.isProcess
@@ -271,7 +272,7 @@ private fun SideBetResultsOverlay(
                             text =
                                 stringResource(
                                     Res.string.side_bet_result_template,
-                                    getLocalizedOutcomeName(result.outcomeName),
+                                    getLocalizedOutcomeName(result.outcome),
                                     result.payoutAmount,
                                 ),
                             color = PrimaryGold,
@@ -285,17 +286,16 @@ private fun SideBetResultsOverlay(
     }
 }
 
+// Typed match on SideBetOutcome — exhaustiveness enforced by the compiler, no silent else fallthrough.
 @Composable
-private fun getLocalizedOutcomeName(name: String): String {
-    return when (name) {
-        "Perfect Pair" -> stringResource(Res.string.side_bet_perfect_pair)
-        "Colored Pair" -> stringResource(Res.string.side_bet_colored_pair)
-        "Mixed Pair" -> stringResource(Res.string.side_bet_mixed_pair)
-        "Suited Triple" -> stringResource(Res.string.side_bet_suited_triple)
-        "Straight Flush" -> stringResource(Res.string.side_bet_straight_flush)
-        "Three of a Kind" -> stringResource(Res.string.side_bet_three_of_a_kind)
-        "Straight" -> stringResource(Res.string.side_bet_straight)
-        "Flush" -> stringResource(Res.string.side_bet_flush)
-        else -> name
+private fun getLocalizedOutcomeName(outcome: SideBetOutcome): String =
+    when (outcome) {
+        SideBetOutcome.PERFECT_PAIR -> stringResource(Res.string.side_bet_perfect_pair)
+        SideBetOutcome.COLORED_PAIR -> stringResource(Res.string.side_bet_colored_pair)
+        SideBetOutcome.MIXED_PAIR -> stringResource(Res.string.side_bet_mixed_pair)
+        SideBetOutcome.SUITED_TRIPLE -> stringResource(Res.string.side_bet_suited_triple)
+        SideBetOutcome.STRAIGHT_FLUSH -> stringResource(Res.string.side_bet_straight_flush)
+        SideBetOutcome.THREE_OF_A_KIND -> stringResource(Res.string.side_bet_three_of_a_kind)
+        SideBetOutcome.STRAIGHT -> stringResource(Res.string.side_bet_straight)
+        SideBetOutcome.FLUSH -> stringResource(Res.string.side_bet_flush)
     }
-}

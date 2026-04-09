@@ -112,7 +112,7 @@ class SideBetEdgeTest {
             // Side bet payout: 100 * 25 + 100 = 2600.
             // Initial 1000 + 2600 = 3600.
             assertEquals(3600, state.balance)
-            assertEquals("Perfect Pair", state.sideBetResults[SideBetType.PERFECT_PAIRS]?.outcomeName)
+            assertEquals(SideBetOutcome.PERFECT_PAIR, state.sideBetResults[SideBetType.PERFECT_PAIRS]?.outcome)
         }
 
     @Test
@@ -124,7 +124,7 @@ class SideBetEdgeTest {
             val handRed = Hand(persistentListOf(card1, card2))
 
             val resultRed = SideBetLogic.evaluatePerfectPairs(handRed)
-            assertEquals("Colored Pair", resultRed?.outcomeName)
+            assertEquals(SideBetOutcome.COLORED_PAIR, resultRed?.outcome)
             assertEquals(12, resultRed?.payoutMultiplier)
 
             // Test Black-Black (SPADES-CLUBS)
@@ -133,7 +133,7 @@ class SideBetEdgeTest {
             val handBlack = Hand(persistentListOf(card3, card4))
 
             val resultBlack = SideBetLogic.evaluatePerfectPairs(handBlack)
-            assertEquals("Colored Pair", resultBlack?.outcomeName)
+            assertEquals(SideBetOutcome.COLORED_PAIR, resultBlack?.outcome)
             assertEquals(12, resultBlack?.payoutMultiplier)
         }
 
@@ -150,7 +150,7 @@ class SideBetEdgeTest {
             val dealerUpcard = Card(Rank.ACE, Suit.SPADES)
 
             val result = SideBetLogic.evaluateTwentyOnePlusThree(playerHand, dealerUpcard)
-            assertEquals("Suited Triple", result?.outcomeName)
+            assertEquals(SideBetOutcome.SUITED_TRIPLE, result?.outcome)
             assertEquals(100, result?.payoutMultiplier)
         }
 
@@ -168,7 +168,7 @@ class SideBetEdgeTest {
             val dealerUpcard = Card(Rank.THREE, Suit.SPADES)
 
             val result = SideBetLogic.evaluateTwentyOnePlusThree(playerHand, dealerUpcard)
-            assertEquals("Straight Flush", result?.outcomeName)
+            assertEquals(SideBetOutcome.STRAIGHT_FLUSH, result?.outcome)
             assertEquals(40, result?.payoutMultiplier)
         }
 
@@ -186,7 +186,7 @@ class SideBetEdgeTest {
             val dealerUpcard = Card(Rank.ACE, Suit.DIAMONDS)
 
             val result = SideBetLogic.evaluateTwentyOnePlusThree(playerHand, dealerUpcard)
-            assertEquals("Straight", result?.outcomeName)
+            assertEquals(SideBetOutcome.STRAIGHT, result?.outcome)
             assertEquals(10, result?.payoutMultiplier)
         }
 }

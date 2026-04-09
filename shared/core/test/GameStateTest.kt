@@ -55,7 +55,8 @@ class GameStateTest {
                     ),
                 sideBetResults =
                     persistentMapOf(
-                        SideBetType.PERFECT_PAIRS to SideBetResult(SideBetType.PERFECT_PAIRS, 0, 0, "Loss")
+                        SideBetType.PERFECT_PAIRS to
+                            SideBetResult(SideBetType.PERFECT_PAIRS, 0, 0, SideBetOutcome.MIXED_PAIR)
                     )
             )
         // 100 main bet + 0 side bet (settled) = 100
