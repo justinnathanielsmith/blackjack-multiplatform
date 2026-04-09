@@ -51,8 +51,7 @@ import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.utils.DragAndDropContainer
-import io.github.smithjustinn.blackjack.utils.LocalDragAndDropState
+
 
 /**
  * The primary gameplay screen for the Blackjack application.
@@ -161,7 +160,7 @@ fun BlackjackScreen(
     }
 
     BlackjackTheme {
-        DragAndDropContainer(modifier = modifier) {
+        Box(modifier = modifier) {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 TableSurface()
 
@@ -317,30 +316,9 @@ fun BlackjackScreen(
                         }
                     } // CompositionLocalProvider
                 }
-            } // End of outer BoxWithConstraints
-
-            val dragAndDropState = LocalDragAndDropState.current
-            if (dragAndDropState.isDragging && dragAndDropState.dragItem is Int) {
-                val amount = dragAndDropState.dragItem as Int
-                BetChip(
-                    amount = amount,
-                    chipColor = ChipUtils.chipColor(amount),
-                    textColor = ChipUtils.chipTextColor(amount),
-                    isActive = true, // Larger shadow and lift effect
-                    modifier =
-                        Modifier
-                            .size(56.dp)
-                            .graphicsLayer {
-                                translationX = dragAndDropState.dragPosition.x - (56.dp.toPx() / 2f)
-                                translationY = dragAndDropState.dragPosition.y - (56.dp.toPx() / 2f)
-                                scaleX = 1.15f
-                                scaleY = 1.15f
-                                alpha = 0.95f
-                            }.zIndex(100f)
-                )
-            }
-        } // End of DragAndDropContainer
+        } // End of outer BoxWithConstraints
     } // End of BlackjackTheme
+}
 }
 
 @Composable

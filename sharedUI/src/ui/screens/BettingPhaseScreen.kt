@@ -196,15 +196,6 @@ fun BettingPhaseScreen(
                         component.onAction(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
                     },
                     onPositioned = { sideBetOffsets[SideBetType.PERFECT_PAIRS] = it },
-                    onDrop = { amount ->
-                        val offset = sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
-                        audioService.playEffect(AudioService.SoundEffect.CLICK)
-                        component.onAction(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, amount))
-                        launchChip(offset, offset, amount)
-                    },
-                    onHoverChange = { isHovered ->
-                        if (isHovered) audioService.playEffect(AudioService.SoundEffect.PLINK)
-                    }
                 )
 
                 // 21+3 side bet
@@ -224,15 +215,6 @@ fun BettingPhaseScreen(
                         component.onAction(GameAction.ResetSideBet(SideBetType.TWENTY_ONE_PLUS_THREE))
                     },
                     onPositioned = { sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it },
-                    onDrop = { amount ->
-                        val offset = sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
-                        audioService.playEffect(AudioService.SoundEffect.CLICK)
-                        component.onAction(GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, amount))
-                        launchChip(offset, offset, amount)
-                    },
-                    onHoverChange = { isHovered ->
-                        if (isHovered) audioService.playEffect(AudioService.SoundEffect.PLINK)
-                    }
                 )
             }
 
@@ -270,15 +252,6 @@ fun BettingPhaseScreen(
                             component.onAction(GameAction.ResetSeatBet(seatIndex))
                         },
                         onPositioned = { betDisplayOffsets[seatIndex] = it },
-                        onDrop = { amount ->
-                            val offset = betDisplayOffsets[seatIndex] ?: Offset.Zero
-                            audioService.playEffect(AudioService.SoundEffect.CLICK)
-                            component.onAction(GameAction.PlaceBet(amount, seatIndex))
-                            launchChip(offset, offset, amount)
-                        },
-                        onHoverChange = { isHovered ->
-                            if (isHovered) audioService.playEffect(AudioService.SoundEffect.PLINK)
-                        }
                     )
                 }
             }

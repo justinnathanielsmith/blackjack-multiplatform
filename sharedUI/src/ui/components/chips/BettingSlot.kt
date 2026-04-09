@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-import io.github.smithjustinn.blackjack.utils.DropTarget
+
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.bet_spot_description
@@ -68,8 +68,6 @@ fun BettingSlot(
     slotSize: Dp = 124.dp,
     isSideBet: Boolean = false,
     onPositioned: (Offset) -> Unit = {},
-    onDrop: (Int) -> Unit = {},
-    onHoverChange: (Boolean) -> Unit = {}
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "bettingSlotGlow")
     // Store without 'by' — reading .value inside drawBehind defers the read to the draw phase,
@@ -122,108 +120,97 @@ fun BettingSlot(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(if (isSideBet) 4.dp else 10.dp)
     ) {
-        DropTarget(
-            onDrop = { item -> if (item is Int) onDrop(item) }
-        ) { isHovered ->
-            LaunchedEffect(isHovered) {
-                onHoverChange(isHovered)
-            }
+        val scale by animateFloatAsState(
+            targetValue = 1f,
+            animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
+        )
 
-            val scale by animateFloatAsState(
-                targetValue = if (isHovered) 1.15f else 1f,
-                animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
-            )
-
-            Box(
-                modifier =
-                    Modifier
-                        .size(slotSize)
-                        .graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                        }.drawWithCache {
-                            val strokeWidth =
-                                if (isSideBet && amount > 0) {
-                                    2.dp.toPx()
-                                } else {
-                                    if (isSideBet) 1.dp.toPx() else 2.dp.toPx()
-                                }
-                            // Pre-allocate both hover variants — eliminates ~300 Stroke allocs/sec
-                            // (5 slots × 60fps) during the betting phase's continuous glow animation.
-                            val normalStroke = Stroke(width = strokeWidth, pathEffect = dashEffect)
-                            val hoveredStroke = Stroke(width = strokeWidth + 2.dp.toPx(), pathEffect = dashEffect)
-                            val innerStroke = Stroke(width = 1.dp.toPx())
-
-                            onDrawBehind {
-                                val activeColor = if (isHovered) Color.White else primaryColor
-
-                                // Outer Dashed Circle
-                                drawCircle(
-                                    color = activeColor.copy(alpha = if (isHovered) 0.8f else glowAlphaState.value),
-                                    style = if (isHovered) hoveredStroke else normalStroke,
-                                    radius = size.minDimension / 2f
-                                )
-
-                                if (!isSideBet) {
-                                    // Inner Thin Circle for main bet
-                                    drawCircle(
-                                        color = activeColor.copy(alpha = if (isHovered) 0.3f else 0.15f),
-                                        style = innerStroke,
-                                        radius = size.minDimension / 2.3f
-                                    )
-                                }
+        Box(
+            modifier =
+                Modifier
+                    .size(slotSize)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    }.drawWithCache {
+                        val strokeWidth =
+                            if (isSideBet && amount > 0) {
+                                2.dp.toPx()
+                            } else {
+                                if (isSideBet) 1.dp.toPx() else 2.dp.toPx()
                             }
-                        }.clip(CircleShape)
-                        .combinedClickable(
-                            role = Role.Button,
-                            onClick = onClick,
-                            onLongClick = onLongClick
-                        ).semantics {
-                            contentDescription = currentDescription
-                        }.onGloballyPositioned {
-                            val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
-                            onPositioned(center)
-                        },
-                contentAlignment = Alignment.Center
-            ) {
-                Crossfade(
-                    targetState = amount > 0,
-                    animationSpec = tween(durationMillis = 300),
-                    label = "betSlotContent",
-                    modifier = Modifier.align(Alignment.Center)
-                ) { hasAmount ->
-                    if (hasAmount) {
-                        if (isSideBet) {
-                            BetChip(
-                                amount = amount,
-                                chipColor = ChipUtils.chipColor(amount),
-                                textColor = ChipUtils.chipTextColor(amount),
+                        val normalStroke = Stroke(width = strokeWidth, pathEffect = dashEffect)
+                        val innerStroke = Stroke(width = 1.dp.toPx())
+
+                        onDrawBehind {
+                            val activeColor = primaryColor
+
+                            // Outer Dashed Circle
+                            drawCircle(
+                                color = activeColor.copy(alpha = glowAlphaState.value),
+                                style = normalStroke,
+                                radius = size.minDimension / 2f
                             )
-                        } else {
-                            ChipStack(amount = amount, isActive = true)
+
+                            if (!isSideBet) {
+                                // Inner Thin Circle for main bet
+                                drawCircle(
+                                    color = activeColor.copy(alpha = 0.15f),
+                                    style = innerStroke,
+                                    radius = size.minDimension / 2.3f
+                                )
+                            }
                         }
-                    } else {
-                        Text(
-                            text =
-                                when {
-                                    isSideBet -> label.replace(" ", "\n")
-                                    label.isNotEmpty() -> label.replace(" ", "\n")
-                                    else -> stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
-                                },
-                            color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
-                            style =
-                                when {
-                                    isSideBet -> MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
-                                    slotSize < 100.dp -> MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp)
-                                    else -> MaterialTheme.typography.labelMedium
-                                },
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = if (isSideBet || slotSize < 100.dp) 0.sp else 2.sp,
-                            textAlign = TextAlign.Center,
-                            maxLines = 3,
-                            lineHeight = if (slotSize < 100.dp) 12.sp else 16.sp
+                    }.clip(CircleShape)
+                    .combinedClickable(
+                        role = Role.Button,
+                        onClick = onClick,
+                        onLongClick = onLongClick
+                    ).semantics {
+                        contentDescription = currentDescription
+                    }.onGloballyPositioned {
+                        val center = it.positionInRoot() + Offset(it.size.width / 2f, it.size.height / 2f)
+                        onPositioned(center)
+                    },
+            contentAlignment = Alignment.Center
+        ) {
+            Crossfade(
+                targetState = amount > 0,
+                animationSpec = tween(durationMillis = 300),
+                label = "betSlotContent",
+                modifier = Modifier.align(Alignment.Center)
+            ) { hasAmount ->
+                if (hasAmount) {
+                    if (isSideBet) {
+                        BetChip(
+                            amount = amount,
+                            chipColor = ChipUtils.chipColor(amount),
+                            textColor = ChipUtils.chipTextColor(amount),
                         )
+                    } else {
+                        ChipStack(amount = amount, isActive = true)
                     }
+                } else {
+                    Text(
+                        text =
+                            when {
+                                isSideBet -> label.replace(" ", "\n")
+                                label.isNotEmpty() -> label.replace(" ", "\n")
+                                else -> stringResource(Res.string.bet_spot_tap_to_bet).replace(" ", "\n")
+                            },
+                        color = primaryColor.copy(alpha = if (isSideBet) 0.5f else 0.7f),
+                        style =
+                            when {
+                                isSideBet -> MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                                slotSize < 100.dp -> MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp)
+                                else -> MaterialTheme.typography.labelMedium
+                            },
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = if (isSideBet || slotSize < 100.dp) 0.sp else 2.sp,
+                        textAlign = TextAlign.Center,
+                        maxLines = 3,
+                        lineHeight = if (slotSize < 100.dp) 12.sp else 16.sp
+                    )
                 }
             }
         }
