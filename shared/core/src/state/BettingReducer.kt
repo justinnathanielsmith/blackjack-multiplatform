@@ -5,7 +5,6 @@ import io.github.smithjustinn.blackjack.logic.*
 import io.github.smithjustinn.blackjack.middleware.*
 import io.github.smithjustinn.blackjack.model.*
 import io.github.smithjustinn.blackjack.state.*
-
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentMapOf

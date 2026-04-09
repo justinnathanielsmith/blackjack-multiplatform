@@ -32,17 +32,15 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.action.GameAction
+import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.isTerminal
-import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.model.totalNetPayout
+import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestrator
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
-import io.github.smithjustinn.blackjack.ui.components.chips.BetChip
-import io.github.smithjustinn.blackjack.ui.components.chips.ChipUtils
 import io.github.smithjustinn.blackjack.ui.components.layout.ControlCenter
 import io.github.smithjustinn.blackjack.ui.components.layout.Header
 import io.github.smithjustinn.blackjack.ui.components.overlays.OverlayCardTable
@@ -51,7 +49,6 @@ import io.github.smithjustinn.blackjack.ui.effects.LocalDealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.safeDrawingInsets
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
-
 
 /**
  * The primary gameplay screen for the Blackjack application.
@@ -316,9 +313,9 @@ fun BlackjackScreen(
                         }
                     } // CompositionLocalProvider
                 }
-        } // End of outer BoxWithConstraints
-    } // End of BlackjackTheme
-}
+            } // End of outer BoxWithConstraints
+        } // End of BlackjackTheme
+    }
 }
 
 @Composable

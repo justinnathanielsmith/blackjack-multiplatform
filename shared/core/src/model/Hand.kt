@@ -1,12 +1,11 @@
 package io.github.smithjustinn.blackjack.model
+import androidx.compose.runtime.Immutable
 import io.github.smithjustinn.blackjack.action.*
 import io.github.smithjustinn.blackjack.infra.*
 import io.github.smithjustinn.blackjack.logic.*
 import io.github.smithjustinn.blackjack.middleware.*
 import io.github.smithjustinn.blackjack.model.*
 import io.github.smithjustinn.blackjack.state.*
-
-import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable

@@ -30,7 +30,6 @@ import io.github.smithjustinn.blackjack.ui.theme.TableWoodRim
 import io.github.smithjustinn.blackjack.ui.theme.TrayDarkBottom
 import io.github.smithjustinn.blackjack.ui.theme.TrayDarkTop
 
-
 private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)
 
 private fun breakdownBalance(
@@ -125,19 +124,19 @@ fun ChipRack(
                                     }
 
                             if (isTopChip) {
-                                    BetChip(
-                                        amount = value,
-                                        chipColor = ChipUtils.chipColor(value),
-                                        textColor = ChipUtils.chipTextColor(value),
-                                        isActive = (value == selectedAmount),
-                                        onClick = {
-                                            if (enabled) {
-                                                onChipSelected(value)
-                                            }
-                                        },
-                                        enabled = enabled,
-                                        modifier = chipModifier
-                                    )
+                                BetChip(
+                                    amount = value,
+                                    chipColor = ChipUtils.chipColor(value),
+                                    textColor = ChipUtils.chipTextColor(value),
+                                    isActive = (value == selectedAmount),
+                                    onClick = {
+                                        if (enabled) {
+                                            onChipSelected(value)
+                                        }
+                                    },
+                                    enabled = enabled,
+                                    modifier = chipModifier
+                                )
                             } else {
                                 BetChip(
                                     amount = value,

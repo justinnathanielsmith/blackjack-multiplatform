@@ -1,15 +1,14 @@
 package io.github.smithjustinn.blackjack.infra
+import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.Lifecycle
+import com.arkivanov.essenty.lifecycle.LifecycleOwner
+import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.smithjustinn.blackjack.action.*
 import io.github.smithjustinn.blackjack.infra.*
 import io.github.smithjustinn.blackjack.logic.*
 import io.github.smithjustinn.blackjack.middleware.*
 import io.github.smithjustinn.blackjack.model.*
 import io.github.smithjustinn.blackjack.state.*
-
-import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.LifecycleOwner
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

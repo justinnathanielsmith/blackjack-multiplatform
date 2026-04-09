@@ -1,12 +1,11 @@
 package io.github.smithjustinn.blackjack.middleware
+import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.action.*
 import io.github.smithjustinn.blackjack.infra.*
 import io.github.smithjustinn.blackjack.logic.*
 import io.github.smithjustinn.blackjack.middleware.*
 import io.github.smithjustinn.blackjack.model.*
 import io.github.smithjustinn.blackjack.state.*
-
-import co.touchlab.kermit.Logger
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
