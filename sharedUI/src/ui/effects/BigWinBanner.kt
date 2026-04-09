@@ -186,21 +186,26 @@ private fun BigWinBannerContent(
                 textAlign = TextAlign.Center,
                 modifier =
                     Modifier.drawWithCache {
-                        val shimmerBrush =
-                            Brush.linearGradient(
-                                colors =
-                                    listOf(
-                                        Color.Transparent,
-                                        PrimaryGold.copy(alpha = 0.4f),
-                                        ModernGoldLight,
-                                        PrimaryGold.copy(alpha = 0.4f),
-                                        Color.Transparent,
-                                    ),
-                                start = Offset(size.width * shimmerX, 0f),
-                                end = Offset(size.width * (shimmerX + 0.35f), size.height),
+                        // Cache only the static color stops — shimmerX must NOT be read here.
+                        // Reading an animated Float in the cache scope invalidates the cache every
+                        // frame (~60×/s), defeating the purpose of drawWithCache. The Brush is
+                        // created inside onDrawWithContent instead, where per-frame reads are fine.
+                        val shimmerColors =
+                            listOf(
+                                Color.Transparent,
+                                PrimaryGold.copy(alpha = 0.4f),
+                                ModernGoldLight,
+                                PrimaryGold.copy(alpha = 0.4f),
+                                Color.Transparent,
                             )
                         onDrawWithContent {
                             drawContent()
+                            val shimmerBrush =
+                                Brush.linearGradient(
+                                    colors = shimmerColors,
+                                    start = Offset(size.width * shimmerX, 0f),
+                                    end = Offset(size.width * (shimmerX + 0.35f), size.height),
+                                )
                             drawRect(brush = shimmerBrush, blendMode = BlendMode.SrcAtop)
                         }
                     },
