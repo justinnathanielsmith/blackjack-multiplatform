@@ -27,6 +27,7 @@ import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.Suit
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CardFace(
@@ -122,7 +123,7 @@ fun CardFace(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = rank.symbol,
+                    text = stringResource(rank.symbolRes),
                     color = PrimaryGold,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Black,
@@ -133,7 +134,7 @@ fun CardFace(
         } else if (isAce) {
             // Aces: Oversized Power Pip
             Text(
-                text = suit.symbol,
+                text = stringResource(suit.symbolRes),
                 color = suit.color,
                 fontSize = (cardWidth.value * Dimensions.Card.AcePipScale).sp,
                 style = shadowStyle(suit.color.copy(alpha = 0.3f), Offset(0f, 6f), 12f)
@@ -146,7 +147,7 @@ fun CardFace(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = rank.symbol,
+                    text = stringResource(rank.symbolRes),
                     color = suit.color,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Black,
@@ -160,7 +161,7 @@ fun CardFace(
                         }
                 )
                 Text(
-                    text = suit.symbol,
+                    text = stringResource(suit.symbolRes),
                     color = suit.color,
                     fontSize = (cardWidth.value * Dimensions.Card.NumberPipScale).sp,
                     modifier = Modifier.padding(top = 2.dp)

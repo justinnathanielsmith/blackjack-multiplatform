@@ -176,6 +176,26 @@
     <string name="emoji_clock">🕒</string>
     <string name="emoji_lightning">⚡</string>
 
+    <!-- Card Symbols -->
+    <string name="suit_clubs">♣</string>
+    <string name="suit_diamonds">♦</string>
+    <string name="suit_hearts">♥</string>
+    <string name="suit_spades">♠</string>
+
+    <string name="rank_two">2</string>
+    <string name="rank_three">3</string>
+    <string name="rank_four">4</string>
+    <string name="rank_five">5</string>
+    <string name="rank_six">6</string>
+    <string name="rank_seven">7</string>
+    <string name="rank_eight">8</string>
+    <string name="rank_nine">9</string>
+    <string name="rank_ten">10</string>
+    <string name="rank_jack">J</string>
+    <string name="rank_queen">Q</string>
+    <string name="rank_king">K</string>
+    <string name="rank_ace">A</string>
+
     <!-- Rules Overlay -->
     <string name="rules_title">Game Rules</string>
     <string name="rules_core_title">Core Rules</string>

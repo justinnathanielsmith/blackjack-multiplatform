@@ -26,6 +26,9 @@ import io.github.smithjustinn.blackjack.ui.theme.DeepWine
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldDark
 import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
+import org.jetbrains.compose.resources.stringResource
+import sharedui.generated.resources.Res
+import sharedui.generated.resources.suit_spades
 
 @Composable
 fun CardBack(modifier: Modifier = Modifier) {
@@ -138,7 +141,7 @@ fun CardBack(modifier: Modifier = Modifier) {
             }
             // Center icon (Spade)
             Text(
-                text = "♠",
+                text = stringResource(Res.string.suit_spades),
                 fontSize = 18.sp,
                 color = ModernGoldLight
             )
