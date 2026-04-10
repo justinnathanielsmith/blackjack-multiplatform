@@ -14,7 +14,6 @@ import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
-import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
 import io.github.smithjustinn.blackjack.ui.effects.ChipEruptionEffect
 import io.github.smithjustinn.blackjack.ui.effects.ChipLossEffect
@@ -29,7 +28,6 @@ fun BettingLayer(
     playerHands: List<Hand>,
     animState: BlackjackAnimationState,
     component: BlackjackComponent,
-    audioService: AudioService,
     selectedAmount: Int,
     modifier: Modifier = Modifier
 ) {
@@ -47,7 +45,6 @@ fun BettingLayer(
             sideBets = sideBets,
             playerHands = playerHands,
             component = component,
-            audioService = audioService,
             selectedAmount = selectedAmount,
             modifier = modifier,
         )

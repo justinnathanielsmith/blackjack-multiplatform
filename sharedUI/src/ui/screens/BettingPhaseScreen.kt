@@ -33,7 +33,6 @@ import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.SideBetType
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
-import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.ui.components.actions.CasinoButton
 import io.github.smithjustinn.blackjack.ui.components.chips.BettingSlot
 import io.github.smithjustinn.blackjack.ui.effects.FlyingChipAnimation
@@ -84,7 +83,6 @@ fun BettingPhaseScreen(
     sideBets: Map<SideBetType, Int>,
     playerHands: List<Hand>,
     component: BlackjackComponent,
-    audioService: AudioService,
     selectedAmount: Int,
     modifier: Modifier = Modifier,
 ) {
@@ -161,12 +159,12 @@ fun BettingPhaseScreen(
                     slotSize = sideBetSize,
                     onClick = {
                         val offset = animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
-                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.onPlayChipClick()
                         component.onAction(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, selectedAmount))
                         animationState.launchChip(offset, offset, selectedAmount)
                     },
                     onLongClick = {
-                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.onPlayChipClick()
                         component.onAction(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
                     },
                     onPositioned = { animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] = it },
@@ -180,12 +178,12 @@ fun BettingPhaseScreen(
                     slotSize = sideBetSize,
                     onClick = {
                         val offset = animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
-                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.onPlayChipClick()
                         component.onAction(GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, selectedAmount))
                         animationState.launchChip(offset, offset, selectedAmount)
                     },
                     onLongClick = {
-                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.onPlayChipClick()
                         component.onAction(GameAction.ResetSideBet(SideBetType.TWENTY_ONE_PLUS_THREE))
                     },
                     onPositioned = { animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it },
@@ -217,12 +215,12 @@ fun BettingPhaseScreen(
                         slotSize = seatSize,
                         onClick = {
                             val offset = animationState.betDisplayOffsets[seatIndex] ?: Offset.Zero
-                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onPlayChipClick()
                             component.onAction(GameAction.PlaceBet(selectedAmount, seatIndex))
                             animationState.launchChip(offset, offset, selectedAmount)
                         },
                         onLongClick = {
-                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onPlayChipClick()
                             component.onAction(GameAction.ResetSeatBet(seatIndex))
                         },
                         onPositioned = { animationState.betDisplayOffsets[seatIndex] = it },

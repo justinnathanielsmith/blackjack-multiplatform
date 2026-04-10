@@ -36,6 +36,9 @@ interface BlackjackComponent {
     val state: StateFlow<GameState>
     val effects: Flow<GameEffect>
     val appSettings: StateFlow<AppSettings>
+
+    // audioService is exposed for the animation orchestrator (presentation layer)
+    // and must NOT be called directly from @Composable UI — use onPlay*() methods instead.
     val audioService: AudioService
     val hapticsService: HapticsService
 
@@ -44,6 +47,9 @@ interface BlackjackComponent {
     fun onPlayDeal()
 
     fun onPlayPlink(amount: Int)
+
+    /** Plays the chip-tap CLICK sound; used by betting-phase UI on every chip/seat interaction. */
+    fun onPlayChipClick()
 
     fun onAction(action: GameAction)
 
@@ -161,6 +167,10 @@ class DefaultBlackjackComponent(
 
     override fun onPlayPlink(amount: Int) {
         audioService.playEffect(AudioService.SoundEffect.PLINK)
+    }
+
+    override fun onPlayChipClick() {
+        audioService.playEffect(AudioService.SoundEffect.CLICK)
     }
 
     override fun onAction(action: GameAction) {

@@ -208,7 +208,6 @@ fun BlackjackScreen(
                                 playerHands = screenState.state.playerHands,
                                 animState = screenState.animState,
                                 component = component,
-                                audioService = component.audioService,
                                 selectedAmount = screenState.selectedAmount,
                             )
 
