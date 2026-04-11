@@ -1,8 +1,10 @@
 package io.github.smithjustinn.blackjack.data
 
+import androidx.compose.runtime.Immutable
 import io.github.smithjustinn.blackjack.logic.GameRules
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class AppSettings(
     val isSoundMuted: Boolean = false,

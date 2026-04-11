@@ -1,5 +1,6 @@
 package io.github.smithjustinn.blackjack.logic
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
  * @property numerator The multiple of the bet returned as profit.
  * @property denominator The base unit of the bet used to calculate the multiplied profit.
  */
+@Immutable
 @Serializable
 enum class BlackjackPayout(
     val numerator: Int,
@@ -35,6 +37,7 @@ enum class BlackjackPayout(
  * @property deckCount The number of 52-card decks used in the shoe.
  * @property splitOnValueOnly If true, any two cards with the same point value may be split.
  */
+@Immutable
 @Serializable
 data class GameRules(
     val dealerHitsSoft17: Boolean = true,
