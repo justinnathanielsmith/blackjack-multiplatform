@@ -18,8 +18,6 @@ import java.util.concurrent.ConcurrentHashMap
 class JvmAudioServiceImpl(
     private val logger: Logger,
 ) : BaseAudioService(Dispatchers.IO) {
-    override var isMuted: Boolean = false
-
     private val tempAudioDir: File = Files.createTempDirectory("blackjack_audio").toFile()
 
     private val resourceToPath = ConcurrentHashMap<StringResource, String>()
@@ -59,7 +57,6 @@ class JvmAudioServiceImpl(
     }
 
     private fun playSound(resource: StringResource) {
-        if (isMuted) return
         val path = resourceToPath[resource] ?: return
 
         val file = File(path)
@@ -85,7 +82,7 @@ class JvmAudioServiceImpl(
         prepareSound(resource)
     }
 
-    override fun playEffect(effect: AudioService.SoundEffect) {
+    override fun doPlayEffect(effect: AudioService.SoundEffect) {
         playSound(effect.toResource())
     }
 

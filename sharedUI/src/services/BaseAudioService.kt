@@ -15,6 +15,9 @@ abstract class BaseAudioService(
     protected val job = SupervisorJob()
     protected val scope = CoroutineScope(dispatcher + job)
 
+    // Centralises mute guard so no platform impl can forget it.
+    override var isMuted: Boolean = false
+
     // Template method: subclasses implement platform-specific load logic.
     protected abstract suspend fun loadEffect(resource: StringResource)
 
@@ -26,6 +29,14 @@ abstract class BaseAudioService(
             }
         }
     }
+
+    final override fun playEffect(effect: AudioService.SoundEffect) {
+        if (isMuted) return
+        doPlayEffect(effect)
+    }
+
+    // Template method: subclasses implement platform-specific playback logic.
+    protected abstract fun doPlayEffect(effect: AudioService.SoundEffect)
 
     final override fun release() {
         job.cancel()
