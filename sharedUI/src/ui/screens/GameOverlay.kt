@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -260,25 +261,27 @@ private fun SideBetResultsOverlay(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                sideBetResults.forEach { (_, result) ->
-                    Box(
-                        modifier =
-                            Modifier
-                                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                                .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                    ) {
-                        Text(
-                            text =
-                                stringResource(
-                                    Res.string.side_bet_result_template,
-                                    getLocalizedOutcomeName(result.outcome),
-                                    result.payoutAmount,
-                                ),
-                            color = PrimaryGold,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Black,
-                        )
+                sideBetResults.forEach { (type, result) ->
+                    key(type) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                    .border(1.dp, PrimaryGold.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                        ) {
+                            Text(
+                                text =
+                                    stringResource(
+                                        Res.string.side_bet_result_template,
+                                        getLocalizedOutcomeName(result.outcome),
+                                        result.payoutAmount,
+                                    ),
+                                color = PrimaryGold,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Black,
+                            )
+                        }
                     }
                 }
             }
