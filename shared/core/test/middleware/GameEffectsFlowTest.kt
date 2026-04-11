@@ -4,13 +4,20 @@ package io.github.smithjustinn.blackjack.middleware
 import app.cash.turbine.test
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.action.GameEffect
+import io.github.smithjustinn.blackjack.model.GameState
+import io.github.smithjustinn.blackjack.model.GameStatus
+import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
+import io.github.smithjustinn.blackjack.model.SideBetType
 import io.github.smithjustinn.blackjack.util.dealerHand
 import io.github.smithjustinn.blackjack.util.deckOf
 import io.github.smithjustinn.blackjack.util.hand
 import io.github.smithjustinn.blackjack.util.playingState
 import io.github.smithjustinn.blackjack.util.testMachine
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -287,6 +294,78 @@ class GameEffectsFlowTest {
                 sm.dispatch(GameAction.Stand)
                 val emitted = buildList { repeat(3) { add(awaitItem()) } }
                 assertTrue(GameEffect.WinPulse in emitted)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun hitToScoreElevenEmitsNearMissHighlight() =
+        runTest {
+            // Player SEVEN+THREE=10, draws ACE → 21 (score=11 initially if Ace is 1, but score is 21 if Ace is 11)
+            // Wait, I need a score of exactly 11.
+            // Player SIX+TWO=8, draws THREE → 11
+            val sm =
+                testMachine(
+                    playingState(
+                        playerHand = hand(Rank.SIX, Rank.TWO),
+                        dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
+                        deck = deckOf(Rank.THREE),
+                    ),
+                )
+
+            sm.effects.test {
+                runCurrent()
+                sm.dispatch(GameAction.Hit)
+                val emitted = buildList { repeat(3) { add(awaitItem()) } }
+                // Emissions: PlayCardSound, LightTick, NearMissHighlight(0)
+                assertTrue(emitted.any { it is GameEffect.NearMissHighlight && it.handIndex == 0 })
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun massiveSideBetWinEmitsBigWin() =
+        runTest {
+            // Perfect Pair (same rank, same suit) pays 25:1
+            val sm =
+                testMachine(
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 1000,
+                        playerHands = persistentListOf(Hand(bet = 100)),
+                        sideBets =
+                            persistentMapOf(
+                                SideBetType.PERFECT_PAIRS to 100
+                            ),
+                        deck =
+                            deckOf(
+                                Rank.ACE,
+                                Rank.TEN, // Round 1: Player ACE, Dealer TEN
+                                Rank.ACE,
+                                Rank.TEN // Round 2: Player ACE, Dealer TEN (face-down)
+                            )
+                    )
+                )
+
+            // Setup: We need to deal and resolve.
+            // The logic evaluates side bets during reduceApplyInitialOutcome which happens after DEALING.
+            sm.effects.test {
+                runCurrent()
+                sm.dispatch(GameAction.Deal)
+                advanceUntilIdle()
+
+                // Deal sequence emits 4 cards: PlayCardSound x 4
+                repeat(4) {
+                    val item = awaitItem()
+                    assertTrue(item is GameEffect.PlayCardSound)
+                }
+
+                val emitted =
+                    buildList {
+                        add(awaitItem()) // ChipEruption for SideBet
+                        add(awaitItem()) // BigWin
+                    }
+                assertTrue(emitted.any { it is GameEffect.BigWin && it.totalPayout == 2600 })
                 cancelAndIgnoreRemainingEvents()
             }
         }

@@ -65,7 +65,8 @@ internal fun reducePlaceBet(
         state.copy(
             balance = state.balance - amount,
             playerHands = state.playerHands.set(seatIndex, currentHand.copy(bet = currentHand.bet + amount)),
-        )
+        ),
+        effects = listOf(GameEffect.PlayPlinkSound)
     )
 }
 
@@ -84,7 +85,8 @@ internal fun reduceResetBet(
                     state.playerHands.mutate { builder ->
                         for (i in 0 until state.handCount) builder[i] = builder[i].copy(bet = 0)
                     },
-            )
+            ),
+            effects = listOf(GameEffect.PlayPlinkSound)
         )
     } else {
         if (seatIndex !in 0 until state.handCount) return ReducerResult(state)
@@ -93,7 +95,8 @@ internal fun reduceResetBet(
             state.copy(
                 balance = state.balance + currentHand.bet,
                 playerHands = state.playerHands.set(seatIndex, currentHand.copy(bet = 0)),
-            )
+            ),
+            effects = listOf(GameEffect.PlayPlinkSound)
         )
     }
 }
@@ -142,7 +145,10 @@ internal fun reducePlaceSideBet(
     if (state.status != GameStatus.BETTING) return ReducerResult(state)
     if (amount <= 0 || amount > state.balance) return ReducerResult(state)
     val newSideBets = state.sideBets.put(type, (state.sideBets[type] ?: 0) + amount)
-    return ReducerResult(state.copy(balance = state.balance - amount, sideBets = newSideBets))
+    return ReducerResult(
+        state = state.copy(balance = state.balance - amount, sideBets = newSideBets),
+        effects = listOf(GameEffect.PlayPlinkSound)
+    )
 }
 
 internal fun reduceResetSideBets(state: GameState): ReducerResult {
@@ -150,7 +156,8 @@ internal fun reduceResetSideBets(state: GameState): ReducerResult {
     var totalRefund = 0
     for ((_, betAmount) in state.sideBets) totalRefund += betAmount
     return ReducerResult(
-        state.copy(balance = state.balance + totalRefund, sideBets = persistentMapOf())
+        state = state.copy(balance = state.balance + totalRefund, sideBets = persistentMapOf()),
+        effects = listOf(GameEffect.PlayPlinkSound)
     )
 }
 
@@ -161,6 +168,7 @@ internal fun reduceResetSideBet(
     if (state.status != GameStatus.BETTING) return ReducerResult(state)
     val betAmount = state.sideBets[type] ?: return ReducerResult(state)
     return ReducerResult(
-        state.copy(balance = state.balance + betAmount, sideBets = state.sideBets.remove(type))
+        state = state.copy(balance = state.balance + betAmount, sideBets = state.sideBets.remove(type)),
+        effects = listOf(GameEffect.PlayPlinkSound)
     )
 }
