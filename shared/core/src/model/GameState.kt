@@ -225,6 +225,17 @@ data class GameState(
 
     /** True if the dealer has 21 and that score is visible to the player. */
     val isDealer21Visible: Boolean get() = isDealerFullyRevealed && dealerHand.isScore21
+
+    /** True when the player turn is active (cards dealt, awaiting player action). */
+    val isPlayingPhase: Boolean get() = status == GameStatus.PLAYING
+
+    /** True when the dealer is the currently-active "hand" during the play phase.
+     *  The dealer uses sentinel [activeHandIndex] == -1 — centralised here so the
+     *  sentinel does not leak into Composables. */
+    val isDealerActive: Boolean get() = isPlayingPhase && activeHandIndex == -1
+
+    /** True when the player hand at [index] is the currently-active hand. */
+    fun isHandActive(index: Int): Boolean = isPlayingPhase && index == activeHandIndex
 }
 
 /**

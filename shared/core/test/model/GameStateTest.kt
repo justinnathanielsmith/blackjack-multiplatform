@@ -14,6 +14,8 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class GameStateTest {
     @Test
@@ -233,5 +235,60 @@ class GameStateTest {
         // Surrender refunds half (50). Net loss is -50.
         // Current buggy implementation returns 0 - 100 = -100.
         assertEquals(-50, state.totalNetPayout())
+    }
+
+    @Test
+    fun isPlayingPhase_trueOnlyDuringPlayingStatus() {
+        val playing =
+            playingState(
+                playerHand = hand(Rank.TEN, Rank.SIX),
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+        assertTrue(playing.isPlayingPhase)
+
+        val betting = GameState(status = GameStatus.BETTING)
+        assertFalse(betting.isPlayingPhase)
+
+        val terminal = playing.copy(status = GameStatus.PLAYER_WON)
+        assertFalse(terminal.isPlayingPhase)
+    }
+
+    @Test
+    fun isDealerActive_trueOnlyWhenActiveHandIndexIsNegativeOneDuringPlay() {
+        val base =
+            playingState(
+                playerHand = hand(Rank.TEN, Rank.SIX),
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+
+        // Player turn: activeHandIndex = 0 → dealer not active
+        assertFalse(base.isDealerActive)
+
+        // Dealer's "turn" sentinel (-1) during PLAYING → dealer active
+        val dealerSentinel = base.copy(activeHandIndex = -1)
+        assertTrue(dealerSentinel.isDealerActive)
+
+        // Sentinel outside PLAYING phase → not active
+        val terminal = dealerSentinel.copy(status = GameStatus.DEALER_WON)
+        assertFalse(terminal.isDealerActive)
+    }
+
+    @Test
+    fun isHandActive_matchesActiveHandIndexDuringPlay() {
+        val multi =
+            multiHandPlayingState(
+                balance = 1000,
+                hands = listOf(hand(Rank.FIVE, Rank.SIX), hand(Rank.TEN, Rank.NINE)),
+                bets = listOf(100, 100),
+                activeHandIndex = 1,
+                dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN),
+            )
+        assertFalse(multi.isHandActive(0))
+        assertTrue(multi.isHandActive(1))
+
+        // Outside PLAYING phase, no hand is active.
+        val betting = multi.copy(status = GameStatus.BETTING)
+        assertFalse(betting.isHandActive(0))
+        assertFalse(betting.isHandActive(1))
     }
 }

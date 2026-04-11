@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import io.github.smithjustinn.blackjack.model.Card
 import io.github.smithjustinn.blackjack.model.GameState
-import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.handNetPayout
 import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.ui.components.feedback.HandResult
@@ -64,7 +63,7 @@ fun OverlayCardTable(
                 }
     ) {
         // 1. Active hand glow behind the cluster
-        if (state.status == GameStatus.PLAYING) {
+        if (state.isPlayingPhase) {
             val activeHand = state.activeHandIndex
             if (activeHand >= -1) {
                 ActiveHandGlow(
@@ -77,9 +76,9 @@ fun OverlayCardTable(
         }
 
         // 2. Positioned (landed) cards - Dealer
-        val isDealerActive = state.status == GameStatus.PLAYING && state.activeHandIndex == -1
+        val isDealerActive = state.isDealerActive
         state.dealerHand.cards.forEachIndexed { cardIndex, card ->
-            val isDimmed = state.status == GameStatus.PLAYING && state.activeHandIndex != -1
+            val isDimmed = state.isPlayingPhase && !state.isDealerActive
 
             androidx.compose.runtime.key("dealer", cardIndex) {
                 PositionedCardItem(
@@ -106,8 +105,8 @@ fun OverlayCardTable(
 
         // 2. Positioned (landed) cards - Player
         state.playerHands.forEachIndexed { handIndex, hand ->
-            val isActive = state.status == GameStatus.PLAYING && handIndex == state.activeHandIndex
-            val isDimmed = state.status == GameStatus.PLAYING && handIndex != state.activeHandIndex
+            val isActive = state.isHandActive(handIndex)
+            val isDimmed = state.isPlayingPhase && !state.isHandActive(handIndex)
             val isNearMiss = handIndex == nearMissHandIndex
 
             hand.cards.forEachIndexed { cardIndex, card ->
@@ -138,10 +137,10 @@ fun OverlayCardTable(
         }
 
         // 2.5 Positioned (landed) chips — only after cards are dealt
-        if (state.status != GameStatus.BETTING) {
+        if (!state.isBettingPhase) {
             state.playerHands.forEachIndexed { handIndex, hand ->
                 if (hand.bet > 0) {
-                    val isActive = state.status == GameStatus.PLAYING && handIndex == state.activeHandIndex
+                    val isActive = state.isHandActive(handIndex)
                     androidx.compose.runtime.key("chip", handIndex) {
                         PositionedChipItem(
                             amount = hand.bet,
@@ -183,7 +182,7 @@ fun OverlayCardTable(
 
         // 3. HUD badges - Players
         state.playerHands.forEachIndexed { handIndex, hand ->
-            val isActive = state.status == GameStatus.PLAYING && handIndex == state.activeHandIndex
+            val isActive = state.isHandActive(handIndex)
             val result = state.handResult(handIndex)
             val netPayout = state.handNetPayouts.getOrNull(handIndex)
 
