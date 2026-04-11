@@ -13,7 +13,7 @@ import io.github.smithjustinn.blackjack.util.testMachine
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,8 +32,8 @@ class BettingEffectsTest {
                 )
 
             sm.effects.test {
-                runCurrent()
                 sm.dispatch(GameAction.PlaceBet(100))
+                advanceUntilIdle()
                 assertEquals(GameEffect.PlayPlinkSound, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -52,8 +52,8 @@ class BettingEffectsTest {
                 )
 
             sm.effects.test {
-                runCurrent()
                 sm.dispatch(GameAction.ResetBet)
+                advanceUntilIdle()
                 assertEquals(GameEffect.PlayPlinkSound, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -72,8 +72,8 @@ class BettingEffectsTest {
                 )
 
             sm.effects.test {
-                runCurrent()
                 sm.dispatch(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, 50))
+                advanceUntilIdle()
                 assertEquals(GameEffect.PlayPlinkSound, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -92,8 +92,8 @@ class BettingEffectsTest {
                 )
 
             sm.effects.test {
-                runCurrent()
                 sm.dispatch(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
+                advanceUntilIdle()
                 assertEquals(GameEffect.PlayPlinkSound, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
@@ -112,9 +112,9 @@ class BettingEffectsTest {
                 )
 
             sm.effects.test {
-                runCurrent()
                 // Bet more than balance
                 sm.dispatch(GameAction.PlaceBet(200))
+                advanceUntilIdle()
                 assertEquals(GameEffect.Vibrate, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }

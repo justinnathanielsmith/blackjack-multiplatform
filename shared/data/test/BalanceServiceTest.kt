@@ -1,6 +1,6 @@
 package io.github.smithjustinn.blackjack.data
 
-import kotlinx.coroutines.flow.first
+import app.cash.turbine.test
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,7 +12,10 @@ class BalanceServiceTest {
             val dataStore = FakeDataStore()
             val service = DataStoreBalanceService(dataStore)
 
-            assertEquals(BalanceService.DEFAULT_BALANCE, service.balanceFlow.first())
+            service.balanceFlow.test {
+                assertEquals(BalanceService.DEFAULT_BALANCE, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
     @Test
@@ -21,9 +24,12 @@ class BalanceServiceTest {
             val dataStore = FakeDataStore()
             val service = DataStoreBalanceService(dataStore)
 
-            service.saveBalance(2500)
-
-            assertEquals(2500, service.balanceFlow.first())
+            service.balanceFlow.test {
+                assertEquals(BalanceService.DEFAULT_BALANCE, awaitItem())
+                service.saveBalance(2500)
+                assertEquals(2500, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
     @Test
@@ -32,11 +38,15 @@ class BalanceServiceTest {
             val dataStore = FakeDataStore()
             val service = DataStoreBalanceService(dataStore)
 
-            service.saveBalance(500)
-            assertEquals(500, service.balanceFlow.first())
+            service.balanceFlow.test {
+                assertEquals(BalanceService.DEFAULT_BALANCE, awaitItem())
+                service.saveBalance(500)
+                assertEquals(500, awaitItem())
 
-            service.resetBalance()
-            assertEquals(BalanceService.DEFAULT_BALANCE, service.balanceFlow.first())
+                service.resetBalance()
+                assertEquals(BalanceService.DEFAULT_BALANCE, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
     @Test
@@ -45,6 +55,9 @@ class BalanceServiceTest {
             val dataStore = ExceptionFakeDataStore()
             val service = DataStoreBalanceService(dataStore)
 
-            assertEquals(BalanceService.DEFAULT_BALANCE, service.balanceFlow.first())
+            service.balanceFlow.test {
+                assertEquals(BalanceService.DEFAULT_BALANCE, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 }

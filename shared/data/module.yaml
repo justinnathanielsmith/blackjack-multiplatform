@@ -19,4 +19,5 @@ dependencies:
 
 test-dependencies:
   - $libs.kotlinx.coroutines.test
+  - $libs.turbine
   - $kotlin.test
