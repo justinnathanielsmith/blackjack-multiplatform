@@ -60,14 +60,8 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
     var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
     var selectedAmount by remember { mutableStateOf(BlackjackConfig.DEFAULT_CHIP_AMOUNT) }
 
-    val onResetBet =
-        remember(component) {
-            {
-                component.onPlayClick()
-                component.onAction(GameAction.ResetBet)
-                component.onAction(GameAction.ResetSideBets)
-            }
-        }
+    // Composite reset delegated to component — UI layer no longer encodes which actions pair together.
+    val onResetBet = remember(component) { { component.onResetBets() } }
     val onDeal =
         remember(component) {
             {

@@ -45,6 +45,9 @@ interface BlackjackComponent {
     // Covers all tap-feedback sounds (buttons, chips, seats) — plays CLICK effect.
     fun onPlayClick()
 
+    // Composite reset: clears main bet and side bets together — these always reset as a pair.
+    fun onResetBets()
+
     fun onPlayDeal()
 
     fun onPlayPlink(amount: Int)
@@ -156,6 +159,12 @@ class DefaultBlackjackComponent(
 
     override fun onPlayClick() {
         audioService.playEffect(AudioService.SoundEffect.CLICK)
+    }
+
+    override fun onResetBets() {
+        audioService.playEffect(AudioService.SoundEffect.CLICK)
+        stateMachine.dispatch(GameAction.ResetBet)
+        stateMachine.dispatch(GameAction.ResetSideBets)
     }
 
     override fun onPlayDeal() {

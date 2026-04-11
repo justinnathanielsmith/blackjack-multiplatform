@@ -106,7 +106,7 @@ fun DealerCard(
     }
 
     // Bolt Performance Optimization: Use derivedStateOf to prevent O(frames) full recompositions
-    val showBack by remember { androidx.compose.runtime.derivedStateOf { rotationY.value < 90f } }
+    val showBack by remember { derivedStateOf { rotationY.value < 90f } }
 
     Box(
         modifier =

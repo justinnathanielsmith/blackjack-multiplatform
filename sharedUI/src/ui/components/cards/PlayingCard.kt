@@ -119,7 +119,7 @@ fun PlayingCard(
         ) { 1.0f }
 
     // Bolt Performance Optimization: Use derivedStateOf to prevent O(frames) full recompositions
-    val showBack by remember { androidx.compose.runtime.derivedStateOf { rotationState.value < 90f } }
+    val showBack by remember { derivedStateOf { rotationState.value < 90f } }
 
     val cardDescription =
         if (isFaceUp) {
