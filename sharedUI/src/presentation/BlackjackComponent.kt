@@ -42,14 +42,12 @@ interface BlackjackComponent {
     val audioService: AudioService
     val hapticsService: HapticsService
 
+    // Covers all tap-feedback sounds (buttons, chips, seats) — plays CLICK effect.
     fun onPlayClick()
 
     fun onPlayDeal()
 
     fun onPlayPlink(amount: Int)
-
-    /** Plays the chip-tap CLICK sound; used by betting-phase UI on every chip/seat interaction. */
-    fun onPlayChipClick()
 
     fun onAction(action: GameAction)
 
@@ -167,10 +165,6 @@ class DefaultBlackjackComponent(
 
     override fun onPlayPlink(amount: Int) {
         audioService.playEffect(AudioService.SoundEffect.PLINK)
-    }
-
-    override fun onPlayChipClick() {
-        audioService.playEffect(AudioService.SoundEffect.CLICK)
     }
 
     override fun onAction(action: GameAction) {

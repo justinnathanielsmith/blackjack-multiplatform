@@ -159,12 +159,12 @@ fun BettingPhaseScreen(
                     slotSize = sideBetSize,
                     onClick = {
                         val offset = animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
-                        component.onPlayChipClick()
+                        component.onPlayClick()
                         component.onAction(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, selectedAmount))
                         animationState.launchChip(offset, offset, selectedAmount)
                     },
                     onLongClick = {
-                        component.onPlayChipClick()
+                        component.onPlayClick()
                         component.onAction(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
                     },
                     onPositioned = { animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] = it },
@@ -178,12 +178,12 @@ fun BettingPhaseScreen(
                     slotSize = sideBetSize,
                     onClick = {
                         val offset = animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
-                        component.onPlayChipClick()
+                        component.onPlayClick()
                         component.onAction(GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, selectedAmount))
                         animationState.launchChip(offset, offset, selectedAmount)
                     },
                     onLongClick = {
-                        component.onPlayChipClick()
+                        component.onPlayClick()
                         component.onAction(GameAction.ResetSideBet(SideBetType.TWENTY_ONE_PLUS_THREE))
                     },
                     onPositioned = { animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] = it },
@@ -215,12 +215,12 @@ fun BettingPhaseScreen(
                         slotSize = seatSize,
                         onClick = {
                             val offset = animationState.betDisplayOffsets[seatIndex] ?: Offset.Zero
-                            component.onPlayChipClick()
+                            component.onPlayClick()
                             component.onAction(GameAction.PlaceBet(selectedAmount, seatIndex))
                             animationState.launchChip(offset, offset, selectedAmount)
                         },
                         onLongClick = {
-                            component.onPlayChipClick()
+                            component.onPlayClick()
                             component.onAction(GameAction.ResetSeatBet(seatIndex))
                         },
                         onPositioned = { animationState.betDisplayOffsets[seatIndex] = it },
