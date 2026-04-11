@@ -56,19 +56,41 @@ import sharedui.generated.resources.score_accessibility_bust
 import sharedui.generated.resources.score_accessibility_dealer
 import sharedui.generated.resources.score_accessibility_generic
 
+/**
+ * Visual states for the [ScoreBadge], determining color schemes and animations.
+ */
 enum class ScoreBadgeState {
+    /** The hand is currently being played; background is neutral with a gold border. */
     ACTIVE,
+
+    /** The dealer's hand; uses a dark background with gold accents. */
     DEALER,
+
+    /** A hand waiting for its turn or after its turn is finished; uses a muted dark background. */
     WAITING
 }
 
 // Sleek pill shape
 val BadgeShape = RoundedCornerShape(percent = 50)
 
+/**
+ * A primary UI component for displaying the point total of a Blackjack hand.
+ *
+ * This badge adapts its colors, animations, and accessibility labels based on the game
+ * state (e.g., highlighting busts in red or blackjacks in gold). It includes a pulse
+ * animation when the score updates or the hand becomes active.
+ *
+ * @param score The current point total to display.
+ * @param isBust True if the hand score exceeds 21. Handled as a top-level visual priority (red).
+ * @param is21 True if the hand score is exactly 21 (natural or hard). Handled as a win priority (gold).
+ * @param state The [ScoreBadgeState] defining the thematic context (Active, Dealer, or Waiting).
+ * @param modifier [Modifier] applied to the root container of the badge.
+ * @param label Optional text label displayed above or beside the score (e.g., "DEALER").
+ * @param isWinner True if the hand has been settled as a winner, triggering a persistent gold glow.
+ */
 @Composable
 fun ScoreBadge(
     score: Int,
-    // Pre-computed from Hand domain predicates — business rules belong at the call site, not here
     isBust: Boolean,
     is21: Boolean,
     state: ScoreBadgeState,
