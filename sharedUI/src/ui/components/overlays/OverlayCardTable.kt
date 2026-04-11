@@ -13,6 +13,7 @@ import io.github.smithjustinn.blackjack.model.Card
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.handNetPayout
+import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.ui.components.feedback.HandResult
 import io.github.smithjustinn.blackjack.ui.components.feedback.handResult
 import io.github.smithjustinn.blackjack.ui.components.layout.CasinoTableLayout
@@ -160,8 +161,11 @@ fun OverlayCardTable(
         // 3. HUD badges - Dealer
         androidx.compose.runtime.key("hud", -1) {
             HandZoneHud(
-                status = state.status,
-                dealerHand = state.dealerHand,
+                // Phase-visibility flags from GameState — no status/dealerHand passed into Composable
+                isBettingPhase = state.isBettingPhase,
+                isDealerBustVisible = state.isDealerBustVisible,
+                isDealer21Visible = state.isDealer21Visible,
+                isRoundOver = state.status.isTerminal(),
                 dealerDisplayScore = state.dealerDisplayScore,
                 playerHand = null,
                 handResult = HandResult.NONE,
@@ -185,8 +189,11 @@ fun OverlayCardTable(
 
             androidx.compose.runtime.key("hud", handIndex) {
                 HandZoneHud(
-                    status = state.status,
-                    dealerHand = state.dealerHand,
+                    // Phase-visibility flags from GameState — no status/dealerHand passed into Composable
+                    isBettingPhase = state.isBettingPhase,
+                    isDealerBustVisible = state.isDealerBustVisible,
+                    isDealer21Visible = state.isDealer21Visible,
+                    isRoundOver = state.status.isTerminal(),
                     dealerDisplayScore = state.dealerDisplayScore,
                     playerHand = hand,
                     handResult = result,

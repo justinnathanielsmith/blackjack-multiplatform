@@ -16,8 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -27,7 +25,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BackgroundDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
@@ -40,12 +37,13 @@ import sharedui.generated.resources.status_twenty_one
 
 @Composable
 internal fun HandStatusOverlay(
-    hand: Hand,
+    // Domain predicates pre-computed at the call site — no phase-gating logic in Composables
+    isBust: Boolean,
+    isBlackjack: Boolean,
+    isTwentyOne: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val isBust = hand.isBust
-    val isBlackjack = hand.isBlackjack
-    val visible = isBust || hand.isScore21
+    val visible = isBust || isBlackjack || isTwentyOne
 
     AnimatedVisibility(
         visible = visible,

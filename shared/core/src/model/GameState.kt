@@ -209,6 +209,22 @@ data class GameState(
             } else {
                 dealerHand.visibleScore
             }
+
+    // ── HUD Visibility predicates — keeps phase-gating logic out of Composables ──
+
+    /** True when the player is in the betting phase (no cards dealt yet). */
+    val isBettingPhase: Boolean get() = status == GameStatus.BETTING
+
+    /** True when the dealer's hole card has been revealed (dealer turn or round over).
+     *  Used to gate dealer score/status display in the HUD. */
+    val isDealerFullyRevealed: Boolean
+        get() = status == GameStatus.DEALER_TURN || status.isTerminal()
+
+    /** True if the dealer bust is visible to the player (hole card revealed + dealer is bust). */
+    val isDealerBustVisible: Boolean get() = isDealerFullyRevealed && dealerHand.isBust
+
+    /** True if the dealer has 21 and that score is visible to the player. */
+    val isDealer21Visible: Boolean get() = isDealerFullyRevealed && dealerHand.isScore21
 }
 
 /**

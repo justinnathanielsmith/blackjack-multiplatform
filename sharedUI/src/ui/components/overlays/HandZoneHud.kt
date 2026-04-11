@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -22,15 +21,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.Hand
-import io.github.smithjustinn.blackjack.model.handNetPayout
-import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.ui.components.feedback.HandOutcomeBadge
 import io.github.smithjustinn.blackjack.ui.components.feedback.HandResult
 import io.github.smithjustinn.blackjack.ui.components.feedback.ScoreBadge
 import io.github.smithjustinn.blackjack.ui.components.feedback.ScoreBadgeState
-import io.github.smithjustinn.blackjack.ui.components.feedback.handResult
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
@@ -39,8 +34,11 @@ import sharedui.generated.resources.dealer
 
 @Composable
 internal fun HandZoneHud(
-    status: GameStatus,
-    dealerHand: Hand,
+    // Phase-visibility flags pre-computed from GameState — no domain logic in Composables
+    isBettingPhase: Boolean,
+    isDealerBustVisible: Boolean,
+    isDealer21Visible: Boolean,
+    isRoundOver: Boolean,
     dealerDisplayScore: Int,
     playerHand: Hand?,
     handResult: HandResult,
@@ -54,10 +52,7 @@ internal fun HandZoneHud(
     handIndex: Int,
     modifier: Modifier = Modifier,
 ) {
-    val isBetting = status == GameStatus.BETTING
     val showActiveIndicators = isActive && handCount > 1
-    // Cards fully revealed only during/after dealer turn — guards domain predicates below
-    val dealerFullyRevealed = status == GameStatus.DEALER_TURN || status.isTerminal()
 
     val borderGlowTransition = rememberInfiniteTransition(label = "borderGlowTransition")
     val borderGlowAlphaState =
@@ -96,7 +91,7 @@ internal fun HandZoneHud(
         }
 
         if (isDealer) {
-            if (!isBetting) {
+            if (!isBettingPhase) {
                 Row(
                     modifier =
                         Modifier
@@ -108,10 +103,9 @@ internal fun HandZoneHud(
                 ) {
                     ScoreBadge(
                         score = dealerDisplayScore,
-                        // Domain predicates match player-hand pattern; phase-gated so
-                        // hidden hole card cannot prematurely reveal bust or 21 status.
-                        isBust = dealerFullyRevealed && dealerHand.isBust,
-                        is21 = dealerFullyRevealed && dealerHand.isScore21,
+                        // Flags pre-computed at GameState level; hole card cannot reveal bust/21 prematurely
+                        isBust = isDealerBustVisible,
+                        is21 = isDealer21Visible,
                         state = ScoreBadgeState.DEALER,
                         label = stringResource(Res.string.dealer),
                     )
@@ -119,7 +113,10 @@ internal fun HandZoneHud(
             }
 
             HandStatusOverlay(
-                hand = dealerHand,
+                // Dealer status only visible once hole card revealed (isDealerFullyRevealed gated upstream)
+                isBust = isDealerBustVisible,
+                isBlackjack = isDealer21Visible && dealerDisplayScore == 21,
+                isTwentyOne = isDealer21Visible && dealerDisplayScore != 21,
                 modifier = Modifier.align(Alignment.Center),
             )
         } else {
@@ -127,7 +124,7 @@ internal fun HandZoneHud(
             val badgeState = if (isActive) ScoreBadgeState.ACTIVE else ScoreBadgeState.WAITING
             val isWinner = handResult == HandResult.WIN
 
-            if (!isBetting) {
+            if (!isBettingPhase) {
                 val badgeAlignment =
                     when {
                         handCount == 2 && handIndex == 0 -> Alignment.BottomStart
@@ -168,9 +165,11 @@ internal fun HandZoneHud(
                         .graphicsLayer { rotationZ = -6f },
             )
 
-            if (!status.isTerminal()) {
+            if (!isRoundOver) {
                 HandStatusOverlay(
-                    hand = hand,
+                    isBust = hand.isBust,
+                    isBlackjack = hand.isBlackjack,
+                    isTwentyOne = hand.isTwentyOne,
                     modifier = Modifier.align(Alignment.Center),
                 )
             }
