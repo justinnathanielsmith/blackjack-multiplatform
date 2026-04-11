@@ -111,6 +111,14 @@ data class Hand(
     }
 
     /**
+     * True if the hand's [score] is exactly 21, regardless of whether achieved as a
+     * natural blackjack (2 cards) or by drawing to 21 (3+ cards).
+     * Use this when the distinction between [isBlackjack] and [isTwentyOne] does not matter —
+     * single source of truth so callers never reconstruct this predicate inline.
+     */
+    val isScore21: Boolean get() = score == 21
+
+    /**
      * True if at least one Ace is being counted as 11 (i.e. the hand is "soft").
      * Derived efficiently from the score calculation result.
      */

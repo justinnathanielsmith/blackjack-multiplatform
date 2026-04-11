@@ -45,9 +45,7 @@ internal fun HandStatusOverlay(
 ) {
     val isBust = hand.isBust
     val isBlackjack = hand.isBlackjack
-    // Domain predicate: 3+-card 21 that is not a natural blackjack; see Hand.isTwentyOne
-    val isTwentyOne = hand.isTwentyOne
-    val visible = isBust || isBlackjack || isTwentyOne
+    val visible = isBust || hand.isScore21
 
     AnimatedVisibility(
         visible = visible,

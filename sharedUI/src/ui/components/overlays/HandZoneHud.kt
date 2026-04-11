@@ -111,7 +111,7 @@ internal fun HandZoneHud(
                         // Domain predicates match player-hand pattern; phase-gated so
                         // hidden hole card cannot prematurely reveal bust or 21 status.
                         isBust = dealerFullyRevealed && dealerHand.isBust,
-                        is21 = dealerFullyRevealed && (dealerHand.isBlackjack || dealerHand.isTwentyOne),
+                        is21 = dealerFullyRevealed && dealerHand.isScore21,
                         state = ScoreBadgeState.DEALER,
                         label = stringResource(Res.string.dealer),
                     )
@@ -139,7 +139,7 @@ internal fun HandZoneHud(
                 ScoreBadge(
                     score = hand.score,
                     isBust = hand.isBust,
-                    is21 = hand.isBlackjack || hand.isTwentyOne,
+                    is21 = hand.isScore21,
                     state = badgeState,
                     label = null,
                     isWinner = isWinner,
