@@ -56,6 +56,8 @@ internal fun HandZoneHud(
 ) {
     val isBetting = status == GameStatus.BETTING
     val showActiveIndicators = isActive && handCount > 1
+    // Cards fully revealed only during/after dealer turn — guards domain predicates below
+    val dealerFullyRevealed = status == GameStatus.DEALER_TURN || status.isTerminal()
 
     val borderGlowTransition = rememberInfiniteTransition(label = "borderGlowTransition")
     val borderGlowAlphaState =
@@ -106,8 +108,10 @@ internal fun HandZoneHud(
                 ) {
                     ScoreBadge(
                         score = dealerDisplayScore,
-                        isBust = dealerDisplayScore > 21,
-                        is21 = dealerDisplayScore == 21,
+                        // Domain predicates match player-hand pattern; phase-gated so
+                        // hidden hole card cannot prematurely reveal bust or 21 status.
+                        isBust = dealerFullyRevealed && dealerHand.isBust,
+                        is21 = dealerFullyRevealed && (dealerHand.isBlackjack || dealerHand.isTwentyOne),
                         state = ScoreBadgeState.DEALER,
                         label = stringResource(Res.string.dealer),
                     )
