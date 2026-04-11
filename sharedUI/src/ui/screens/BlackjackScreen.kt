@@ -169,7 +169,19 @@ fun BlackjackScreen(
                             }
 
                             ControlCenter(
-                                state = screenState.state,
+                                status = screenState.state.status,
+                                totalBet = screenState.state.totalBet,
+                                balance = screenState.state.balance,
+                                canDeal = screenState.state.canDeal,
+                                canResetBet = screenState.state.canResetBet,
+                                canSplit = screenState.state.canSplit,
+                                canDoubleDown = screenState.state.canDoubleDown,
+                                canSurrender = screenState.state.canSurrender,
+                                activeHandTension =
+                                    screenState.state.playerHands
+                                        .getOrNull(screenState.state.activeHandIndex)
+                                        ?.tension
+                                        ?: 0.0f,
                                 component = component,
                                 selectedAmount = screenState.selectedAmount,
                                 onChipSelected = screenState.onChipSelected,

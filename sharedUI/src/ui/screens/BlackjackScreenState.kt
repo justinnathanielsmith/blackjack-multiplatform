@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,8 +78,8 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
             }
         }
 
-    val isTerminal = state.status.isTerminal()
-    val isMultiHand = state.playerHands.size > 1
+    val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
+    val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
 
     val onAutoDealToggle =
         remember(component) {
@@ -100,16 +101,23 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
     }
 
     // handZones[0] = dealer, handZones[1..N] = player hands
-    // Bolt Performance Optimization: Remove delegated 'by' and read .value in draw scope to avoid screen-wide recomposition during animation.
+    // Bolt Performance Optimization: Use derivedStateOf to narrow the scope of state reads
+    // for the animation target. This prevents animateOffsetAsState from re-triggering
+    // its internal logic when unrelated GameState properties (like balance) change.
+    val activeHandHighlightTarget by remember {
+        derivedStateOf {
+            if (state.status == GameStatus.PLAYING) {
+                val zone = dealRegistry.tableLayout?.handZones?.getOrNull(state.activeHandIndex + 1)
+                if (zone != null) zone.clusterCenter + dealRegistry.gameplayAreaOffset else Offset.Zero
+            } else {
+                Offset.Zero
+            }
+        }
+    }
+
     val activeHandHighlightPositionState =
         animateOffsetAsState(
-            targetValue =
-                if (state.status == GameStatus.PLAYING) {
-                    val zone = dealRegistry.tableLayout?.handZones?.getOrNull(state.activeHandIndex + 1)
-                    if (zone != null) zone.clusterCenter + dealRegistry.gameplayAreaOffset else Offset.Zero
-                } else {
-                    Offset.Zero
-                },
+            targetValue = activeHandHighlightTarget,
             animationSpec = spring(stiffness = Spring.StiffnessLow),
             label = "activeHandHighlight",
         )

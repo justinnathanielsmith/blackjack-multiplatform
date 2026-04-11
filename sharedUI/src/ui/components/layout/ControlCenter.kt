@@ -35,7 +35,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.actions.BettingActions
@@ -55,7 +54,15 @@ import sharedui.generated.resources.financial_data_content_description
 
 @Composable
 fun ControlCenter(
-    state: GameState,
+    status: GameStatus,
+    totalBet: Int,
+    balance: Int,
+    canDeal: Boolean,
+    canResetBet: Boolean,
+    canSplit: Boolean,
+    canDoubleDown: Boolean,
+    canSurrender: Boolean,
+    activeHandTension: Float,
     component: BlackjackComponent,
     selectedAmount: Int,
     onChipSelected: (Int) -> Unit,
@@ -73,14 +80,18 @@ fun ControlCenter(
     ) {
         // Floating Action Buttons
         GameActions(
-            state = state,
+            status = status,
+            canSplit = canSplit,
+            canDoubleDown = canDoubleDown,
+            canSurrender = canSurrender,
+            activeHandTension = activeHandTension,
             component = component,
             isCompact = isCompact
         )
 
-        val isBetting = state.status == GameStatus.BETTING
+        val isBetting = status == GameStatus.BETTING
         // Domain predicates: betting eligibility belongs in GameState, not the UI layer
-        val canReset = state.canResetBet
+        val canReset = canResetBet
 
         // Actions for BETTING
         AnimatedVisibility(
@@ -97,7 +108,7 @@ fun ControlCenter(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BettingActions(
-                    canDeal = state.canDeal,
+                    canDeal = canDeal,
                     canReset = canReset,
                     onReset = onResetBet,
                     onDeal = onDeal,
@@ -106,7 +117,7 @@ fun ControlCenter(
 
                 // Chip Rack
                 ChipRack(
-                    balance = state.balance,
+                    balance = balance,
                     selectedAmount = selectedAmount,
                     onChipSelected = onChipSelected,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -123,7 +134,7 @@ fun ControlCenter(
                     .padding(bottom = 8.dp),
             contentAlignment = Alignment.Center
         ) {
-            TotalBetPill(amount = state.totalBet)
+            TotalBetPill(amount = totalBet)
         }
     }
 }
@@ -137,14 +148,19 @@ private fun TotalBetPill(
         targetValue = amount,
         animationSpec = tween(durationMillis = 500)
     )
-    val formattedAmount = stringResource(Res.string.currency_template, animatedAmount.formatWithCommas())
+
+    // Bolt Performance Optimization: Hoist static strings out of the animated scope
+    // to prevent redundant lookups every frame of the 500ms animation.
+    val label = stringResource(Res.string.bet_total_label)
+    val currencyTemplate = stringResource(Res.string.currency_template)
+    val financialDataDescTemplate = stringResource(Res.string.financial_data_content_description)
+
+    val formattedAmount = currencyTemplate.replace("%1\$s", animatedAmount.formatWithCommas())
 
     val accessibilityDescription =
-        stringResource(
-            Res.string.financial_data_content_description,
-            stringResource(Res.string.bet_total_label),
-            formattedAmount
-        )
+        financialDataDescTemplate
+            .replace("%1\$s", label)
+            .replace("%2\$s", formattedAmount)
 
     Box(
         modifier =
@@ -162,7 +178,7 @@ private fun TotalBetPill(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(Res.string.bet_total_label).uppercase(),
+                text = label.uppercase(),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White.copy(alpha = 0.6f),
                 fontWeight = FontWeight.Bold,

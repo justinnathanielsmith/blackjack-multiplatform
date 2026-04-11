@@ -100,7 +100,11 @@ import sharedui.generated.resources.ic_surrender
  */
 @Composable
 fun GameActions(
-    state: GameState,
+    status: GameStatus,
+    canSplit: Boolean,
+    canDoubleDown: Boolean,
+    canSurrender: Boolean,
+    activeHandTension: Float,
     component: BlackjackComponent,
     modifier: Modifier = Modifier,
     isCompact: Boolean = false,
@@ -142,13 +146,13 @@ fun GameActions(
         }
 
     AnimatedContent(
-        targetState = state.status,
+        targetState = status,
         transitionSpec = {
             fadeIn(animationSpec = tween(AnimationConstants.ActionStatusFadeDuration)) togetherWith
                 fadeOut(animationSpec = tween(AnimationConstants.ActionStatusFadeDuration))
         },
         label = "GameActionsTransition"
-    ) { status ->
+    ) { currentStatus ->
         val buttonHeight =
             if (isCompact) Dimensions.ActionBar.ButtonHeightCompact else Dimensions.ActionBar.ButtonHeightNormal
 
@@ -163,7 +167,7 @@ fun GameActions(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AnimatedVisibility(
-                visible = status == GameStatus.PLAYING,
+                visible = currentStatus == GameStatus.PLAYING,
                 enter =
                     fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) +
                         expandVertically(
@@ -177,10 +181,9 @@ fun GameActions(
                             shrinkTowards = Alignment.Top
                         ),
             ) {
-                // Domain predicates: read as properties — no () — matching canDeal/canResetBet pattern.
-                val canSplit = state.canSplit
-                val canDouble = state.canDoubleDown
-                val canSurrender = state.canSurrender
+                val canSplitVal = canSplit
+                val canDoubleVal = canDoubleDown
+                val canSurrenderVal = canSurrender
 
                 Row(
                     modifier =
@@ -196,7 +199,7 @@ fun GameActions(
                         icon = Res.drawable.ic_surrender,
                         label = stringResource(Res.string.action_surrender),
                         onClick = onSurrender,
-                        enabled = canSurrender,
+                        enabled = canSurrenderVal,
                         containerColor = GlassDark,
                         contentColor = Color.White,
                         borderColor = Color.White.copy(alpha = 0.5f),
@@ -207,7 +210,7 @@ fun GameActions(
                         icon = Res.drawable.ic_double,
                         label = stringResource(Res.string.action_double),
                         onClick = onDoubleDown,
-                        enabled = canDouble,
+                        enabled = canDoubleVal,
                         containerColor = GlassDark,
                         contentColor = PrimaryGold,
                         borderColor = PrimaryGold.copy(alpha = 0.5f),
@@ -218,7 +221,7 @@ fun GameActions(
                         icon = Res.drawable.ic_split,
                         label = stringResource(Res.string.action_split),
                         onClick = onSplit,
-                        enabled = canSplit,
+                        enabled = canSplitVal,
                         containerColor = GlassDark,
                         contentColor = PrimaryGold,
                         borderColor = PrimaryGold.copy(alpha = 0.5f),
@@ -236,9 +239,6 @@ fun GameActions(
                         modifier = buttonModifier
                     )
 
-                    val activeHand = state.playerHands.getOrNull(state.activeHandIndex)
-                    val tension = activeHand?.tension ?: 0.0f
-
                     ModernActionButton(
                         icon = Res.drawable.ic_stand,
                         label = stringResource(Res.string.action_stand),
@@ -248,12 +248,12 @@ fun GameActions(
                         contentColor = TacticalRed,
                         borderColor = TacticalRed.copy(alpha = 0.5f),
                         modifier = buttonModifier,
-                        tension = tension
+                        tension = activeHandTension
                     )
                 }
             }
 
-            if (status != GameStatus.PLAYING) {
+            if (currentStatus != GameStatus.PLAYING) {
                 Spacer(modifier = Modifier.height(buttonHeight))
             }
         }

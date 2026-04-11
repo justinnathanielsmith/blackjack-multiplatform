@@ -24,8 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +53,7 @@ import io.github.smithjustinn.blackjack.ui.effects.ConfettiEffect
 import io.github.smithjustinn.blackjack.ui.effects.SparkleEffect
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
+import kotlinx.collections.immutable.PersistentMap
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.side_bet_colored_pair
@@ -68,7 +69,7 @@ import sharedui.generated.resources.side_bet_three_of_a_kind
 @Composable
 fun GameOverlay(
     status: GameStatus,
-    sideBetResults: Map<SideBetType, SideBetResult>,
+    sideBetResults: PersistentMap<SideBetType, SideBetResult>,
     isBlackjack: Boolean,
     isBust: Boolean,
     netPayout: Int?,
@@ -239,7 +240,7 @@ private fun BlackjackGameOverlay(
 
 @Composable
 private fun SideBetResultsOverlay(
-    sideBetResults: Map<SideBetType, SideBetResult>,
+    sideBetResults: PersistentMap<SideBetType, SideBetResult>,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
