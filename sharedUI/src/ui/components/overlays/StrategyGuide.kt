@@ -62,6 +62,10 @@ import sharedui.generated.resources.strategy_action_split
 import sharedui.generated.resources.strategy_action_stand
 import sharedui.generated.resources.strategy_guide_title
 import sharedui.generated.resources.strategy_hand_header
+import sharedui.generated.resources.strategy_label_or_less
+import sharedui.generated.resources.strategy_label_pair
+import sharedui.generated.resources.strategy_label_plus
+import sharedui.generated.resources.strategy_label_soft
 import sharedui.generated.resources.strategy_legend_double
 import sharedui.generated.resources.strategy_legend_hit
 import sharedui.generated.resources.strategy_legend_split
@@ -224,7 +228,7 @@ private fun ColumnScope.StrategyChart(
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = cell.playerValue,
+                            text = formatStrategyLabel(cell.playerValue),
                             fontSize = 12.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Medium
@@ -308,5 +312,32 @@ private fun LegendItem(
         StrategyActionCell(action = action, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = label, fontSize = 12.sp, color = Color.White)
+    }
+}
+
+@Composable
+private fun formatStrategyLabel(value: String): String {
+    return when {
+        value.endsWith("+") -> {
+            val num = value.removeSuffix("+").toIntOrNull()
+            if (num != null) stringResource(Res.string.strategy_label_plus, num) else value
+        }
+        value.endsWith(" or less") -> {
+            val num = value.removeSuffix(" or less").toIntOrNull()
+            if (num != null) stringResource(Res.string.strategy_label_or_less, num) else value
+        }
+        value.startsWith("A,") -> {
+            val suffix = value.removePrefix("A,")
+            stringResource(Res.string.strategy_label_soft, suffix)
+        }
+        value.contains(",") -> {
+            val parts = value.split(",")
+            if (parts.size == 2 && parts[0] == parts[1]) {
+                stringResource(Res.string.strategy_label_pair, parts[0])
+            } else {
+                value
+            }
+        }
+        else -> value
     }
 }

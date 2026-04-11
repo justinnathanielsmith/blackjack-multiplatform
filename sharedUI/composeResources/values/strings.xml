@@ -86,6 +86,8 @@
     <string name="settings_decks">Decks</string>
     <string name="settings_rule_disclaimer">* Rule changes apply to the next game.</string>
     <string name="close">Close</string>
+    <string name="settings_decks_option_template">%1$s Deck</string>
+    <string name="settings_decks_option_template_plural">%1$s Decks</string>
 
     <string name="surrender">Surrender</string>
 
@@ -129,6 +131,10 @@
     <string name="strategy_legend_stand">Stand</string>
     <string name="strategy_legend_double">Double</string>
     <string name="strategy_legend_split">Split</string>
+    <string name="strategy_label_plus">%1$d+</string>
+    <string name="strategy_label_or_less">%1$d or less</string>
+    <string name="strategy_label_soft">A,%1$s</string>
+    <string name="strategy_label_pair">%1$s,%1$s</string>
 
     <!-- Accessibility descriptions -->
     <string name="bet_chip_amount_k">%1$dK</string>
@@ -181,6 +187,10 @@
     <string name="suit_diamonds">♦</string>
     <string name="suit_hearts">♥</string>
     <string name="suit_spades">♠</string>
+    <string name="suit_name_clubs">Clubs</string>
+    <string name="suit_name_diamonds">Diamonds</string>
+    <string name="suit_name_hearts">Hearts</string>
+    <string name="suit_name_spades">Spades</string>
 
     <string name="rank_two">2</string>
     <string name="rank_three">3</string>
@@ -195,6 +205,19 @@
     <string name="rank_queen">Q</string>
     <string name="rank_king">K</string>
     <string name="rank_ace">A</string>
+    <string name="rank_name_two">Two</string>
+    <string name="rank_name_three">Three</string>
+    <string name="rank_name_four">Four</string>
+    <string name="rank_name_five">Five</string>
+    <string name="rank_name_six">Six</string>
+    <string name="rank_name_seven">Seven</string>
+    <string name="rank_name_eight">Eight</string>
+    <string name="rank_name_nine">Nine</string>
+    <string name="rank_name_ten">Ten</string>
+    <string name="rank_name_jack">Jack</string>
+    <string name="rank_name_queen">Queen</string>
+    <string name="rank_name_king">King</string>
+    <string name="rank_name_ace">Ace</string>
 
     <!-- Rules Overlay -->
     <string name="rules_title">Game Rules</string>

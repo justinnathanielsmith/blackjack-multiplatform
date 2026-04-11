@@ -120,11 +120,9 @@ fun PlayingCard(
 
     val cardDescription =
         if (isFaceUp) {
-            stringResource(
-                Res.string.playing_card_face_up_description,
-                card.rank.name,
-                card.suit.name
-            )
+            val rankName = stringResource(card.rank.nameRes)
+            val suitName = stringResource(card.suit.nameRes)
+            stringResource(Res.string.playing_card_face_up_description, rankName, suitName)
         } else {
             stringResource(Res.string.playing_card_face_down_description)
         }

@@ -43,6 +43,8 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.close
 import sharedui.generated.resources.settings_das
 import sharedui.generated.resources.settings_decks
+import sharedui.generated.resources.settings_decks_option_template
+import sharedui.generated.resources.settings_decks_option_template_plural
 import sharedui.generated.resources.settings_game_rules
 import sharedui.generated.resources.settings_mute
 import sharedui.generated.resources.settings_payout
@@ -159,13 +161,43 @@ fun SettingsOverlay(
             }
         )
 
+        val deckOptions = listOf(1, 2, 4, 6, 8)
+        val deckOptionLabels =
+            deckOptions.map { count ->
+                stringResource(
+                    if (count ==
+                        1
+                    ) {
+                        Res.string.settings_decks_option_template
+                    } else {
+                        Res.string.settings_decks_option_template_plural
+                    },
+                    count
+                )
+            }
+        val currentDeckLabel =
+            stringResource(
+                if (settings.gameRules.deckCount ==
+                    1
+                ) {
+                    Res.string.settings_decks_option_template
+                } else {
+                    Res.string.settings_decks_option_template_plural
+                },
+                settings.gameRules.deckCount
+            )
+
         SettingsDropdown(
             title = stringResource(Res.string.settings_decks),
-            currentValue = "${settings.gameRules.deckCount}",
-            options = listOf("1", "2", "4", "6", "8"),
-            onOptionSelected = { option ->
-                onUpdateSettings {
-                    it.copy(gameRules = it.gameRules.copy(deckCount = option.toInt()))
+            currentValue = currentDeckLabel,
+            options = deckOptionLabels,
+            onOptionSelected = { label ->
+                val index = deckOptionLabels.indexOf(label)
+                if (index != -1) {
+                    val count = deckOptions[index]
+                    onUpdateSettings {
+                        it.copy(gameRules = it.gameRules.copy(deckCount = count))
+                    }
                 }
             }
         )
