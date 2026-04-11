@@ -106,6 +106,8 @@ internal fun HandZoneHud(
                 ) {
                     ScoreBadge(
                         score = dealerDisplayScore,
+                        isBust = dealerDisplayScore > 21,
+                        is21 = dealerDisplayScore == 21,
                         state = ScoreBadgeState.DEALER,
                         label = stringResource(Res.string.dealer),
                     )
@@ -132,6 +134,8 @@ internal fun HandZoneHud(
 
                 ScoreBadge(
                     score = hand.score,
+                    isBust = hand.isBust,
+                    is21 = hand.isBlackjack || hand.isTwentyOne,
                     state = badgeState,
                     label = null,
                     isWinner = isWinner,

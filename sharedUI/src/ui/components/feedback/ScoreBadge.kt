@@ -66,14 +66,14 @@ val BadgeShape = RoundedCornerShape(percent = 50)
 @Composable
 fun ScoreBadge(
     score: Int,
+    // Pre-computed from Hand domain predicates — business rules belong at the call site, not here
+    isBust: Boolean,
+    is21: Boolean,
     state: ScoreBadgeState,
     modifier: Modifier = Modifier,
     label: String? = null,
     isWinner: Boolean = false
 ) {
-    val isBust = score > 21
-    val is21 = score == 21
-
     val backgroundColor =
         when {
             isBust -> VelvetRed
@@ -181,28 +181,41 @@ fun ScoreBadge(
                                 backgroundColor
                             }
                     ).drawWithCache {
-                        val glowRadius = size.maxDimension * 1.5f * pulseScale.value
+                        // Bolt Performance Optimization: Defer Animatable.value reads to onDrawBehind to prevent
+                        // re-allocating brushes and re-running the cache block on every frame of the pulse animation.
+                        val baseRadius = size.maxDimension * 1.5f
                         val glowBrush =
                             Brush.radialGradient(
                                 colors = listOf(backgroundColor.copy(alpha = 0.4f), Color.Transparent),
-                                radius = glowRadius
+                                radius = baseRadius
                             )
+
+                        val goldBrush =
+                            Brush.radialGradient(
+                                colors = listOf(ModernGoldLight, Color.Transparent),
+                                center = Offset(size.width / 2f, size.height / 2f),
+                                radius = size.maxDimension * 1.4f
+                            )
+
                         onDrawBehind {
                             if (state == ScoreBadgeState.ACTIVE || is21 || isBust || isWinner) {
-                                drawRect(glowBrush)
-                            }
-                            if (state == ScoreBadgeState.ACTIVE && goldGlowAlpha.value > 0f) {
-                                drawRect(
-                                    brush =
-                                        Brush.radialGradient(
-                                            colors =
-                                                listOf(
-                                                    ModernGoldLight.copy(alpha = goldGlowAlpha.value),
-                                                    Color.Transparent
-                                                ),
-                                            center = Offset(size.width / 2f, size.height / 2f),
-                                            radius = size.maxDimension * 1.4f
+                                // Apply the pulse scale via DrawScope.scale to reuse the cached brush
+                                val currentScale = pulseScale.value
+                                translate(size.width / 2f, size.height / 2f) {
+                                    scale(currentScale, currentScale) {
+                                        drawRect(
+                                            brush = glowBrush,
+                                            topLeft = Offset(-size.width / 2f, -size.height / 2f),
+                                            size = size
                                         )
+                                    }
+                                }
+                            }
+                            val goldAlpha = goldGlowAlpha.value
+                            if (state == ScoreBadgeState.ACTIVE && goldAlpha > 0f) {
+                                drawRect(
+                                    brush = goldBrush,
+                                    alpha = goldAlpha
                                 )
                             }
                         }
@@ -297,7 +310,7 @@ fun ScoreBadge(
 private fun ScoreBadgePreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            ScoreBadge(score = 18, state = ScoreBadgeState.ACTIVE)
+            ScoreBadge(score = 18, isBust = false, is21 = false, state = ScoreBadgeState.ACTIVE)
         }
     }
 }
@@ -308,7 +321,7 @@ private fun ScoreBadgePreview() {
 private fun ScoreBadgeBustPreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            ScoreBadge(score = 23, state = ScoreBadgeState.ACTIVE)
+            ScoreBadge(score = 23, isBust = true, is21 = false, state = ScoreBadgeState.ACTIVE)
         }
     }
 }
@@ -319,7 +332,7 @@ private fun ScoreBadgeBustPreview() {
 private fun ScoreBadgeTwentyOnePreview() {
     BlackjackTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            ScoreBadge(score = 21, state = ScoreBadgeState.ACTIVE)
+            ScoreBadge(score = 21, isBust = false, is21 = true, state = ScoreBadgeState.ACTIVE)
         }
     }
 }

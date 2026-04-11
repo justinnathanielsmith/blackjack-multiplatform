@@ -14,10 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -80,33 +81,41 @@ fun BlackjackScreen(
                 Box(
                     modifier =
                         gameModifier
-                            .drawBehind {
-                                // 5. Active Hand Highlight — read here so only this draw scope re-runs each frame.
-                                val highlightPos = screenState.activeHandHighlightPositionState.value
-                                if (highlightPos != Offset.Zero) {
-                                    val highlightRadius = size.maxDimension * 0.35f
-                                    // Inner intense spot
-                                    drawCircle(
-                                        brush =
-                                            Brush.radialGradient(
-                                                colors = listOf(PrimaryGold.copy(alpha = 0.15f), Color.Transparent),
-                                                center = highlightPos,
-                                                radius = highlightRadius * 0.4f
-                                            ),
-                                        center = highlightPos,
+                            .drawWithCache {
+                                // 5. Active Hand Highlight Brushes — cached only on size change.
+                                // Bolt Performance Optimization: Prevent 2x Brush.radialGradient allocations per frame
+                                // during the active hand highlight spring animation.
+                                val highlightRadius = size.maxDimension * 0.35f
+                                val innerBrush =
+                                    Brush.radialGradient(
+                                        colors = listOf(PrimaryGold.copy(alpha = 0.15f), Color.Transparent),
+                                        center = Offset.Zero,
                                         radius = highlightRadius * 0.4f
                                     )
-                                    // Outer soft throw
-                                    drawCircle(
-                                        brush =
-                                            Brush.radialGradient(
-                                                colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
-                                                center = highlightPos,
-                                                radius = highlightRadius
-                                            ),
-                                        center = highlightPos,
+                                val outerBrush =
+                                    Brush.radialGradient(
+                                        colors = listOf(PrimaryGold.copy(alpha = 0.08f), Color.Transparent),
+                                        center = Offset.Zero,
                                         radius = highlightRadius
                                     )
+
+                                onDrawBehind {
+                                    val highlightPos = screenState.activeHandHighlightPositionState.value
+                                    if (highlightPos != Offset.Zero) {
+                                        // Use translate to reuse the pre-computed brushes with Offset.Zero center
+                                        translate(highlightPos.x, highlightPos.y) {
+                                            drawCircle(
+                                                brush = innerBrush,
+                                                radius = highlightRadius * 0.4f,
+                                                center = Offset.Zero
+                                            )
+                                            drawCircle(
+                                                brush = outerBrush,
+                                                radius = highlightRadius,
+                                                center = Offset.Zero
+                                            )
+                                        }
+                                    }
                                 }
                             }.graphicsLayer {
                                 val densityVal = density

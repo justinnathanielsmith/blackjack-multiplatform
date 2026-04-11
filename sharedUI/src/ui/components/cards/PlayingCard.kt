@@ -184,16 +184,16 @@ fun PlayingCard(
                     Box(modifier = Modifier.fillMaxSize().padding(cornerPadding)) {
                         if (isSmall) {
                             CardCorner(
-                                rank = card.rank.symbol,
-                                suit = card.suit.symbol,
+                                rank = stringResource(card.rank.symbolRes),
+                                suit = stringResource(card.suit.symbolRes),
                                 color = card.suit.color,
                                 isSmall = true,
                                 modifier = Modifier.align(Alignment.TopStart)
                             )
                         } else {
                             CardCorner(
-                                rank = card.rank.symbol,
-                                suit = card.suit.symbol,
+                                rank = stringResource(card.rank.symbolRes),
+                                suit = stringResource(card.suit.symbolRes),
                                 color = card.suit.color,
                                 isSmall = false,
                                 modifier = Modifier.align(Alignment.TopStart)
@@ -204,8 +204,8 @@ fun PlayingCard(
                                 modifier = Modifier.fillMaxSize()
                             )
                             CardCorner(
-                                rank = card.rank.symbol,
-                                suit = card.suit.symbol,
+                                rank = stringResource(card.rank.symbolRes),
+                                suit = stringResource(card.suit.symbolRes),
                                 color = card.suit.color,
                                 isSmall = false,
                                 modifier = Modifier.align(Alignment.BottomEnd).rotate(180f)

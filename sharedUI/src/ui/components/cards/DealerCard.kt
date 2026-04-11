@@ -35,6 +35,7 @@ import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 enum class RevealState {
     Hidden,
@@ -148,8 +149,8 @@ fun DealerCard(
                                 .padding(cornerPadding)
                     ) {
                         CardCorner(
-                            rank = card.rank.symbol,
-                            suit = card.suit.symbol,
+                            rank = stringResource(card.rank.symbolRes),
+                            suit = stringResource(card.suit.symbolRes),
                             color = card.suit.color,
                             isSmall = isSmall,
                             modifier = Modifier.align(Alignment.TopStart)
@@ -163,8 +164,8 @@ fun DealerCard(
                             )
 
                             CardCorner(
-                                rank = card.rank.symbol,
-                                suit = card.suit.symbol,
+                                rank = stringResource(card.rank.symbolRes),
+                                suit = stringResource(card.suit.symbolRes),
                                 color = card.suit.color,
                                 isSmall = false,
                                 modifier =

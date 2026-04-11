@@ -50,15 +50,6 @@ val Suit.symbolRes: StringResource
             Suit.SPADES -> Res.string.suit_spades
         }
 
-val Suit.symbol: String
-    get() =
-        when (this) {
-            Suit.HEARTS -> "♥"
-            Suit.DIAMONDS -> "♦"
-            Suit.CLUBS -> "♣"
-            Suit.SPADES -> "♠"
-        }
-
 val Rank.symbolRes: StringResource
     get() =
         when (this) {
@@ -75,22 +66,4 @@ val Rank.symbolRes: StringResource
             Rank.QUEEN -> Res.string.rank_queen
             Rank.KING -> Res.string.rank_king
             Rank.ACE -> Res.string.rank_ace
-        }
-
-val Rank.symbol: String
-    get() =
-        when (this) {
-            Rank.TWO -> "2"
-            Rank.THREE -> "3"
-            Rank.FOUR -> "4"
-            Rank.FIVE -> "5"
-            Rank.SIX -> "6"
-            Rank.SEVEN -> "7"
-            Rank.EIGHT -> "8"
-            Rank.NINE -> "9"
-            Rank.TEN -> "10"
-            Rank.JACK -> "J"
-            Rank.QUEEN -> "Q"
-            Rank.KING -> "K"
-            Rank.ACE -> "A"
         }
