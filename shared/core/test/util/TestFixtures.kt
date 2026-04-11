@@ -12,6 +12,7 @@ import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.Suit
 import io.github.smithjustinn.blackjack.state.BlackjackStateMachine
+import io.github.smithjustinn.blackjack.state.DefaultBlackjackStateMachine
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -27,14 +28,14 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
  * scope so delays are skipped and the machine is cancelled when the test finishes.
  */
 fun TestScope.testMachine(initialState: GameState,): BlackjackStateMachine =
-    BlackjackStateMachine(
+    DefaultBlackjackStateMachine(
         CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         initialState,
         isTest = true,
     )
 
 fun TestScope.testMachine(): BlackjackStateMachine =
-    BlackjackStateMachine(
+    DefaultBlackjackStateMachine(
         CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         isTest = true,
     )

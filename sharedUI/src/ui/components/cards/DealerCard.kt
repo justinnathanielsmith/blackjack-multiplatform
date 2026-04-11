@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,7 +105,8 @@ fun DealerCard(
         }
     }
 
-    val showBack = rotationY.value < 90f
+    // Bolt Performance Optimization: Use derivedStateOf to prevent O(frames) full recompositions
+    val showBack by remember { androidx.compose.runtime.derivedStateOf { rotationY.value < 90f } }
 
     Box(
         modifier =

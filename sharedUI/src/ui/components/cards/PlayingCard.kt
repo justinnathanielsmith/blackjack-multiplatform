@@ -96,27 +96,30 @@ fun PlayingCard(
     }
 
     val transition = updateTransition(targetState = isFaceUp, label = "cardFlip")
-    val rotation by transition.animateFloat(
-        transitionSpec = {
-            tween(durationMillis = AnimationConstants.CardFlipDuration, easing = FastOutSlowInEasing)
-        },
-        label = "rotation",
-    ) { faceUp -> if (faceUp) 180f else 0f }
+    val rotationState =
+        transition.animateFloat(
+            transitionSpec = {
+                tween(durationMillis = AnimationConstants.CardFlipDuration, easing = FastOutSlowInEasing)
+            },
+            label = "rotation",
+        ) { faceUp -> if (faceUp) 180f else 0f }
 
     // Subtle lift effect as the card is flipped
-    val liftScale by transition.animateFloat(
-        transitionSpec = {
-            keyframes {
-                durationMillis = AnimationConstants.CardFlipDuration
-                1.0f at 0
-                1.08f at AnimationConstants.CardFlipDuration / 2
-                1.0f at AnimationConstants.CardFlipDuration
-            }
-        },
-        label = "liftScale"
-    ) { 1.0f }
+    val liftScaleState =
+        transition.animateFloat(
+            transitionSpec = {
+                keyframes {
+                    durationMillis = AnimationConstants.CardFlipDuration
+                    1.0f at 0
+                    1.08f at AnimationConstants.CardFlipDuration / 2
+                    1.0f at AnimationConstants.CardFlipDuration
+                }
+            },
+            label = "liftScale"
+        ) { 1.0f }
 
-    val showBack = rotation < 90f
+    // Bolt Performance Optimization: Use derivedStateOf to prevent O(frames) full recompositions
+    val showBack by remember { androidx.compose.runtime.derivedStateOf { rotationState.value < 90f } }
 
     val cardDescription =
         if (isFaceUp) {
@@ -136,9 +139,9 @@ fun PlayingCard(
                 .aspectRatio(Dimensions.Card.AspectRatio)
                 .graphicsLayer {
                     rotationZ = baseRotation + doubleDownRotation.value
-                    rotationY = rotation
-                    scaleX = liftScale
-                    scaleY = liftScale
+                    rotationY = rotationState.value
+                    scaleX = liftScaleState.value
+                    scaleY = liftScaleState.value
                     cameraDistance = 12f * density
                 },
     ) {

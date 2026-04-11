@@ -9,8 +9,10 @@ import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import io.github.smithjustinn.blackjack.data.BalanceService
 import io.github.smithjustinn.blackjack.data.SettingsRepository
+import io.github.smithjustinn.blackjack.infra.componentScope
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
+import io.github.smithjustinn.blackjack.state.DefaultBlackjackStateMachine
 import kotlinx.serialization.Serializable
 
 interface RootComponent {
@@ -78,7 +80,8 @@ class DefaultRootComponent(
                         settingsRepository = settingsRepository,
                         audioService = audioService,
                         hapticsService = hapticsService,
-                        logger = logger
+                        logger = logger,
+                        stateMachine = DefaultBlackjackStateMachine(componentContext.componentScope, logger = logger),
                     )
                 )
         }

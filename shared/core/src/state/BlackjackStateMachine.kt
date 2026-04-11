@@ -25,6 +25,18 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
+// Abstraction boundary: presentation layer depends on this interface, not the concrete class.
+interface BlackjackStateMachine {
+    val state: StateFlow<GameState>
+    val effects: Flow<GameEffect>
+
+    fun dispatch(action: GameAction)
+
+    fun shutdown()
+
+    suspend fun awaitShutdown()
+}
+
 /**
  * The core state machine governing the game of Blackjack.
  *
@@ -41,12 +53,12 @@ import kotlinx.coroutines.yield
  * @param isTest When true, animations and delays are disabled (0ms).
  * @param logger Logger instance for internal state tracking and debugging.
  */
-class BlackjackStateMachine(
+class DefaultBlackjackStateMachine(
     private val scope: CoroutineScope,
     initialState: GameState = GameState(status = GameStatus.BETTING, balance = BlackjackConfig.INITIAL_BALANCE),
     private val isTest: Boolean = false,
-    private val logger: Logger = Logger.withTag("BlackjackStateMachine")
-) {
+    private val logger: Logger = Logger.withTag("DefaultBlackjackStateMachine")
+) : BlackjackStateMachine {
     private val _state = MutableStateFlow(initialState)
 
     /**
@@ -54,7 +66,7 @@ class BlackjackStateMachine(
      *
      * UI components should collect this to reactively update the display.
      */
-    val state: StateFlow<GameState> = _state.asStateFlow()
+    override val state: StateFlow<GameState> = _state.asStateFlow()
 
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
     private val isShutdown = MutableStateFlow(false)
@@ -73,7 +85,7 @@ class BlackjackStateMachine(
      * This flow ensures that subscribers receive all effects emitted during their collection lifetime.
      * It is automatically cancelled when the state machine is shut down.
      */
-    val effects: Flow<GameEffect> =
+    override val effects: Flow<GameEffect> =
         channelFlow {
             val collectJob = launch { _effects.collect { send(it) } }
             isShutdown.first { it }
@@ -147,7 +159,7 @@ class BlackjackStateMachine(
      *
      * @param action The [GameAction] to dispatch.
      */
-    fun dispatch(action: GameAction) {
+    override fun dispatch(action: GameAction) {
         actionChannel.trySend(action).onClosed {
             logger.w { "Ignored action $action: State machine is shut down." }
         }
@@ -159,7 +171,7 @@ class BlackjackStateMachine(
      * The internal loop continues until all currently buffered actions are processed.
      * Use [awaitShutdown] to suspend until the loop has fully drained.
      */
-    fun shutdown() {
+    override fun shutdown() {
         actionChannel.close()
     }
 
@@ -169,7 +181,7 @@ class BlackjackStateMachine(
      * Call after [shutdown] when you need to guarantee all buffered actions have been
      * processed before tearing down the owning scope.
      */
-    suspend fun awaitShutdown() {
+    override suspend fun awaitShutdown() {
         isShutdown.first { it }
     }
 

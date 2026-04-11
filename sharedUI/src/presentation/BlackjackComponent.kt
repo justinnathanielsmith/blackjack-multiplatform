@@ -63,10 +63,9 @@ class DefaultBlackjackComponent(
     override val audioService: AudioService,
     override val hapticsService: HapticsService,
     private val logger: Logger,
+    private val stateMachine: BlackjackStateMachine,
 ) : BlackjackComponent,
     ComponentContext by componentContext {
-    private val stateMachine = BlackjackStateMachine(componentScope, isTest = false, logger = logger)
-
     override val state: StateFlow<GameState> = stateMachine.state
     override val effects: Flow<GameEffect> = stateMachine.effects
 
