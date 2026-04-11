@@ -9,6 +9,7 @@ import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -113,8 +114,15 @@ class DefaultBlackjackStateMachine(
 
     init {
         // 1. Pure state reduction loop — never suspends, processes actions one at a time.
-        scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            @Suppress("TooGenericExceptionCaught")
+        val exceptionHandler =
+            CoroutineExceptionHandler { _, e ->
+                if (e !is CancellationException) {
+                    logger.e(e) { "SM action loop caught fatal error" }
+                    _shutdownCause.value = e
+                }
+            }
+
+        scope.launch(context = exceptionHandler, start = CoroutineStart.UNDISPATCHED) {
             try {
                 for (action in actionChannel) {
                     logger.v { "SM reduce: $action" }
@@ -124,16 +132,6 @@ class DefaultBlackjackStateMachine(
                     result.commands.forEach { commandChannel.trySend(it) }
                     logger.v { "SM action loop finished: $action" }
                 }
-            } catch (ce: CancellationException) {
-                throw ce
-            } catch (e: Throwable) {
-                // We catch Throwable here because this is the terminal loop of the
-                // state machine. Any unhandled exception or error here is fatal and correctly
-                // transitions the machine to a shutdown state, making the cause visible
-                // for telemetry or debugging. We rethrow to ensure the loop terminates.
-                logger.e(e) { "SM init block caught fatal error" }
-                _shutdownCause.value = e
-                throw e
             } finally {
                 logger.d { "SM init block finally" }
                 commandChannel.close()

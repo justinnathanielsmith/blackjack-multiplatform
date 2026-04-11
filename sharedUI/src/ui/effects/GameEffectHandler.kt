@@ -21,29 +21,35 @@ private fun handleHapticEffect(
     effect: GameEffect,
     haptics: HapticsService
 ) {
-    when (effect) {
-        GameEffect.Vibrate -> haptics.vibrate()
-        GameEffect.HeavyCardThud -> haptics.heavyThud()
-        GameEffect.Pulse21 -> haptics.pulse()
-        GameEffect.LightTick -> haptics.lightTick()
-        GameEffect.WinPulse -> haptics.winPulse()
-        GameEffect.BustThud -> haptics.bustThud()
-        else -> {}
-    }
+    val action: (HapticsService) -> Unit =
+        when (effect) {
+            GameEffect.Vibrate -> HapticsService::vibrate
+            GameEffect.HeavyCardThud -> HapticsService::heavyThud
+            GameEffect.Pulse21 -> HapticsService::pulse
+            GameEffect.LightTick -> HapticsService::lightTick
+            GameEffect.WinPulse -> HapticsService::winPulse
+            GameEffect.BustThud -> HapticsService::bustThud
+            else -> return
+        }
+    action(haptics)
 }
 
 private fun handleAudioEffect(
     effect: GameEffect,
     audio: AudioService
 ) {
-    when (effect) {
-        GameEffect.PlayCardSound -> audio.playEffect(AudioService.SoundEffect.FLIP)
-        GameEffect.PlayWinSound -> audio.playEffect(AudioService.SoundEffect.WIN)
-        GameEffect.PlayLoseSound -> audio.playEffect(AudioService.SoundEffect.LOSE)
-        GameEffect.DealerCriticalDraw -> audio.playEffect(AudioService.SoundEffect.TENSION)
-        GameEffect.PlayPlinkSound -> audio.playEffect(AudioService.SoundEffect.PLINK)
-        GameEffect.PlayPushSound -> audio.playEffect(AudioService.SoundEffect.PUSH)
-        is GameEffect.BigWin -> audio.playEffect(AudioService.SoundEffect.THE_NUTS)
-        else -> {}
+    val sound =
+        when (effect) {
+            GameEffect.PlayCardSound -> AudioService.SoundEffect.FLIP
+            GameEffect.PlayWinSound -> AudioService.SoundEffect.WIN
+            GameEffect.PlayLoseSound -> AudioService.SoundEffect.LOSE
+            GameEffect.DealerCriticalDraw -> AudioService.SoundEffect.TENSION
+            GameEffect.PlayPlinkSound -> AudioService.SoundEffect.PLINK
+            GameEffect.PlayPushSound -> AudioService.SoundEffect.PUSH
+            is GameEffect.BigWin -> AudioService.SoundEffect.THE_NUTS
+            else -> null
+        }
+    if (sound != null) {
+        audio.playEffect(sound)
     }
 }

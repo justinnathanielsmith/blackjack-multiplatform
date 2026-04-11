@@ -27,7 +27,6 @@ data class StrategyCell(
     val actions: ImmutableMap<Int, StrategyAction>
 )
 
-@Suppress("MagicNumber")
 object StrategyProvider {
     private val ALL_UPCARDS = 2..11
 
