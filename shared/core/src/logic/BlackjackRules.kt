@@ -67,9 +67,10 @@ object BlackjackRules {
         dealerBust: Boolean
     ): HandOutcome {
         if (hand.isBust) return HandOutcome.LOSS
-        val isNaturalBJ = hand.cards.size == 2 && hand.score == 21 && !hand.wasSplit
+
+        val playerHasNaturalBJ = hand.isBlackjack && !hand.wasSplit
         return when {
-            isNaturalBJ && dealerScore != 21 -> HandOutcome.NATURAL_WIN
+            playerHasNaturalBJ && dealerScore != BLACKJACK_SCORE -> HandOutcome.NATURAL_WIN
             dealerBust || hand.score > dealerScore -> HandOutcome.WIN
             hand.score == dealerScore -> HandOutcome.PUSH
             else -> HandOutcome.LOSS
@@ -161,8 +162,7 @@ object BlackjackRules {
         var anyStillPlaying = false
 
         for (i in 0 until hands.size) {
-            val hand = hands[i]
-            val playerHasBJ = hand.isBlackjack
+            val playerHasBJ = hands[i].isBlackjack
             when {
                 playerHasBJ && dealerHasBJ -> {
                     anyPush = true
@@ -172,22 +172,28 @@ object BlackjackRules {
                     anyPlayerWon = true
                     allDealerWon = false
                 }
-                dealerHasBJ -> {
-                    // This hand lost.
-                }
-                else -> {
+                !dealerHasBJ -> {
                     anyStillPlaying = true
                     allDealerWon = false
                 }
             }
         }
 
+        return resolveFinalInitialStatus(anyStillPlaying, anyPlayerWon, anyPush, allDealerWon)
+    }
+
+    private fun resolveFinalInitialStatus(
+        anyStillPlaying: Boolean,
+        anyPlayerWon: Boolean,
+        anyPush: Boolean,
+        allDealerWon: Boolean,
+    ): GameStatus {
         return when {
             anyStillPlaying -> GameStatus.PLAYING
             anyPlayerWon -> GameStatus.PLAYER_WON
             anyPush -> GameStatus.PUSH
             allDealerWon -> GameStatus.DEALER_WON
-            else -> GameStatus.PLAYING // Defensive
+            else -> GameStatus.PLAYING
         }
     }
 
@@ -262,22 +268,23 @@ object BlackjackRules {
     ): Int {
         var balanceOutcome = 0
         for (i in 0 until playerHands.size) {
-            val hand = playerHands[i]
-            if (hand.isBlackjack) {
-                balanceOutcome +=
-                    if (dealerHasBJ) {
-                        hand.bet
-                    } else {
-                        val profit =
-                            (hand.bet * current.rules.blackjackPayout.numerator) /
-                                current.rules.blackjackPayout.denominator
-                        profit + hand.bet
-                    }
-            } else if (dealerHasBJ) {
-                // Hand lost, no payout.
-            }
+            balanceOutcome += calculateSingleInitialPayout(playerHands[i], dealerHasBJ, current.rules)
         }
         return balanceOutcome
+    }
+
+    private fun calculateSingleInitialPayout(
+        hand: Hand,
+        dealerHasBJ: Boolean,
+        rules: GameRules
+    ): Int {
+        if (!hand.isBlackjack) return 0
+        return if (dealerHasBJ) {
+            hand.bet
+        } else {
+            val profit = (hand.bet * rules.blackjackPayout.numerator) / rules.blackjackPayout.denominator
+            profit + hand.bet
+        }
     }
 
     /**

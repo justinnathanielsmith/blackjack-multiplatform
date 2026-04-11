@@ -84,15 +84,7 @@ object PlayerActionLogic {
         val updatedHands = state.playerHands.set(state.activeHandIndex, newHand)
         val updatedState = state.copy(deck = remainingDeck, playerHands = updatedHands)
 
-        val effects =
-            buildList {
-                add(GameEffect.PlayCardSound)
-                if (newCard.rank.value < HIGH_CARD_VALUE) add(GameEffect.LightTick)
-                if (newCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
-                if (newHand.score == BlackjackConfig.BLACKJACK_SCORE) add(GameEffect.Pulse21)
-                if (newHand.score == NEAR_MISS_SCORE) add(GameEffect.NearMissHighlight(state.activeHandIndex))
-                if (newHand.isBust) add(GameEffect.BustThud)
-            }
+        val effects = getEffectsForHit(newCard, newHand, state.activeHandIndex)
         return PlayerActionOutcome(
             state = updatedState,
             effects = effects,
@@ -161,17 +153,7 @@ object PlayerActionLogic {
                 balance = newBalance,
             )
 
-        val effects =
-            buildList {
-                add(GameEffect.PlayCardSound)
-                if (drawnCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
-                if (newHand.score == BlackjackConfig.BLACKJACK_SCORE) add(GameEffect.Pulse21)
-                if (newHand.isBust) {
-                    add(GameEffect.PlayLoseSound)
-                    add(GameEffect.BustThud)
-                    add(GameEffect.ChipLoss(newHand.bet))
-                }
-            }
+        val effects = getEffectsForDoubleDown(drawnCard, newHand)
 
         return PlayerActionOutcome(
             state = updatedState,
@@ -260,4 +242,33 @@ object PlayerActionLogic {
             shouldAdvanceTurn = isAceSplit
         )
     }
+
+    private fun getEffectsForHit(
+        newCard: io.github.smithjustinn.blackjack.model.Card,
+        newHand: Hand,
+        activeHandIndex: Int
+    ): List<GameEffect> =
+        buildList {
+            add(GameEffect.PlayCardSound)
+            if (newCard.rank.value < HIGH_CARD_VALUE) add(GameEffect.LightTick)
+            if (newCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
+            if (newHand.score == BlackjackConfig.BLACKJACK_SCORE) add(GameEffect.Pulse21)
+            if (newHand.score == NEAR_MISS_SCORE) add(GameEffect.NearMissHighlight(activeHandIndex))
+            if (newHand.isBust) add(GameEffect.BustThud)
+        }
+
+    private fun getEffectsForDoubleDown(
+        drawnCard: io.github.smithjustinn.blackjack.model.Card,
+        newHand: Hand
+    ): List<GameEffect> =
+        buildList {
+            add(GameEffect.PlayCardSound)
+            if (drawnCard.rank.value >= HIGH_CARD_VALUE) add(GameEffect.HeavyCardThud)
+            if (newHand.score == BlackjackConfig.BLACKJACK_SCORE) add(GameEffect.Pulse21)
+            if (newHand.isBust) {
+                add(GameEffect.PlayLoseSound)
+                add(GameEffect.BustThud)
+                add(GameEffect.ChipLoss(newHand.bet))
+            }
+        }
 }

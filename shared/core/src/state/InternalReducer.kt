@@ -65,32 +65,13 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
         )
 
     val effects =
-        buildList {
-            // Juice: Always emit winning eruptions first.
-            if (balanceUpdate > 0) add(GameEffect.ChipEruption(balanceUpdate))
-            sideBetUpdate.results.forEach { (type, result) ->
-                if (result.payoutAmount > 0) add(GameEffect.ChipEruption(result.payoutAmount, type))
-            }
-            // Then handle losses and sounds.
-            state.sideBets.forEach { (type, amount) ->
-                if (sideBetUpdate.results[type] == null) add(GameEffect.ChipLoss(amount))
-            }
-            when {
-                initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0 -> {
-                    if (isMassiveSideBetWin) {
-                        add(GameEffect.BigWin(sideBetUpdate.payoutTotal))
-                    } else {
-                        add(GameEffect.PlayWinSound)
-                    }
-                    if (initialStatus == GameStatus.PLAYER_WON) add(GameEffect.WinPulse)
-                }
-                initialStatus == GameStatus.DEALER_WON -> {
-                    add(GameEffect.PlayLoseSound)
-                    add(GameEffect.ChipLoss(state.currentBet))
-                }
-                initialStatus == GameStatus.PUSH -> add(GameEffect.PlayPushSound)
-            }
-        }
+        getEffectsForApplyInitialOutcome(
+            balanceUpdate = balanceUpdate,
+            sideBetUpdate = sideBetUpdate,
+            state = state,
+            initialStatus = initialStatus,
+            isMassiveSideBetWin = isMassiveSideBetWin
+        )
     return ReducerResult(state = newState, effects = effects)
 }
 
@@ -165,24 +146,64 @@ internal fun reduceFinalizeGame(state: GameState): ReducerResult {
             handOutcomes = outcomes,
         )
 
-    val effects =
-        buildList {
-            if (results.totalPayout > 0) add(GameEffect.ChipEruption(results.totalPayout))
-            var totalBet = 0
-            for (i in 0 until state.playerHands.size) totalBet += state.playerHands[i].bet
-            if (results.totalPayout < totalBet) add(GameEffect.ChipLoss(totalBet - results.totalPayout))
-            when (finalStatus) {
-                GameStatus.PLAYER_WON -> {
-                    add(GameEffect.PlayWinSound)
-                    add(GameEffect.WinPulse)
-                }
-                GameStatus.DEALER_WON -> {
-                    add(GameEffect.PlayLoseSound)
-                    if (state.playerHands.none { it.isBust }) add(GameEffect.Vibrate)
-                }
-                GameStatus.PUSH -> add(GameEffect.PlayPushSound)
-                else -> {}
-            }
-        }
+    val effects = getEffectsForFinalizeGame(results, state, finalStatus)
     return ReducerResult(state = newState, effects = effects)
 }
+
+private fun getEffectsForFinalizeGame(
+    results: io.github.smithjustinn.blackjack.model.HandResults,
+    state: GameState,
+    finalStatus: GameStatus
+): List<GameEffect> =
+    buildList {
+        if (results.totalPayout > 0) add(GameEffect.ChipEruption(results.totalPayout))
+        var totalBet = 0
+        for (i in 0 until state.playerHands.size) totalBet += state.playerHands[i].bet
+        if (results.totalPayout < totalBet) add(GameEffect.ChipLoss(totalBet - results.totalPayout))
+        when (finalStatus) {
+            GameStatus.PLAYER_WON -> {
+                add(GameEffect.PlayWinSound)
+                add(GameEffect.WinPulse)
+            }
+            GameStatus.DEALER_WON -> {
+                add(GameEffect.PlayLoseSound)
+                if (state.playerHands.none { it.isBust }) add(GameEffect.Vibrate)
+            }
+            GameStatus.PUSH -> add(GameEffect.PlayPushSound)
+            else -> {}
+        }
+    }
+
+private fun getEffectsForApplyInitialOutcome(
+    balanceUpdate: Int,
+    sideBetUpdate: io.github.smithjustinn.blackjack.logic.SideBetResolution,
+    state: GameState,
+    initialStatus: GameStatus,
+    isMassiveSideBetWin: Boolean
+): List<GameEffect> =
+    buildList {
+        // Juice: Always emit winning eruptions first.
+        if (balanceUpdate > 0) add(GameEffect.ChipEruption(balanceUpdate))
+        sideBetUpdate.results.forEach { (type, result) ->
+            if (result.payoutAmount > 0) add(GameEffect.ChipEruption(result.payoutAmount, type))
+        }
+        // Then handle losses and sounds.
+        state.sideBets.forEach { (type, amount) ->
+            if (sideBetUpdate.results[type] == null) add(GameEffect.ChipLoss(amount))
+        }
+        when {
+            initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0 -> {
+                if (isMassiveSideBetWin) {
+                    add(GameEffect.BigWin(sideBetUpdate.payoutTotal))
+                } else {
+                    add(GameEffect.PlayWinSound)
+                }
+                if (initialStatus == GameStatus.PLAYER_WON) add(GameEffect.WinPulse)
+            }
+            initialStatus == GameStatus.DEALER_WON -> {
+                add(GameEffect.PlayLoseSound)
+                add(GameEffect.ChipLoss(state.currentBet))
+            }
+            initialStatus == GameStatus.PUSH -> add(GameEffect.PlayPushSound)
+        }
+    }

@@ -221,35 +221,14 @@ object SideBetLogic {
         c2: Card,
         c3: Card
     ): Boolean {
-        var r0 = c1.rank.ordinal
-        var r1 = c2.rank.ordinal
-        var r2 = c3.rank.ordinal
+        val r = intArrayOf(c1.rank.ordinal, c2.rank.ordinal, c3.rank.ordinal).also { it.sort() }
 
-        // Manual sort network for 3 elements
-        if (r0 > r1) {
-            val temp = r0
-            r0 = r1
-            r1 = temp
-        }
-        if (r1 > r2) {
-            val temp = r1
-            r1 = r2
-            r2 = temp
-        }
-        if (r0 > r1) {
-            val temp = r0
-            r0 = r1
-            r1 = temp
-        }
-
-        // Standard straight.
-        if (r1 == r0 + 1 && r2 == r1 + 1) return true
+        // Standard consecutive straight: each rank is exactly 1 above the previous.
+        if (r[1] == r[0] + 1 && r[2] == r[1] + 1) return true
 
         // Ace-low straight (A, 2, 3).
-        // Rank ordinal: ACE is last (12). TWO is 0. THREE is 1.
-        if (r0 == Rank.TWO.ordinal && r1 == Rank.THREE.ordinal && r2 == Rank.ACE.ordinal) return true
-
-        return false
+        // After sorting: TWO(0), THREE(1), ACE(12).
+        return r[0] == Rank.TWO.ordinal && r[1] == Rank.THREE.ordinal && r[2] == Rank.ACE.ordinal
     }
 
     private fun isStraightFlush(
