@@ -163,8 +163,6 @@ fun BlackjackScreen(
                                         },
                             ) {
                                 BlackjackLayout(
-                                    state = screenState.state,
-                                    component = component,
                                     dealRegistry = screenState.dealRegistry,
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -201,7 +199,7 @@ fun BlackjackScreen(
                                 sideBetResults = screenState.state.sideBetResults,
                                 isBlackjack = screenState.state.hasPlayerBlackjackWin,
                                 isBust = screenState.state.hasPlayerBustLoss,
-                                netPayout = screenState.state.totalNetPayout(),
+                                netPayout = screenState.state.totalNetPayout,
                                 component = component,
                                 flashAlphaProvider = { screenState.animState.flashAlpha.value },
                                 flashColorProvider = { screenState.animState.flashColor },
@@ -240,8 +238,6 @@ fun BlackjackScreen(
 
 @Composable
 private fun BlackjackLayout(
-    state: GameState,
-    component: BlackjackComponent,
     dealRegistry: DealAnimationRegistry,
     modifier: Modifier = Modifier,
 ) {

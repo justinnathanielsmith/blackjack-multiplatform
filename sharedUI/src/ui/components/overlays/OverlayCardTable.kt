@@ -181,7 +181,7 @@ fun OverlayCardTable(
         state.playerHands.forEachIndexed { handIndex, hand ->
             val isActive = state.status == GameStatus.PLAYING && handIndex == state.activeHandIndex
             val result = state.handResult(handIndex)
-            val netPayout = state.handNetPayout(handIndex)
+            val netPayout = state.handNetPayouts.getOrNull(handIndex)
 
             androidx.compose.runtime.key("hud", handIndex) {
                 HandZoneHud(

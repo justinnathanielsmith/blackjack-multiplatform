@@ -6,6 +6,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.serialization.Serializable
 
 /**
@@ -65,13 +66,12 @@ data class GameState(
     val currentBet: Int get() = playerHands.getOrNull(0)?.bet ?: 0
 
     /**
-     * Returns the total amount currently wagered on the table across all player hands,
+     * The total amount currently wagered on the table across all player hands,
      * active side bets, and insurance. Once side bets are settled ([sideBetResults] is not empty),
      * they are no longer counted towards the total table bet.
      */
-    val totalBet: Int
-        get() {
-            // Bolt Performance Optimization: Replace .fold with indexed loop to avoid Iterator allocation
+    val totalBet: Int =
+        run {
             var mainBetsTotal = 0
             for (i in 0 until playerHands.size) {
                 mainBetsTotal += playerHands[i].bet
@@ -81,7 +81,7 @@ data class GameState(
             val sideBetsTotal =
                 if (sideBetResults.isEmpty()) {
                     var sum = 0
-                    for ((_, bet) in sideBets) {
+                    for (bet in sideBets.values) {
                         sum += bet
                     }
                     sum
@@ -89,7 +89,42 @@ data class GameState(
                     0
                 }
 
-            return mainBetsTotal + sideBetsTotal + insuranceBet
+            mainBetsTotal + sideBetsTotal + insuranceBet
+        }
+
+    /**
+     * Net profit/loss for each hand: positive = win, negative = loss, zero = push.
+     * Elements are null while the round is not yet terminal.
+     * Bolt Performance Optimization: Pre-calculated once per state update.
+     */
+    val handNetPayouts: PersistentList<Int?> =
+        run {
+            if (!status.isTerminal()) return@run persistentListOf<Int?>()
+            val results = mutableListOf<Int?>()
+            for (i in playerHands.indices) {
+                val hand = playerHands[i]
+                val bet = hand.bet
+                val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
+                val net = if (hand.isSurrendered) -(bet - bet / 2) else payout - bet
+                results.add(net)
+            }
+            results.toPersistentList()
+        }
+
+    /**
+     * Total net across all hands: sum of [handNetPayouts].
+     * Null while the round is not yet terminal.
+     * Bolt Performance Optimization: Pre-calculated once per state update.
+     */
+    val totalNetPayout: Int? =
+        if (!status.isTerminal()) {
+            null
+        } else {
+            var total = 0
+            for (i in handNetPayouts.indices) {
+                total += handNetPayouts[i] ?: 0
+            }
+            total
         }
 
     /** Returns the [Hand] corresponding to the [activeHandIndex]. */
@@ -176,33 +211,16 @@ data class GameState(
             }
 }
 
-// Domain layer: per-hand and total net payout helpers so UI never re-implements bet math.
+/**
+ * Net profit/loss for a single hand: positive = win, negative = loss, zero = push.
+ * Returns null while the round is not yet terminal.
+ * Bolt Performance Optimization: Uses pre-calculated [GameState.handNetPayouts].
+ */
+fun GameState.handNetPayout(index: Int): Int? = handNetPayouts.getOrNull(index)
 
-/** Net profit/loss for a single hand: positive = win, negative = loss, zero = push.
- * Returns null while the round is not yet terminal. */
-fun GameState.handNetPayout(index: Int): Int? {
-    if (!status.isTerminal()) return null
-    val hand = playerHands.getOrNull(index) ?: return null
-    val bet = hand.bet
-    val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
-
-    // Special case: Surrender already refunded half the bet.
-    // resolveHand() returns 0 for surrendered hands because they are settled.
-    // But the net payout should reflect the loss of half the bet.
-    if (hand.isSurrendered) {
-        return -(bet - bet / 2)
-    }
-
-    return payout - bet
-}
-
-/** Total net across all hands: sum of per-hand net payouts.
- * Returns null while the round is not yet terminal. */
-fun GameState.totalNetPayout(): Int? {
-    if (!status.isTerminal()) return null
-    var total = 0
-    for (i in 0 until playerHands.size) {
-        total += handNetPayout(i) ?: 0
-    }
-    return total
-}
+/**
+ * Total net across all hands: sum of per-hand net payouts.
+ * Returns null while the round is not yet terminal.
+ * Bolt Performance Optimization: Uses pre-calculated [GameState.totalNetPayout].
+ */
+fun GameState.totalNetPayout(): Int? = totalNetPayout
