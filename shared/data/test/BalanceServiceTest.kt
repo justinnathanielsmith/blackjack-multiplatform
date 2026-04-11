@@ -1,47 +1,11 @@
 package io.github.smithjustinn.blackjack.data
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.emptyPreferences
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BalanceServiceTest {
-    // Tests use DataStoreBalanceService directly; production code injects via BalanceService interface
-    class FakeDataStore : DataStore<Preferences> {
-        private val state = MutableStateFlow<Preferences>(emptyPreferences())
-
-        override val data: Flow<Preferences> = state
-
-        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
-            state.update {
-                transform(it)
-            }
-            return state.value
-        }
-
-        fun emitPreferences(prefs: Preferences) {
-            state.value = prefs
-        }
-    }
-
-    class ExceptionFakeDataStore : DataStore<Preferences> {
-        override val data: Flow<Preferences> =
-            flow {
-                throw RuntimeException("Datastore error")
-            }
-
-        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
-            return emptyPreferences()
-        }
-    }
-
     @Test
     fun testDefaultBalanceIsEmittedWhenEmpty() =
         runTest {
