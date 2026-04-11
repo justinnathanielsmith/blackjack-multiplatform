@@ -1,10 +1,10 @@
 package io.github.smithjustinn.blackjack.ui.components.overlays
 
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -24,10 +24,12 @@ import io.github.smithjustinn.blackjack.ui.theme.ModernGoldLight
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
 @Composable
-internal fun ActiveHandIndicator(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "indicatorTransition")
+internal fun ActiveHandIndicator(
+    transition: InfiniteTransition,
+    modifier: Modifier = Modifier,
+) {
     val bounceOffsetState =
-        infiniteTransition.animateFloat(
+        transition.animateFloat(
             initialValue = 0f,
             targetValue = 8f,
             animationSpec =
@@ -39,7 +41,7 @@ internal fun ActiveHandIndicator(modifier: Modifier = Modifier) {
         )
 
     val glowAlphaState =
-        infiniteTransition.animateFloat(
+        transition.animateFloat(
             initialValue = 0.4f,
             targetValue = 0.8f,
             animationSpec =

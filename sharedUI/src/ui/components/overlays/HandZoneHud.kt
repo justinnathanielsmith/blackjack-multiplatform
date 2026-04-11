@@ -54,40 +54,13 @@ internal fun HandZoneHud(
 ) {
     val showActiveIndicators = isActive && handCount > 1
 
-    val borderGlowTransition = rememberInfiniteTransition(label = "borderGlowTransition")
-    val borderGlowAlphaState =
-        borderGlowTransition.animateFloat(
-            initialValue = 0.3f,
-            targetValue = 0.7f,
-            animationSpec =
-                infiniteRepeatable(
-                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse,
-                ),
-            label = "borderGlowAlpha",
-        )
-
     Box(
         modifier =
             modifier
                 .fillMaxSize() // Custom Layout sets size to exactly clusterW x clusterH
-                .drawBehind {
-                    if (showActiveIndicators) {
-                        drawRoundRect(
-                            color = PrimaryGold.copy(alpha = borderGlowAlphaState.value),
-                            cornerRadius = CornerRadius(12.dp.toPx()),
-                            style = Stroke(width = 2.dp.toPx()),
-                        )
-                    }
-                }
     ) {
         if (showActiveIndicators) {
-            ActiveHandIndicator(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .graphicsLayer { translationY = -32.dp.toPx() }
-            )
+            ActiveHandDecoration(modifier = Modifier.fillMaxSize())
         }
 
         if (isDealer) {
@@ -174,5 +147,46 @@ internal fun HandZoneHud(
                 )
             }
         }
+    }
+}
+
+/**
+ * A private decoration composable that consolidates active-hand visual indicators
+ * (border glow + chevron indicator) into a single animation loop. This is only
+ * composed when the hand is active, preventing idle hands from consuming GPU.
+ */
+@Composable
+private fun ActiveHandDecoration(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "activeHandTransition")
+    val borderAlphaState =
+        transition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.7f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "borderGlowAlpha",
+        )
+
+    Box(
+        modifier =
+            modifier
+                .drawBehind {
+                    drawRoundRect(
+                        color = PrimaryGold.copy(alpha = borderAlphaState.value),
+                        cornerRadius = CornerRadius(12.dp.toPx()),
+                        style = Stroke(width = 2.dp.toPx()),
+                    )
+                }
+    ) {
+        ActiveHandIndicator(
+            transition = transition,
+            modifier =
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .graphicsLayer { translationY = -32.dp.toPx() }
+        )
     }
 }
