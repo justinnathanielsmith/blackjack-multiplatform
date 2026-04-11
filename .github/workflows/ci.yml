@@ -1,0 +1,34 @@
+name: CI Checks
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test:
+    name: Build & Test (JVM)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Make scripts executable
+        run: chmod +x amper lint.sh ktlint
+
+      - name: Lint (ktlint + detekt)
+        run: ./lint.sh
+
+      - name: Build JVM
+        run: ./amper build -p jvm
+
+      - name: Test JVM
+        run: ./amper test -p jvm
