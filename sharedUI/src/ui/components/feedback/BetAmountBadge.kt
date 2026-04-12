@@ -15,8 +15,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,8 +48,10 @@ fun BetAmountBadge(
     Box(
         modifier =
             modifier
-                .scale(scale.value)
-                .shadow(
+                .graphicsLayer {
+                    scaleX = scale.value
+                    scaleY = scale.value
+                }.shadow(
                     elevation = 4.dp,
                     shape = RoundedCornerShape(4.dp),
                     spotColor = ModernGoldDark.copy(alpha = 0.5f)

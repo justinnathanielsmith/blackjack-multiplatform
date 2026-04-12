@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -276,25 +276,34 @@ fun GameStatusMessage(
         contentAlignment = Alignment.Center
     ) {
         // Reflection overlay
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val reflectionWidth = size.width * 0.4f
-            drawRect(
-                brush =
-                    Brush.linearGradient(
-                        colors =
-                            listOf(
-                                Color.Transparent,
-                                Color.White.copy(alpha = 0.05f),
-                                Color.White.copy(alpha = 0.12f),
-                                Color.White.copy(alpha = 0.05f),
-                                Color.Transparent
-                            ),
-                        start = Offset(size.width * reflectionX - reflectionWidth / 2f, 0f),
-                        end = Offset(size.width * reflectionX + reflectionWidth / 2f, size.height)
-                    ),
-                blendMode = BlendMode.Overlay
-            )
-        }
+        Box(
+            modifier =
+                Modifier.matchParentSize().drawWithCache {
+                    val reflectionWidth = size.width * 0.4f
+                    val reflectionBrush =
+                        Brush.linearGradient(
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    Color.White.copy(alpha = 0.05f),
+                                    Color.White.copy(alpha = 0.12f),
+                                    Color.White.copy(alpha = 0.05f),
+                                    Color.Transparent
+                                ),
+                            start = Offset.Zero,
+                            end = Offset(reflectionWidth, size.height)
+                        )
+                    onDrawBehind {
+                        translate(left = size.width * reflectionX - reflectionWidth / 2f) {
+                            drawRect(
+                                brush = reflectionBrush,
+                                size = Size(reflectionWidth, size.height),
+                                blendMode = BlendMode.Overlay
+                            )
+                        }
+                    }
+                }
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -403,19 +412,20 @@ fun GameStatusToast(
                     contentDescription = statusText
                 }.background(Color.Black.copy(alpha = 0.75f))
                 .drawWithCache {
+                    val lineBrush =
+                        Brush.horizontalGradient(
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    ModernGoldDark,
+                                    ModernGoldLight,
+                                    ModernGoldDark,
+                                    Color.Transparent,
+                                )
+                        )
                     onDrawBehind {
                         drawLine(
-                            brush =
-                                Brush.horizontalGradient(
-                                    colors =
-                                        listOf(
-                                            Color.Transparent,
-                                            ModernGoldDark,
-                                            ModernGoldLight,
-                                            ModernGoldDark,
-                                            Color.Transparent,
-                                        )
-                                ),
+                            brush = lineBrush,
                             start = Offset(0f, size.height),
                             end = Offset(size.width, size.height),
                             strokeWidth = 1.5.dp.toPx(),

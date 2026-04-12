@@ -34,10 +34,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -188,8 +190,7 @@ private fun BigWinBannerContent(
                     Modifier.drawWithCache {
                         // Cache only the static color stops — shimmerX must NOT be read here.
                         // Reading an animated Float in the cache scope invalidates the cache every
-                        // frame (~60×/s), defeating the purpose of drawWithCache. The Brush is
-                        // created inside onDrawWithContent instead, where per-frame reads are fine.
+                        // frame (~60×/s), defeating the purpose of drawWithCache.
                         val shimmerColors =
                             listOf(
                                 Color.Transparent,
@@ -198,15 +199,23 @@ private fun BigWinBannerContent(
                                 PrimaryGold.copy(alpha = 0.4f),
                                 Color.Transparent,
                             )
+                        val bandWidth = size.width * 0.35f
+                        val shimmerBrush =
+                            Brush.linearGradient(
+                                colors = shimmerColors,
+                                start = Offset.Zero,
+                                end = Offset(bandWidth, size.height),
+                            )
                         onDrawWithContent {
                             drawContent()
-                            val shimmerBrush =
-                                Brush.linearGradient(
-                                    colors = shimmerColors,
-                                    start = Offset(size.width * shimmerX, 0f),
-                                    end = Offset(size.width * (shimmerX + 0.35f), size.height),
+                            // shimmerX read here: plain Float math, no allocation.
+                            translate(left = size.width * shimmerX) {
+                                drawRect(
+                                    brush = shimmerBrush,
+                                    size = Size(bandWidth, size.height),
+                                    blendMode = BlendMode.SrcAtop
                                 )
-                            drawRect(brush = shimmerBrush, blendMode = BlendMode.SrcAtop)
+                            }
                         }
                     },
             )
