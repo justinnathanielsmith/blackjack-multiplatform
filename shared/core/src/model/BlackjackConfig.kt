@@ -6,6 +6,7 @@ package io.github.smithjustinn.blackjack.model
  * Centralizing these values ensures consistency across UI components,
  * state machine logic, and betting validation.
  */
+@Suppress("MagicNumber")
 object BlackjackConfig {
     /** Minimum allowed bet for a standard Blackjack hand. */
     const val MIN_BET = 10
@@ -62,4 +63,10 @@ object BlackjackConfig {
     const val TENSION_VALUE_MED = 0.4f
     const val TENSION_VALUE_LOW = 0.2f
     const val TENSION_VALUE_NONE = 0.0f
+
+    /** All valid chip denominations in descending order. */
+    val CHIP_DENOMINATIONS = listOf(500, 100, 50, 25, 10, 5, 1)
+
+    /** Standard rack denominations, typically excluding very large/rare chips. */
+    val RACK_DENOMINATIONS = listOf(100, 25, 10, 5, 1)
 }

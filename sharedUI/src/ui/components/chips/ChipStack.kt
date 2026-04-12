@@ -15,11 +15,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.logic.ChipLogic
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.random.Random
-
-private val DENOMINATIONS = listOf(500, 100, 50, 25, 10, 5, 1)
 
 @Composable
 fun ChipStack(
@@ -48,18 +47,7 @@ fun ChipStack(
             scaleX = pulseScale.value
             scaleY = pulseScale.value
         }
-    val chips =
-        remember(amount) {
-            val list = mutableListOf<Int>()
-            var remaining = amount
-            for (denom in DENOMINATIONS) {
-                while (remaining >= denom && list.size < 8) { // Increased to 8 chips in visual stack
-                    list.add(denom)
-                    remaining -= denom
-                }
-            }
-            list.reversed() // Bottom to top
-        }
+    val chips = remember(amount) { ChipLogic.calculateChipStack(amount) }
 
     // Keep offsets stable for the same amount
     val stackOffsets =

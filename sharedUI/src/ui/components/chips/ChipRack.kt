@@ -25,6 +25,8 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.blackjack.logic.ChipLogic
+import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.OakMedium
 import io.github.smithjustinn.blackjack.ui.theme.TableWoodDeep
@@ -32,24 +34,6 @@ import io.github.smithjustinn.blackjack.ui.theme.TableWoodEdge
 import io.github.smithjustinn.blackjack.ui.theme.TableWoodRim
 import io.github.smithjustinn.blackjack.ui.theme.TrayDarkBottom
 import io.github.smithjustinn.blackjack.ui.theme.TrayDarkTop
-
-private val CHIP_VALUES = listOf(1, 5, 10, 25, 100)
-
-private fun breakdownBalance(
-    balance: Int,
-    chipValues: List<Int>
-): Map<Int, Int> {
-    var remaining = balance
-    val breakdown = mutableMapOf<Int, Int>()
-    for (value in chipValues.sortedDescending()) {
-        val count = remaining / value
-        if (count > 0) {
-            breakdown[value] = count
-        }
-        remaining %= value
-    }
-    return breakdown
-}
 
 @Composable
 fun ChipRack(
@@ -59,7 +43,7 @@ fun ChipRack(
     modifier: Modifier = Modifier,
     onChipPositioned: (Int, Offset) -> Unit = { _, _ -> },
 ) {
-    val breakdown = remember(balance) { breakdownBalance(balance, CHIP_VALUES) }
+    val breakdown = remember(balance) { ChipLogic.breakdownBalance(balance) }
 
     // Outer wooden tray frame
     Box(
@@ -102,7 +86,7 @@ fun ChipRack(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
-                CHIP_VALUES.forEach { value ->
+                BlackjackConfig.RACK_DENOMINATIONS.forEach { value ->
                     val enabled = balance >= value
                     val count = breakdown[value] ?: 0
                     val displayCount = if (count == 0) 1 else minOf(count, 5)
