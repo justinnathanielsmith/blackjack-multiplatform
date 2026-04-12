@@ -30,3 +30,7 @@
 ## 2026-04-07 - GameActionButton
 **Surprise:** The `isStrategic` parameter doesn't just change colors; it triggers a "breathing" animation (pulsing scale and glow) using an `infiniteRepeatable` transition. This is designed to draw the player's eye to the mathematically "correct" move if one is suggested by the game.
 **Rule:** When documenting interactive components, look for "breathing" or "pulsing" logic in the implementation—these often signal high-level game mechanics (like strategic advice) that need to be explained to developers using the component.
+
+## 2026-04-12 - secureRandom
+**Surprise:** `secureRandom` is an undocumented `expect` property that serves as the root source of fairness for the player. While the common `Random.Default` is fine for UI, a gambling game requires cryptographically secure providers (`java.security.SecureRandom` on JVM/Android, `arc4random` on iOS) to prevent deck prediction.
+**Rule:** For security-critical `expect` declarations, always document the underlying platform provider in the `commonMain` KDoc so future maintainers understand the entropy guarantees. Use `@see` in `actual` blocks to maintain the link without duplication.

@@ -3,6 +3,7 @@ package io.github.smithjustinn.blackjack.infra
 import platform.posix.arc4random
 import kotlin.random.Random
 
+/** @see secureRandom */
 actual val secureRandom: Random =
     object : Random() {
         private const val INT_BITS = 32
