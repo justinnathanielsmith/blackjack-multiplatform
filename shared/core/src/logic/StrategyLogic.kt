@@ -4,29 +4,58 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.serialization.Serializable
 
+/**
+ * Represents the mathematically optimal move for a player hand based on Basic Strategy.
+ */
 @Serializable
 enum class StrategyAction {
+    /** Request another card. */
     HIT,
+
+    /** Stop taking cards and keep current total. */
     STAND,
+
+    /** Double the bet, take exactly one more card, and stand. */
     DOUBLE,
+
+    /** Split the pair into two separate hands. */
     SPLIT
 }
 
+/**
+ * Categories for the different types of Basic Strategy decision charts.
+ */
 sealed class StrategyTab {
+    /** Hands without an Ace, or where the Ace must be counted as 1 to avoid busting. */
     data object Hard : StrategyTab()
 
+    /** Hands containing an Ace that can be counted as 11 without busting. */
     data object Soft : StrategyTab()
 
+    /** Hands consisting of two cards of the same rank or value. */
     data object Pairs : StrategyTab()
 }
 
+/**
+ * A single row within a [StrategyTab] chart representing recommendations for a specific player hand.
+ *
+ * @property playerValue The display label for the player's current hand (e.g., "16", "A,7", "8,8").
+ * @property actions A map where the key is the dealer's visible upcard value (2-11, where 11 is Ace)
+ *           and the value is the recommended [StrategyAction].
+ */
 @Immutable
 data class StrategyCell(
     val playerValue: String,
-    // dealer upcard (2..11) to action
     val actions: ImmutableMap<Int, StrategyAction>
 )
 
+/**
+ * Singleton provider of standard multi-deck Blackjack Basic Strategy charts.
+ *
+ * These charts provide the mathematically optimal move (lowest house edge) for every
+ * combination of player total and dealer upcard. Used by the UI to display the strategy
+ * guide and can be used for move suggestions.
+ */
 object StrategyProvider {
     private val ALL_UPCARDS = 2..11
 

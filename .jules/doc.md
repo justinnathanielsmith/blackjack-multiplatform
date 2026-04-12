@@ -38,3 +38,6 @@
 ## 2026-04-12 - GameState.handOutcomes
 **Surprise:** handOutcomes is a constructor property but was missing from class KDoc. It only holds values in terminal status.
 **Rule:** Ensure all constructor parameters in @Immutable @Serializable data classes have @property tags in class-level KDoc.
+## 2026-04-12 - StrategyProvider
+**Surprise:** `StrategyProvider` uses `StrategyCell` where `playerValue` is a `String`. This allows for labels like "17+" or "8 or less" rather than just integers, making the table more compact but requiring logic to map specific hand totals to these ranges.
+**Rule:** When documenting strategy tables, mention that `playerValue` labels are descriptive and require range-mapping logic in the UI layer.
