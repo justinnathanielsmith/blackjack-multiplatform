@@ -65,10 +65,19 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
     val isMassiveSideBetWin =
         sideBetUpdate.results.values.any { it.payoutMultiplier >= BlackjackConfig.MASSIVE_WIN_MULTIPLIER }
 
+    val settledHands =
+        state.playerHands.mutate { builder ->
+            for (i in 0 until builder.size) {
+                val h = builder[i]
+                if (h.isBlackjack) builder[i] = h.copy(isSettled = true)
+            }
+        }
+
     val newState =
         state.copy(
             status = outcome.status,
             dealerHand = outcome.dealerHand,
+            playerHands = settledHands,
             balance = state.balance + outcome.balanceDelta + sideBetUpdate.payoutTotal,
             sideBetResults = sideBetUpdate.results,
             lastSideBets = state.sideBets,

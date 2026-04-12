@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.logic.GameRules
+import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.SideBetType
 import io.github.smithjustinn.blackjack.util.bettingState
 import io.github.smithjustinn.blackjack.util.hand

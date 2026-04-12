@@ -32,6 +32,7 @@ data class Hand(
     val isStanding: Boolean = false,
     val wasSplit: Boolean = false,
     val isFromSplitAce: Boolean = false,
+    val isSettled: Boolean = false,
     val isSurrendered: Boolean = false,
     /** True when this hand was doubled down — the 3rd card should render rotated 90°. */
     val isDoubleDown: Boolean = false,

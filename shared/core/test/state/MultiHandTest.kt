@@ -2,7 +2,6 @@
 
 package io.github.smithjustinn.blackjack.state
 import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
@@ -10,6 +9,7 @@ import io.github.smithjustinn.blackjack.util.card
 import io.github.smithjustinn.blackjack.util.dealerHand
 import io.github.smithjustinn.blackjack.util.deckOf
 import io.github.smithjustinn.blackjack.util.hand
+import io.github.smithjustinn.blackjack.util.multiHandBettingState
 import io.github.smithjustinn.blackjack.util.multiHandPlayingState
 import io.github.smithjustinn.blackjack.util.playingState
 import io.github.smithjustinn.blackjack.util.testMachine
@@ -38,10 +38,7 @@ class MultiHandTest {
                 )
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0)),
+                    multiHandBettingState(seats = 1, bet = 0, balance = 1000).copy(
                         deck = deck
                     ),
                 )

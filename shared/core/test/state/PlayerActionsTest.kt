@@ -4,6 +4,7 @@ package io.github.smithjustinn.blackjack.state
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.Rank
+import io.github.smithjustinn.blackjack.util.assertTransition
 import io.github.smithjustinn.blackjack.util.card
 import io.github.smithjustinn.blackjack.util.dealerHand
 import io.github.smithjustinn.blackjack.util.deckOf
@@ -34,16 +35,11 @@ class PlayerActionsTest {
                         deck = deckOf(Rank.FIVE),
                     ),
                 )
-            sm.dispatch(GameAction.Hit)
-            advanceUntilIdle()
-
-            assertEquals(
-                3,
-                sm.state.value.playerHands[0]
-                    .cards.size
-            )
-            assertEquals(GameStatus.PLAYING, sm.state.value.status)
-            assertEquals(0, sm.state.value.deck.size)
+            sm.assertTransition(GameAction.Hit) { state ->
+                assertEquals(3, state.playerHands[0].cards.size)
+                assertEquals(GameStatus.PLAYING, state.status)
+                assertEquals(0, state.deck.size)
+            }
         }
 
     @Test
@@ -183,12 +179,10 @@ class PlayerActionsTest {
                 testMachine(
                     initialState
                 )
-            sm.dispatch(GameAction.Hit)
-            advanceUntilIdle()
-
-            val state = sm.state.value
-            assertEquals(3, state.playerHands[0].cards.size)
-            assertEquals(2, state.playerHands[1].cards.size)
+            sm.assertTransition(GameAction.Hit) { state ->
+                assertEquals(3, state.playerHands[0].cards.size)
+                assertEquals(2, state.playerHands[1].cards.size)
+            }
         }
 
     @Test
@@ -208,12 +202,10 @@ class PlayerActionsTest {
                 testMachine(
                     initialState
                 )
-            sm.dispatch(GameAction.Hit)
-            advanceUntilIdle()
-
-            val state = sm.state.value
-            assertEquals(2, state.playerHands[0].cards.size)
-            assertEquals(3, state.playerHands[1].cards.size)
+            sm.assertTransition(GameAction.Hit) { state ->
+                assertEquals(2, state.playerHands[0].cards.size)
+                assertEquals(3, state.playerHands[1].cards.size)
+            }
         }
 
     @Test
@@ -331,11 +323,9 @@ class PlayerActionsTest {
                 testMachine(
                     initialState
                 )
-            sm.dispatch(GameAction.Hit)
-            advanceUntilIdle()
-
-            val state = sm.state.value
-            assertEquals(1, state.activeHandIndex)
-            assertEquals(GameStatus.PLAYING, state.status)
+            sm.assertTransition(GameAction.Hit) { state ->
+                assertEquals(1, state.activeHandIndex)
+                assertEquals(GameStatus.PLAYING, state.status)
+            }
         }
 }

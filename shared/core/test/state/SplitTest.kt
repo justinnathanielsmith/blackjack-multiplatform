@@ -1,18 +1,16 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
 package io.github.smithjustinn.blackjack.state
+
 import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
-import io.github.smithjustinn.blackjack.util.card
 import io.github.smithjustinn.blackjack.util.dealerHand
 import io.github.smithjustinn.blackjack.util.deckOf
 import io.github.smithjustinn.blackjack.util.hand
+import io.github.smithjustinn.blackjack.util.multiHandPlayingState
 import io.github.smithjustinn.blackjack.util.playingState
 import io.github.smithjustinn.blackjack.util.testMachine
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -30,10 +28,7 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE, Rank.FOUR),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -86,10 +81,7 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -106,10 +98,7 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -121,14 +110,11 @@ class SplitTest {
         runTest {
             val initialState =
                 playingState(
-                    playerHand = Hand(persistentListOf(card(Rank.EIGHT), card(Rank.EIGHT), card(Rank.TWO))),
+                    playerHand = hand(Rank.EIGHT, Rank.EIGHT, Rank.TWO),
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -139,22 +125,14 @@ class SplitTest {
     fun split_invalid_whenAlreadySplit() =
         runTest {
             val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
+                multiHandPlayingState(
                     balance = 800,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            hand(Rank.EIGHT, Rank.TWO).copy(bet = 100),
-                            hand(Rank.EIGHT, Rank.THREE).copy(bet = 100),
-                        ),
+                    hands = listOf(hand(Rank.EIGHT, Rank.TWO), hand(Rank.EIGHT, Rank.THREE)),
+                    bets = listOf(100, 100),
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FOUR, Rank.FIVE),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -166,33 +144,19 @@ class SplitTest {
         runTest {
             // Split ace hands block further hits
             val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
+                multiHandPlayingState(
                     balance = 800,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            Hand(
-                                persistentListOf(card(Rank.ACE), card(Rank.FIVE)),
-                                bet = 100,
-                                wasSplit = true,
-                                isFromSplitAce = true
-                            ),
-                            Hand(
-                                persistentListOf(card(Rank.ACE), card(Rank.THREE)),
-                                bet = 100,
-                                wasSplit = true,
-                                isFromSplitAce = true
-                            ),
+                    hands =
+                        listOf(
+                            hand(Rank.ACE, Rank.FIVE).copy(wasSplit = true, isFromSplitAce = true),
+                            hand(Rank.ACE, Rank.THREE).copy(wasSplit = true, isFromSplitAce = true),
                         ),
+                    bets = listOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Hit)
             advanceUntilIdle()
 
@@ -208,10 +172,7 @@ class SplitTest {
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FIVE, Rank.THREE),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -229,23 +190,14 @@ class SplitTest {
             // Primary TEN+TEN=20 wins vs dealer 18; Split EIGHT+EIGHT+SIX=22 busts
             // balance=800, bets=[100,100] → balance += 200
             val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
+                multiHandPlayingState(
                     balance = 800,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
-                            Hand(persistentListOf(card(Rank.EIGHT), card(Rank.EIGHT), card(Rank.SIX)), bet = 100),
-                        ),
+                    hands = listOf(hand(Rank.TEN, Rank.TEN), hand(Rank.EIGHT, Rank.EIGHT, Rank.SIX)),
+                    bets = listOf(100, 100),
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.EIGHT),
-                    deck = persistentListOf(),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -260,23 +212,15 @@ class SplitTest {
             // Primary TEN+TEN=20, Split TEN+NINE=19, dealer TEN+SIX draws KING → 26 bust
             // balance=800, bets=[100,100] → balance += 200 + 200
             val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
+                multiHandPlayingState(
                     balance = 800,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
-                            hand(Rank.TEN, Rank.NINE).copy(bet = 100),
-                        ),
+                    hands = listOf(hand(Rank.TEN, Rank.TEN), hand(Rank.TEN, Rank.NINE)),
+                    bets = listOf(100, 100),
                     activeHandIndex = 1,
                     dealerHand = hand(Rank.TEN, Rank.SIX),
                     deck = deckOf(Rank.KING),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Stand)
             advanceUntilIdle()
 
@@ -290,23 +234,15 @@ class SplitTest {
         runTest {
             // 2 initial hands; split hand0 (pair of 8s) → 3 hands, new split hand at index 1
             val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
+                multiHandPlayingState(
                     balance = 800,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            hand(Rank.EIGHT, Rank.EIGHT).copy(bet = 100),
-                            hand(Rank.SEVEN, Rank.THREE).copy(bet = 100),
-                        ),
+                    hands = listOf(hand(Rank.EIGHT, Rank.EIGHT), hand(Rank.SEVEN, Rank.THREE)),
+                    bets = listOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.TWO, Rank.THREE, Rank.FOUR),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -320,23 +256,15 @@ class SplitTest {
         runTest {
             // Hand 0 (pair of aces) splits → gets 1 card each → Hand 2 (original Hand 1) becomes active
             val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
+                multiHandPlayingState(
                     balance = 700,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            hand(Rank.ACE, Rank.ACE).copy(bet = 100),
-                            hand(Rank.TEN, Rank.TEN).copy(bet = 100),
-                        ),
+                    hands = listOf(hand(Rank.ACE, Rank.ACE), hand(Rank.TEN, Rank.TEN)),
+                    bets = listOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.TEN, Rank.SEVEN),
                     deck = deckOf(Rank.FIVE, Rank.THREE),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Split)
             advanceUntilIdle()
 
@@ -353,23 +281,15 @@ class SplitTest {
         runTest {
             // Primary TEN+FIVE=15, hit TEN → 25 bust → split hand becomes active
             val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
+                multiHandPlayingState(
                     balance = 800,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            hand(Rank.TEN, Rank.FIVE).copy(bet = 100),
-                            hand(Rank.TEN, Rank.THREE).copy(bet = 100),
-                        ),
+                    hands = listOf(hand(Rank.TEN, Rank.FIVE), hand(Rank.TEN, Rank.THREE)),
+                    bets = listOf(100, 100),
                     activeHandIndex = 0,
                     dealerHand = hand(Rank.SEVEN, Rank.SEVEN),
                     deck = deckOf(Rank.TEN),
                 )
-            val sm =
-                testMachine(
-                    initialState
-                )
+            val sm = testMachine(initialState)
             sm.dispatch(GameAction.Hit)
             advanceUntilIdle()
 

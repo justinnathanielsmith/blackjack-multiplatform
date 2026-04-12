@@ -2,13 +2,11 @@
 
 package io.github.smithjustinn.blackjack.state
 import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.util.deckOf
+import io.github.smithjustinn.blackjack.util.multiHandBettingState
 import io.github.smithjustinn.blackjack.util.testMachine
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -26,11 +24,7 @@ class InitialOutcomeTest {
             // Expected: Hand0 pushes, Hand1 loses -> Status is PUSH
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 800,
-                        handCount = 2,
-                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100)),
+                    multiHandBettingState(seats = 2).copy(
                         deck =
                             deckOf(
                                 Rank.ACE, // P0 card 1
@@ -61,11 +55,7 @@ class InitialOutcomeTest {
             // Expected: Status = PLAYING (Insurance NOT offered for multi-hand)
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 800,
-                        handCount = 2,
-                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100)),
+                    multiHandBettingState(seats = 2).copy(
                         deck =
                             deckOf(
                                 Rank.NINE, // P0
@@ -85,18 +75,13 @@ class InitialOutcomeTest {
         }
 
     @Test
-    @kotlin.test.Ignore // FIXME: This test identifies a REAL BUG where Natural BJ is paid out twice in multi-hand play.
     fun multiHand_payout_blackjackDoublePayoutLeak() =
         runTest {
             // Arrange: 2 hands. Hand 0 = Blackjack, Hand 1 = 15. Dealer = 19.
             // balance = 800, bets = [100, 100]
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 800,
-                        handCount = 2,
-                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100)),
+                    multiHandBettingState(seats = 2).copy(
                         deck =
                             deckOf(
                                 Rank.ACE, // P0 card 1

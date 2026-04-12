@@ -5,12 +5,10 @@ package io.github.smithjustinn.blackjack.middleware
 import app.cash.turbine.test
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.action.GameEffect
-import io.github.smithjustinn.blackjack.model.GameState
-import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.SideBetType
+import io.github.smithjustinn.blackjack.util.bettingReadyToDeal
+import io.github.smithjustinn.blackjack.util.bettingState
 import io.github.smithjustinn.blackjack.util.testMachine
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -22,14 +20,7 @@ class BettingEffectsTest {
     @Test
     fun placeBetEmitsPlayPlinkSound() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
-                )
+            val sm = testMachine(bettingState())
 
             sm.effects.test {
                 sm.dispatch(GameAction.PlaceBet(100))
@@ -42,14 +33,7 @@ class BettingEffectsTest {
     @Test
     fun resetBetEmitsPlayPlinkSound() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 900,
-                        playerHands = persistentListOf(Hand(bet = 100))
-                    )
-                )
+            val sm = testMachine(bettingReadyToDeal())
 
             sm.effects.test {
                 sm.dispatch(GameAction.ResetBet)
@@ -62,14 +46,7 @@ class BettingEffectsTest {
     @Test
     fun placeSideBetEmitsPlayPlinkSound() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 100))
-                    )
-                )
+            val sm = testMachine(bettingReadyToDeal(bet = 100, balance = 1000))
 
             sm.effects.test {
                 sm.dispatch(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, 50))
@@ -84,9 +61,7 @@ class BettingEffectsTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 950,
+                    bettingState(balance = 950).copy(
                         sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50)
                     )
                 )
@@ -102,14 +77,7 @@ class BettingEffectsTest {
     @Test
     fun invalidBetEmitsVibrate() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 100,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
-                )
+            val sm = testMachine(bettingState(balance = 100))
 
             sm.effects.test {
                 // Bet more than balance

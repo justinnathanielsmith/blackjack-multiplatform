@@ -1,17 +1,21 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
 package io.github.smithjustinn.blackjack.state
+
 import app.cash.turbine.test
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.logic.BlackjackPayout
 import io.github.smithjustinn.blackjack.logic.GameRules
-import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.SideBetType
+import io.github.smithjustinn.blackjack.util.assertNoTransition
+import io.github.smithjustinn.blackjack.util.assertTransition
+import io.github.smithjustinn.blackjack.util.bettingReadyToDeal
+import io.github.smithjustinn.blackjack.util.bettingState
 import io.github.smithjustinn.blackjack.util.deckOf
-import io.github.smithjustinn.blackjack.util.hand
+import io.github.smithjustinn.blackjack.util.defaultPlayingState
 import io.github.smithjustinn.blackjack.util.testMachine
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
@@ -28,40 +32,22 @@ class BettingPhaseTest {
     @Test
     fun placeBet_decreasesBalanceAndIncreasesCurrentBet() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.PlaceBet(100))
-                val state = awaitItem()
+            val sm = testMachine(bettingState())
+            sm.assertTransition(GameAction.PlaceBet(100)) { state ->
                 assertEquals(900, state.balance)
                 assertEquals(100, state.currentBet)
                 assertEquals(GameStatus.BETTING, state.status)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
     fun placeBet_multipleChipsAccumulate() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
-                )
+            val sm = testMachine(bettingState())
             sm.state.test {
                 awaitItem() // initial state
                 sm.dispatch(GameAction.PlaceBet(50))
-                awaitItem() // state after first bet
+                awaitItem()
                 sm.dispatch(GameAction.PlaceBet(100))
                 val state = awaitItem()
                 assertEquals(850, state.balance)
@@ -71,59 +57,20 @@ class BettingPhaseTest {
         }
 
     @Test
-    fun placeBet_rejectedWhenAmountExceedsBalance() =
+    fun placeBet_rejectedForInvalidAmounts() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(status = GameStatus.BETTING, balance = 100, playerHands = persistentListOf(Hand(bet = 0)))
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.PlaceBet(200))
-                expectNoEvents()
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
-
-    @Test
-    fun placeBet_rejectedWhenAmountZeroOrNegative() =
-        runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.PlaceBet(0))
-                expectNoEvents()
-                sm.dispatch(GameAction.PlaceBet(-50))
-                expectNoEvents()
-                cancelAndIgnoreRemainingEvents()
+            // 0 (zero), -50 (negative), 1500 (exceeds balance)
+            listOf(0, -50, 1500).forEach { amount ->
+                val sm = testMachine(bettingState())
+                sm.assertNoTransition(GameAction.PlaceBet(amount))
             }
         }
 
     @Test
     fun placeBet_ignoredWhenNotInBettingPhase() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.PLAYING,
-                        balance = 1000,
-// removed:                         currentBets = persistentListOf(100),
-                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.PlaceBet(50))
-                expectNoEvents()
-                cancelAndIgnoreRemainingEvents()
-            }
+            val sm = testMachine(defaultPlayingState())
+            sm.assertNoTransition(GameAction.PlaceBet(50))
         }
 
     @Test
@@ -131,69 +78,39 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 900,
+                    bettingState(balance = 900).copy(
                         sideBets =
                             persistentMapOf(
                                 SideBetType.PERFECT_PAIRS to 50,
-                                SideBetType.TWENTY_ONE_PLUS_THREE to 50
+                                SideBetType.TWENTY_ONE_PLUS_THREE to 50,
                             )
                     )
                 )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS))
-                val state = awaitItem()
+            sm.assertTransition(GameAction.ResetSideBet(SideBetType.PERFECT_PAIRS)) { state ->
                 assertEquals(950, state.balance)
                 assertNull(state.sideBets[SideBetType.PERFECT_PAIRS])
                 assertEquals(50, state.sideBets[SideBetType.TWENTY_ONE_PLUS_THREE])
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
-    // ── ResetSideBets ─────────────────────────────────────────────────────────
+    // ── ResetBet ──────────────────────────────────────────────────────────────
 
     @Test
     fun resetBet_restoresBalanceAndClearsCurrentBet() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 900,
-                        playerHands = persistentListOf(Hand(bet = 100))
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.ResetBet)
-                val state = awaitItem()
+            val sm = testMachine(bettingReadyToDeal())
+            sm.assertTransition(GameAction.ResetBet) { state ->
                 assertEquals(1000, state.balance)
                 assertEquals(0, state.currentBet)
                 assertEquals(GameStatus.BETTING, state.status)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
     fun resetBet_ignoredWhenNotInBettingPhase() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.PLAYING,
-                        balance = 900,
-// removed:                         currentBets = persistentListOf(100),
-                        playerHands = persistentListOf(hand(Rank.FIVE, Rank.SIX).copy(bet = 100)),
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.ResetBet)
-                expectNoEvents()
-                cancelAndIgnoreRemainingEvents()
-            }
+            val sm = testMachine(defaultPlayingState())
+            sm.assertNoTransition(GameAction.ResetBet)
         }
 
     // ── SelectHandCount ───────────────────────────────────────────────────────
@@ -201,95 +118,41 @@ class BettingPhaseTest {
     @Test
     fun selectHandCount_updatesHandCount() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.SelectHandCount(3))
-                val state = awaitItem()
+            val sm = testMachine(bettingState())
+            sm.assertTransition(GameAction.SelectHandCount(3)) { state ->
                 assertEquals(3, state.handCount)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
     fun selectHandCount_ignoredOutsideBetting() =
         runTest {
-            val initialState =
-                GameState(
-                    status = GameStatus.PLAYING,
-                    balance = 900,
-// removed:                     currentBets = persistentListOf(100),
-                    playerHands =
-                        persistentListOf(
-                            hand(Rank.FIVE, Rank.SIX).copy(bet = 100)
-                        ),
-                    handCount = 1,
-                )
-            val sm =
-                testMachine(
-                    initialState
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.SelectHandCount(2))
-                expectNoEvents()
-                cancelAndIgnoreRemainingEvents()
-            }
+            val sm = testMachine(defaultPlayingState())
+            sm.assertNoTransition(GameAction.SelectHandCount(2))
         }
 
     @Test
     fun selectHandCount_ignoresInvalidValues() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.SelectHandCount(0))
-                expectNoEvents()
-                sm.dispatch(GameAction.SelectHandCount(4))
-                expectNoEvents()
-                cancelAndIgnoreRemainingEvents()
+            listOf(0, 4).forEach { count ->
+                val sm = testMachine(bettingState())
+                sm.assertNoTransition(GameAction.SelectHandCount(count))
+                assertEquals(1, sm.state.value.handCount)
             }
-            assertEquals(1, sm.state.value.handCount)
         }
 
     @Test
     fun selectHandCount_addingSeatsDoesNotPreCharge() =
         runTest {
             // Under the new model, adding a seat is free — new seat starts at 0.
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 900,
-                        playerHands = persistentListOf(Hand(bet = 100)),
-                        handCount = 1
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.SelectHandCount(3))
-                val state = awaitItem()
+            val sm = testMachine(bettingReadyToDeal(bet = 100, balance = 900))
+            sm.assertTransition(GameAction.SelectHandCount(3)) { state ->
                 assertEquals(900, state.balance) // unchanged — no pre-charge
                 assertEquals(3, state.handCount)
                 assertEquals(3, state.playerHands.size)
                 assertEquals(100, state.playerHands[0].bet)
                 assertEquals(0, state.playerHands[1].bet)
                 assertEquals(0, state.playerHands[2].bet)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
@@ -298,42 +161,23 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 700,
-                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
-                        handCount = 3,
+                    bettingState(balance = 700, handCount = 3).copy(
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100))
                     )
                 )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.SelectHandCount(2))
-                val state = awaitItem()
+            sm.assertTransition(GameAction.SelectHandCount(2)) { state ->
                 assertEquals(800, state.balance) // refunded seat-2's $100
                 assertEquals(2, state.handCount)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
     fun selectHandCount_noBalanceChangeWhenNoBet() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0)),
-                        handCount = 1
-                    )
-                )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.SelectHandCount(3))
-                val state = awaitItem()
+            val sm = testMachine(bettingState())
+            sm.assertTransition(GameAction.SelectHandCount(3)) { state ->
                 assertEquals(1000, state.balance)
                 assertEquals(3, state.handCount)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
@@ -344,11 +188,8 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 800,
-                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100)),
-                        handCount = 2,
+                    bettingState(balance = 800, handCount = 2).copy(
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100))
                     )
                 )
             sm.state.test {
@@ -367,11 +208,8 @@ class BettingPhaseTest {
             // 3 hands, bets=[100,100,100]: all 3 already paid via PlaceBet → balance=700
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 700,
+                    bettingState(balance = 700, handCount = 3).copy(
                         playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
-                        handCount = 3,
                         deck = deckOf(Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO, Rank.TWO),
                     )
                 )
@@ -387,42 +225,24 @@ class BettingPhaseTest {
     fun placeBet_onSeat_deductsSeatAmountOnly() =
         runTest {
             // With 3 seats, placing $10 on seat 0 costs $10 — not $30
-            val initialState =
-                GameState(
-                    status = GameStatus.BETTING,
-                    balance = 1000,
-                    playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 0), Hand(bet = 0)),
-                    handCount = 3,
-                )
-            val sm = testMachine(initialState)
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.PlaceBet(10, seatIndex = 0))
-                val state = awaitItem()
+            val sm = testMachine(bettingState(balance = 1000, handCount = 3))
+            sm.assertTransition(GameAction.PlaceBet(10, seatIndex = 0)) { state ->
                 assertEquals(990, state.balance)
                 assertEquals(10, state.playerHands[0].bet)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
     fun deal_rejectedIfAnySeatHasNoBet() =
         runTest {
-            val initialState =
-                GameState(
-                    status = GameStatus.BETTING,
-                    balance = 900,
-                    playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 0)),
-                    handCount = 2,
-                    deck = deckOf(Rank.TEN, Rank.NINE, Rank.TEN, Rank.NINE),
+            val sm =
+                testMachine(
+                    bettingState(balance = 900, handCount = 2).copy(
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 0)),
+                        deck = deckOf(Rank.TEN, Rank.NINE, Rank.TEN, Rank.NINE),
+                    )
                 )
-            val sm = testMachine(initialState)
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.Deal)
-                expectNoEvents() // deal rejected — seat 1 is unfunded
-                cancelAndIgnoreRemainingEvents()
-            }
+            sm.assertNoTransition(GameAction.Deal)
         }
 
     @Test
@@ -430,20 +250,13 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 700,
-                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100)),
-                        handCount = 3,
+                    bettingState(balance = 700, handCount = 3).copy(
+                        playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100), Hand(bet = 100))
                     )
                 )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.ResetBet)
-                val state = awaitItem()
+            sm.assertTransition(GameAction.ResetBet) { state ->
                 assertEquals(1000, state.balance)
                 assertEquals(0, state.currentBet)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
@@ -454,28 +267,18 @@ class BettingPhaseTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.DEALER_WON,
-                        balance = 800,
-                        playerHands = persistentListOf(Hand(bet = 0), Hand(bet = 0), Hand(bet = 0)),
-                        handCount = 3,
-                    )
+                    bettingState(balance = 800, handCount = 3).copy(status = GameStatus.DEALER_WON)
                 )
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.NewGame())
-                val state = awaitItem()
+            sm.assertTransition(GameAction.NewGame()) { state ->
                 assertEquals(1, state.handCount)
                 assertEquals(1, state.playerHands.size)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 
     @Test
     fun newGame_usesRulesDeckCount() =
         runTest {
-            val sm =
-                testMachine()
+            val sm = testMachine()
             sm.dispatch(GameAction.NewGame(rules = GameRules(deckCount = 2)))
             sm.dispatch(GameAction.PlaceBet(100))
             sm.dispatch(GameAction.Deal)
@@ -488,8 +291,7 @@ class BettingPhaseTest {
     @Test
     fun newGame_defaultDeckCountIs6() =
         runTest {
-            val sm =
-                testMachine()
+            val sm = testMachine()
             sm.dispatch(GameAction.NewGame())
             sm.dispatch(GameAction.PlaceBet(100))
             sm.dispatch(GameAction.Deal)
@@ -502,17 +304,10 @@ class BettingPhaseTest {
     @Test
     fun updateRules_updatesGameRules() =
         runTest {
-            val sm =
-                testMachine(
-                    GameState(status = GameStatus.BETTING)
-                )
+            val sm = testMachine(bettingState())
             val newRules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE)
-            sm.state.test {
-                awaitItem() // initial state
-                sm.dispatch(GameAction.UpdateRules(newRules))
-                val state = awaitItem()
+            sm.assertTransition(GameAction.UpdateRules(newRules)) { state ->
                 assertEquals(newRules, state.rules)
-                cancelAndIgnoreRemainingEvents()
             }
         }
 }

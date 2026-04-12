@@ -129,8 +129,8 @@ object BlackjackRules {
         dealerBust: Boolean,
         rules: GameRules,
     ): Int {
-        // Surrendered hands were already refunded at surrender time; return 0 here.
-        if (hand.isSurrendered) return 0
+        // Surrendered and already-settled hands (e.g. initial natural BJs) are skipped.
+        if (hand.isSurrendered || hand.isSettled) return 0
         return when (determineHandOutcome(hand, dealerScore, dealerBust)) {
             HandOutcome.NATURAL_WIN -> bet + (bet * rules.blackjackPayout.numerator) / rules.blackjackPayout.denominator
             HandOutcome.WIN -> bet * 2

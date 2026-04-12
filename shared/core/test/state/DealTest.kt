@@ -3,12 +3,11 @@
 package io.github.smithjustinn.blackjack.state
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.model.Card
-import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.SideBetType
 import io.github.smithjustinn.blackjack.model.Suit
+import io.github.smithjustinn.blackjack.util.bettingReadyToDeal
 import io.github.smithjustinn.blackjack.util.deckOf
 import io.github.smithjustinn.blackjack.util.testMachine
 import kotlinx.collections.immutable.persistentListOf
@@ -28,11 +27,7 @@ class DealTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 100))
-                    )
+                    bettingReadyToDeal(balance = 1000, bet = 100)
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -44,11 +39,7 @@ class DealTest {
         runTest {
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 1000,
-                        playerHands = persistentListOf(Hand(bet = 0))
-                    )
+                    bettingReadyToDeal(balance = 1000, bet = 0)
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -66,12 +57,9 @@ class DealTest {
             // player NINE+TWO=11 (no BJ), dealer TEN+SEVEN=17 (no BJ)
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 900,
-                        playerHands = persistentListOf(Hand(bet = 100)),
+                    bettingReadyToDeal(balance = 900, bet = 100).copy(
                         deck = deckOf(Rank.NINE, Rank.TEN, Rank.TWO, Rank.SEVEN),
-                    ),
+                    )
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -89,12 +77,9 @@ class DealTest {
             // Interleaved: P1(NINE), D1(TEN), P2(TWO), D2(SEVEN): hole card hidden
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 900,
-                        playerHands = persistentListOf(Hand(bet = 100)),
+                    bettingReadyToDeal(balance = 900, bet = 100).copy(
                         deck = deckOf(Rank.NINE, Rank.TEN, Rank.TWO, Rank.SEVEN),
-                    ),
+                    )
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -110,12 +95,9 @@ class DealTest {
             // Interleaved: P1(NINE), D1(KING), P2(TWO), D2(ACE): dealer wins immediately, hole card revealed
             val sm =
                 testMachine(
-                    GameState(
-                        status = GameStatus.BETTING,
-                        balance = 900,
-                        playerHands = persistentListOf(Hand(bet = 100)),
+                    bettingReadyToDeal(balance = 900, bet = 100).copy(
                         deck = deckOf(Rank.NINE, Rank.KING, Rank.TWO, Rank.ACE),
-                    ),
+                    )
                 )
             sm.dispatch(GameAction.Deal)
             advanceUntilIdle()
@@ -129,10 +111,7 @@ class DealTest {
     fun sideBetPayout_perfectPairs_integration() =
         runTest {
             val initialState =
-                GameState(
-                    status = GameStatus.BETTING,
-                    balance = 1000,
-                    playerHands = persistentListOf(Hand(bet = 100)),
+                bettingReadyToDeal(balance = 1000, bet = 100).copy(
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
                     deck =
                         persistentListOf(
