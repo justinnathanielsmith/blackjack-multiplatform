@@ -55,3 +55,7 @@ _Documentation surprises and project-specific KDoc rules discovered during the d
 ## 2026-03-29 - GameStatus
 **Surprise:** `GameStatus.IDLE` is a default placeholder; the SM initializes with `BETTING`. `GameStatus.PLAYER_WON` is a collective status for the round.
 **Rule:** Distinguish between "reachable" application states and "uninitialized" defaults.
+
+## 2026-04-12 - AppSettings
+**Surprise:** `isAutoDealEnabled` logic is split between the domain model (as a preference) and the `BlackjackComponent` (as a side-effect loop). If valid bets are missing after a round reset, the loop automatically disables the setting to prevent an infinite "waiting for bets" state.
+**Rule:** When documenting preference-driven side effects, mention which layer (Domain vs. Presentation) owns the orchestration of that effect and any "auto-disable" triggers.
