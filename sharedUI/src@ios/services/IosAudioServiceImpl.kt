@@ -29,7 +29,6 @@ class IosAudioServiceImpl(
     private val audioDataMap = mutableMapOf<StringResource, NSData>()
 
     private var isSessionActive = false
-    private var soundVolume = 1.0f
 
     init {
         initializeEffects()

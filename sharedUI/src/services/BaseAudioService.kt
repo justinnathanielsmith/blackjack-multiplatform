@@ -18,6 +18,9 @@ abstract class BaseAudioService(
     // Centralises mute guard so no platform impl can forget it.
     override var isMuted: Boolean = false
 
+    // Centralises volume so platform impls share a single source of truth.
+    protected var soundVolume: Float = 1.0f
+
     // Template method: subclasses implement platform-specific load logic.
     protected abstract suspend fun loadEffect(resource: StringResource)
 

@@ -39,7 +39,6 @@ class AndroidAudioServiceImpl(
     private val resourceToName = ConcurrentHashMap<StringResource, String>()
     private val loadedSounds = ConcurrentHashMap.newKeySet<Int>()
     private val fallbackPlayers = ConcurrentHashMap<StringResource, MediaPlayer>()
-    private var soundVolume = 1.0f
 
     init {
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
