@@ -24,6 +24,39 @@ import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationOrchestra
 import io.github.smithjustinn.blackjack.ui.animation.BlackjackAnimationState
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 
+/**
+ * Represents the complete UI state for the Blackjack gameplay screen.
+ *
+ * This state object serves as the "ViewModel-lite" for the [BlackjackScreen] composable. It bridges
+ * the gap between the domain-level [GameState] and the presentation layer by providing:
+ * 1. **Derived flags**: Centralised visibility logic (e.g., [showConfetti], [showInsuranceOverlay])
+ *    so individual components don't need to check [io.github.smithjustinn.blackjack.model.GameStatus] directly.
+ * 2. **Animation state**: References to [BlackjackAnimationState] and [DealAnimationRegistry] for
+ *    coordinating physical card movements and table layout.
+ * 3. **Navigation/Modal state**: Local UI state for showing settings, rules, or strategy sidebars.
+ * 4. **Typed callbacks**: Stable, pre-configured action handlers that delegate back to [BlackjackComponent].
+ *
+ * @property state The primary domain [GameState] driving the table.
+ * @property appSettings User preferences (e.g., auto-deal, sound volume) from [shared/data].
+ * @property animState The persistent state holder for "flashy" UI animations like screen shakes or payout pulses.
+ * @property dealRegistry Registry for tracking card positions on the table to enable fluid dealing animations.
+ * @property selectedAmount The value of the chip currently selected in the betting footer.
+ * @property headerBalanceOffset The screen-relative position of the balance HUD, used for flying-chip payout targets.
+ * @property showSettings True if the settings modal is currently visible.
+ * @property showStrategy True if the basic strategy reference modal is currently visible.
+ * @property showRules True if the house rules modal is currently visible.
+ * @property isTerminal True if the current round has reached a final outcome (Win, Loss, Push).
+ * @property isMultiHand True if the player is playing more than one seat.
+ * @property showInsuranceOverlay True if the "Take Insurance?" decision modal should be displayed.
+ * @property showConfetti True if a celebratory win effect should be active.
+ * @property showSparkle True if a "Natural Blackjack" sparkle effect should be active.
+ * @property activeHandHighlightPositionState A Composable [State] tracking the [Offset] of the
+ *           animated glow indicator for the currently-active hand.
+ * @property onResetBet Callback to clear all active bets from the table.
+ * @property onDeal Callback to finalize bets and start the round.
+ * @property onChipSelected Callback to change the active betting denomination.
+ * @property onAutoDealToggle Callback to enable/disable the "Quick Play" auto-deal mode.
+ */
 data class BlackjackScreenState(
     val state: GameState,
     val appSettings: AppSettings,
@@ -118,6 +151,15 @@ private fun rememberCallbacks(
     )
 }
 
+/**
+ * Creates and remembers a [BlackjackScreenState] instance synchronized with the provided [component].
+ *
+ * This factory function handles the subscription to [BlackjackComponent.state] and [BlackjackComponent.effects],
+ * manages local UI timers/animations, and coordinates the [BlackjackAnimationOrchestrator].
+ *
+ * @param component The [BlackjackComponent] providing the business logic and side-effect streams.
+ * @return A stable [BlackjackScreenState] instance for use in the [BlackjackScreen] hierarchy.
+ */
 @Composable
 fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreenState {
     val state by component.state.collectAsState()
