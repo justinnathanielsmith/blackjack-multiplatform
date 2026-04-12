@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -63,6 +64,15 @@ fun BlackjackScreen(
 ) {
     val screenState = rememberBlackjackScreenState(component)
     val insets = safeDrawingInsets()
+
+    // Bolt Performance Optimization: Stabilize lambdas passed to GameOverlay to prevent
+    // unnecessary recompositions when unrelated BlackjackScreenState properties change.
+    val animState = screenState.animState
+    val flashAlphaProvider = remember(animState) { { animState.flashAlpha.value } }
+    val flashColorProvider = remember(animState) { { animState.flashColor } }
+    val isPausedProvider = remember(animState) { { animState.isPaused } }
+    val showBigWinBannerProvider = remember(animState) { { animState.showBigWinBanner } }
+    val bigWinAmountProvider = remember(animState) { { animState.bigWinAmount } }
 
     BlackjackTheme {
         Box(modifier = modifier) {
@@ -214,14 +224,14 @@ fun BlackjackScreen(
                                 isBust = screenState.state.hasPlayerBustLoss,
                                 netPayout = screenState.state.totalNetPayout,
                                 component = component,
-                                flashAlphaProvider = { screenState.animState.flashAlpha.value },
-                                flashColorProvider = { screenState.animState.flashColor },
+                                flashAlphaProvider = flashAlphaProvider,
+                                flashColorProvider = flashColorProvider,
                                 showInsuranceOverlay = screenState.showInsuranceOverlay,
                                 showConfetti = screenState.showConfetti,
                                 showSparkle = screenState.showSparkle,
-                                isPaused = { screenState.animState.isPaused },
-                                showBigWinBanner = { screenState.animState.showBigWinBanner },
-                                bigWinAmount = { screenState.animState.bigWinAmount },
+                                isPaused = isPausedProvider,
+                                showBigWinBanner = showBigWinBannerProvider,
+                                bigWinAmount = bigWinAmountProvider,
                                 modifier = Modifier.zIndex(2f),
                             )
                             BettingLayer(
