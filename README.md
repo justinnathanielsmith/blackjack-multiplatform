@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="screenshots/logo.png" width="180" alt="Blackjack Logo">
+  <img src="screenshots/gameplay.png" width="400" alt="Blackjack Gameplay">
   <h1>Blackjack Multiplatform</h1>
   <p>A premium, cross-platform Blackjack experience built with <b>Compose Multiplatform</b> and <b>JetBrains Amper</b>.</p>
 
@@ -16,8 +16,9 @@
 ### ✨ Key Highlights
 
 *   **Premium Visuals**: Sleek "glassmorphism" UI, dynamic card animations, and adaptive layouts for all screen sizes (Portrait, Compact Landscape, Wide Landscape).
-*   **Full Casino Logic**: Comprehensive rules including Split (up to 3 hands), Double-down, Insurance, and Surrender.
-*   **Side Bets**: Native support for **21+3** and **Perfect Pairs** side bets with independent resolution logic.
+*   **Full Casino Rules**: Comprehensive logic including Split (up to 3 hands), Double-down, Insurance, and Dealer AI with H17/S17 configurability.
+*   **Advanced Side Bets**: Independent resolution logic for **21+3** and **Perfect Pairs** with mathematical precision.
+*   **Strategy Engine**: Built-in **Basic Strategy Provider** for optimal play hints and performance auditing.
 *   **Reactive Core**: A robust serial state machine pattern using `StateFlow` and decoupled `SharedFlow` side effects (spatial audio, haptic vibrations).
 *   **Modern Tooling**: Built with **Amper** (no Gradle required), **Decompose** for lifecycle management, and **Jujutsu (jj)** for next-gen version control.
 
@@ -47,6 +48,9 @@ stateDiagram-v2
 
 ### Module Map
 
+> [!NOTE]
+> This project uses a **Flat Module Layout**. File paths do not strictly match package declarations to improve navigation and build performance.
+
 | Module | Responsibility |
 | :--- | :--- |
 | `shared/core` | **Domain Layer**: `BlackjackStateMachine`, `GameLogic`, immutable models (`GameState`, `Card`, `Hand`). |
@@ -55,6 +59,20 @@ stateDiagram-v2
 | `androidApp` | **Android Entry**: Platform-specific resources and activity setup. |
 | `desktopApp` | **Desktop Entry**: JVM-specific entry point and windowing. |
 | `iosApp` | **iOS Entry**: Swift-based entry point and UIViewController integration. |
+
+---
+
+## 📝 Documentation Strategy
+
+We prioritize **AI-Friendly Documentation** to ensure future maintainability and agent context.
+
+### Functional Intent over Implementation
+KDoc strings focus on the **What** and **Why** rather than the "How". We document:
+- **Functional Intent**: The purpose and role of the component.
+- **Constraints**: Invariants, thread-safety, and usage limitations.
+- **Invariants**: Fixed rules that the code must always satisfy.
+
+Agents can read the code to see "how" it works. Documentation is for what they *can't* see.
 
 ---
 
@@ -93,7 +111,7 @@ This project uses **Amper**. All commands are executed via the `./amper` wrapper
 # Linting & Formatting
 ./ktlint --format                             # Auto-fix formatting
 ./lint.sh                                     # Full audit (ktlint + detekt)
-jj fix                                        # jj-aware Kotlin formatting
+jj fix                                        # Mandatory: jj-aware Kotlin formatting (auto-runs on change)
 ```
 
 ---
@@ -110,9 +128,13 @@ The codebase is optimized for AI-assisted development with specialized subagents
 | `/architect` | **Integrity** | Audits architectural violations and enforces clean layer separation. |
 | `/linter` | **Style Audit** | Enforces ktlint/detekt consistency and fixes resource naming violations. |
 | `/bumper` | **Dependency** | Audits and upgrades KMP libraries while ensuring Compose compatibility. |
-| `/doc` | **Documentation** | Generates KDoc for public APIs and maintains documentation consistency. |
+| `/eval` | **Strategy Audit** | Audits test quality and produces concrete improvements to testing architecture. |
+| `/doc` | **Documentation** | Generates AI-friendly KDoc focusing on Intent and Constraints. |
 | `/sentinel` | **Security** | Audits the codebase for potential security vulnerabilities and leaks. |
 | `/claude` | **Reasoning** | Senior KMP/Compose agent for deep reasoning and debugging. |
+
+### Centralized Journals
+All subagents maintain persistent memory in `.claude/journals/`. These logs record non-obvious learnings and project-specific nuances to avoid repeating past mistakes.
 
 For a complete guide, see the [AI Subagent & Workflow Guide](docs/AI_AGENTS_GUIDE.md).
 
