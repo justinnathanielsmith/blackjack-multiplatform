@@ -40,6 +40,7 @@ sealed class StrategyTab {
  * A single row within a [StrategyTab] chart representing recommendations for a specific player hand.
  *
  * @property playerValue The display label for the player's current hand (e.g., "16", "A,7", "8,8").
+ *           Labels may represent ranges (e.g., "17+", "8 or less") requiring mapping logic in the UI.
  * @property actions A map where the key is the dealer's visible upcard value (2-11, where 11 is Ace)
  *           and the value is the recommended [StrategyAction].
  */
@@ -358,9 +359,27 @@ object StrategyProvider {
             )
         )
 
+    /**
+     * Returns the Basic Strategy chart for "Hard" hands — hands without an Ace or where
+     * the Ace must count as 1.
+     *
+     * @return A list of [StrategyCell] representing the hard-hand strategy table.
+     */
     fun getHardStrategy(): List<StrategyCell> = hardStrategy
 
+    /**
+     * Returns the Basic Strategy chart for "Soft" hands — hands containing an Ace that
+     * can be counted as 11 without busting.
+     *
+     * @return A list of [StrategyCell] representing the soft-hand strategy table.
+     */
     fun getSoftStrategy(): List<StrategyCell> = softStrategy
 
+    /**
+     * Returns the Basic Strategy chart for pairs — hands consisting of two cards of
+     * the same rank or value.
+     *
+     * @return A list of [StrategyCell] representing the pairs strategy table.
+     */
     fun getPairsStrategy(): List<StrategyCell> = pairsStrategy
 }
