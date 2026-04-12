@@ -179,6 +179,26 @@ private fun CasinoVault(
             stringResource(Res.string.currency_template, formattedBalance)
         )
 
+    // Bolt Performance Optimization: Cache constant gradient brushes to eliminate
+    // 2 Brush allocations per frame during the 800ms animateIntAsState balance roll.
+    // Neither brush depends on size or changing state — memoized for the composable lifetime.
+    val backgroundBrush =
+        remember {
+            Brush.verticalGradient(
+                0.0f to VaultDarkTop,
+                0.5f to Color.Black,
+                1.0f to VaultDarkBottom
+            )
+        }
+    val borderBrush =
+        remember {
+            Brush.linearGradient(
+                0.0f to PrimaryGold,
+                0.5f to PrimaryGold.copy(alpha = 0.3f),
+                1.0f to PrimaryGold
+            )
+        }
+
     Box(
         modifier =
             modifier
@@ -187,21 +207,11 @@ private fun CasinoVault(
                     liveRegion = LiveRegionMode.Polite
                     contentDescription = fullDescription
                 }.background(
-                    brush =
-                        Brush.verticalGradient(
-                            0.0f to VaultDarkTop,
-                            0.5f to Color.Black,
-                            1.0f to VaultDarkBottom
-                        ),
+                    brush = backgroundBrush,
                     shape = RoundedCornerShape(percent = 50)
                 ).border(
                     width = 1.5.dp,
-                    brush =
-                        Brush.linearGradient(
-                            0.0f to PrimaryGold,
-                            0.5f to PrimaryGold.copy(alpha = 0.3f),
-                            1.0f to PrimaryGold
-                        ),
+                    brush = borderBrush,
                     shape = RoundedCornerShape(percent = 50)
                 ).padding(horizontal = 16.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
