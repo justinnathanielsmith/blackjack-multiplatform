@@ -269,8 +269,7 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
             effects = component.effects,
             stateFlow = component.state,
             animState = animState,
-            audioService = component.audioService,
-            hapticsService = component.hapticsService,
+            onEffect = component::onGameEffect,
             dealRegistry = dealRegistry,
         )
     }

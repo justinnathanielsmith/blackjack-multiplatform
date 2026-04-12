@@ -14,6 +14,7 @@ import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.state.BlackjackStateMachine
+import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -74,23 +75,12 @@ interface BlackjackComponent {
     val appSettings: StateFlow<AppSettings>
 
     /**
-     * The underlying [AudioService] used for game sounds.
+     * Routes a [GameEffect] to the appropriate audio/haptics service.
      *
-     * @see onPlayClick
-     * @see onPlayDeal
-     * @see onPlayPlink
-     * @warning This service should be consumed primarily by animation orchestrators in the
-     * presentation layer. **Do not call directly from @Composable functions**; use the
-     * provided `onPlay*` callbacks instead to ensure predictable side-effect timing.
+     * Called exclusively by animation orchestrators — never from `@Composable` functions directly.
+     * Keeps service interfaces off the public API surface so consumers cannot bypass the effect pipeline.
      */
-    val audioService: AudioService
-
-    /**
-     * The underlying [HapticsService] for device feedback.
-     *
-     * Same usage constraints as [audioService] apply.
-     */
-    val hapticsService: HapticsService
+    fun onGameEffect(effect: GameEffect)
 
     /** Plays a standard UI tap/click sound. */
     fun onPlayClick()
@@ -135,8 +125,8 @@ class DefaultBlackjackComponent(
     componentContext: ComponentContext,
     private val balanceService: BalanceService,
     private val settingsRepository: SettingsRepository,
-    override val audioService: AudioService,
-    override val hapticsService: HapticsService,
+    private val audioService: AudioService,
+    private val hapticsService: HapticsService,
     private val logger: Logger,
     private val stateMachine: BlackjackStateMachine,
 ) : BlackjackComponent,
@@ -228,6 +218,8 @@ class DefaultBlackjackComponent(
             }
         }
     }
+
+    override fun onGameEffect(effect: GameEffect) = handleGameEffect(effect, hapticsService, audioService)
 
     override fun onPlayClick() {
         audioService.playEffect(AudioService.SoundEffect.CLICK)

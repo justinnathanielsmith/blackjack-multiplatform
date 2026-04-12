@@ -3,8 +3,6 @@ package io.github.smithjustinn.blackjack.ui.animation
 import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.services.AudioService
-import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,30 +18,6 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BlackjackAnimationOrchestratorTest {
-    private val noopAudio =
-        object : AudioService {
-            override var isMuted: Boolean = false
-
-            override fun playEffect(effect: AudioService.SoundEffect) {}
-
-            override fun release() {}
-        }
-
-    private val noopHaptics =
-        object : HapticsService {
-            override fun vibrate() {}
-
-            override fun heavyThud() {}
-
-            override fun pulse() {}
-
-            override fun lightTick() {}
-
-            override fun winPulse() {}
-
-            override fun bustThud() {}
-        }
-
     @Test
     fun chipEruption_addsToListThenRemovesAfterLifetime() =
         runTest {
@@ -60,8 +34,7 @@ class BlackjackAnimationOrchestratorTest {
                         effects = effects,
                         stateFlow = stateFlow,
                         animState = animState,
-                        audioService = noopAudio,
-                        hapticsService = noopHaptics,
+                        onEffect = {},
                         dealRegistry = DealAnimationRegistry(),
                     )
                 }
@@ -104,8 +77,7 @@ class BlackjackAnimationOrchestratorTest {
                         effects = effects,
                         stateFlow = stateFlow,
                         animState = animState,
-                        audioService = noopAudio,
-                        hapticsService = noopHaptics,
+                        onEffect = {},
                         dealRegistry = DealAnimationRegistry(),
                     )
                 }
@@ -140,8 +112,7 @@ class BlackjackAnimationOrchestratorTest {
                         effects = effects,
                         stateFlow = stateFlow,
                         animState = animState,
-                        audioService = noopAudio,
-                        hapticsService = noopHaptics,
+                        onEffect = {},
                         dealRegistry = DealAnimationRegistry(),
                     )
                 }

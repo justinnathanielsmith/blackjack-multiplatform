@@ -8,12 +8,9 @@ import androidx.compose.ui.graphics.Color
 import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.services.AudioService
-import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.ui.components.feedback.HandResult
 import io.github.smithjustinn.blackjack.ui.components.feedback.handResult
 import io.github.smithjustinn.blackjack.ui.effects.DealAnimationRegistry
-import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import kotlinx.coroutines.CoroutineScope
@@ -53,35 +50,32 @@ object BlackjackAnimationOrchestrator {
      * @param effects A [Flow] of [GameEffect]s dispatched by the state machine's reduction loop.
      * @param stateFlow A [StateFlow] providing the single source of truth for the game's current state.
      * @param animState A mutable holder for animation-related observables (offsets, alphas, eruption lists).
-     * @param audioService Service interface for triggering platform-specific sound effects.
-     * @param hapticsService Service interface for triggering platform-specific vibrations.
+     * @param onEffect Callback that routes a [GameEffect] to the appropriate audio/haptics service.
      * @param dealRegistry Registry for mapping between domain hand indices and layout-specific table coordinates.
      */
     suspend fun orchestrate(
         effects: Flow<GameEffect>,
         stateFlow: StateFlow<GameState>,
         animState: BlackjackAnimationState,
-        audioService: AudioService,
-        hapticsService: HapticsService,
+        onEffect: (GameEffect) -> Unit,
         dealRegistry: DealAnimationRegistry,
     ) = coroutineScope {
         // flashRef is shared between the two pipelines so BigWin can cancel the state-driven flash.
         val flashRef = JobRef()
-        launchEffectsPipeline(effects, animState, audioService, hapticsService, flashRef)
+        launchEffectsPipeline(effects, animState, onEffect, flashRef)
         launchStateDrivenAnimations(stateFlow, animState, dealRegistry, flashRef)
     }
 
     private fun CoroutineScope.launchEffectsPipeline(
         effects: Flow<GameEffect>,
         animState: BlackjackAnimationState,
-        audioService: AudioService,
-        hapticsService: HapticsService,
+        onEffect: (GameEffect) -> Unit,
         flashRef: JobRef,
     ) {
         // 1. Effects pipeline — audio/haptics dispatching + animation state mutations
         launch {
             effects.collect { effect ->
-                handleGameEffect(effect, hapticsService, audioService)
+                onEffect(effect)
                 when (effect) {
                     is GameEffect.NearMissHighlight ->
                         launch {
