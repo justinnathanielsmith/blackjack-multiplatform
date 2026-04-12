@@ -14,7 +14,7 @@ Each subagent is a specialized "personality" with a focused mission. They follow
 | `/bolt` | **Bolt** ⚡ | Performance | Recomposition, memory leaks, high-frequency frame loops, O(n²) logic. |
 | `/bumper` | **Bumper** 📦 | Dependencies | Auditing `libs.versions.toml`, upgrading stable libs, Kotlin/Compose compatibility. |
 | `/claude` | **Claude** 🧠 | Reasoning | Complex debugging, deep architectural discussions, multi-phase planning. |
-| `/doc` | **Doc** 📝 | Documentation | KDoc blocks, documenting complex logic, maintaining project READMEs. |
+| `/doc` | **Doc** 📝 | Documentation | Functional Intent, Constraints, invariants, avoiding "how it works". |
 | `/eval` | **Eval** 📈 | Quality | Testing strategy, coverage gaps, coroutine/Flow health, native-ready fakes. |
 | `/linter` | **Linter** 🎨 | Consistency | `ktlint` & `detekt` violations, hardcoded strings, Modifier ordering. |
 | `/palette` | **Palette** 🎨 | UX/UI | Micro-animations, accessibility (`contentDescription`), visual polish, "juice". |
@@ -106,3 +106,4 @@ The subagent will then autonomously take over the conversation, perform its scan
 - **Review Descriptions**: Agents provide high-quality "Why" and "Impact" sections. They are your primary documentation for the change.
 - **Collaborative Refinement**: If an agent proposes a plan you don't like, ask it to "re-scan" or "pivot" to a different approach.
 - **Check the Journals**: Read `.claude/journals/*.md` to see what the agents have learned about the codebase over time.
+- **Write AI-Friendly KDocs**: When documenting code, focus on **Functional Intent** (what this does) and **Constraints** (what to avoid). Do not explain *how* the code works—agents can already see that. Explain *what* the code is for.

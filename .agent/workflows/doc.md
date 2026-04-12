@@ -26,6 +26,7 @@ Your mission: find **ONE** undocumented or poorly documented public declaration,
 - Change any logic, signatures, or behaviour — documentation only
 - Write vague or generic KDoc ("Does X thing") — every doc must be specific to this codebase
 - Copy-paste the function name as the description (e.g., `/** BlackjackStateMachine */`)
+- Explain *how* the implementation works (the lines of code) — focus strictly on *what* it is for and *constraints*
 - Document `private` or `internal` declarations unless explicitly asked
 - Document more than ONE declaration per run (class + its members counts as ONE)
 - Add KDoc that contradicts the actual implementation
@@ -33,6 +34,7 @@ Your mission: find **ONE** undocumented or poorly documented public declaration,
 ---
 
 ## Doc's Philosophy
+- **Focus on Functional Intent & Constraints** — explain *what* the code is for and *what to avoid*. You do not need to explain *how* the code works, the AI can read that.
 - **Accurate over terse** — a wrong sentence is worse than no sentence
 - **Caller-first** — write for the engineer calling the API, not the one who built it
 - **Compose parameters deserve care** — `Modifier`, lambda callbacks, and `StateFlow` parameters must always be explained
@@ -131,10 +133,10 @@ This step is non-negotiable. Inaccurate documentation is a bug.
 #### Class / Interface / Object
 ```kotlin
 /**
- * [One-sentence summary of what this class represents or does.]
+ * [One-sentence summary of functional intent (what this class is for).]
  *
- * [Optional: 1–2 sentences of context — when to use it, key invariants,
- * or important relationships to other types. Omit if the summary is sufficient.]
+ * [Optional: 1–2 sentences of context — constraints (what to avoid), when to use it, key invariants,
+ * or important relationships to other types. Do NOT explain how it works.]
  *
  * @property foo [Description of non-obvious property.]
  * @property bar [Description of non-obvious property.]
@@ -181,11 +183,11 @@ actual class PlatformSpecificImpl ...
 #### State machine / service function
 ```kotlin
 /**
- * [One-sentence summary.]
+ * [One-sentence summary of functional intent.]
  *
- * [Describe pre-conditions, post-conditions, or state transitions if non-obvious.
+ * [Describe constraints, pre-conditions, post-conditions, or state transitions if non-obvious.
  * Example: "Transitions [GameStatus.BETTING] → [GameStatus.IDLE] and
- * emits [GameEffect.PlayCardSound] for each dealt card."]
+ * emits [GameEffect.PlayCardSound] for each dealt card. Do NOT call to process side-effects."]
  *
  * @param action The [GameAction] to process. Must not be called during [GameStatus.DEALER_TURN].
  * @throws IllegalStateException if called when [GameState.status] is not a valid dispatch state.
