@@ -7,6 +7,14 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.annotation.RequiresPermission
 
+/**
+ * Android-specific implementation of [HapticsService] using the [Vibrator] system service.
+ *
+ * Utilizes [VibrationEffect] (API 26+) for precise control over haptic feedback
+ * patterns, while maintaining backward compatibility for older devices.
+ *
+ * @see HapticsService
+ */
 class AndroidHapticsServiceImpl(
     context: Context,
 ) : HapticsService {
@@ -24,6 +32,7 @@ class AndroidHapticsServiceImpl(
     }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
+    /** @see HapticsService.vibrate */
     override fun vibrate() =
         withVibrator { v ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -37,6 +46,7 @@ class AndroidHapticsServiceImpl(
         }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
+    /** @see HapticsService.heavyThud */
     override fun heavyThud() =
         withVibrator { v ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -50,6 +60,7 @@ class AndroidHapticsServiceImpl(
         }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
+    /** @see HapticsService.pulse */
     override fun pulse() =
         withVibrator { v ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -61,6 +72,7 @@ class AndroidHapticsServiceImpl(
         }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
+    /** @see HapticsService.lightTick */
     override fun lightTick() =
         withVibrator { v ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -74,6 +86,7 @@ class AndroidHapticsServiceImpl(
         }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
+    /** @see HapticsService.winPulse */
     override fun winPulse() =
         withVibrator { v ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -85,6 +98,7 @@ class AndroidHapticsServiceImpl(
         }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
+    /** @see HapticsService.bustThud */
     override fun bustThud() =
         withVibrator { v ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
