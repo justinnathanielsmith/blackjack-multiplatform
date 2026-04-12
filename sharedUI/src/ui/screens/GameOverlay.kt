@@ -76,6 +76,9 @@ fun GameOverlay(
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
+    showInsuranceOverlay: Boolean,
+    showConfetti: Boolean,
+    showSparkle: Boolean,
     modifier: Modifier = Modifier,
     isPaused: () -> Boolean = { false },
     showBigWinBanner: () -> Boolean = { false },
@@ -92,6 +95,9 @@ fun GameOverlay(
             component = component,
             flashAlphaProvider = flashAlphaProvider,
             flashColorProvider = flashColorProvider,
+            showInsuranceOverlay = showInsuranceOverlay,
+            showConfetti = showConfetti,
+            showSparkle = showSparkle,
             isPaused = isPaused,
             showBigWinBanner = showBigWinBanner,
             bigWinAmount = bigWinAmount,
@@ -109,6 +115,9 @@ private fun BlackjackGameOverlay(
     component: BlackjackComponent,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
+    showInsuranceOverlay: Boolean,
+    showConfetti: Boolean,
+    showSparkle: Boolean,
     modifier: Modifier = Modifier,
     isPaused: () -> Boolean = { false },
     showBigWinBanner: () -> Boolean = { false },
@@ -199,14 +208,14 @@ private fun BlackjackGameOverlay(
             )
         }
 
-        if (status == GameStatus.INSURANCE_OFFERED) {
+        if (showInsuranceOverlay) {
             InsuranceOverlay(
                 onInsure = onTakeInsurance,
                 onDecline = onDeclineInsurance,
             )
         }
 
-        if (status == GameStatus.PLAYER_WON) {
+        if (showConfetti) {
             ConfettiEffect(
                 particleCount = if (isBlackjack) 250 else 120,
                 isBlackjack = isBlackjack,
@@ -214,7 +223,7 @@ private fun BlackjackGameOverlay(
             )
         }
 
-        if (status == GameStatus.PLAYER_WON && isBlackjack) {
+        if (showSparkle) {
             SparkleEffect(isPaused = isPaused)
         }
 

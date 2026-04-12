@@ -215,13 +215,16 @@ fun BlackjackScreen(
                                 component = component,
                                 flashAlphaProvider = { screenState.animState.flashAlpha.value },
                                 flashColorProvider = { screenState.animState.flashColor },
+                                showInsuranceOverlay = screenState.showInsuranceOverlay,
+                                showConfetti = screenState.showConfetti,
+                                showSparkle = screenState.showSparkle,
                                 isPaused = { screenState.animState.isPaused },
                                 showBigWinBanner = { screenState.animState.showBigWinBanner },
                                 bigWinAmount = { screenState.animState.bigWinAmount },
                                 modifier = Modifier.zIndex(2f),
                             )
                             BettingLayer(
-                                status = screenState.state.status,
+                                isBetting = screenState.state.isBettingPhase,
                                 handCount = screenState.state.handCount,
                                 sideBets = screenState.state.sideBets,
                                 playerHands = screenState.state.playerHands,

@@ -36,6 +36,10 @@ data class BlackjackScreenState(
     val showRules: Boolean,
     val isTerminal: Boolean,
     val isMultiHand: Boolean,
+    // Presentation mapping: domain status → overlay visibility flags (no GameStatus checks in Composables)
+    val showInsuranceOverlay: Boolean,
+    val showConfetti: Boolean,
+    val showSparkle: Boolean,
     val activeHandHighlightPositionState: State<Offset>,
     val onResetBet: () -> Unit,
     val onDeal: () -> Unit,
@@ -80,6 +84,12 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
 
     val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
+    // Presentation mapping: domain status → overlay visibility flags (no GameStatus checks in Composables)
+    val showInsuranceOverlay by remember { derivedStateOf { state.status == GameStatus.INSURANCE_OFFERED } }
+    val showConfetti by remember { derivedStateOf { state.status == GameStatus.PLAYER_WON } }
+    val showSparkle by remember {
+        derivedStateOf { state.status == GameStatus.PLAYER_WON && state.hasPlayerBlackjackWin }
+    }
 
     val onAutoDealToggle =
         remember(component) {
@@ -146,6 +156,9 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
         showRules = showRules,
         isTerminal = isTerminal,
         isMultiHand = isMultiHand,
+        showInsuranceOverlay = showInsuranceOverlay,
+        showConfetti = showConfetti,
+        showSparkle = showSparkle,
         activeHandHighlightPositionState = activeHandHighlightPositionState,
         onResetBet = onResetBet,
         onDeal = onDeal,
