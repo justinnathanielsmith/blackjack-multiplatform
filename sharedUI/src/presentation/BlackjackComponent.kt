@@ -31,31 +31,93 @@ import kotlinx.coroutines.launch
 private const val AUTO_DEAL_DELAY_TERMINAL_MS = 1500L
 private const val MANUAL_RESET_DELAY_MS = 2000L
 
+/**
+ * Primary Decompose component governing the Blackjack gameplay screen.
+ *
+ * This component acts as the bridge between the UI layer (Compose) and the domain logic
+ * ([BlackjackStateMachine]). It exposes the reactive [state] and [effects] streams,
+ * manages persistent [appSettings], and provides interaction callbacks for player inputs.
+ */
 @Stable
 interface BlackjackComponent {
+    /**
+     * A [StateFlow] emitting the current [GameState].
+     *
+     * This is the single source of truth for all visual elements on the table,
+     * including hands, bets, and game phase.
+     */
     val state: StateFlow<GameState>
+
+    /**
+     * A [Flow] of [GameEffect]s triggered by the state machine.
+     *
+     * These represent transient events like sound triggers, vibrations, or one-off
+     * animations (e.g., chip eruptions) that are not part of the persistent state.
+     */
     val effects: Flow<GameEffect>
+
+    /**
+     * A [StateFlow] for user-persisted [AppSettings].
+     *
+     * Controls global behaviors like auto-deal, sound muting, and house rule variations.
+     */
     val appSettings: StateFlow<AppSettings>
 
-    // audioService is exposed for the animation orchestrator (presentation layer)
-    // and must NOT be called directly from @Composable UI — use onPlay*() methods instead.
+    /**
+     * The underlying [AudioService] used for game sounds.
+     *
+     * @see onPlayClick
+     * @see onPlayDeal
+     * @see onPlayPlink
+     * @warning This service should be consumed primarily by animation orchestrators in the
+     * presentation layer. **Do not call directly from @Composable functions**; use the
+     * provided `onPlay*` callbacks instead to ensure predictable side-effect timing.
+     */
     val audioService: AudioService
+
+    /**
+     * The underlying [HapticsService] for device feedback.
+     *
+     * Same usage constraints as [audioService] apply.
+     */
     val hapticsService: HapticsService
 
-    // Covers all tap-feedback sounds (buttons, chips, seats) — plays CLICK effect.
+    /** Plays a standard UI tap/click sound. */
     fun onPlayClick()
 
-    // Composite reset: clears main bet and side bets together — these always reset as a pair.
+    /**
+     * Resets both the main bet and all active side bets on the table.
+     *
+     * This composite action ensures that the player can clear their entire table stake
+     * with a single interaction during the betting phase.
+     */
     fun onResetBets()
 
+    /** Plays the dealer's card-flipping/dealing sound. */
     fun onPlayDeal()
 
+    /** Plays a chip-related interaction sound. */
     fun onPlayPlink(amount: Int)
 
+    /**
+     * Dispatches a [GameAction] to the state machine.
+     *
+     * @param action The specific player or engine action to process.
+     */
     fun onAction(action: GameAction)
 
+    /**
+     * Updates the persistent user settings via a transformation function.
+     *
+     * @param transform Lambda receiving current settings and returning the updated version.
+     */
     fun updateSettings(transform: (AppSettings) -> AppSettings)
 
+    /**
+     * Resets the player's bankroll to the default starting balance and begins a new game.
+     *
+     * Used typically when the player reaches a $0 balance and needs a "re-buy".
+     */
     fun resetBalance()
 }
 
