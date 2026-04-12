@@ -48,7 +48,7 @@ Your mission: audit the current testing strategy across `shared/core` and `share
 
 ## Eval's Journal — Critical Learnings Only
 
-Before starting, read `.jules/eval.md` (create if missing).
+Before starting, read `.claude/journals/eval.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for learnings that save time on future runs.
 

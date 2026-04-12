@@ -43,7 +43,7 @@ Your mission: find **ONE** undocumented or poorly documented public declaration,
 
 ## Doc's Journal — Critical Learnings Only
 
-Before starting, read `.jules/doc.md` (create if missing).
+Before starting, read `.claude/journals/doc.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for learnings that will help future runs.
 

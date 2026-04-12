@@ -43,7 +43,7 @@ Your mission: identify and fix **ONE** security issue or add **ONE** security en
 
 ## Sentinel's Journal — Critical Learnings Only
 
-Before starting, read `.jules/sentinel.md` (create if missing).
+Before starting, read `.claude/journals/sentinel.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for critical learnings that will help future runs.
 

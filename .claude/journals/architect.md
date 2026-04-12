@@ -1,9 +1,31 @@
 # Architect Journal
 
+_Non-obvious structural learnings and critical refactoring history for the Blackjack project._
+
+---
+
+## 2026-04-10 — AudioService: two valid consumers, only one is a violation
+**Learning:** `audioService` on `BlackjackComponent` serves two consumers:
+1. `BlackjackAnimationOrchestrator` in `BlackjackScreenState` — legitimate presentation wiring, not a Composable calling the service, so NOT a violation.
+2. `BettingPhaseScreen` Composable calling `playEffect()` directly on 6 tap handlers — this IS a violation (UI bypassing the facade).
+
+**Action:** When `audioService` (or any concrete service) appears on a Component interface, check each call site's containing scope. **Composable body = violation**, whereas a coroutine/orchestrator that wires up the effect pipeline is acceptable. Don't reflexively remove the property; instead add named action methods for each distinct UI interaction type.
+
 ## 2026-04-08 - Timing Constants Can Masquerade as Animation Constants
-**Learning:** `AutoDealDelayTerminalMs` and `ManualResetDelayMs` were grouped into `AnimationConstants` (ui.theme) because they're millisecond values — visually identical to animation durations. But they drive state machine *behavior* (when to dispatch `GameAction.NewGame`), not visual appearance. The result was an inverted layer dependency: presentation imported from UI. The distinction to apply: *does changing this value alter what the user sees, or when the next game state fires?* If the latter, it belongs in the presentation layer.
-**Action:** When placing a timing constant, ask whether it controls animation interpolation/duration (ui.theme) or controls when a GameAction is dispatched (presentation layer). If the constant appears in a `delay()` inside a `coroutineScope.launch` in a Component, it belongs in the presentation package.
+**Learning:** `AutoDealDelayTerminalMs` and `ManualResetDelayMs` were grouped into `AnimationConstants` (ui.theme) because they're millisecond values — visually identical to animation durations. But they drive state machine *behavior* (when to dispatch `GameAction.NewGame`), not visual appearance. The result was an inverted layer dependency: presentation imported from UI.
+**Action:** When placing a timing constant, ask whether it controls animation interpolation/duration (ui.theme) or controls when a GameAction is dispatched (presentation layer). If the latter, it belongs in the presentation package.
 
 ## 2026-03-29 - BalanceService Interface Extraction Was Zero-Friction
-**Learning:** When extracting an interface from a concrete class, naming the interface identically to the old class means zero consumer changes — imports, type annotations, and AppGraph declarations all stay untouched. The only files that change are the data layer itself and tests that directly construct the concrete type. This repo's `SettingsRepository` / `DataStoreSettingsRepository` split is the canonical pattern; every future service extraction should mirror it exactly.
-**Action:** Before extracting a service interface, check whether keeping the interface name identical to the old concrete class avoids a cascade of consumer edits. If the class is already named as a noun/capability (`BalanceService`, `AudioService`) rather than an impl (`BalanceServiceImpl`), reuse the name for the interface.
+**Learning:** When extracting an interface from a concrete class, naming the interface identically to the old class means zero consumer changes — imports, type annotations, and AppGraph declarations all stay untouched.
+**Action:** If the class is already named as a noun/capability (`BalanceService`, `AudioService`) rather than an impl (`BalanceServiceImpl`), reuse the name for the interface to avoid a cascade of consumer edits.
+
+## 2026-03-29 - Payout Calculation Refactor
+**Violation:** Payout computation (`handNetPayout`, `totalNetPayout`) living in `sharedUI` despite being pure domain logic calling `BlackjackRules.resolveHand()`.
+**Location:** `sharedUI/src/ui/components/OverlayCardTable.kt`
+**Fix:** Moved `handNetPayout()` and `totalNetPayout()` to `shared/core/src/GameLogic.kt` as `GameState` extension functions. `handResult()` stays in the UI layer as it maps domain outcomes to UI-specific enums.
+**PR:** `architect/payout-logic-to-domain`
+
+---
+
+## Known Violations (Future Work)
+- None currently explicitly tracked.

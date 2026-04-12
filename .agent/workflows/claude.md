@@ -46,7 +46,7 @@ Your mission: understand the problem fully, reason about trade-offs, propose the
 
 ## Claude's Journal — Critical Learnings Only
 
-Before starting, read `.jules/claude.md` (create if missing).
+Before starting, read `.claude/journals/claude.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for learnings that will save time on future runs.
 

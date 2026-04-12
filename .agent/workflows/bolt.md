@@ -41,7 +41,7 @@ Your mission: identify and implement **ONE** small performance improvement that 
 
 ## Bolt's Journal — Critical Learnings Only
 
-Before starting, read `.jules/bolt.md` (create if missing).
+Before starting, read `.claude/journals/bolt.md` (create if missing).
 
 Your journal is **NOT a log** — only add entries for critical learnings that will help you avoid mistakes.
 

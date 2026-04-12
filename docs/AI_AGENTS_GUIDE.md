@@ -36,10 +36,9 @@ When a subagent runs, it follows a standardized process to ensure safety and qua
     - `./lint.sh` (which runs `ktlint` and `detekt`)
 5.  **🎁 PRESENT**: It creates a clean commit/change with a structured Title and Description, explaining the **What**, **Why**, and **Impact**.
 
-### 📓 Journaling (`.claude/journals/` or `.jules/`)
+### 📓 Journaling (`.claude/journals/`)
 Subagents maintain persistent memory to avoid repeating past mistakes.
-- **Claude Journals**: Modern specialized agents (e.g., `/architect`, `/bolt`, `/eval`) use `.claude/journals/`.
-- **Legacy Journals**: Some agents may still use the `.jules/` directory.
+- **Centralized Journals**: All subagents (e.g., `/architect`, `/bolt`, `/eval`) use `.claude/journals/`.
 - **Learning Logs**: They record non-obvious learnings to avoid repeating past mistakes.
 - **Project Memory**: These journals help agents understand the specific nuances of *this* codebase.
 
@@ -106,4 +105,4 @@ The subagent will then autonomously take over the conversation, perform its scan
 - **One at a time**: Let agents finish their work before starting a new one in the same module to avoid merge conflicts.
 - **Review Descriptions**: Agents provide high-quality "Why" and "Impact" sections. They are your primary documentation for the change.
 - **Collaborative Refinement**: If an agent proposes a plan you don't like, ask it to "re-scan" or "pivot" to a different approach.
-- **Check the Journals**: Read `.claude/journals/*.md` (or `.jules/*.md`) to see what the agents have learned about the codebase over time.
+- **Check the Journals**: Read `.claude/journals/*.md` to see what the agents have learned about the codebase over time.
