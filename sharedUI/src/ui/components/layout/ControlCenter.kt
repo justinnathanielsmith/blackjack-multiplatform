@@ -37,8 +37,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.actions.BettingActions
 import io.github.smithjustinn.blackjack.ui.components.actions.GameActions
 import io.github.smithjustinn.blackjack.ui.components.chips.ChipRack
@@ -75,7 +73,11 @@ import sharedui.generated.resources.financial_data_content_description
  * @param canSurrender Eligibility flag for surrendering the active hand.
  * @param activeHandTension A 0f-1f value representing the "intensity" of the current hand
  *        (e.g., close to 21 or potentially busting), used for UI effects.
- * @param component The [BlackjackComponent] providing audio and domain action dispatch.
+ * @param onHit Callback for the Hit action (audio + domain dispatch pre-wired by caller).
+ * @param onStand Callback for the Stand action.
+ * @param onDoubleDown Callback for the Double Down action.
+ * @param onSplit Callback for the Split action.
+ * @param onSurrender Callback for the Surrender action.
  * @param selectedAmount The value of the currently selected chip (e.g., 5, 25, 100).
  * @param onChipSelected Callback when a different chip value is picked.
  * @param onResetBet Callback when the player clears their table bets.
@@ -97,7 +99,12 @@ fun ControlCenter(
     canDoubleDown: Boolean,
     canSurrender: Boolean,
     activeHandTension: Float,
-    component: BlackjackComponent,
+    // Pure UI component — all audio+action callbacks pre-wired by caller (BlackjackScreenState)
+    onHit: () -> Unit,
+    onStand: () -> Unit,
+    onDoubleDown: () -> Unit,
+    onSplit: () -> Unit,
+    onSurrender: () -> Unit,
     selectedAmount: Int,
     onChipSelected: (Int) -> Unit,
     onResetBet: () -> Unit,
@@ -106,43 +113,6 @@ fun ControlCenter(
     isCompact: Boolean = false,
     onChipPositioned: (Int, Offset) -> Unit = { _, _ -> },
 ) {
-    // Audio+action wiring lives here — GameActions is a pure UI component with no component coupling
-    val onHit =
-        remember(component) {
-            {
-                component.onPlayDeal()
-                component.onAction(GameAction.Hit)
-            }
-        }
-    val onStand =
-        remember(component) {
-            {
-                component.onPlayClick()
-                component.onAction(GameAction.Stand)
-            }
-        }
-    val onDoubleDown =
-        remember(component) {
-            {
-                component.onPlayDeal()
-                component.onAction(GameAction.DoubleDown)
-            }
-        }
-    val onSplit =
-        remember(component) {
-            {
-                component.onPlayDeal()
-                component.onAction(GameAction.Split)
-            }
-        }
-    val onSurrender =
-        remember(component) {
-            {
-                component.onPlayClick()
-                component.onAction(GameAction.Surrender)
-            }
-        }
-
     Column(
         modifier =
             modifier

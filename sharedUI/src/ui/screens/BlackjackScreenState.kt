@@ -85,6 +85,12 @@ data class BlackjackScreenState(
     val onDismissRules: () -> Unit,
     val onDismissStrategy: () -> Unit,
     val onHeaderPositioned: (Offset) -> Unit,
+    // Game action callbacks — audio+action wiring centralised here so ControlCenter stays coupling-free
+    val onHit: () -> Unit,
+    val onStand: () -> Unit,
+    val onDoubleDown: () -> Unit,
+    val onSplit: () -> Unit,
+    val onSurrender: () -> Unit,
 )
 
 private data class BlackjackCallbacks(
@@ -99,6 +105,11 @@ private data class BlackjackCallbacks(
     val onDismissRules: () -> Unit,
     val onDismissStrategy: () -> Unit,
     val onHeaderPositioned: (Offset) -> Unit,
+    val onHit: () -> Unit,
+    val onStand: () -> Unit,
+    val onDoubleDown: () -> Unit,
+    val onSplit: () -> Unit,
+    val onSurrender: () -> Unit,
 )
 
 @Composable
@@ -130,6 +141,42 @@ private fun rememberCallbacks(
         remember(component) {
             { component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) } }
         }
+    // Game action callbacks: audio+action wiring centralised here so ControlCenter stays coupling-free
+    val onHit =
+        remember(component) {
+            {
+                component.onPlayDeal()
+                component.onAction(GameAction.Hit)
+            }
+        }
+    val onStand =
+        remember(component) {
+            {
+                component.onPlayClick()
+                component.onAction(GameAction.Stand)
+            }
+        }
+    val onDoubleDown =
+        remember(component) {
+            {
+                component.onPlayDeal()
+                component.onAction(GameAction.DoubleDown)
+            }
+        }
+    val onSplit =
+        remember(component) {
+            {
+                component.onPlayDeal()
+                component.onAction(GameAction.Split)
+            }
+        }
+    val onSurrender =
+        remember(component) {
+            {
+                component.onPlayClick()
+                component.onAction(GameAction.Surrender)
+            }
+        }
     val onSettingsClick = remember { { showSettingsSetter(true) } }
     val onStrategyClick = remember { { showStrategySetter(true) } }
     val onRulesClick = remember { { showRulesSetter(true) } }
@@ -148,6 +195,11 @@ private fun rememberCallbacks(
         onDismissRules = onDismissRules,
         onDismissStrategy = onDismissStrategy,
         onHeaderPositioned = { headerOffsetSetter(it) },
+        onHit = onHit,
+        onStand = onStand,
+        onDoubleDown = onDoubleDown,
+        onSplit = onSplit,
+        onSurrender = onSurrender,
     )
 }
 
@@ -262,5 +314,10 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
         onDismissRules = callbacks.onDismissRules,
         onDismissStrategy = callbacks.onDismissStrategy,
         onHeaderPositioned = callbacks.onHeaderPositioned,
+        onHit = callbacks.onHit,
+        onStand = callbacks.onStand,
+        onDoubleDown = callbacks.onDoubleDown,
+        onSplit = callbacks.onSplit,
+        onSurrender = callbacks.onSurrender,
     )
 }

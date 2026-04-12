@@ -197,7 +197,11 @@ fun BlackjackScreen(
                                         .getOrNull(screenState.state.activeHandIndex)
                                         ?.tension
                                         ?: 0.0f,
-                                component = component,
+                                onHit = screenState.onHit,
+                                onStand = screenState.onStand,
+                                onDoubleDown = screenState.onDoubleDown,
+                                onSplit = screenState.onSplit,
+                                onSurrender = screenState.onSurrender,
                                 selectedAmount = screenState.selectedAmount,
                                 onChipSelected = screenState.onChipSelected,
                                 onResetBet = screenState.onResetBet,
