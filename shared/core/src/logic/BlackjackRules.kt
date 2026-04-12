@@ -27,10 +27,18 @@ data class InitialOutcomeResult(
 )
 
 /**
- * The central engine for Blackjack rules, scoring, and deal orchestration.
+ * The mathematical source of truth for Blackjack rules, scoring, and payouts.
  *
- * This object contains pure logic for determining hand outcomes, calculating payouts,
- * and managing the lifecycle of a round from initial deal to final settlement.
+ * This engine provides **pure logic** for determining hand outcomes, calculating
+ * casino-standard payouts, and orchestrating round lifecycles. It is used by
+ * reducers to compute state transitions and by middleware to drive sequence timing.
+ *
+ * **Functional Intent:**
+ * - Centralize all "House Rules" (e.g., Soft 17 behavior, natural BJ multipliers).
+ * - Ensure consistent score calculation across player and dealer hands.
+ * - Provide deterministic outcome resolution for unit testing and session accuracy.
+ *
+ * Constraints: This object must remain stateless and side-effect free.
  */
 object BlackjackRules {
     /** The target score for a natural Blackjack or a non-bust hand. */

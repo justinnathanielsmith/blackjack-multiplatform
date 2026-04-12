@@ -11,7 +11,18 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
 
 /**
- * Internal logic for the blackjack engine, typically called via middleware dispatch.
+ * Reducers for **Engine Primitives** and internal state management.
+ *
+ * These functions handle the mechanical transitions of the game that are not
+ * directly triggered by user input (e.g., automated card deals, dealer
+ * draw loops, and final payout calculation).
+ *
+ * **Functional Intent:**
+ * - **Middleware-Driven**: Most internal actions are dispatched by the
+ *   [io.github.smithjustinn.blackjack.middleware.GameFlowMiddleware] to synchronize
+ *   physical card movements with animation timing.
+ * - **Finality**: Covers the transformation from active play to terminal
+ *   statuses ([reduceFinalizeGame]).
  */
 
 internal fun reduceDealCardToPlayer(

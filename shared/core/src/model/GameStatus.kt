@@ -3,12 +3,19 @@ package io.github.smithjustinn.blackjack.model
 import kotlinx.serialization.Serializable
 
 /**
- * Represents the lifecycle stages of a single Blackjack round.
+ * The lifecycle state of a single Blackjack round.
  *
- * The full lifecycle typically follows this flow:
- * [BETTING] → [DEALING] → ([INSURANCE_OFFERED]) → [PLAYING] → [DEALER_TURN] → terminal outcome ([PLAYER_WON], [DEALER_WON], or [PUSH]).
+ * This enum governs the **Phase Gating** of the entire engine. It determines which
+ * [io.github.smithjustinn.blackjack.action.GameAction]s are valid and which UI
+ * overlays are displayed.
  *
- * [IDLE] serves as the default state before a game session begins or between sessions.
+ * **Lifecycle Flow:**
+ * [BETTING] → [DEALING] → ([INSURANCE_OFFERED]) → [PLAYING] → [DEALER_TURN] → terminal outcome.
+ *
+ * **Functional Intent:**
+ * - **State Mutability**: Actions only mutate the state when the status allows (e.g., no doubling during [DEALER_TURN]).
+ * - **Input Locking**: Statuses where [isProcess] is true (DEALING, DEALER_TURN) must lock UI interaction.
+ * - **Uninitialized Anchor**: [IDLE] acts as the sentinel between active game sessions.
  */
 @Serializable
 enum class GameStatus {

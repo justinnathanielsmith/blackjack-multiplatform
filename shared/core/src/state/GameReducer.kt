@@ -8,9 +8,12 @@ import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 
 /**
- * A command emitted by [reduce] requesting the middleware to perform an asynchronous
- * operation (e.g. an animated deal sequence or dealer draw loop). Commands are processed
- * outside the action loop so that the loop itself never suspends.
+ * A request for asynchronous orchestration emitted by the pure [reduce] function.
+ *
+ * **Functional Intent:**
+ * - Offload time-sensitive operations (deals, dealer draw loops) to the middleware.
+ * - Ensure the state machine's core reduction loop remains strictly non-suspending.
+ * - Centralize sequence definitions while keeping transitions pure.
  */
 internal sealed class ReducerCommand {
     /** Run the full card-by-card deal animation, then dispatch [GameAction.ApplyInitialOutcome]. */
@@ -21,11 +24,14 @@ internal sealed class ReducerCommand {
 }
 
 /**
- * The output of a single [reduce] invocation.
+ * The atomic output of a state transition.
  *
- * @property state The next [GameState] produced synchronously.
- * @property effects UI-visible [GameEffect]s to emit (sounds, haptics, animations).
- * @property commands Middleware [ReducerCommand]s to execute asynchronously (carry delays).
+ * **Functional Intent:**
+ * - [state]: The deterministic "Next State" of the game.
+ * - [effects]: Fire-and-forget UI feedback (Auditory/Haptic).
+ * - [commands]: Decoupled requests for temporal orchestration (Timing/Delays).
+ *
+ * Constraints: This carrier must be immutable and easily testable.
  */
 internal data class ReducerResult(
     val state: GameState,
@@ -36,12 +42,17 @@ internal data class ReducerResult(
 // ── Pure Reducer ──────────────────────────────────────────────────────────────
 
 /**
- * The pure state transition function for the Blackjack game.
+ * The pure state transition function (State + Action = Result).
  *
- * Given a [GameState] and a [GameAction], returns the next [GameState], any [GameEffect]s
- * to emit, and any [ReducerCommand]s for the middleware layer to execute. This function
- * is 100% synchronous and has no side effects, making it trivially unit-testable without
- * coroutines or virtual time.
+ * This function is the **Source of Truth** for all synchronous state mutations. It delegates
+ * complex phase logic to specialized sub-reducers (Betting, Player, Internal).
+ *
+ * **Functional Intent:**
+ * - Guarantee deterministic state transitions for any given action sequence.
+ * - Prevent side effects (network, IO, delays) from leaking into the domain logic.
+ * - Enable "Time Travel" debugging and exhaustive unit testing via pure inputs.
+ *
+ * Constraints: This function must NEVER suspend and must NEVER have side effects.
  */
 internal fun reduce(
     state: GameState,

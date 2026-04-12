@@ -5,20 +5,23 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 
 /**
- * Represents a set of cards held by either the player or the dealer.
+ * A collection of cards held by a participant (Player or Dealer).
  *
- * Each hand tracks its own cards, associated bet, and lifecycle status (e.g., whether it
- * was split or stands). Blackjack scoring logic, including natural blackjacks and
- * ace-reduction, is encapsulated here.
+ * This class encapsulates the **Scoring Truth** for a hand. It determines point
+ * totals, bust status, and natural Blackjacks.
  *
- * @property cards The [PersistentList] of cards held in this hand.
- * @property bet The current amount wagered on this hand (main bet).
- * @property lastBet The previous bet amount, used for "Repeat Bet" functionality.
- * @property isStanding True if the player has chosen to take no further cards for this hand.
- * @property wasSplit True if this hand was created by splitting a identical pair.
- * @property isFromSplitAce True if this hand was one of two created by splitting a pair of Aces.
- *           Special rules often apply to split Aces (e.g., only one card deal).
- * @property isSurrendered True if the player has surrendered the hand (losing half the bet).
+ * **Functional Intent:**
+ * - **Score vs. Visibility**: [score] is the true engine value; [visibleScore] is the
+ *   player-facing value (gating face-down cards).
+ * - **Tension Metric**: [tension] is a UI-only heuristic used to drive "juice"
+ *   animations (shakes, glows) when a hand is in a high-risk standing zone.
+ * - **Split Rules**: [isFromSplitAce] enforces house constraints (e.g., only one
+ *   card dealt to split Aces).
+ *
+ * @property cards Persistent shoe slice held by this hand.
+ * @property bet Active wager currently tied to this hand's outcome.
+ * @property isStanding Input lock: true if the player has finalized this hand's turn.
+ * @property wasSplit Lineage: true if this hand originated from a [GameAction.Split].
  */
 @Immutable
 @Serializable

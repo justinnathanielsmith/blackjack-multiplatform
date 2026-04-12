@@ -32,11 +32,21 @@ private const val AUTO_DEAL_DELAY_TERMINAL_MS = 1500L
 private const val MANUAL_RESET_DELAY_MS = 2000L
 
 /**
- * Primary Decompose component governing the Blackjack gameplay screen.
+ * The **Interaction Bridge** between the UI layer (Compose) and the domain engine.
  *
- * This component acts as the bridge between the UI layer (Compose) and the domain logic
- * ([BlackjackStateMachine]). It exposes the reactive [state] and [effects] streams,
- * manages persistent [appSettings], and provides interaction callbacks for player inputs.
+ * This Decompose component orchestrates the lifetime of a single Blackjack session.
+ * It transforms raw UI gestures into [GameAction]s and propagates the resulting
+ * [state] and [effects] back to the view.
+ *
+ * **Functional Intent:**
+ * - **Lifecycle Management**: Owns the [componentScope] which governs the
+ *   persistence of balance, settings collection, and the [BlackjackStateMachine].
+ * - **Action Bridging**: Provides stable callbacks (e.g., [onAction], [onResetBets])
+ *   that decoupling the UI from the internal action dispatch logic.
+ * - **State Projection**: Collects and maps domain state (from the state machine)
+ *   into a reactive stream suitable for Composable consumption.
+ *
+ * Constraints: This is the primary entry point for all presentation-layer logic.
  */
 @Stable
 interface BlackjackComponent {

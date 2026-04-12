@@ -12,17 +12,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Executes asynchronous [ReducerCommand]s emitted by the pure reducer.
+ * The **Temporal Orchestrator** for the Blackjack engine.
  *
- * This class owns all animation timing and sequencing logic, keeping [BlackjackStateMachine]
- * free of delay and orchestration concerns. It communicates back to the state machine
- * exclusively through the [dispatch] callback.
+ * This middleware manages the asynchronous sequencing of game events that require
+ * physical card timing, animations, or artificial delays (e.g., dealer thinking time).
  *
- * @param state Read-only view of the current [GameState].
- * @param dispatch Callback used to send [GameAction]s back to the state machine.
- * @param emitEffect Callback used to emit fire-and-forget [GameEffect]s (e.g. sounds).
- * @param isTest When true, all delays collapse to 0 ms for fast, deterministic tests.
- * @param logger Logger instance.
+ * **Functional Intent:**
+ * - **Decoupled Timing**: Keeps the [io.github.smithjustinn.blackjack.state.DefaultBlackjackStateMachine]
+ *   strictly non-suspending by offloading all `delay()` calls to this async layer.
+ * - **Serial Execution**: Processes [ReducerCommand]s one at a time via a dedicated
+ *   internal loop, preventing overlapping animations (e.g., dealer drawing while
+ *   dealing is still in progress).
+ * - **State Feedback**: Communicates back to the engine exclusively via [dispatch].
+ *
+ * Constraints: This class is internal and should only be instantiated by the State Machine.
  */
 internal class GameFlowMiddleware(
     private val state: StateFlow<GameState>,

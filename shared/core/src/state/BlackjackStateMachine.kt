@@ -77,20 +77,27 @@ interface BlackjackStateMachine {
 }
 
 /**
- * The core state machine governing the game of Blackjack.
+ * The core orchestration engine for the Blackjack session.
  *
- * This class serves as the single source of truth for the game state and side effects.
- * It processes [GameAction]s sequentially through a [Channel], delegating pure state
- * transitions to [reduce] and asynchronous animation timing to [GameFlowMiddleware].
+ * This machine enforces a Unidirectional Data Flow (UDF) by consuming [GameAction]s
+ * and emitting [GameState] updates and [GameEffect] side-effects.
  *
- * The action loop itself **never suspends**, ensuring the UI can dispatch new actions at any
- * time — even during an in-progress deal or dealer turn animation. Middleware commands are
- * processed **serially** via a dedicated command channel, preventing animation interleaving.
+ * **Architecture: Dual-Channel Execution**
+ * 1. **The Sync Reduction Loop**: Processes actions serially and synchronously. This loop
+ *    is strictly non-suspending, ensuring the [state] always reflects the latest reduction
+ *    without lag. It delegates pure business logic to the `reduce` function.
+ * 2. **The Async Middleware Loop**: Processes [ReducerCommand]s emitted by the reducer.
+ *    This loop handles time-sensitive transitions (e.g., deal animations, dealer turn delays)
+ *    and can suspend between steps.
  *
- * @param scope The [CoroutineScope] in which the internal loops and middleware run.
- * @param initialState The starting [GameState]. Defaults to a new game with 1000 balance in [GameStatus.BETTING].
- * @param isTest When true, animations and delays are disabled (0ms).
- * @param logger Logger instance for internal state tracking and debugging.
+ * **Functional Intent:**
+ * - Maintain an immutable, reactively-observable session state.
+ * - Decouple UI-triggered actions from the underlying physical card/timing logic.
+ * - Ensure sequential processing of all game events to prevent state corruption.
+ *
+ * @param scope The lifetime for the internal loops. Machine is automatically [shutdown] on scope cancellation.
+ * @param initialState Starting data anchor.
+ * @param isTest Disables physical timing/delays (0ms) for deterministic unit testing.
  */
 class DefaultBlackjackStateMachine(
     private val scope: CoroutineScope,

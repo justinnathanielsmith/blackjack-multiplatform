@@ -13,6 +13,21 @@ import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
 
+/**
+ * State transitions for the pre-deal betting phase.
+ *
+ * This module handles all player wagers (Main Bets, Side Bets), seat configuration,
+ * and rule updates. It enforces house limits and balance constraints.
+ *
+ * **Functional Intent:**
+ * - **Bet Idempotency**: Actions like [reduceResetBet] ensure the table can be cleared
+ *   safely regardless of current wager amounts.
+ * - **Balance Protection**: [reducePlaceBet] and [reducePlaceSideBet] strictly guard
+ *   against exceeding the available bankroll.
+ * - **Transition Readiness**: [reduceDeal] validates that all active seats have a
+ *   legal wager before transitioning to the dealing phase.
+ */
+
 internal fun reduceNewGame(
     state: GameState,
     action: GameAction.NewGame

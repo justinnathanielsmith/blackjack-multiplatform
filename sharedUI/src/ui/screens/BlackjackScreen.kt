@@ -26,7 +26,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.totalNetPayout
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.layout.ControlCenter
@@ -39,24 +38,27 @@ import io.github.smithjustinn.blackjack.ui.theme.BlackjackTheme
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 
 /**
- * The primary gameplay screen for the Blackjack application.
+ * The root orchestrator for the Blackjack gameplay experience.
  *
- * This screen serves as the top-level orchestrator for the active game session, managing the
- * interaction between the [GameState], animations, and user controls. It handles:
- * 1. **Visual Layout**: Adapts the card table and UI elements to different screen sizes and
- *    portrait/landscape aspect ratios.
- * 2. **Animation Orchestration**: Coordinates complex multi-layered animations (dealt cards,
- *    payout eruptions, screen shakes) via [BlackjackScreenState].
- * 3. **Feedback Systems**: Bridges game effects (sounds, haptics) to their platform-specific
- *    services.
- * 4. **User Input**: Dispatches player actions (Hit, Stand, Double Down, etc.) and configuration
- *    changes (Auto-Deal, Side Bets) to the [BlackjackComponent].
- * 5. **Visual Hints**: Displays active-hand highlights and dynamic table reflections to
- *    enhance the "premium" casino feel.
+ * This Composable serves as the **Layout Anchor** for the table. It manages the
+ * spatial coordination between physical card positions (shoe, seats) and the
+ * interactive HUD.
  *
- * @param component The [BlackjackComponent] serving as the state-holder and action dispatcher
- *        for this screen.
- * @param modifier [Modifier] applied to the root container of the screen.
+ * **Functional Intent:**
+ * - **Unidirectional Data Flow**: Consumes state from [component] and dispatches
+ *   actions back to it.
+ * - **Adaptive Layout**: Dynamically recalculates table overlays based on
+ *   [BoxWithConstraints] dimensions to maintain aspect ratio integrity.
+ * - **Animation Coupling**: Bridges the persistent [BlackjackScreenState] to
+ *   transient [io.github.smithjustinn.blackjack.action.GameEffect]s via the
+ *   internal `rememberBlackjackScreenState` hook.
+ *
+ * **Constraints:**
+ * - Must be provided with a [BlackjackComponent] to drive its reactive lifecycle.
+ * - Relies on [LocalDealAnimationRegistry] to coordinate global card movements.
+ *
+ * @param component The platform-agnostic state holder and action dispatcher.
+ * @param modifier Root-level layout adjustments (e.g., padding, background).
  */
 @Composable
 fun BlackjackScreen(

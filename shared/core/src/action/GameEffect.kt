@@ -2,10 +2,18 @@ package io.github.smithjustinn.blackjack.action
 import io.github.smithjustinn.blackjack.model.SideBetType
 
 /**
- * Represents a transient visual or auditory side effect triggered by game events.
+ * Transient feedback events emitted by the [BlackjackStateMachine].
  *
- * Effects are decoupled from the [GameState] and are emitted via the [BlackjackStateMachine.effects]
- * flow to be consumed by the UI layer for "juicy" feedback (sounds, animations, haptics).
+ * This seal-type decouples "Juice" (auditory/haptic/visual feedback) from the
+ * functional [GameState]. Effects are fire-and-forget and do not persist.
+ *
+ * **Functional Intent:**
+ * - **Audio**: Triggers platform-specific sound pools via `AudioService`.
+ * - **Haptic**: Commands device-specific vibration patterns (ticks, thuds, bursts).
+ * - **Visual**: Orchestrates one-off UI animations (confetti, banners, eruptions)
+ *   that are not driven by the persistent state.
+ *
+ * Constraints: Effects must be consumed by the [io.github.smithjustinn.blackjack.ui.effects.GameEffectHandler].
  */
 sealed class GameEffect {
     /** Plays the standard [AudioService.SoundEffect.FLIP] sound when a card is dealt or revealed. */

@@ -8,11 +8,13 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 
 /**
- * Represents a command or interface event dispatched to the [BlackjackStateMachine].
+ * Seal-type representing all discrete commands dispatched to the [BlackjackStateMachine].
  *
- * Each [GameAction] variant corresponds to a specific player interaction or engine
- * request. The state machine processes these actions to transition the [GameState]
- * and emit [GameEffect]s.
+ * Actions are processed sequentially to transition the [GameState]. They are categorized
+ * into two primary types:
+ * 1. **User Actions**: Dispatched by the UI layer in response to player input.
+ * 2. **Engine Primitives**: Internal actions dispatched exclusively by middleware to
+ *    coordinate timing, animations, and house logic.
  */
 sealed class GameAction {
     /**
@@ -158,7 +160,8 @@ sealed class GameAction {
         val type: SideBetType
     ) : GameAction()
 
-    // ── Internal engine primitives (dispatched by middleware only) ────────────────
+    // ── Engine Primitives: Orchestrated by middleware to drive game timing ────────────────
+    // Constraints: These should NEVER be dispatched directly from the UI. ─────────────────
 
     /** Replaces the current deck with a freshly computed shoe. Dispatched by middleware when reshuffle is needed. */
     internal data class SetDeck(
