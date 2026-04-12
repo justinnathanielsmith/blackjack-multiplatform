@@ -4,13 +4,19 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -26,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -371,15 +378,38 @@ private fun HeaderIcon(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val isHovered by interactionSource.collectIsHoveredAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.92f else 1f,
+        animationSpec = spring(dampingRatio = 0.45f, stiffness = 400f),
+        label = "headerIconScale"
+    )
+
     Box(
         modifier =
             modifier
                 .size(32.dp)
-                .semantics { this.contentDescription = contentDescription }
-                .background(GlassDark, RoundedCornerShape(16.dp))
-                .border(1.dp, PrimaryGold.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp))
-                .clickable(role = Role.Button) { onClick() },
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }.semantics { this.contentDescription = contentDescription }
+                .background(
+                    if (isHovered) GlassDark.copy(alpha = 0.8f) else GlassDark,
+                    RoundedCornerShape(16.dp)
+                ).border(
+                    width = 1.dp,
+                    color = if (isHovered) PrimaryGold else PrimaryGold.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(16.dp)
+                ).clip(RoundedCornerShape(16.dp))
+                .hoverable(interactionSource)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null, // Custom scale feedback for "snappy" feel
+                    role = Role.Button
+                ) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Text(
