@@ -3,6 +3,7 @@ package io.github.smithjustinn.blackjack.ui.components.feedback
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import io.github.smithjustinn.blackjack.model.GameStatus
+import io.github.smithjustinn.blackjack.model.isProcess
 import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.ui.theme.DeepWine
 import io.github.smithjustinn.blackjack.ui.theme.FeltGreen
@@ -17,7 +18,9 @@ import sharedui.generated.resources.net_result_won
 import sharedui.generated.resources.status_announcement_template
 import sharedui.generated.resources.status_blackjack_exclamation
 import sharedui.generated.resources.status_bust
+import sharedui.generated.resources.status_dealer_turn
 import sharedui.generated.resources.status_dealer_won
+import sharedui.generated.resources.status_dealing
 import sharedui.generated.resources.status_player_won
 
 /**
@@ -32,6 +35,8 @@ data class GameStatusUiState(
     val bannerBackgroundTopColor: Color,
     val netLabelColor: Color,
     val isTerminal: Boolean,
+    /** True when resolving actions dynamically (e.g. DEALING or DEALER_TURN). */
+    val isProcess: Boolean,
     /** True when the player won; drives ring-expansion and shimmer animations. */
     val isPlayerWon: Boolean,
     /** True for blackjack win; drives faster pulse and shimmer timing. */
@@ -56,9 +61,12 @@ fun rememberGameStatusUiState(
             isBust -> stringResource(Res.string.status_bust)
             status == GameStatus.PLAYER_WON -> stringResource(Res.string.status_player_won)
             status == GameStatus.DEALER_WON -> stringResource(Res.string.status_dealer_won)
+            status == GameStatus.DEALING -> stringResource(Res.string.status_dealing)
+            status == GameStatus.DEALER_TURN -> stringResource(Res.string.status_dealer_turn)
             else -> ""
         }
     val isTerminal = status.isTerminal()
+    val isProcess = status.isProcess()
     val netLabel: String? =
         if (isTerminal && netPayout != null) {
             when {
@@ -104,6 +112,7 @@ fun rememberGameStatusUiState(
         bannerBackgroundTopColor = bannerBackgroundTopColor,
         netLabelColor = netLabelColor,
         isTerminal = isTerminal,
+        isProcess = isProcess,
         isPlayerWon = status == GameStatus.PLAYER_WON,
         isBlackjack = isBlackjack,
         showShimmer = status == GameStatus.PLAYER_WON || status == GameStatus.PUSH,

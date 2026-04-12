@@ -123,10 +123,6 @@ private fun BlackjackGameOverlay(
     showBigWinBanner: () -> Boolean = { false },
     bigWinAmount: () -> Int = { 0 },
 ) {
-    // isProcess() and isTerminal() are mutually exclusive by domain definition
-    val isProcessState = status.isProcess()
-    val isTerminalState = status.isTerminal()
-
     // Bolt Performance Optimization: Pass primitive/narrow domain properties instead of
     // the entire GameState. This allows Compose to skip recomposition of the heavy GameOverlay
     // (and its nested particle systems) when unrelated state (e.g. deck, balance) changes.
@@ -135,15 +131,29 @@ private fun BlackjackGameOverlay(
     var cachedIsBlackjack by remember { mutableStateOf(isBlackjack) }
     var cachedIsBust by remember { mutableStateOf(isBust) }
 
-    if (isTerminalState) {
+    if (status.isTerminal()) {
         cachedStatus = status
         cachedPayout = netPayout
         cachedIsBlackjack = isBlackjack
         cachedIsBust = isBust
     }
 
+    val displayStatus = if (status.isTerminal()) status else cachedStatus
+    val displayPayout = if (status.isTerminal()) netPayout else cachedPayout
+    val displayIsBlackjack = if (status.isTerminal()) isBlackjack else cachedIsBlackjack
+    val displayIsBust = if (status.isTerminal()) isBust else cachedIsBust
+
+    // Single source of truth for UI mapping, removing raw GameStatus branching from Composables
+    val uiState =
+        rememberGameStatusUiState(
+            status = if (status.isTerminal()) status else (if (status.isProcess()) status else displayStatus),
+            isBlackjack = if (status.isTerminal() || status.isProcess()) isBlackjack else displayIsBlackjack,
+            isBust = if (status.isTerminal() || status.isProcess()) isBust else displayIsBust,
+            netPayout = if (status.isTerminal() || status.isProcess()) netPayout else displayPayout,
+        )
+
     val scrimAlpha by animateFloatAsState(
-        targetValue = if (isTerminalState) 0.62f else 0f,
+        targetValue = if (uiState.isTerminal) 0.62f else 0f,
         animationSpec =
             tween(
                 durationMillis = AnimationConstants.StatusMessageEnterDuration,
@@ -171,7 +181,7 @@ private fun BlackjackGameOverlay(
 
         // Tier 1 — Process states: compact toast slides in from top
         AnimatedVisibility(
-            visible = isProcessState,
+            visible = uiState.isProcess && uiState.statusText.isNotEmpty(),
             enter =
                 slideInVertically(
                     initialOffsetY = { -it },
@@ -184,12 +194,12 @@ private fun BlackjackGameOverlay(
                 ) + fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)),
             modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter),
         ) {
-            GameStatusToast(status = status)
+            GameStatusToast(uiState = uiState)
         }
 
         // Tier 2 — Terminal states: dramatic centered panel
         AnimatedVisibility(
-            visible = isTerminalState,
+            visible = uiState.isTerminal,
             enter =
                 fadeIn(animationSpec = tween(AnimationConstants.StatusMessageEnterDuration)) +
                     scaleIn(initialScale = 0.5f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f)),
@@ -197,15 +207,7 @@ private fun BlackjackGameOverlay(
                 fadeOut(animationSpec = tween(AnimationConstants.StatusMessageExitDuration)) +
                     scaleOut(targetScale = 0.8f),
         ) {
-            GameStatusMessage(
-                uiState =
-                    rememberGameStatusUiState(
-                        status = cachedStatus,
-                        isBlackjack = cachedIsBlackjack,
-                        isBust = cachedIsBust,
-                        netPayout = cachedPayout,
-                    )
-            )
+            GameStatusMessage(uiState = uiState)
         }
 
         if (showInsuranceOverlay) {

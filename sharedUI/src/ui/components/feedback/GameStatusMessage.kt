@@ -61,8 +61,6 @@ import sharedui.generated.resources.Res
 import sharedui.generated.resources.net_result_lost
 import sharedui.generated.resources.net_result_push
 import sharedui.generated.resources.net_result_won
-import sharedui.generated.resources.status_dealer_turn
-import sharedui.generated.resources.status_dealing
 
 @Composable
 fun GameStatusMessage(
@@ -376,7 +374,7 @@ fun GameStatusMessage(
 
 @Composable
 fun GameStatusToast(
-    status: GameStatus,
+    uiState: GameStatusUiState,
     modifier: Modifier = Modifier,
 ) {
     val dotTransition = rememberInfiniteTransition(label = "toastDot")
@@ -395,12 +393,7 @@ fun GameStatusToast(
         label = "dotAlpha",
     )
 
-    val statusText =
-        when (status) {
-            GameStatus.DEALING -> stringResource(Res.string.status_dealing)
-            GameStatus.DEALER_TURN -> stringResource(Res.string.status_dealer_turn)
-            else -> ""
-        }
+    val statusText = uiState.statusText
 
     Box(
         modifier =
@@ -462,7 +455,15 @@ fun GameStatusToast(
 @Suppress("UnusedPrivateMember") // Used by Compose Preview
 private fun GameStatusToastDealingPreview() {
     BlackjackTheme {
-        GameStatusToast(status = GameStatus.DEALING)
+        GameStatusToast(
+            uiState =
+                rememberGameStatusUiState(
+                    status = GameStatus.DEALING,
+                    isBlackjack = false,
+                    isBust = false,
+                    netPayout = null
+                )
+        )
     }
 }
 
@@ -471,7 +472,15 @@ private fun GameStatusToastDealingPreview() {
 @Suppress("UnusedPrivateMember") // Used by Compose Preview
 private fun GameStatusToastDealerTurnPreview() {
     BlackjackTheme {
-        GameStatusToast(status = GameStatus.DEALER_TURN)
+        GameStatusToast(
+            uiState =
+                rememberGameStatusUiState(
+                    status = GameStatus.DEALER_TURN,
+                    isBlackjack = false,
+                    isBust = false,
+                    netPayout = null
+                )
+        )
     }
 }
 
