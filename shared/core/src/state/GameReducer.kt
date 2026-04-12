@@ -167,28 +167,25 @@ private fun reduceTakeInsurance(state: GameState): ReducerResult {
             insuranceBet = insuranceBet,
         )
     // Hole card is still face-down but Hand.score counts all cards, so this correctly detects dealer BJ.
-    return if (newState.dealerHand.score == BlackjackRules.BLACKJACK_SCORE) {
-        ReducerResult(
-            state = newState.copy(status = GameStatus.DEALER_TURN),
-            commands = listOf(ReducerCommand.RunDealerTurn),
-        )
-    } else {
-        ReducerResult(state = newState.copy(status = GameStatus.PLAYING))
-    }
+    return resolveInsuranceOutcome(newState)
 }
 
 private fun reduceDeclineInsurance(state: GameState): ReducerResult {
     if (state.status != GameStatus.INSURANCE_OFFERED) return ReducerResult(state)
     val newState = state.copy(insuranceBet = 0)
-    return if (newState.dealerHand.score == BlackjackRules.BLACKJACK_SCORE) {
+    return resolveInsuranceOutcome(newState)
+}
+
+// Insurance resolution: identical outcome path regardless of accept/decline — single source for the dealer-BJ check.
+private fun resolveInsuranceOutcome(state: GameState): ReducerResult =
+    if (state.dealerHand.score == BlackjackRules.BLACKJACK_SCORE) {
         ReducerResult(
-            state = newState.copy(status = GameStatus.DEALER_TURN),
+            state = state.copy(status = GameStatus.DEALER_TURN),
             commands = listOf(ReducerCommand.RunDealerTurn),
         )
     } else {
-        ReducerResult(state = newState.copy(status = GameStatus.PLAYING))
+        ReducerResult(state = state.copy(status = GameStatus.PLAYING))
     }
-}
 
 // ── Shared helper ─────────────────────────────────────────────────────────────
 
