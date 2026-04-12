@@ -27,14 +27,52 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
 // Abstraction boundary: presentation layer depends on this interface, not the concrete class.
+
+/**
+ * A reactive state machine that orchestrates the core logic and side effects of a Blackjack game.
+ *
+ * This interface serves as the primary abstraction boundary between the domain logic and the
+ * presentation layer. It manages a unidirectional data flow where [GameAction]s are dispatched
+ * into the machine, resulting in updates to the [state] and emissions of [effects].
+ */
 interface BlackjackStateMachine {
+    /**
+     * A [StateFlow] emitting the latest [GameState].
+     *
+     * UI components should observe this flow to render the current table state,
+     * player/dealer hands, and available actions.
+     */
     val state: StateFlow<GameState>
+
+    /**
+     * A [Flow] of [GameEffect]s triggered by state transitions.
+     *
+     * These represent transient events that do not affect the persistent game state,
+     * such as sound effects, haptic feedback, or one-off animations.
+     */
     val effects: Flow<GameEffect>
 
+    /**
+     * Dispatches a [GameAction] to the state machine for processing.
+     *
+     * Actions are processed sequentially and asynchronously. Invalid actions for the
+     * current [GameStatus] are typically ignored or logged as warnings.
+     *
+     * @param action The specific action to perform (e.g., [GameAction.Hit], [GameAction.Stand]).
+     */
     fun dispatch(action: GameAction)
 
+    /**
+     * Stops the state machine and closes the action channel, preventing further actions.
+     *
+     * Use [awaitShutdown] if you need to wait for currently buffered actions to finish processing.
+     */
     fun shutdown()
 
+    /**
+     * Suspends until the state machine has completely processed its buffered actions
+     * and finished its shutdown sequence.
+     */
     suspend fun awaitShutdown()
 }
 
