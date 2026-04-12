@@ -49,6 +49,25 @@ import sharedui.generated.resources.playing_card_face_up_description
 
 internal val CardShape = RoundedCornerShape(8.dp)
 
+/**
+ * Renders a physical playing card with realistic animations and high-fidelity visuals.
+ *
+ * This component is the primary visual representation of a [Card] on the table. It handles:
+ * - **Animations**: Smooth Y-axis flips, lift-on-flip effects, and Z-axis "juice" rotations.
+ * - **State Feedback**: Gold "near miss" borders for critical hands and dimmed overlays for inactive ones.
+ * - **Accessibility**: Provides localized content descriptions based on rank and suit.
+ * - **Double Down**: Automatically rotates the 3rd card in a double-down hand by 90 degrees.
+ *
+ * @param card The domain [Card] model identifying the rank and suit to display.
+ * @param isFaceUp Determines whether the card face or back is visible. Changes trigger a flip animation.
+ * @param modifier [Modifier] applied to the outermost card container.
+ * @param scale Overall size multiplier used to adjust card dimensions while maintaining aspect ratio.
+ * @param isNearMiss If true, triggers a pulsing [PrimaryGold] border to signal a high-tension hand.
+ * @param isDimmed If true, applies a dark overlay (e.g., when the hand has busted or is no longer active).
+ * @param shadowElevation Z-depth for the card's shadow.
+ * @param spotColor Tint color for the shadow.
+ * @param isDoubleDown If true, triggers a 90-degree Z-axis rotation to indicate a double-down wager.
+ */
 @Composable
 fun PlayingCard(
     card: Card,

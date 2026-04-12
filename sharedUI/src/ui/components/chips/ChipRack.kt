@@ -35,6 +35,31 @@ import io.github.smithjustinn.blackjack.ui.theme.TableWoodRim
 import io.github.smithjustinn.blackjack.ui.theme.TrayDarkBottom
 import io.github.smithjustinn.blackjack.ui.theme.TrayDarkTop
 
+/**
+ * A wooden tray component that displays available chips for betting.
+ *
+ * This component handles the visual organization of chips into physical stacks
+ * based on the player's [balance]. It provides an interactive interface for
+ * selecting betting amounts and reporting the logical center of each chip
+ * stack to the global animation registry.
+ *
+ * **Functional Intent:**
+ * - **Balance Gates**: Denominations higher than the current [balance] appear
+ *   as semi-transparent "ghosts" and are disabled.
+ * - **Animated Fly-Outs**: Reports the layout position of the top-most chip in
+ *   each stack via [onChipPositioned] to coordinate "flight" animations when
+ *   chips are added to a bet.
+ * - **Aesthetic Depth**: Uses a multi-layered design with shadows, borders,
+ *   and gradients to match the premium wooden casino table theme.
+ *
+ * @param balance The player's total liquidity. Used to gate chip availability.
+ * @param selectedAmount The current denomination selected for placing bets.
+ * @param onChipSelected Callback invoked when a valid (enabled) chip stack is tapped.
+ * @param modifier [Modifier] applied to the outer wooden frame of the tray.
+ * @param onChipPositioned Callback triggered when a chip stack's center point
+ *   is calculated. Receives the stack's chip value and its [Offset] in the root
+ *   window coordinate space.
+ */
 @Composable
 fun ChipRack(
     balance: Int,
