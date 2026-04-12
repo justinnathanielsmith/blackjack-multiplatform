@@ -57,8 +57,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
 import io.github.smithjustinn.blackjack.ui.theme.Dimensions
@@ -103,46 +101,15 @@ fun GameActions(
     canDoubleDown: Boolean,
     canSurrender: Boolean,
     activeHandTension: Float,
-    component: BlackjackComponent,
+    // Pure callbacks — audio+action wiring delegated to ControlCenter (presentation glue layer)
+    onHit: () -> Unit,
+    onStand: () -> Unit,
+    onDoubleDown: () -> Unit,
+    onSplit: () -> Unit,
+    onSurrender: () -> Unit,
     modifier: Modifier = Modifier,
     isCompact: Boolean = false,
 ) {
-    val onHit =
-        remember(component) {
-            {
-                component.onPlayDeal()
-                component.onAction(GameAction.Hit)
-            }
-        }
-    val onStand =
-        remember(component) {
-            {
-                component.onPlayClick()
-                component.onAction(GameAction.Stand)
-            }
-        }
-    val onDoubleDown =
-        remember(component) {
-            {
-                component.onPlayDeal()
-                component.onAction(GameAction.DoubleDown)
-            }
-        }
-    val onSplit =
-        remember(component) {
-            {
-                component.onPlayDeal()
-                component.onAction(GameAction.Split)
-            }
-        }
-    val onSurrender =
-        remember(component) {
-            {
-                component.onPlayClick()
-                component.onAction(GameAction.Surrender)
-            }
-        }
-
     AnimatedContent(
         targetState = isPlaying,
         transitionSpec = {
