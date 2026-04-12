@@ -49,16 +49,16 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
             playerHand = state.playerHands[0],
             dealerUpcard = state.dealerHand.cards[0],
         )
-    val (initialStatus, finalDealerHand, balanceUpdate) =
+    val outcome =
         BlackjackRules.resolveInitialOutcomeValues(state, state.playerHands, state.dealerHand)
     val isMassiveSideBetWin =
         sideBetUpdate.results.values.any { it.payoutMultiplier >= BlackjackConfig.MASSIVE_WIN_MULTIPLIER }
 
     val newState =
         state.copy(
-            status = initialStatus,
-            dealerHand = finalDealerHand,
-            balance = state.balance + balanceUpdate + sideBetUpdate.payoutTotal,
+            status = outcome.status,
+            dealerHand = outcome.dealerHand,
+            balance = state.balance + outcome.balanceDelta + sideBetUpdate.payoutTotal,
             sideBetResults = sideBetUpdate.results,
             lastSideBets = state.sideBets,
             sideBets = persistentMapOf(),
@@ -66,10 +66,10 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
 
     val effects =
         getEffectsForApplyInitialOutcome(
-            balanceUpdate = balanceUpdate,
+            balanceUpdate = outcome.balanceDelta,
             sideBetUpdate = sideBetUpdate,
             state = state,
-            initialStatus = initialStatus,
+            initialStatus = outcome.status,
             isMassiveSideBetWin = isMassiveSideBetWin
         )
     return ReducerResult(state = newState, effects = effects)
@@ -100,10 +100,7 @@ internal fun reduceRevealDealerHole(state: GameState): ReducerResult {
 internal fun reduceDealerDraw(state: GameState): ReducerResult {
     val card = state.deck.firstOrNull() ?: return ReducerResult(state)
     val newDeck = state.deck.drop(1).toPersistentList()
-    val isCritical =
-        state.dealerHand.score in
-            BlackjackRules.DEALER_STIFF_MIN until BlackjackRules.DEALER_STAND_THRESHOLD &&
-            !state.dealerHand.isSoft
+    val isCritical = BlackjackRules.isDealerCriticalDraw(state.dealerHand)
     val newDealerHand = state.dealerHand.copy(cards = state.dealerHand.cards.add(card))
     return ReducerResult(
         state =
@@ -191,8 +188,9 @@ private fun getEffectsForApplyInitialOutcome(
         state.sideBets.forEach { (type, amount) ->
             if (sideBetUpdate.results[type] == null) add(GameEffect.ChipLoss(amount))
         }
+        val isWinOutcome = initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0
         when {
-            initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0 -> {
+            isWinOutcome -> {
                 if (isMassiveSideBetWin) {
                     add(GameEffect.BigWin(sideBetUpdate.payoutTotal))
                 } else {

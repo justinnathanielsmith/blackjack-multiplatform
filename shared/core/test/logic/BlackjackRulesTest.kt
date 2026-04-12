@@ -159,6 +159,28 @@ class BlackjackRulesTest {
         assertFalse(results.allPush)
     }
 
+    // ── isDealerCriticalDraw ──────────────────────────────────────────────────
+
+    @Test
+    fun isDealerCriticalDraw_false_whenScoreBelowStiffMin() {
+        val h = hand(Rank.TWO, Rank.THREE) // score = 5
+        assertFalse(BlackjackRules.isDealerCriticalDraw(h))
+    }
+
+    @Test
+    fun isDealerCriticalDraw_true_whenStiffHardHand() {
+        // score = 16 (hard), within [DEALER_STIFF_MIN, DEALER_STAND_THRESHOLD)
+        val h = hand(Rank.TEN, Rank.SIX)
+        assertTrue(BlackjackRules.isDealerCriticalDraw(h))
+    }
+
+    @Test
+    fun isDealerCriticalDraw_false_whenSoftHandInRange() {
+        // score = 16, soft (Ace + Five) — in range but isSoft=true so not critical
+        val h = hand(Rank.ACE, Rank.FIVE)
+        assertFalse(BlackjackRules.isDealerCriticalDraw(h))
+    }
+
     // ── Initial Outcome Integration ───────────────────────────────────────────
 
     @Test
@@ -167,11 +189,14 @@ class BlackjackRulesTest {
         val playerHands = listOf(hand(Rank.TEN, Rank.SEVEN))
         val dealerHand = dealerHand(Rank.ACE, Rank.FIVE)
 
-        val (status, finalDealer, payout) = BlackjackRules.resolveInitialOutcomeValues(current, playerHands, dealerHand)
+        val result = BlackjackRules.resolveInitialOutcomeValues(current, playerHands, dealerHand)
 
-        assertEquals(GameStatus.INSURANCE_OFFERED, status)
-        assertTrue(finalDealer.cards[1].isFaceDown, "Hole card should NOT be revealed during insurance offer sequence")
-        assertEquals(0, payout)
+        assertEquals(GameStatus.INSURANCE_OFFERED, result.status)
+        assertTrue(
+            result.dealerHand.cards[1].isFaceDown,
+            "Hole card should NOT be revealed during insurance offer sequence"
+        )
+        assertEquals(0, result.balanceDelta)
     }
 
     @Test
@@ -180,10 +205,10 @@ class BlackjackRulesTest {
         val playerHands = listOf(hand(Rank.ACE, Rank.TEN).copy(bet = 100))
         val dealerHand = dealerHand(Rank.TEN, Rank.SEVEN)
 
-        val (status, _, payout) = BlackjackRules.resolveInitialOutcomeValues(current, playerHands, dealerHand)
+        val result = BlackjackRules.resolveInitialOutcomeValues(current, playerHands, dealerHand)
 
-        assertEquals(GameStatus.PLAYER_WON, status)
-        assertEquals(250, payout) // 100 bet + 150 profit (3:2)
+        assertEquals(GameStatus.PLAYER_WON, result.status)
+        assertEquals(250, result.balanceDelta) // 100 bet + 150 profit (3:2)
     }
 
     // ── Deck Creation ─────────────────────────────────────────────────────────

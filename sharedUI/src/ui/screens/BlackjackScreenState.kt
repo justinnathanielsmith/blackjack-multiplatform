@@ -54,17 +54,29 @@ data class BlackjackScreenState(
     val onHeaderPositioned: (Offset) -> Unit,
 )
 
-@Composable
-fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreenState {
-    val state by component.state.collectAsState()
-    val appSettings by component.appSettings.collectAsState()
-    var showSettings by remember { mutableStateOf(false) }
-    var showStrategy by remember { mutableStateOf(false) }
-    var showRules by remember { mutableStateOf(false) }
-    val animState = remember { BlackjackAnimationState() }
-    var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
-    var selectedAmount by remember { mutableStateOf(BlackjackConfig.DEFAULT_CHIP_AMOUNT) }
+private data class BlackjackCallbacks(
+    val onResetBet: () -> Unit,
+    val onDeal: () -> Unit,
+    val onChipSelected: (Int) -> Unit,
+    val onAutoDealToggle: () -> Unit,
+    val onSettingsClick: () -> Unit,
+    val onStrategyClick: () -> Unit,
+    val onRulesClick: () -> Unit,
+    val onDismissSettings: () -> Unit,
+    val onDismissRules: () -> Unit,
+    val onDismissStrategy: () -> Unit,
+    val onHeaderPositioned: (Offset) -> Unit,
+)
 
+@Composable
+private fun rememberCallbacks(
+    component: BlackjackComponent,
+    selectedAmountSetter: (Int) -> Unit,
+    showSettingsSetter: (Boolean) -> Unit,
+    showStrategySetter: (Boolean) -> Unit,
+    showRulesSetter: (Boolean) -> Unit,
+    headerOffsetSetter: (Offset) -> Unit,
+): BlackjackCallbacks {
     // Composite reset delegated to component — UI layer no longer encodes which actions pair together.
     val onResetBet = remember(component) { { component.onResetBets() } }
     val onDeal =
@@ -77,11 +89,58 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
     val onChipSelected =
         remember(component) {
             { amount: Int ->
-                selectedAmount = amount
+                selectedAmountSetter(amount)
                 component.onPlayPlink(amount)
             }
         }
+    val onAutoDealToggle =
+        remember(component) {
+            { component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) } }
+        }
+    val onSettingsClick = remember { { showSettingsSetter(true) } }
+    val onStrategyClick = remember { { showStrategySetter(true) } }
+    val onRulesClick = remember { { showRulesSetter(true) } }
+    val onDismissSettings = remember { { showSettingsSetter(false) } }
+    val onDismissRules = remember { { showRulesSetter(false) } }
+    val onDismissStrategy = remember { { showStrategySetter(false) } }
+    return BlackjackCallbacks(
+        onResetBet = onResetBet,
+        onDeal = onDeal,
+        onChipSelected = onChipSelected,
+        onAutoDealToggle = onAutoDealToggle,
+        onSettingsClick = onSettingsClick,
+        onStrategyClick = onStrategyClick,
+        onRulesClick = onRulesClick,
+        onDismissSettings = onDismissSettings,
+        onDismissRules = onDismissRules,
+        onDismissStrategy = onDismissStrategy,
+        onHeaderPositioned = { headerOffsetSetter(it) },
+    )
+}
 
+@Composable
+fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreenState {
+    val state by component.state.collectAsState()
+    val appSettings by component.appSettings.collectAsState()
+    var showSettings by remember { mutableStateOf(false) }
+    var showStrategy by remember { mutableStateOf(false) }
+    var showRules by remember { mutableStateOf(false) }
+    val animState = remember { BlackjackAnimationState() }
+    var headerBalanceOffset by remember { mutableStateOf(Offset.Zero) }
+    var selectedAmount by remember { mutableStateOf(BlackjackConfig.DEFAULT_CHIP_AMOUNT) }
+
+    // ── Callbacks ──
+    val callbacks =
+        rememberCallbacks(
+            component = component,
+            selectedAmountSetter = { selectedAmount = it },
+            showSettingsSetter = { showSettings = it },
+            showStrategySetter = { showStrategy = it },
+            showRulesSetter = { showRules = it },
+            headerOffsetSetter = { headerBalanceOffset = it },
+        )
+
+    // ── Derived State ──
     val isTerminal by remember { derivedStateOf { state.status.isTerminal() } }
     val isMultiHand by remember { derivedStateOf { state.playerHands.size > 1 } }
     // Presentation mapping: domain status → overlay visibility flags (no GameStatus checks in Composables)
@@ -91,17 +150,7 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
         derivedStateOf { state.status == GameStatus.PLAYER_WON && state.hasPlayerBlackjackWin }
     }
 
-    val onAutoDealToggle =
-        remember(component) {
-            { component.updateSettings { it.copy(isAutoDealEnabled = !it.isAutoDealEnabled) } }
-        }
-    val onSettingsClick = remember { { showSettings = true } }
-    val onStrategyClick = remember { { showStrategy = true } }
-    val onRulesClick = remember { { showRules = true } }
-    val onDismissSettings = remember { { showSettings = false } }
-    val onDismissRules = remember { { showRules = false } }
-    val onDismissStrategy = remember { { showStrategy = false } }
-
+    // ── Animation Setup ──
     val dealRegistry = remember { DealAnimationRegistry() }
 
     LaunchedEffect(state.status) {
@@ -160,16 +209,16 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
         showConfetti = showConfetti,
         showSparkle = showSparkle,
         activeHandHighlightPositionState = activeHandHighlightPositionState,
-        onResetBet = onResetBet,
-        onDeal = onDeal,
-        onChipSelected = onChipSelected,
-        onAutoDealToggle = onAutoDealToggle,
-        onSettingsClick = onSettingsClick,
-        onStrategyClick = onStrategyClick,
-        onRulesClick = onRulesClick,
-        onDismissSettings = onDismissSettings,
-        onDismissRules = onDismissRules,
-        onDismissStrategy = onDismissStrategy,
-        onHeaderPositioned = { headerBalanceOffset = it },
+        onResetBet = callbacks.onResetBet,
+        onDeal = callbacks.onDeal,
+        onChipSelected = callbacks.onChipSelected,
+        onAutoDealToggle = callbacks.onAutoDealToggle,
+        onSettingsClick = callbacks.onSettingsClick,
+        onStrategyClick = callbacks.onStrategyClick,
+        onRulesClick = callbacks.onRulesClick,
+        onDismissSettings = callbacks.onDismissSettings,
+        onDismissRules = callbacks.onDismissRules,
+        onDismissStrategy = callbacks.onDismissStrategy,
+        onHeaderPositioned = callbacks.onHeaderPositioned,
     )
 }

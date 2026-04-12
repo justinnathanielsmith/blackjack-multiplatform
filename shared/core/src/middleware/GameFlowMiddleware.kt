@@ -98,11 +98,7 @@ internal class GameFlowMiddleware(
         while (BlackjackRules.shouldDealerDraw(state.value.dealerHand, state.value.rules)) {
             if (state.value.deck.isEmpty()) break // safety valve
 
-            val hand = state.value.dealerHand
-            val isCritical =
-                hand.score in
-                    BlackjackRules.DEALER_STIFF_MIN until BlackjackRules.DEALER_STAND_THRESHOLD &&
-                    !hand.isSoft
+            val isCritical = BlackjackRules.isDealerCriticalDraw(state.value.dealerHand)
 
             if (isCritical) {
                 // Emit DealerCriticalDraw BEFORE the card draw so the effect precedes PlayCardSound.

@@ -14,6 +14,19 @@ import kotlinx.collections.immutable.mutate
 import kotlin.random.Random
 
 /**
+ * Named result carrier for [BlackjackRules.resolveInitialOutcomeValues].
+ *
+ * @property status The resolved [GameStatus] after evaluating the initial deal.
+ * @property dealerHand The dealer's [Hand], revealed only when [status] is terminal.
+ * @property balanceDelta The net change to the player's balance (0 if no immediate payout).
+ */
+data class InitialOutcomeResult(
+    val status: GameStatus,
+    val dealerHand: Hand,
+    val balanceDelta: Int,
+)
+
+/**
  * The central engine for Blackjack rules, scoring, and deal orchestration.
  *
  * This object contains pure logic for determining hand outcomes, calculating payouts,
@@ -52,6 +65,17 @@ object BlackjackRules {
         if (hand.score == DEALER_STAND_THRESHOLD && rules.dealerHitsSoft17 && hand.isSoft) return true
         return false
     }
+
+    /**
+     * Returns true when the dealer holds a stiff hard hand — score in critical range, not soft.
+     *
+     * Used by middleware for tension animations and by the reducer to set [GameState.dealerDrawIsCritical].
+     *
+     * @param hand The dealer's current [Hand].
+     * @return True if the draw is high-risk (dealer can bust on next card).
+     */
+    fun isDealerCriticalDraw(hand: Hand): Boolean =
+        hand.score in DEALER_STIFF_MIN until DEALER_STAND_THRESHOLD && !hand.isSoft
 
     /**
      * Determines the win/loss status of a single player hand against the dealer's score.
@@ -206,16 +230,13 @@ object BlackjackRules {
      * @param current The current [GameState].
      * @param playerHands The list of player [Hand]s.
      * @param dealerHand The dealer's [Hand].
-     * @return A [Triple] containing:
-     *         1. The updated [GameStatus] (e.g., INSURANCE_OFFERED, PLAYING, or a terminal state).
-     *         2. The possibly revealed dealer [Hand].
-     *         3. The net change to the player's balance.
+     * @return [InitialOutcomeResult] with the resolved status, dealer hand, and balance delta.
      */
     fun resolveInitialOutcomeValues(
         current: GameState,
         playerHands: List<Hand>,
         dealerHand: Hand,
-    ): Triple<GameStatus, Hand, Int> {
+    ): InitialOutcomeResult {
         val anyPlayerHasBJ = hasAnyBlackjack(playerHands)
 
         val shouldOfferInsurance = current.handCount == 1 && !anyPlayerHasBJ && dealerHand.cards[0].rank == Rank.ACE
@@ -236,7 +257,7 @@ object BlackjackRules {
                 0
             }
 
-        return Triple(initialStatus, finalDealerHand, balanceOutcome)
+        return InitialOutcomeResult(status = initialStatus, dealerHand = finalDealerHand, balanceDelta = balanceOutcome)
     }
 
     private fun hasAnyBlackjack(playerHands: List<Hand>): Boolean {
