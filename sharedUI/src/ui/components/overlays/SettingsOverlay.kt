@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.blackjack.data.AppSettings
+import io.github.smithjustinn.blackjack.model.AppSettings
 import io.github.smithjustinn.blackjack.logic.BlackjackPayout
 import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold

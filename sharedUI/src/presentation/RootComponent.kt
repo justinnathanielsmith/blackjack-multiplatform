@@ -7,8 +7,8 @@ import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
-import io.github.smithjustinn.blackjack.data.BalanceService
-import io.github.smithjustinn.blackjack.data.SettingsRepository
+import io.github.smithjustinn.blackjack.domain.BalanceService
+import io.github.smithjustinn.blackjack.domain.SettingsRepository
 import io.github.smithjustinn.blackjack.infra.componentScope
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService

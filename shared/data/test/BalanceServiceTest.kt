@@ -1,4 +1,6 @@
-package io.github.smithjustinn.blackjack.data
+package io.github.smithjustinn.blackjack.data.local
+
+import io.github.smithjustinn.blackjack.domain.BalanceService
 
 import app.cash.turbine.test
 import kotlinx.coroutines.test.runTest

@@ -9,7 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.data.AppSettings
+import io.github.smithjustinn.blackjack.model.AppSettings
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.overlays.RulesOverlay
 import io.github.smithjustinn.blackjack.ui.components.overlays.SettingsOverlay

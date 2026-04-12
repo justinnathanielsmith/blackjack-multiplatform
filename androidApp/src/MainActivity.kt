@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.retainedComponent
-import io.github.smithjustinn.blackjack.data.initDataStore
+import io.github.smithjustinn.blackjack.data.local.initDataStore
 import io.github.smithjustinn.blackjack.di.commonModule
 import io.github.smithjustinn.blackjack.presentation.DefaultRootComponent
 import io.github.smithjustinn.blackjack.ui.screens.RootScreen

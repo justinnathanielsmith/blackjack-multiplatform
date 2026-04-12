@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.data
+package io.github.smithjustinn.blackjack.domain
 
 import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import kotlinx.coroutines.flow.Flow

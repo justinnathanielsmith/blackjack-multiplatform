@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.data.AppSettings
+import io.github.smithjustinn.blackjack.model.AppSettings
 import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus

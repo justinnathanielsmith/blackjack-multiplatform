@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.data
+package io.github.smithjustinn.blackjack.model
 
 import androidx.compose.runtime.Immutable
 import io.github.smithjustinn.blackjack.logic.GameRules

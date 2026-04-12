@@ -1,4 +1,7 @@
-package io.github.smithjustinn.blackjack.data
+package io.github.smithjustinn.blackjack.data.local
+
+import io.github.smithjustinn.blackjack.domain.SettingsRepository
+import io.github.smithjustinn.blackjack.model.AppSettings
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

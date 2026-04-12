@@ -5,9 +5,9 @@ import co.touchlab.kermit.Logger
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.action.GameEffect
-import io.github.smithjustinn.blackjack.data.AppSettings
-import io.github.smithjustinn.blackjack.data.BalanceService
-import io.github.smithjustinn.blackjack.data.SettingsRepository
+import io.github.smithjustinn.blackjack.model.AppSettings
+import io.github.smithjustinn.blackjack.domain.BalanceService
+import io.github.smithjustinn.blackjack.domain.SettingsRepository
 import io.github.smithjustinn.blackjack.infra.componentScope
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.isTerminal

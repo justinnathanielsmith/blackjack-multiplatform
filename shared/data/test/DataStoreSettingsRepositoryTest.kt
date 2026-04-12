@@ -1,4 +1,6 @@
-package io.github.smithjustinn.blackjack.data
+package io.github.smithjustinn.blackjack.data.local
+
+import io.github.smithjustinn.blackjack.model.AppSettings
 
 import androidx.datastore.preferences.core.mutablePreferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
