@@ -35,7 +35,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.actions.BettingActions
 import io.github.smithjustinn.blackjack.ui.components.actions.GameActions
@@ -54,7 +53,9 @@ import sharedui.generated.resources.financial_data_content_description
 
 @Composable
 fun ControlCenter(
-    status: GameStatus,
+    // Presentation mapping: phase flags pre-computed by caller — no GameStatus checks in Composables
+    isBetting: Boolean,
+    isPlaying: Boolean,
     totalBet: Int,
     balance: Int,
     canDeal: Boolean,
@@ -80,7 +81,7 @@ fun ControlCenter(
     ) {
         // Floating Action Buttons
         GameActions(
-            status = status,
+            isPlaying = isPlaying,
             canSplit = canSplit,
             canDoubleDown = canDoubleDown,
             canSurrender = canSurrender,
@@ -89,8 +90,6 @@ fun ControlCenter(
             isCompact = isCompact
         )
 
-        val isBetting = status == GameStatus.BETTING
-        // Domain predicates: betting eligibility belongs in GameState, not the UI layer
         val canReset = canResetBet
 
         // Actions for BETTING

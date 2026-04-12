@@ -58,8 +58,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.model.GameState
-import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import io.github.smithjustinn.blackjack.ui.theme.ChipGreen
@@ -92,7 +90,6 @@ import sharedui.generated.resources.ic_surrender
  * Actions are dispatched via the [BlackjackComponent], which also coordinates the
  * triggering of auditory feedback (sound effects) for each interaction.
  *
- * @param state The current [GameState] determining which actions are enabled and visible.
  * @param component The [BlackjackComponent] through which player actions are dispatched.
  * @param modifier [Modifier] applied to the outer layout of the action container.
  * @param isCompact When true, uses a tighter vertical layout suitable for multi-hand play
@@ -100,7 +97,8 @@ import sharedui.generated.resources.ic_surrender
  */
 @Composable
 fun GameActions(
-    status: GameStatus,
+    // Presentation mapping: isPlayingPhase pre-computed by caller — no GameStatus checks in Composables
+    isPlaying: Boolean,
     canSplit: Boolean,
     canDoubleDown: Boolean,
     canSurrender: Boolean,
@@ -146,13 +144,13 @@ fun GameActions(
         }
 
     AnimatedContent(
-        targetState = status,
+        targetState = isPlaying,
         transitionSpec = {
             fadeIn(animationSpec = tween(AnimationConstants.ActionStatusFadeDuration)) togetherWith
                 fadeOut(animationSpec = tween(AnimationConstants.ActionStatusFadeDuration))
         },
         label = "GameActionsTransition"
-    ) { currentStatus ->
+    ) { isCurrentlyPlaying ->
         val buttonHeight =
             if (isCompact) Dimensions.ActionBar.ButtonHeightCompact else Dimensions.ActionBar.ButtonHeightNormal
 
@@ -167,7 +165,7 @@ fun GameActions(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AnimatedVisibility(
-                visible = currentStatus == GameStatus.PLAYING,
+                visible = isCurrentlyPlaying,
                 enter =
                     fadeIn(tween(AnimationConstants.ActionPlayingSlideDuration)) +
                         expandVertically(
@@ -253,7 +251,7 @@ fun GameActions(
                 }
             }
 
-            if (currentStatus != GameStatus.PLAYING) {
+            if (!isCurrentlyPlaying) {
                 Spacer(modifier = Modifier.height(buttonHeight))
             }
         }

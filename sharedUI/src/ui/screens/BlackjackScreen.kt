@@ -169,7 +169,8 @@ fun BlackjackScreen(
                             }
 
                             ControlCenter(
-                                status = screenState.state.status,
+                                isBetting = screenState.state.isBettingPhase,
+                                isPlaying = screenState.state.isPlayingPhase,
                                 totalBet = screenState.state.totalBet,
                                 balance = screenState.state.balance,
                                 canDeal = screenState.state.canDeal,
