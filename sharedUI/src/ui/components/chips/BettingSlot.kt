@@ -3,12 +3,9 @@ package io.github.smithjustinn.blackjack.ui.components.chips
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -20,7 +17,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +26,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.Role
@@ -118,19 +113,14 @@ fun BettingSlot(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(if (isSideBet) 4.dp else 10.dp)
     ) {
-        val scale by animateFloatAsState(
-            targetValue = 1f,
-            animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
-        )
-
+        // Bolt ⚡: Removed dead animateFloatAsState(targetValue = 1f) + graphicsLayer.
+        // Target was hardcoded to 1f — the animation never fired, yet allocated an AnimationState
+        // snapshot observer and a graphicsLayer block per slot on every recomposition (×5 slots).
         Box(
             modifier =
                 Modifier
                     .size(slotSize)
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                    }.drawWithCache {
+                    .drawWithCache {
                         val strokeWidth =
                             if (isSideBet && amount > 0) {
                                 2.dp.toPx()
