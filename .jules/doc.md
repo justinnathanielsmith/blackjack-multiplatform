@@ -34,3 +34,7 @@
 ## 2026-04-12 - secureRandom
 **Surprise:** `secureRandom` is an undocumented `expect` property that serves as the root source of fairness for the player. While the common `Random.Default` is fine for UI, a gambling game requires cryptographically secure providers (`java.security.SecureRandom` on JVM/Android, `arc4random` on iOS) to prevent deck prediction.
 **Rule:** For security-critical `expect` declarations, always document the underlying platform provider in the `commonMain` KDoc so future maintainers understand the entropy guarantees. Use `@see` in `actual` blocks to maintain the link without duplication.
+
+## 2026-04-12 - GameState.handOutcomes
+**Surprise:** handOutcomes is a constructor property but was missing from class KDoc. It only holds values in terminal status.
+**Rule:** Ensure all constructor parameters in @Immutable @Serializable data classes have @property tags in class-level KDoc.

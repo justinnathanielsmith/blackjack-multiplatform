@@ -16,12 +16,12 @@ import kotlinx.serialization.Serializable
  * deck, all hands (player and dealer), the current game status, and the player's economic state
  * (balance and bets).
  *
- * Multi-hand support (up to [MAX_HANDS]) is built-in via the [playerHands] list and the
+ * Multi-hand support (up to [BlackjackConfig.MAX_HANDS]) is built-in via the [playerHands] list and the
  * [activeHandIndex].
  *
  * @property deck The current shoe of cards, represented as a persistent list.
  * @property playerHands The list of [Hand]s currently held by the player. Can grow during
- *           splits (up to [MAX_HANDS]).
+ *           splits (up to [BlackjackConfig.MAX_HANDS]).
  * @property activeHandIndex The 0-based index of the hand currently being played by the player
  *           in the [playerHands] list.
  * @property handCount The initial number of hands (1-3) the player started the round with.
@@ -39,6 +39,8 @@ import kotlinx.serialization.Serializable
  * @property rules The [GameRules] currently in effect for this session.
  * @property dealerDrawIsCritical True if the dealer is currently in a state that triggers
  *           visual "critical" indications (e.g., potentially busting or drawing on the edge).
+ * @property handOutcomes Settled results for each player hand (Natural Win, Win, Push, Loss) populated
+ *           after the round is terminal. Parallel to [playerHands].
  */
 @Immutable
 @Serializable
