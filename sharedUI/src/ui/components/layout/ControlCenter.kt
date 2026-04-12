@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -73,6 +74,7 @@ fun ControlCenter(
     onDeal: () -> Unit,
     modifier: Modifier = Modifier,
     isCompact: Boolean = false,
+    onChipPositioned: (Int, Offset) -> Unit = { _, _ -> },
 ) {
     // Audio+action wiring lives here — GameActions is a pure UI component with no component coupling
     val onHit =
@@ -162,6 +164,7 @@ fun ControlCenter(
                     balance = balance,
                     selectedAmount = selectedAmount,
                     onChipSelected = onChipSelected,
+                    onChipPositioned = onChipPositioned,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
@@ -186,23 +189,25 @@ private fun TotalBetPill(
     amount: Int,
     modifier: Modifier = Modifier
 ) {
-    val animatedAmount by animateIntAsState(
-        targetValue = amount,
-        animationSpec = tween(durationMillis = 500)
-    )
+    // Bolt Performance Optimization: Narrow recomposition scope to skip static decorations
+    // during animation. Static labels and the outer Box only recompose when the target 'amount' changes.
 
-    // Bolt Performance Optimization: Hoist static strings out of the animated scope
-    // to prevent redundant lookups every frame of the 500ms animation.
+    // Bolt: Use target strings for semantics to stabilize announcements.
     val label = stringResource(Res.string.bet_total_label)
     val currencyTemplate = stringResource(Res.string.currency_template)
     val financialDataDescTemplate = stringResource(Res.string.financial_data_content_description)
 
-    val formattedAmount = currencyTemplate.replace("%1\$s", animatedAmount.formatWithCommas())
+    val targetFormattedAmount =
+        remember(amount) {
+            currencyTemplate.replace("%1\$s", amount.formatWithCommas())
+        }
 
     val accessibilityDescription =
-        financialDataDescTemplate
-            .replace("%1\$s", label)
-            .replace("%2\$s", formattedAmount)
+        remember(targetFormattedAmount) {
+            financialDataDescTemplate
+                .replace("%1\$s", label)
+                .replace("%2\$s", targetFormattedAmount)
+        }
 
     Box(
         modifier =
@@ -226,13 +231,36 @@ private fun TotalBetPill(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp
             )
-            Text(
-                text = formattedAmount,
-                style = MaterialTheme.typography.titleMedium,
-                color = PrimaryGold,
-                fontWeight = FontWeight.Black,
-                fontFamily = FontFamily.Monospace
+            // Scoped animated text component
+            AnimatedAmountDisplay(
+                amount = amount,
+                currencyTemplate = currencyTemplate
             )
         }
     }
+}
+
+@Composable
+private fun AnimatedAmountDisplay(
+    amount: Int,
+    currencyTemplate: String
+) {
+    val animatedAmount by animateIntAsState(
+        targetValue = amount,
+        animationSpec = tween(durationMillis = 500)
+    )
+
+    // Bolt: Formatting inside remember ensures we only recompute string when animated amount jumps.
+    val formatted =
+        remember(animatedAmount) {
+            currencyTemplate.replace("%1\$s", animatedAmount.formatWithCommas())
+        }
+
+    Text(
+        text = formatted,
+        style = MaterialTheme.typography.titleMedium,
+        color = PrimaryGold,
+        fontWeight = FontWeight.Black,
+        fontFamily = FontFamily.Monospace
+    )
 }

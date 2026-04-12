@@ -1,8 +1,7 @@
 package io.github.smithjustinn.blackjack.data.local
 
-import io.github.smithjustinn.blackjack.model.AppSettings
-
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import io.github.smithjustinn.blackjack.model.AppSettings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

@@ -11,7 +11,7 @@ import io.github.smithjustinn.blackjack.ui.effects.FlyingChip
 
 // Separates chip animation state from the BettingPhaseScreen composable — single-responsibility state holder.
 private const val FLYING_CHIP_POOL_SIZE = 15
-private const val CHIP_START_JITTER = 10
+private const val CHIP_START_JITTER = 4
 
 /**
  * Encapsulates all flying-chip animation state for the betting phase.

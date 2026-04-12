@@ -1,10 +1,9 @@
 package io.github.smithjustinn.blackjack.data.local
 
-import io.github.smithjustinn.blackjack.model.AppSettings
-
 import androidx.datastore.preferences.core.mutablePreferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
 import app.cash.turbine.test
+import io.github.smithjustinn.blackjack.model.AppSettings
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

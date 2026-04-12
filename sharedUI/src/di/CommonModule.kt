@@ -1,10 +1,10 @@
 package io.github.smithjustinn.blackjack.di
 
 import co.touchlab.kermit.Logger
-import io.github.smithjustinn.blackjack.domain.BalanceService
-import io.github.smithjustinn.blackjack.domain.SettingsRepository
 import io.github.smithjustinn.blackjack.data.local.createBalanceService
 import io.github.smithjustinn.blackjack.data.local.createSettingsRepository
+import io.github.smithjustinn.blackjack.domain.BalanceService
+import io.github.smithjustinn.blackjack.domain.SettingsRepository
 import io.github.smithjustinn.blackjack.infra.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope

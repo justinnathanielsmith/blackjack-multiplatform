@@ -1,9 +1,7 @@
 package io.github.smithjustinn.blackjack.ui.effects
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -17,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.blackjack.ui.components.chips.BetChip
 import io.github.smithjustinn.blackjack.ui.theme.AnimationConstants
 import kotlinx.coroutines.delay
@@ -41,40 +37,36 @@ fun FlyingChipAnimation(
     targetOffset: Offset,
     onAnimationEnd: () -> Unit,
 ) {
-    val density = LocalDensity.current
-    val dropHeight = with(density) { 64.dp.toPx() }
-
     val animX = remember { Animatable(chip.startOffset.x) }
     val animY = remember { Animatable(chip.startOffset.y) }
-    val scaleX = remember { Animatable(1f) }
-    val scaleY = remember { Animatable(1f) }
+    val rotation = remember { Animatable(0f) }
+    val scale = remember { Animatable(1f) }
     val alpha = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
-        val aboveY = targetOffset.y - dropHeight
         launch {
             animX.animateTo(
                 targetValue = targetOffset.x,
-                animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+                animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
             )
         }
-        animY.animateTo(
-            targetValue = aboveY,
-            animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
-        )
-
-        animY.animateTo(
-            targetValue = targetOffset.y,
-            animationSpec = tween(durationMillis = 220, easing = FastOutLinearInEasing),
-        )
-
         launch {
-            scaleX.animateTo(1.2f, animationSpec = tween(AnimationConstants.ChipSquashDuration))
-            scaleX.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
+            animY.animateTo(
+                targetValue = targetOffset.y,
+                animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+            )
         }
         launch {
-            scaleY.animateTo(0.8f, animationSpec = tween(AnimationConstants.ChipSquashDuration))
-            scaleY.animateTo(1f, animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f))
+            // Subtle rotation during the slide to convey momentum
+            rotation.animateTo(
+                targetValue = 180f,
+                animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+            )
+        }
+        launch {
+            // Slight scale bump as it "lifts" off the rack and settles on the table
+            scale.animateTo(1.1f, animationSpec = tween(durationMillis = 125, easing = FastOutSlowInEasing))
+            scale.animateTo(1.0f, animationSpec = tween(durationMillis = 125, easing = FastOutSlowInEasing))
         }
 
         delay(AnimationConstants.ChipPreFadeDelayMs)
@@ -88,9 +80,10 @@ fun FlyingChipAnimation(
                 .graphicsLayer {
                     this.translationX = animX.value
                     this.translationY = animY.value
+                    this.rotationZ = rotation.value
                     this.alpha = alpha.value
-                    this.scaleX = scaleX.value
-                    this.scaleY = scaleY.value
+                    this.scaleX = scale.value
+                    this.scaleY = scale.value
                 },
     ) {
         BetChip(

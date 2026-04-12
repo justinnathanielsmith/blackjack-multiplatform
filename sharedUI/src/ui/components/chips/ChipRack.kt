@@ -17,8 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,6 +57,7 @@ fun ChipRack(
     selectedAmount: Int,
     onChipSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onChipPositioned: (Int, Offset) -> Unit = { _, _ -> },
 ) {
     val breakdown = remember(balance) { breakdownBalance(balance, CHIP_VALUES) }
 
@@ -117,7 +121,17 @@ fun ChipRack(
                                     .let { if (isGhost) it.alpha(0.3f) else it }
                                     .let {
                                         if (isTopChip) {
-                                            it.clip(CircleShape)
+                                            it
+                                                .clip(CircleShape)
+                                                .onGloballyPositioned { coordinates ->
+                                                    val center =
+                                                        coordinates.positionInRoot() +
+                                                            Offset(
+                                                                x = coordinates.size.width / 2f,
+                                                                y = coordinates.size.height / 2f,
+                                                            )
+                                                    onChipPositioned(value, center)
+                                                }
                                         } else {
                                             it.clearAndSetSemantics {} // Decorative — suppress from a11y tree
                                         }

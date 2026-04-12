@@ -85,6 +85,7 @@ fun BettingPhaseScreen(
     component: BlackjackComponent,
     selectedAmount: Int,
     modifier: Modifier = Modifier,
+    rackChipOffsets: Map<Int, Offset> = emptyMap(),
 ) {
     // Chip pool, offset maps, and launch logic are managed by a dedicated state holder.
     val animationState = rememberBettingAnimationState()
@@ -158,10 +159,11 @@ fun BettingPhaseScreen(
                     isSideBet = true,
                     slotSize = sideBetSize,
                     onClick = {
-                        val offset = animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
+                        val targetOffset = animationState.sideBetOffsets[SideBetType.PERFECT_PAIRS] ?: Offset.Zero
+                        val startOffset = rackChipOffsets[selectedAmount] ?: targetOffset
                         component.onPlayClick()
                         component.onAction(GameAction.PlaceSideBet(SideBetType.PERFECT_PAIRS, selectedAmount))
-                        animationState.launchChip(offset, offset, selectedAmount)
+                        animationState.launchChip(startOffset, targetOffset, selectedAmount)
                     },
                     onLongClick = {
                         component.onPlayClick()
@@ -177,10 +179,12 @@ fun BettingPhaseScreen(
                     isSideBet = true,
                     slotSize = sideBetSize,
                     onClick = {
-                        val offset = animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
+                        val targetOffset =
+                            animationState.sideBetOffsets[SideBetType.TWENTY_ONE_PLUS_THREE] ?: Offset.Zero
+                        val startOffset = rackChipOffsets[selectedAmount] ?: targetOffset
                         component.onPlayClick()
                         component.onAction(GameAction.PlaceSideBet(SideBetType.TWENTY_ONE_PLUS_THREE, selectedAmount))
-                        animationState.launchChip(offset, offset, selectedAmount)
+                        animationState.launchChip(startOffset, targetOffset, selectedAmount)
                     },
                     onLongClick = {
                         component.onPlayClick()
@@ -214,10 +218,11 @@ fun BettingPhaseScreen(
                         modifier = Modifier.offset(y = arcYOffset),
                         slotSize = seatSize,
                         onClick = {
-                            val offset = animationState.betDisplayOffsets[seatIndex] ?: Offset.Zero
+                            val targetOffset = animationState.betDisplayOffsets[seatIndex] ?: Offset.Zero
+                            val startOffset = rackChipOffsets[selectedAmount] ?: targetOffset
                             component.onPlayClick()
                             component.onAction(GameAction.PlaceBet(selectedAmount, seatIndex))
-                            animationState.launchChip(offset, offset, selectedAmount)
+                            animationState.launchChip(startOffset, targetOffset, selectedAmount)
                         },
                         onLongClick = {
                             component.onPlayClick()

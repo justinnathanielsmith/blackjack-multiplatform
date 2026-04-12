@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,9 @@ fun BlackjackScreen(
 ) {
     val screenState = rememberBlackjackScreenState(component)
     val insets = safeDrawingInsets()
+
+    // ── Track positions of chips in the rack for fly-to-bet animations ────
+    val rackChipOffsets = remember { mutableStateMapOf<Int, Offset>() }
 
     // Bolt Performance Optimization: Stabilize lambdas passed to GameOverlay to prevent
     // unnecessary recompositions when unrelated BlackjackScreenState properties change.
@@ -199,6 +203,7 @@ fun BlackjackScreen(
                                 onResetBet = screenState.onResetBet,
                                 onDeal = screenState.onDeal,
                                 isCompact = screenState.isMultiHand,
+                                onChipPositioned = { value, offset -> rackChipOffsets[value] = offset },
                             )
                         }
 
@@ -242,6 +247,7 @@ fun BlackjackScreen(
                                 animState = screenState.animState,
                                 component = component,
                                 selectedAmount = screenState.selectedAmount,
+                                rackChipOffsets = rackChipOffsets,
                             )
 
                             OverlayLayer(

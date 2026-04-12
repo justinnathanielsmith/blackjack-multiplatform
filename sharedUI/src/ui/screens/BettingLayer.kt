@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.zIndex
 import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.SideBetType
@@ -29,7 +30,8 @@ fun BettingLayer(
     animState: BlackjackAnimationState,
     component: BlackjackComponent,
     selectedAmount: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    rackChipOffsets: Map<Int, Offset> = emptyMap(),
 ) {
     AnimatedVisibility(
         visible = isBetting,
@@ -47,6 +49,7 @@ fun BettingLayer(
             component = component,
             selectedAmount = selectedAmount,
             modifier = modifier,
+            rackChipOffsets = rackChipOffsets,
         )
     }
 
