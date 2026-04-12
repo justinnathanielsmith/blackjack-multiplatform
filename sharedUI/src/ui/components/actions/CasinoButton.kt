@@ -49,9 +49,9 @@ import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
 import sharedui.generated.resources.action_double
 import sharedui.generated.resources.action_hit
+import sharedui.generated.resources.action_split
 import sharedui.generated.resources.action_stand
 import sharedui.generated.resources.new_game
-import sharedui.generated.resources.split
 
 /**
  * A premium, highly-animated button component designed for the casino environment.
@@ -302,7 +302,7 @@ private fun CasinoButtonPreview() {
                 modifier = Modifier.padding(top = 8.dp)
             )
             CasinoButton(
-                text = stringResource(Res.string.split),
+                text = stringResource(Res.string.action_split),
                 onClick = { /* do nothing */ },
                 enabled = false,
                 modifier = Modifier.padding(top = 8.dp)

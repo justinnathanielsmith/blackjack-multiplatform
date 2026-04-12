@@ -52,10 +52,10 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.hit
+import sharedui.generated.resources.action_hit
+import sharedui.generated.resources.action_stand
 import sharedui.generated.resources.ic_hit
 import sharedui.generated.resources.ic_stand
-import sharedui.generated.resources.stand
 
 /**
  * A premium, metallic action button used for primary gameplay decisions like Hit and Stand.
@@ -263,13 +263,13 @@ private fun GameActionButtonPreview() {
             GameActionButton(
                 icon = Res.drawable.ic_hit,
                 onClick = {},
-                label = stringResource(Res.string.hit),
+                label = stringResource(Res.string.action_hit),
                 isStrategic = true
             )
             GameActionButton(
                 icon = Res.drawable.ic_stand,
                 onClick = {},
-                label = stringResource(Res.string.stand)
+                label = stringResource(Res.string.action_stand)
             )
         }
     }

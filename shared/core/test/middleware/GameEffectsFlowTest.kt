@@ -9,6 +9,8 @@ import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.SideBetType
+import io.github.smithjustinn.blackjack.model.Suit
+import io.github.smithjustinn.blackjack.util.card
 import io.github.smithjustinn.blackjack.util.dealerHand
 import io.github.smithjustinn.blackjack.util.deckOf
 import io.github.smithjustinn.blackjack.util.hand
@@ -22,6 +24,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class GameEffectsFlowTest {
@@ -366,6 +369,54 @@ class GameEffectsFlowTest {
                         add(awaitItem()) // BigWin
                     }
                 assertTrue(emitted.any { it is GameEffect.BigWin && it.totalPayout == 2600 })
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun subThresholdSideBetWinEmitsPlayWinSoundNotBigWin() =
+        runTest {
+            // COLORED_PAIR: same rank, different color (HEARTS=red, SPADES=black) → 12x < 25 → sub-threshold.
+            // Player loses main hand (TEN+TEN=20 beats FIVE+FIVE=10), so PlayLoseSound would normally fire.
+            // The side bet win (payoutTotal > 0) promotes the sound branch to PlayWinSound, NOT BigWin.
+            val deck =
+                persistentListOf(
+                    card(Rank.FIVE, Suit.HEARTS), // P1
+                    card(Rank.TEN, Suit.CLUBS), // D1 upcard
+                    card(Rank.FIVE, Suit.SPADES), // P2
+                    card(Rank.TEN, Suit.DIAMONDS, faceDown = true), // D2 hole
+                )
+            val sm =
+                testMachine(
+                    GameState(
+                        status = GameStatus.BETTING,
+                        balance = 900,
+                        playerHands = persistentListOf(Hand(bet = 100)),
+                        sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 100),
+                        deck = deck,
+                        handCount = 1,
+                    )
+                )
+
+            sm.effects.test {
+                sm.dispatch(GameAction.Deal)
+                advanceUntilIdle()
+
+                // 4 deal sounds
+                repeat(4) { assertEquals(GameEffect.PlayCardSound, awaitItem()) }
+
+                // ChipEruption for the COLORED_PAIR win, then PlayWinSound
+                val afterDeal = buildList { repeat(2) { add(awaitItem()) } }
+                assertTrue(afterDeal.any { it is GameEffect.ChipEruption })
+                assertTrue(
+                    GameEffect.PlayWinSound in afterDeal,
+                    "Expected PlayWinSound for sub-threshold side bet (12x < 25), got: $afterDeal",
+                )
+                assertFalse(
+                    afterDeal.any { it is GameEffect.BigWin },
+                    "BigWin must NOT fire for COLORED_PAIR (multiplier 12 < MASSIVE_WIN_MULTIPLIER 25)",
+                )
+
                 cancelAndIgnoreRemainingEvents()
             }
         }

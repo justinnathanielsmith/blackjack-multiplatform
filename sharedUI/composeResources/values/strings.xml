@@ -20,11 +20,7 @@
     <string name="action_surrender">Surrender</string>
     <string name="deal">Deal</string>
     <string name="dealer">Dealer</string>
-    <string name="double_down">Double</string>
-    <string name="hit">Hit</string>
     <string name="new_game">New Game</string>
-    <string name="split">Split</string>
-    <string name="stand">Stand</string>
     <string name="you">You</string>
 
     <!-- Betting -->
@@ -88,8 +84,6 @@
     <string name="close">Close</string>
     <string name="settings_decks_option_template">%1$s Deck</string>
     <string name="settings_decks_option_template_plural">%1$s Decks</string>
-
-    <string name="surrender">Surrender</string>
 
     <!-- Strategy Guide -->
     <string name="strategy_guide_title">Basic Strategy</string>
