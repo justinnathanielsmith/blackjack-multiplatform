@@ -146,7 +146,7 @@ private fun reduceSurrender(state: GameState): ReducerResult {
         state.activeHand.cards.size != 2 ||
         !state.rules.allowSurrender
     ) {
-        return ReducerResult(state)
+        return ReducerResult(state, listOf(GameEffect.Vibrate))
     }
 
     val refund = state.activeBet / 2
@@ -158,7 +158,7 @@ private fun reduceSurrender(state: GameState): ReducerResult {
 }
 
 private fun reduceTakeInsurance(state: GameState): ReducerResult {
-    if (state.status != GameStatus.INSURANCE_OFFERED) return ReducerResult(state)
+    if (state.status != GameStatus.INSURANCE_OFFERED) return ReducerResult(state, listOf(GameEffect.Vibrate))
     val insuranceBet = state.currentBet / 2
     if (insuranceBet > state.balance) return ReducerResult(state, listOf(GameEffect.Vibrate))
     val newState =
@@ -171,7 +171,7 @@ private fun reduceTakeInsurance(state: GameState): ReducerResult {
 }
 
 private fun reduceDeclineInsurance(state: GameState): ReducerResult {
-    if (state.status != GameStatus.INSURANCE_OFFERED) return ReducerResult(state)
+    if (state.status != GameStatus.INSURANCE_OFFERED) return ReducerResult(state, listOf(GameEffect.Vibrate))
     val newState = state.copy(insuranceBet = 0)
     return resolveInsuranceOutcome(newState)
 }

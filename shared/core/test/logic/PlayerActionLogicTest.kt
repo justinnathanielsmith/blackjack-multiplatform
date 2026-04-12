@@ -24,7 +24,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test
@@ -38,7 +38,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test
@@ -138,7 +138,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test
@@ -162,7 +162,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test
@@ -190,7 +190,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test
@@ -222,7 +222,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test
@@ -306,7 +306,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test
@@ -322,7 +322,7 @@ class PlayerActionLogicTest {
 
         assertEquals(state, outcome.state)
         assertFalse(outcome.shouldAdvanceTurn)
-        assertTrue(outcome.effects.isEmpty())
+        assertEquals(listOf(GameEffect.Vibrate), outcome.effects)
     }
 
     @Test

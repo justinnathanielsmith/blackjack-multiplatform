@@ -50,7 +50,7 @@ internal fun reduceDeal(state: GameState): ReducerResult {
         state.playerHands.size != state.handCount ||
         state.playerHands.any { it.bet <= 0 }
     ) {
-        return ReducerResult(state)
+        return ReducerResult(state, listOf(GameEffect.Vibrate))
     }
     val capturedBets = state.playerHands.map { it.bet }.toPersistentList()
     return ReducerResult(
@@ -68,7 +68,7 @@ internal fun reducePlaceBet(
     amount: Int,
     seatIndex: Int
 ): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state)
+    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
     if (amount <= 0 || seatIndex !in 0 until state.handCount) {
         return ReducerResult(state, listOf(GameEffect.Vibrate))
     }
@@ -89,7 +89,7 @@ internal fun reduceResetBet(
     state: GameState,
     seatIndex: Int?
 ): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state)
+    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
     return if (seatIndex == null) {
         var refund = 0
         for (i in 0 until state.handCount) refund += state.playerHands[i].bet
@@ -120,7 +120,7 @@ internal fun reduceSelectHandCount(
     state: GameState,
     count: Int
 ): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state)
+    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
     if (count !in
         BlackjackConfig.MIN_INITIAL_HANDS..BlackjackConfig.MAX_INITIAL_HANDS
     ) {
@@ -148,7 +148,7 @@ internal fun reduceUpdateRules(
     state: GameState,
     rules: GameRules
 ): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state)
+    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
     return ReducerResult(state.copy(rules = rules))
 }
 
@@ -157,8 +157,8 @@ internal fun reducePlaceSideBet(
     type: SideBetType,
     amount: Int
 ): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state)
-    if (amount <= 0 || amount > state.balance) return ReducerResult(state)
+    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
+    if (amount <= 0 || amount > state.balance) return ReducerResult(state, listOf(GameEffect.Vibrate))
     val newSideBets = state.sideBets.put(type, (state.sideBets[type] ?: 0) + amount)
     return ReducerResult(
         state = state.copy(balance = state.balance - amount, sideBets = newSideBets),
@@ -167,7 +167,7 @@ internal fun reducePlaceSideBet(
 }
 
 internal fun reduceResetSideBets(state: GameState): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state)
+    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
     var totalRefund = 0
     for ((_, betAmount) in state.sideBets) totalRefund += betAmount
     return ReducerResult(
@@ -180,8 +180,8 @@ internal fun reduceResetSideBet(
     state: GameState,
     type: SideBetType
 ): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state)
-    val betAmount = state.sideBets[type] ?: return ReducerResult(state)
+    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
+    val betAmount = state.sideBets[type] ?: return ReducerResult(state, listOf(GameEffect.Vibrate))
     return ReducerResult(
         state = state.copy(balance = state.balance + betAmount, sideBets = state.sideBets.remove(type)),
         effects = listOf(GameEffect.PlayPlinkSound)

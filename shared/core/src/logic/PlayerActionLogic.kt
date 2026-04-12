@@ -25,12 +25,17 @@ data class PlayerActionOutcome(
     companion object {
         /**
          * Creates a [PlayerActionOutcome] that returns the provided [state] without any
-         * changes or side effects. Useful for blocked actions or early exits.
-         *
-         * @param state The current or default state to return.
-         * @return A "no-op" outcome.
+         * changes or side effects. Useful for early exits where no feedback is needed.
          */
         fun noop(state: GameState): PlayerActionOutcome = PlayerActionOutcome(state)
+
+        /**
+         * Creates a [PlayerActionOutcome] that returns the provided [state] with a
+         * [GameEffect.Vibrate] effect. Used for actions that are rejected due to
+         * status guards or rule violations.
+         */
+        fun rejected(state: GameState): PlayerActionOutcome =
+            PlayerActionOutcome(state, effects = listOf(GameEffect.Vibrate))
     }
 }
 
@@ -66,16 +71,16 @@ object PlayerActionLogic {
      * @return The resulting state and effects.
      */
     fun hit(state: GameState): PlayerActionOutcome {
-        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
+        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.rejected(state)
 
         // Block hits on 21 or higher.
         if (state.activeHand.score >= BlackjackConfig.BLACKJACK_SCORE) {
-            return PlayerActionOutcome.noop(state)
+            return PlayerActionOutcome.rejected(state)
         }
 
         // Block hits on split aces.
         if (state.activeHand.isFromSplitAce && state.activeHand.cards.size >= 2) {
-            return PlayerActionOutcome.noop(state)
+            return PlayerActionOutcome.rejected(state)
         }
 
         val newCard = state.deck.firstOrNull() ?: return PlayerActionOutcome.noop(state)
@@ -102,7 +107,7 @@ object PlayerActionLogic {
      * @return A state where the active hand is standing.
      */
     fun stand(state: GameState): PlayerActionOutcome {
-        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
+        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.rejected(state)
         val standingHand = state.activeHand.copy(isStanding = true)
         val updatedHands = state.playerHands.set(state.activeHandIndex, standingHand)
         return PlayerActionOutcome(state = state.copy(playerHands = updatedHands), shouldAdvanceTurn = true)
@@ -124,13 +129,13 @@ object PlayerActionLogic {
      * @return The next state with the doubled wager and final drawn card.
      */
     fun doubleDown(state: GameState): PlayerActionOutcome {
-        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
+        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.rejected(state)
         val hand = state.activeHand
         val canLogicDouble = hand.cards.size == 2 && (!hand.wasSplit || state.rules.allowDoubleAfterSplit)
         if (canLogicDouble && state.balance < hand.bet) {
-            return PlayerActionOutcome(state, listOf(GameEffect.Vibrate))
+            return PlayerActionOutcome.rejected(state)
         }
-        if (!canLogicDouble) return PlayerActionOutcome.noop(state)
+        if (!canLogicDouble) return PlayerActionOutcome.rejected(state)
 
         val drawnCard = state.deck.firstOrNull() ?: return PlayerActionOutcome.noop(state)
         val remainingDeck = state.deck.drop(1).toPersistentList()
@@ -177,7 +182,7 @@ object PlayerActionLogic {
      * @return The state updated with the split hands and two dealt card effects.
      */
     fun split(state: GameState): PlayerActionOutcome {
-        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.noop(state)
+        if (state.status != GameStatus.PLAYING) return PlayerActionOutcome.rejected(state)
         val hand = state.activeHand
         val c0 = hand.cards.getOrNull(0)?.rank
         val c1 = hand.cards.getOrNull(1)?.rank
@@ -193,9 +198,9 @@ object PlayerActionLogic {
                 rankMatch == true
 
         if (canLogicSplit && state.balance < hand.bet) {
-            return PlayerActionOutcome(state, listOf(GameEffect.Vibrate))
+            return PlayerActionOutcome.rejected(state)
         }
-        if (!canLogicSplit) return PlayerActionOutcome.noop(state)
+        if (!canLogicSplit) return PlayerActionOutcome.rejected(state)
         if (state.deck.size < CARDS_TO_DEAL_ON_SPLIT) return PlayerActionOutcome.noop(state)
 
         val card1 = state.activeHand.cards[0]
