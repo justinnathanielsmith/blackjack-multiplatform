@@ -20,19 +20,34 @@ enum class SideBetType {
 /**
  * Typed discriminator for a winning side-bet hand — replaces raw English strings so the UI can
  * match exhaustively and the compiler enforces coverage when new outcomes are added.
+ *
+ * Each variant represents a specific poker-style or pair-based hand configuration as defined
+ * by standard multi-deck Blackjack side-bet rules.
  */
 @Serializable
 enum class SideBetOutcome {
-    // Perfect Pairs outcomes
+    /** A pair of cards with the exact same [Rank] and [Suit]. Possible in multi-deck shoes. (25:1) */
     PERFECT_PAIR,
+
+    /** A pair of cards with the same [Rank] and color (e.g., Hearts and Diamonds), but different suits. (12:1) */
     COLORED_PAIR,
+
+    /** A pair of cards with the same [Rank], but different colors (e.g., Clubs and Diamonds). (5:1) */
     MIXED_PAIR,
 
-    // 21+3 outcomes
+    /** Three cards of the exact same [Rank] and [Suit]. (100:1) */
     SUITED_TRIPLE,
+
+    /** Three cards in sequential [Rank] (e.g., 5-6-7) and of the same [Suit]. (40:1) */
     STRAIGHT_FLUSH,
+
+    /** Three cards of the same [Rank], but not all the same suit. (30:1) */
     THREE_OF_A_KIND,
+
+    /** Three cards in sequential [Rank] (e.g., 8-9-10) regardless of suit. (10:1) */
     STRAIGHT,
+
+    /** Three cards of the same [Suit] regardless of rank. (5:1) */
     FLUSH,
 }
 
