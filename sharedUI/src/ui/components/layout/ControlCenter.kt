@@ -54,9 +54,39 @@ import sharedui.generated.resources.bet_total_label
 import sharedui.generated.resources.currency_template
 import sharedui.generated.resources.financial_data_content_description
 
+/**
+ * The primary user interaction hub for the Blackjack game.
+ *
+ * This component hosts the context-aware action buttons (Hit, Stand, etc.), betting controls,
+ * and the chip rack. It automatically transitions its layout based on the [isBetting] and
+ * [isPlaying] flags, ensuring only relevant actions are presented to the player.
+ *
+ * It uses [AnimatedVisibility] and [animateContentSize] to provide smooth transitions
+ * between betting and playing phases.
+ *
+ * @param isBetting True if the player is currently in the betting phase.
+ * @param isPlaying True if the player is currently making decisions on a dealt hand.
+ * @param totalBet The current cumulative bet on the table across all positions.
+ * @param balance The player's current bankroll (displayed in the footer status bar).
+ * @param canDeal Eligibility flag for the DEAL action (must have non-zero bets).
+ * @param canResetBet Eligibility flag for clearing current bets.
+ * @param canSplit Eligibility flag for splitting the active hand.
+ * @param canDoubleDown Eligibility flag for doubling down on the active hand.
+ * @param canSurrender Eligibility flag for surrendering the active hand.
+ * @param activeHandTension A 0f-1f value representing the "intensity" of the current hand
+ *        (e.g., close to 21 or potentially busting), used for UI effects.
+ * @param component The [BlackjackComponent] providing audio and domain action dispatch.
+ * @param selectedAmount The value of the currently selected chip (e.g., 5, 25, 100).
+ * @param onChipSelected Callback when a different chip value is picked.
+ * @param onResetBet Callback when the player clears their table bets.
+ * @param onDeal Callback when the player initiates the dealing phase.
+ * @param modifier [Modifier] applied to the root [Column] of the control center.
+ * @param isCompact If true, uses a tighter layout optimized for multi-hand play or small screens.
+ * @param onChipPositioned Callback emitting the global [Offset] of each chip in the rack,
+ *        used to anchor fly-to-bet animations in the overlay layer.
+ */
 @Composable
 fun ControlCenter(
-    // Presentation mapping: phase flags pre-computed by caller — no GameStatus checks in Composables
     isBetting: Boolean,
     isPlaying: Boolean,
     totalBet: Int,
