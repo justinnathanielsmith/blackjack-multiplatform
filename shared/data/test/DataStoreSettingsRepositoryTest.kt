@@ -92,4 +92,39 @@ class DataStoreSettingsRepositoryTest {
                 cancelAndIgnoreRemainingEvents()
             }
         }
+
+    @Test
+    fun testPartialUpdatePreservesAllOtherFields() =
+        runTest {
+            val fakeDataStore = FakeDataStore()
+            val repository = DataStoreSettingsRepository(fakeDataStore)
+
+            repository.settingsFlow.test {
+                assertEquals(AppSettings(), awaitItem())
+
+                val settingsKey = stringPreferencesKey("app_settings")
+                val initialJson =
+                    """{"isSoundMuted":false,"gameRules":{"dealerHitsSoft17":true,""" +
+                        """"allowDoubleAfterSplit":true,"allowSurrender":true,""" +
+                        """"blackjackPayout":"THREE_TO_TWO","deckCount":6,"splitOnValueOnly":false},""" +
+                        """"defaultHandCount":3,"isAutoDealEnabled":true}"""
+                fakeDataStore.emitPreferences(mutablePreferencesOf(settingsKey to initialJson))
+
+                val initialSettings = awaitItem()
+                assertEquals(false, initialSettings.isSoundMuted)
+                assertEquals(true, initialSettings.isAutoDealEnabled)
+                assertEquals(3, initialSettings.defaultHandCount)
+                assertEquals(true, initialSettings.gameRules.allowSurrender)
+
+                repository.update { it.copy(isSoundMuted = true) }
+
+                val updatedSettings = awaitItem()
+                assertEquals(true, updatedSettings.isSoundMuted)
+                assertEquals(true, updatedSettings.isAutoDealEnabled)
+                assertEquals(3, updatedSettings.defaultHandCount)
+                assertEquals(true, updatedSettings.gameRules.allowSurrender)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 }
