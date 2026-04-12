@@ -23,7 +23,7 @@ import io.github.smithjustinn.blackjack.ui.theme.GlassDark
 import io.github.smithjustinn.blackjack.ui.theme.PrimaryGold
 import org.jetbrains.compose.resources.stringResource
 import sharedui.generated.resources.Res
-import sharedui.generated.resources.deal
+import sharedui.generated.resources.action_deal
 import sharedui.generated.resources.deal_description
 import sharedui.generated.resources.reset_bet
 import sharedui.generated.resources.reset_bet_description
@@ -62,7 +62,7 @@ fun BettingActions(
             contentColor = Color.White,
         )
         CasinoButton(
-            text = stringResource(Res.string.deal),
+            text = stringResource(Res.string.action_deal),
             onClick = onDeal,
             modifier =
                 Modifier

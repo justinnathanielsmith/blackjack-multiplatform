@@ -8,19 +8,19 @@
     <string name="audio_mismatch">mismatch</string>
     <string name="audio_nuts">nuts</string>
     <string name="audio_plink">plink</string>
-    <string name="audio_win">win</string>
     <string name="audio_push">push</string>
     <string name="audio_tension">tension</string>
+    <string name="audio_win">win</string>
 
     <!-- Game actions -->
+    <string name="action_deal">Deal</string>
     <string name="action_double">Double</string>
     <string name="action_hit">Hit</string>
+    <string name="action_new_game">New Game</string>
     <string name="action_split">Split</string>
     <string name="action_stand">Stand</string>
     <string name="action_surrender">Surrender</string>
-    <string name="deal">Deal</string>
     <string name="dealer">Dealer</string>
-    <string name="new_game">New Game</string>
     <string name="you">You</string>
 
     <!-- Betting -->
