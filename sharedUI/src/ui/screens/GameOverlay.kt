@@ -66,6 +66,32 @@ import sharedui.generated.resources.side_bet_straight_flush
 import sharedui.generated.resources.side_bet_suited_triple
 import sharedui.generated.resources.side_bet_three_of_a_kind
 
+/**
+ * Top-level orchestrator for all visual game overlays and feedback systems.
+ *
+ * Coordinates layering and visibility of:
+ * 1. **Terminal Results**: Dramatic centered panels for wins, losses, and pushes.
+ * 2. **Process State**: Compact top-toasts for dealing and dealer turns.
+ * 3. **Celebrations**: Particle systems (Confetti, Sparkles) and "Big Win" banners.
+ * 4. **Interaction**: Specialized prompts like the insurance offer.
+ * 5. **Screen Effects**: Dynamic full-screen flashes for critical events.
+ *
+ * @param status Current [GameStatus] driving the visible phase.
+ * @param sideBetResults Map of settled side bet outcomes to display.
+ * @param isBlackjack True if the round ended with a player natural Blackjack.
+ * @param isBust True if all player hands are busted.
+ * @param netPayout Total net profit/loss for count-up animations.
+ * @param component State-holder for dispatching interaction actions.
+ * @param flashAlphaProvider Deferred alpha source for screen flash performance.
+ * @param flashColorProvider Deferred color source for screen flash performance.
+ * @param showInsuranceOverlay Visibility flag for the insurance acceptance prompt.
+ * @param showConfetti Trigger for the confetti particle celebration.
+ * @param showSparkle Trigger for the ambient win sparkle effect.
+ * @param modifier [Modifier] applied to the root full-screen container.
+ * @param isPaused Provider check to suspend particle physics and animations.
+ * @param showBigWinBanner Provider check to trigger high-value win announcements.
+ * @param bigWinAmount Provider for the numerical value shown in the big win banner.
+ */
 @Composable
 fun GameOverlay(
     status: GameStatus,

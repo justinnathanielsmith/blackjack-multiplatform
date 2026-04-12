@@ -41,3 +41,6 @@
 ## 2026-04-12 - StrategyProvider
 **Surprise:** `StrategyProvider` uses `StrategyCell` where `playerValue` is a `String`. This allows for labels like "17+" or "8 or less" rather than just integers, making the table more compact but requiring logic to map specific hand totals to these ranges.
 **Rule:** When documenting strategy tables, mention that `playerValue` labels are descriptive and require range-mapping logic in the UI layer.
+## 2026-04-12 - GameOverlay
+**Surprise:** `GameOverlay` relies entirely on primitive/provider parameters (`() -> Color`, `() -> Float`) rather than reading `GameState` directly. This pattern is essential for performance, as it avoids recomposing the entire overlay (and its heavy particle systems) when unrelated state like `deck` or `balance` changes.
+**Rule:** When building complex screen overlays with animations or particle effects, always defer state reads via lambda providers to ensure stable composition.
