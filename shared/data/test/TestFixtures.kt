@@ -38,6 +38,27 @@ class FakeDataStore : DataStore<Preferences> {
 }
 
 /**
+ * A hand-rolled [SettingsRepository] fake that avoids DataStore overhead entirely.
+ *
+ * Useful for testing components that depend on settings (like [BlackjackComponent])
+ * without needing to mock JSON serialization or DataStore internal state.
+ */
+class FakeSettingsRepository(
+    initialSettings: AppSettings = AppSettings()
+) : SettingsRepository {
+    private val _settingsFlow = MutableStateFlow(initialSettings)
+    override val settingsFlow: Flow<AppSettings> = _settingsFlow
+
+    var updateCallCount = 0
+        private set
+
+    override suspend fun update(transform: (AppSettings) -> AppSettings) {
+        updateCallCount++
+        _settingsFlow.update(transform)
+    }
+}
+
+/**
  * A [DataStore] fake whose [data] flow throws immediately, simulating a corrupted or
  * inaccessible DataStore file.
  *
