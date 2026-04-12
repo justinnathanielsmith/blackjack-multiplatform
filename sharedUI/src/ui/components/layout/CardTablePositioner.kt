@@ -85,7 +85,7 @@ fun computeTableLayout(
     var globalCardIndex = 0
 
     // Dealer zone
-    val (dealerSlots, dealerZone) =
+    val dealerResult =
         computeDealerZone(
             state = state,
             areaWidth = areaWidth,
@@ -94,12 +94,12 @@ fun computeTableLayout(
             params = dealerParams,
             startIndex = globalCardIndex
         )
-    cardSlots.addAll(dealerSlots)
-    handZones.add(dealerZone)
-    globalCardIndex += dealerSlots.size
+    cardSlots.addAll(dealerResult.slots)
+    handZones.add(dealerResult.zone)
+    globalCardIndex += dealerResult.slots.size
 
     // Player zones
-    val (playerSlots, playerHandZones, playerChipSlots) =
+    val playerResult =
         computePlayerZones(
             state = state,
             areaWidth = areaWidth,
@@ -109,9 +109,9 @@ fun computeTableLayout(
             params = playerParams,
             startIndex = globalCardIndex
         )
-    cardSlots.addAll(playerSlots)
-    handZones.addAll(playerHandZones)
-    chipSlots.addAll(playerChipSlots)
+    cardSlots.addAll(playerResult.slots)
+    handZones.addAll(playerResult.zones)
+    chipSlots.addAll(playerResult.chipSlots)
 
     return TableLayout(cardSlots = cardSlots, handZones = handZones, chipSlots = chipSlots)
 }
@@ -174,7 +174,7 @@ private fun computeDealerZone(
     shoePosition: Offset,
     params: SlotParams,
     startIndex: Int,
-): Pair<List<CardSlotLayout>, HandZone> {
+): ZoneResult {
     val dealerZoneCenter = Offset(areaWidth / 2f, areaHeight * TableMetrics.DEALER_ZONE_CENTER_Y_RATIO)
     return computeZone(
         cards = state.dealerHand.cards,
@@ -196,7 +196,7 @@ private fun computePlayerZones(
     shoePosition: Offset,
     params: SlotParams,
     startIndex: Int,
-): Triple<List<CardSlotLayout>, List<HandZone>, List<ChipSlotLayout>> {
+): PlayerZonesResult {
     val nPlayerHands = state.playerHands.size.coerceAtLeast(1)
     val zoneWidth = areaWidth / nPlayerHands
     val arcRadius = areaHeight * TableMetrics.PLAYER_SMILE_ARC_RADIUS_RATIO
@@ -211,7 +211,7 @@ private fun computePlayerZones(
         val arcYOffset = relativePos * relativePos * arcRadius
         val playerZoneCenter = Offset(zoneCenterX, areaHeight * TableMetrics.PLAYER_ZONE_CENTER_Y_RATIO + arcYOffset)
 
-        val (slots, zone) =
+        val zoneResult =
             computeZone(
                 cards = hand.cards,
                 handIndex = handIdx,
@@ -222,9 +222,9 @@ private fun computePlayerZones(
                 isDealer = false,
                 startIndex = currentCardIndex,
             )
-        cardSlots.addAll(slots)
-        handZones.add(zone)
-        currentCardIndex += slots.size
+        cardSlots.addAll(zoneResult.slots)
+        handZones.add(zoneResult.zone)
+        currentCardIndex += zoneResult.slots.size
 
         val bet = hand.bet
         if (bet > 0) {
@@ -235,8 +235,8 @@ private fun computePlayerZones(
                     startOffset = Offset(areaWidth / 2f, areaHeight + 80f),
                     centerOffset =
                         Offset(
-                            zone.clusterCenter.x,
-                            zone.clusterTopLeft.y + zone.clusterSize.height +
+                            zoneResult.zone.clusterCenter.x,
+                            zoneResult.zone.clusterTopLeft.y + zoneResult.zone.clusterSize.height +
                                 with(density) { (if (nPlayerHands > 1) 36.dp else 20.dp).toPx() },
                         ),
                     scale = params.cardScale,
@@ -244,8 +244,19 @@ private fun computePlayerZones(
             )
         }
     }
-    return Triple(cardSlots, handZones, chipSlots)
+    return PlayerZonesResult(slots = cardSlots, zones = handZones, chipSlots = chipSlots)
 }
+
+private data class ZoneResult(
+    val slots: List<CardSlotLayout>,
+    val zone: HandZone
+)
+
+private data class PlayerZonesResult(
+    val slots: List<CardSlotLayout>,
+    val zones: List<HandZone>,
+    val chipSlots: List<ChipSlotLayout>,
+)
 
 private data class SlotParams(
     val cardW: Float,
@@ -265,7 +276,7 @@ private fun computeZone(
     params: SlotParams,
     isDealer: Boolean,
     startIndex: Int,
-): Pair<List<CardSlotLayout>, HandZone> {
+): ZoneResult {
     val (cardW, cardH, defaultStepX, stepYPx, cardScale, minVisibleWidthFactor) = params
     val n = cards.size
     val actualStepX = squeezedStep(n, cardW, defaultStepX, availableWidth, minVisibleWidthFactor)
@@ -309,7 +320,7 @@ private fun computeZone(
             scale = cardScale,
         )
 
-    return Pair(slots, zone)
+    return ZoneResult(slots = slots, zone = zone)
 }
 
 private fun squeezedStep(

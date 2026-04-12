@@ -180,7 +180,6 @@ object BlackjackRules {
         dealerHand: Hand,
     ): GameStatus {
         val dealerHasBJ = dealerHand.isBlackjack
-        var allDealerWon = true
         var anyPush = false
         var anyPlayerWon = false
         var anyStillPlaying = false
@@ -188,20 +187,12 @@ object BlackjackRules {
         for (i in 0 until hands.size) {
             val playerHasBJ = hands[i].isBlackjack
             when {
-                playerHasBJ && dealerHasBJ -> {
-                    anyPush = true
-                    allDealerWon = false
-                }
-                playerHasBJ -> {
-                    anyPlayerWon = true
-                    allDealerWon = false
-                }
-                !dealerHasBJ -> {
-                    anyStillPlaying = true
-                    allDealerWon = false
-                }
+                playerHasBJ && dealerHasBJ -> anyPush = true
+                playerHasBJ -> anyPlayerWon = true
+                !dealerHasBJ -> anyStillPlaying = true
             }
         }
+        val allDealerWon = !anyPush && !anyPlayerWon && !anyStillPlaying
 
         return resolveFinalInitialStatus(anyStillPlaying, anyPlayerWon, anyPush, allDealerWon)
     }

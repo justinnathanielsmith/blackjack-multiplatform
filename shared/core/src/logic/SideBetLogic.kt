@@ -44,6 +44,13 @@ object SideBetLogic {
     private val RED_SUITS = setOf(Suit.HEARTS, Suit.DIAMONDS)
     private val BLACK_SUITS = setOf(Suit.CLUBS, Suit.SPADES)
 
+    /** Constructs a preliminary [SideBetResult] with [payoutAmount] = 0. The caller computes the real payout from the bet. */
+    private fun sideBetResult(
+        type: SideBetType,
+        multiplier: Int,
+        outcome: SideBetOutcome
+    ) = SideBetResult(type = type, payoutMultiplier = multiplier, payoutAmount = 0, outcome = outcome)
+
     /**
      * Orchestrates the resolution of all active side bets on the table.
      *
@@ -105,11 +112,16 @@ object SideBetLogic {
 
         return when {
             c1.suit == c2.suit ->
-                SideBetResult(SideBetType.PERFECT_PAIRS, PERFECT_PAIR_PAYOUT, 0, SideBetOutcome.PERFECT_PAIR)
-            isSameColor(c1.suit, c2.suit) ->
-                SideBetResult(SideBetType.PERFECT_PAIRS, COLORED_PAIR_PAYOUT, 0, SideBetOutcome.COLORED_PAIR)
-            else ->
-                SideBetResult(SideBetType.PERFECT_PAIRS, MIXED_PAIR_PAYOUT, 0, SideBetOutcome.MIXED_PAIR)
+                sideBetResult(
+                    SideBetType.PERFECT_PAIRS,
+                    PERFECT_PAIR_PAYOUT,
+                    SideBetOutcome.PERFECT_PAIR
+                )
+            isSameColor(
+                c1.suit,
+                c2.suit
+            ) -> sideBetResult(SideBetType.PERFECT_PAIRS, COLORED_PAIR_PAYOUT, SideBetOutcome.COLORED_PAIR)
+            else -> sideBetResult(SideBetType.PERFECT_PAIRS, MIXED_PAIR_PAYOUT, SideBetOutcome.MIXED_PAIR)
         }
     }
 
@@ -150,39 +162,28 @@ object SideBetLogic {
                 c1,
                 c2,
                 c3
-            ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, SUITED_TRIPLE_PAYOUT, 0, SideBetOutcome.SUITED_TRIPLE)
+            ) -> sideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, SUITED_TRIPLE_PAYOUT, SideBetOutcome.SUITED_TRIPLE)
             isStraightFlush(
                 c1,
                 c2,
                 c3
-            ) ->
-                SideBetResult(
-                    SideBetType.TWENTY_ONE_PLUS_THREE,
-                    STRAIGHT_FLUSH_PAYOUT,
-                    0,
-                    SideBetOutcome.STRAIGHT_FLUSH
-                )
+            ) -> sideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_FLUSH_PAYOUT, SideBetOutcome.STRAIGHT_FLUSH)
             isThreeOfAKind(
                 c1,
                 c2,
                 c3
             ) ->
-                SideBetResult(
+                sideBetResult(
                     SideBetType.TWENTY_ONE_PLUS_THREE,
                     THREE_OF_A_KIND_PAYOUT,
-                    0,
                     SideBetOutcome.THREE_OF_A_KIND
                 )
             isStraight(
                 c1,
                 c2,
                 c3
-            ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_PAYOUT, 0, SideBetOutcome.STRAIGHT)
-            isFlush(
-                c1,
-                c2,
-                c3
-            ) -> SideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, FLUSH_PAYOUT, 0, SideBetOutcome.FLUSH)
+            ) -> sideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, STRAIGHT_PAYOUT, SideBetOutcome.STRAIGHT)
+            isFlush(c1, c2, c3) -> sideBetResult(SideBetType.TWENTY_ONE_PLUS_THREE, FLUSH_PAYOUT, SideBetOutcome.FLUSH)
             else -> null
         }
     }
