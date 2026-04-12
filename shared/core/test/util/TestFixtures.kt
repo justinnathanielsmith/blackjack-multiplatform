@@ -76,6 +76,20 @@ fun playingState(
         rules = rules,
     )
 
+/** Standard initial betting state. */
+fun bettingState(
+    balance: Int = 1000,
+    handCount: Int = 1,
+    rules: GameRules = GameRules(),
+): GameState =
+    GameState(
+        status = GameStatus.BETTING,
+        balance = balance,
+        handCount = handCount,
+        playerHands = List(handCount) { Hand() }.toPersistentList(),
+        rules = rules,
+    )
+
 /** Multi-hand in-progress playing state. */
 fun multiHandPlayingState(
     balance: Int,
