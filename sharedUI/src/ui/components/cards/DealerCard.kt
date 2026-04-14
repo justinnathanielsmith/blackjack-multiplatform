@@ -50,9 +50,9 @@ enum class RevealState {
 fun DealerCard(
     card: Card,
     isFaceUp: Boolean,
-    dealerUpcard: Card?,
     modifier: Modifier = Modifier,
-    isDealerBlackjack: Boolean = false,
+    // Presentation flag pre-computed by caller; no game rule evaluation in Composable
+    isSlowRoll: Boolean = false,
     scale: Float = 1f,
     shadowElevation: Dp = 6.dp,
     spotColor: Color = Color.Black,
@@ -60,11 +60,6 @@ fun DealerCard(
     val rotationY = remember { Animatable(0f) }
     val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
-
-    // Tension Logic: Slow Roll if upcard is Ace/10 and hole card completes Blackjack
-    val isBlackjack = isDealerBlackjack // Domain predicate passed in; removes hardcoded score thresholds
-    val isTensionVisible = dealerUpcard?.rank == Rank.ACE || dealerUpcard?.rank?.value == 10
-    val isSlowRoll = isBlackjack && isTensionVisible
 
     LaunchedEffect(isFaceUp) {
         if (isFaceUp) {
@@ -195,8 +190,7 @@ private fun DealerCardHiddenPreview() {
         DealerCard(
             card = Card(Rank.TEN, Suit.SPADES),
             isFaceUp = false,
-            dealerUpcard = Card(Rank.ACE, Suit.HEARTS),
-            isDealerBlackjack = true
+            isSlowRoll = true,
         )
     }
 }
@@ -209,8 +203,7 @@ private fun DealerCardRevealedPreview() {
         DealerCard(
             card = Card(Rank.TEN, Suit.SPADES),
             isFaceUp = true,
-            dealerUpcard = Card(Rank.ACE, Suit.HEARTS),
-            isDealerBlackjack = true
+            isSlowRoll = true,
         )
     }
 }

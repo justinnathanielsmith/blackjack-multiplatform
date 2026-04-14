@@ -39,8 +39,7 @@ internal fun PositionedCardItem(
     animDelay: Int,
     isFaceUp: Boolean,
     isDealer: Boolean,
-    dealerUpcard: Card?,
-    isDealerBlackjack: Boolean = false,
+    isSlowRoll: Boolean = false,
     baseCardW: Float,
     baseCardH: Float,
     coordOffsetX: Float,
@@ -135,8 +134,7 @@ internal fun PositionedCardItem(
             DealerCard(
                 card = card,
                 isFaceUp = isFaceUp,
-                dealerUpcard = dealerUpcard,
-                isDealerBlackjack = isDealerBlackjack,
+                isSlowRoll = isSlowRoll,
                 scale = 1f,
                 shadowElevation = 0.dp,
             )
