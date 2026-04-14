@@ -79,6 +79,9 @@ data class BlackjackScreenState(
     val onDoubleDown: () -> Unit,
     val onSplit: () -> Unit,
     val onSurrender: () -> Unit,
+    // Insurance callbacks pre-wired here so GameOverlay stays coupling-free
+    val onTakeInsurance: () -> Unit,
+    val onDeclineInsurance: () -> Unit,
 )
 
 private data class BlackjackCallbacks(
@@ -98,6 +101,8 @@ private data class BlackjackCallbacks(
     val onDoubleDown: () -> Unit,
     val onSplit: () -> Unit,
     val onSurrender: () -> Unit,
+    val onTakeInsurance: () -> Unit,
+    val onDeclineInsurance: () -> Unit,
 )
 
 @Composable
@@ -165,6 +170,8 @@ private fun rememberCallbacks(
                 component.onAction(GameAction.Surrender)
             }
         }
+    val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
+    val onDeclineInsurance = remember(component) { { component.onAction(GameAction.DeclineInsurance) } }
     val onSettingsClick = remember { { showSettingsSetter(true) } }
     val onStrategyClick = remember { { showStrategySetter(true) } }
     val onRulesClick = remember { { showRulesSetter(true) } }
@@ -188,6 +195,8 @@ private fun rememberCallbacks(
         onDoubleDown = onDoubleDown,
         onSplit = onSplit,
         onSurrender = onSurrender,
+        onTakeInsurance = onTakeInsurance,
+        onDeclineInsurance = onDeclineInsurance,
     )
 }
 
@@ -306,5 +315,7 @@ fun rememberBlackjackScreenState(component: BlackjackComponent): BlackjackScreen
         onDoubleDown = callbacks.onDoubleDown,
         onSplit = callbacks.onSplit,
         onSurrender = callbacks.onSurrender,
+        onTakeInsurance = callbacks.onTakeInsurance,
+        onDeclineInsurance = callbacks.onDeclineInsurance,
     )
 }

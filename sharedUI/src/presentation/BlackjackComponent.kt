@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 // Presentation-layer timing for auto-deal state machine loop; kept here to avoid
 // the presentation layer depending on the UI theme package.
@@ -189,11 +190,13 @@ class DefaultBlackjackComponent(
                             val lastSideBets = currentState.lastSideBets
 
                             delay(
-                                if (autoDealEnabled) {
-                                    AUTO_DEAL_DELAY_TERMINAL_MS
-                                } else {
-                                    MANUAL_RESET_DELAY_MS
-                                }
+                                (
+                                    if (autoDealEnabled) {
+                                        AUTO_DEAL_DELAY_TERMINAL_MS
+                                    } else {
+                                        MANUAL_RESET_DELAY_MS
+                                    }
+                                ).milliseconds
                             )
 
                             stateMachine.dispatch(

@@ -36,14 +36,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.SideBetOutcome
 import io.github.smithjustinn.blackjack.model.SideBetResult
 import io.github.smithjustinn.blackjack.model.SideBetType
 import io.github.smithjustinn.blackjack.model.isProcess
 import io.github.smithjustinn.blackjack.model.isTerminal
-import io.github.smithjustinn.blackjack.presentation.BlackjackComponent
 import io.github.smithjustinn.blackjack.ui.components.feedback.GameStatusMessage
 import io.github.smithjustinn.blackjack.ui.components.feedback.GameStatusToast
 import io.github.smithjustinn.blackjack.ui.components.feedback.rememberGameStatusUiState
@@ -99,7 +97,9 @@ fun GameOverlay(
     isBlackjack: Boolean,
     isBust: Boolean,
     netPayout: Int?,
-    component: BlackjackComponent,
+    // Callbacks pre-wired by BlackjackScreenState — Composable stays coupling-free
+    onTakeInsurance: () -> Unit,
+    onDeclineInsurance: () -> Unit,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
     showInsuranceOverlay: Boolean,
@@ -118,7 +118,8 @@ fun GameOverlay(
             isBlackjack = isBlackjack,
             isBust = isBust,
             netPayout = netPayout,
-            component = component,
+            onTakeInsurance = onTakeInsurance,
+            onDeclineInsurance = onDeclineInsurance,
             flashAlphaProvider = flashAlphaProvider,
             flashColorProvider = flashColorProvider,
             showInsuranceOverlay = showInsuranceOverlay,
@@ -138,7 +139,8 @@ private fun BlackjackGameOverlay(
     isBlackjack: Boolean,
     isBust: Boolean,
     netPayout: Int?,
-    component: BlackjackComponent,
+    onTakeInsurance: () -> Unit,
+    onDeclineInsurance: () -> Unit,
     flashAlphaProvider: () -> Float,
     flashColorProvider: () -> Color,
     showInsuranceOverlay: Boolean,
@@ -187,9 +189,6 @@ private fun BlackjackGameOverlay(
             ),
         label = "terminalScrimAlpha",
     )
-
-    val onTakeInsurance = remember(component) { { component.onAction(GameAction.TakeInsurance) } }
-    val onDeclineInsurance = remember(component) { { component.onAction(GameAction.DeclineInsurance) } }
 
     Box(
         modifier = modifier.fillMaxSize(),
