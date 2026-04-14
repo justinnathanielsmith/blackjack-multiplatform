@@ -78,6 +78,17 @@ import sharedui.generated.resources.ic_split
 import sharedui.generated.resources.ic_stand
 import sharedui.generated.resources.ic_surrender
 
+// Bolt ⚡: File-level constant — border gradient uses only PrimaryGold with fixed alphas,
+// so it is identical across all 5 ModernActionButton instances and never needs to change.
+// Eliminates 5 Brush.linearGradient allocations per GameActions recomposition (which fires
+// on every activeHandTension change, i.e. every card hit during gameplay).
+private val ButtonBorderBrush =
+    Brush.linearGradient(
+        0.0f to PrimaryGold.copy(alpha = 0.8f),
+        0.5f to PrimaryGold.copy(alpha = 0.2f),
+        1.0f to PrimaryGold.copy(alpha = 0.6f)
+    )
+
 /**
  * A reactive container for player gameplay actions (Hit, Stand, Split, etc.).
  *
@@ -304,6 +315,24 @@ private fun ModernActionButton(
             Modifier
         }
 
+    // Bolt ⚡: Memoize background brush per (enabled, containerColor) — these only change on
+    // game-phase transitions, not on every card hit. Without this, all 5 ModernActionButton
+    // instances re-allocate a Brush.verticalGradient + 4 Color.copy values each time
+    // activeHandTension changes (once per hit during active gameplay).
+    val backgroundBrush =
+        remember(enabled, containerColor) {
+            if (enabled) {
+                Brush.verticalGradient(
+                    0.0f to containerColor.copy(alpha = 0.9f),
+                    0.45f to containerColor,
+                    0.55f to containerColor.copy(alpha = 0.8f),
+                    1.0f to containerColor.copy(alpha = 0.7f)
+                )
+            } else {
+                Brush.verticalGradient(colors = listOf(GlassDark, GlassDark))
+            }
+        }
+
     val buttonInteractionSource = remember { MutableInteractionSource() }
     val isPressed by buttonInteractionSource.collectIsPressedAsState()
     val buttonScale by animateFloatAsState(if (isPressed) 0.96f else 1f)
@@ -338,26 +367,11 @@ private fun ModernActionButton(
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 44.dp)
                     .background(
-                        brush =
-                            if (enabled) {
-                                Brush.verticalGradient(
-                                    0.0f to containerColor.copy(alpha = 0.9f),
-                                    0.45f to containerColor,
-                                    0.55f to containerColor.copy(alpha = 0.8f),
-                                    1.0f to containerColor.copy(alpha = 0.7f)
-                                )
-                            } else {
-                                Brush.verticalGradient(colors = listOf(GlassDark, GlassDark))
-                            },
+                        brush = backgroundBrush,
                         shape = RoundedCornerShape(percent = 50)
                     ).border(
                         width = 1.5.dp,
-                        brush =
-                            Brush.linearGradient(
-                                0.0f to PrimaryGold.copy(alpha = 0.8f),
-                                0.5f to PrimaryGold.copy(alpha = 0.2f),
-                                1.0f to PrimaryGold.copy(alpha = 0.6f)
-                            ),
+                        brush = ButtonBorderBrush,
                         shape = RoundedCornerShape(percent = 50)
                     ).drawBehind {
                         // Top highlight for metallic feel
