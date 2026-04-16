@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +33,16 @@ import sharedui.generated.resources.suit_spades
 
 @Composable
 fun CardBack(modifier: Modifier = Modifier) {
+    // Bolt Performance Optimization: Pre-allocate the medallion brush once for the composable
+    // lifetime. The Canvas draw scope has no cache mechanism, so this brush would otherwise be
+    // re-allocated 60× per second per face-down card (dealer hole card + any undealt cards).
+    // This brush has no dependency on size or state — it is safe and correct to remember it here.
+    val medallionBrush =
+        remember {
+            Brush.linearGradient(
+                colors = listOf(ModernGoldLight, ModernGoldDark)
+            )
+        }
     Box(
         modifier =
             modifier
@@ -53,9 +64,17 @@ fun CardBack(modifier: Modifier = Modifier) {
                 .drawWithCache {
                     val spacing = 8.dp.toPx()
                     val strokeWidth = 1.dp.toPx()
-                    val patternColor =
-                        ModernGoldDark
-                            .copy(alpha = 0.3f)
+                    val patternColor = ModernGoldDark.copy(alpha = 0.3f)
+
+                    // Bolt Performance Optimization: Hoist the inner-frame gradient brush into
+                    // the drawWithCache scope. It was previously inside onDrawBehind, allocating a
+                    // new Brush.linearGradient on every frame for every face-down card on the table
+                    // (dealer hole card during dealing / playing phases). The cache scope re-runs
+                    // only when `size` changes, reducing allocations from O(Frames) to O(SizeChanges).
+                    val innerFrameBrush = Brush.linearGradient(colors = listOf(ModernGoldLight, ModernGoldDark))
+                    val innerFrameStroke = Stroke(width = 1.5.dp.toPx())
+                    val innerFrameCornerRadius = CornerRadius(4.dp.toPx())
+                    val innerFrameMargin = 6.dp.toPx()
 
                     onDrawBehind {
                         // 3. Elegant diamond lattice pattern
@@ -82,44 +101,32 @@ fun CardBack(modifier: Modifier = Modifier) {
                             i += spacing
                         }
 
-                        // 4. Inner gold foil frame
+                        // 4. Inner gold foil frame — brush and stroke pre-computed in cache scope above
                         drawRoundRect(
-                            brush =
-                                Brush.linearGradient(
-                                    colors =
-                                        listOf(
-                                            ModernGoldLight,
-                                            ModernGoldDark
-                                        )
-                                ),
+                            brush = innerFrameBrush,
                             size =
                                 size.copy(
-                                    width = size.width - 12.dp.toPx(),
-                                    height =
-                                        size.height - 12.dp.toPx()
+                                    width = size.width - innerFrameMargin * 2,
+                                    height = size.height - innerFrameMargin * 2,
                                 ),
-                            topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
-                            cornerRadius = CornerRadius(4.dp.toPx()),
-                            style = Stroke(width = 1.5.dp.toPx()),
+                            topLeft = Offset(innerFrameMargin, innerFrameMargin),
+                            cornerRadius = innerFrameCornerRadius,
+                            style = innerFrameStroke,
                         )
                     }
                 },
     ) {
         // 5. Center Casino Medallion
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            // Bolt Performance Optimization: Use pre-allocated `medallionBrush` (remembered
+            // at composable scope above). Canvas.drawScope has no cache mechanism, so without
+            // this, a new Brush.linearGradient is created on every frame per face-down card.
             Canvas(modifier = Modifier.size(36.dp)) {
                 val centerOffset = Offset(size.width / 2, size.height / 2)
 
-                // Outer gold ring
+                // Outer gold ring — uses `medallionBrush` pre-allocated in composable scope
                 drawCircle(
-                    brush =
-                        Brush.linearGradient(
-                            colors =
-                                listOf(
-                                    ModernGoldLight,
-                                    ModernGoldDark
-                                )
-                        ),
+                    brush = medallionBrush,
                     radius = size.minDimension / 2,
                     center = centerOffset
                 )
@@ -131,9 +138,7 @@ fun CardBack(modifier: Modifier = Modifier) {
                 )
                 // Delicate inner gold detail
                 drawCircle(
-                    color =
-                        ModernGoldDark
-                            .copy(alpha = 0.8f),
+                    color = ModernGoldDark.copy(alpha = 0.8f),
                     radius = size.minDimension / 2 - 5.dp.toPx(),
                     center = centerOffset,
                     style = Stroke(width = 1.dp.toPx())
