@@ -230,6 +230,19 @@ data class GameState(
      */
     val isDealerActive: Boolean get() = isPlayingPhase && activeHandIndex == -1
 
+    /**
+     * Domain guard: True when the dealer holds a natural blackjack with an Ace or 10-value
+     * card showing as the upcard. Drives the slow-roll reveal animation.
+     * Kept here to prevent business rule evaluation inside Composables.
+     */
+    val isDealerSlowRoll: Boolean
+        get() {
+            val upcard = dealerHand.cards.getOrNull(0)
+            return dealerHand.isBlackjack &&
+                upcard != null &&
+                (upcard.rank == Rank.ACE || upcard.rank.value == 10)
+        }
+
     /** True when the player hand at [index] is the currently-active hand. */
     fun isHandActive(index: Int): Boolean = isPlayingPhase && index == activeHandIndex
 }

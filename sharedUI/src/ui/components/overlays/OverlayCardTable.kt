@@ -10,7 +10,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import io.github.smithjustinn.blackjack.model.GameState
-import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.handNetPayout
 import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.ui.components.feedback.HandResult
@@ -77,12 +76,8 @@ fun OverlayCardTable(
 
         // 2. Positioned (landed) cards - Dealer
         val isDealerActive = state.isDealerActive
-        // Pre-map domain rule: slow-roll when dealer has blackjack and upcard is Ace or 10-value
-        val upcard = state.dealerHand.cards.getOrNull(0)
-        val isSlowRoll =
-            state.dealerHand.isBlackjack &&
-                upcard != null &&
-                (upcard.rank == Rank.ACE || upcard.rank.value == 10)
+        // Domain guard: slow-roll rule lives in GameState alongside other dealer predicates
+        val isSlowRoll = state.isDealerSlowRoll
         state.dealerHand.cards.forEachIndexed { cardIndex, card ->
             val isDimmed = state.isPlayingPhase && !state.isDealerActive
 

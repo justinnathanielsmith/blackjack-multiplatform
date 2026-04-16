@@ -273,6 +273,27 @@ class GameStateTest {
         assertFalse(terminal.isDealerActive)
     }
 
+    // -- isDealerSlowRoll: dealer blackjack + Ace/10-value upcard predicate --
+
+    @Test
+    fun isDealerSlowRoll_trueWhenDealerBlackjackWithAceUpcard() {
+        val state = GameState(dealerHand = dealerHand(upRank = Rank.ACE, holeRank = Rank.KING))
+        assertTrue(state.isDealerSlowRoll)
+    }
+
+    @Test
+    fun isDealerSlowRoll_trueWhenDealerBlackjackWithTenValueUpcard() {
+        val state = GameState(dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.ACE))
+        assertTrue(state.isDealerSlowRoll)
+    }
+
+    @Test
+    fun isDealerSlowRoll_falseWhenDealerDoesNotHaveBlackjack() {
+        // Dealer has 17 (Ten + Seven), not a natural blackjack
+        val state = GameState(dealerHand = dealerHand(upRank = Rank.TEN, holeRank = Rank.SEVEN))
+        assertFalse(state.isDealerSlowRoll)
+    }
+
     @Test
     fun isHandActive_matchesActiveHandIndexDuringPlay() {
         val multi =
