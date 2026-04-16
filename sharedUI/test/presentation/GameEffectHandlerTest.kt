@@ -1,4 +1,4 @@
-package io.github.smithjustinn.blackjack.ui.effects
+package io.github.smithjustinn.blackjack.presentation
 
 import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.services.AudioService

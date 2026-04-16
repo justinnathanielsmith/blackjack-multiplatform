@@ -14,7 +14,6 @@ import io.github.smithjustinn.blackjack.model.isTerminal
 import io.github.smithjustinn.blackjack.services.AudioService
 import io.github.smithjustinn.blackjack.services.HapticsService
 import io.github.smithjustinn.blackjack.state.BlackjackStateMachine
-import io.github.smithjustinn.blackjack.ui.effects.handleGameEffect
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

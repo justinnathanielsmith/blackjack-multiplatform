@@ -13,7 +13,7 @@ import io.github.smithjustinn.blackjack.model.SideBetType
  * - **Visual**: Orchestrates one-off UI animations (confetti, banners, eruptions)
  *   that are not driven by the persistent state.
  *
- * Constraints: Effects must be consumed by the [io.github.smithjustinn.blackjack.ui.effects.GameEffectHandler].
+ * Constraints: Effects must be consumed by the [io.github.smithjustinn.blackjack.presentation.handleGameEffect] router.
  */
 sealed class GameEffect {
     /** Plays the standard [AudioService.SoundEffect.FLIP] sound when a card is dealt or revealed. */

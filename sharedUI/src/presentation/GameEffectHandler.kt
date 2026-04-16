@@ -1,4 +1,6 @@
-package io.github.smithjustinn.blackjack.ui.effects
+// Moved from ui.effects to presentation — this is pure effect routing logic with
+// zero Compose dependencies, consumed exclusively by the presentation layer.
+package io.github.smithjustinn.blackjack.presentation
 
 import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.services.AudioService
