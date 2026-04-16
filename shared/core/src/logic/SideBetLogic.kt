@@ -222,14 +222,33 @@ object SideBetLogic {
         c2: Card,
         c3: Card
     ): Boolean {
-        val r = intArrayOf(c1.rank.ordinal, c2.rank.ordinal, c3.rank.ordinal).also { it.sort() }
+        // Bolt Performance Optimization: Manual sorting network avoids generic sort overhead and IntArray allocation
+        var r0 = c1.rank.ordinal
+        var r1 = c2.rank.ordinal
+        var r2 = c3.rank.ordinal
+
+        if (r0 > r1) {
+            val t = r0
+            r0 = r1
+            r1 = t
+        }
+        if (r1 > r2) {
+            val t = r1
+            r1 = r2
+            r2 = t
+        }
+        if (r0 > r1) {
+            val t = r0
+            r0 = r1
+            r1 = t
+        }
 
         // Standard consecutive straight: each rank is exactly 1 above the previous.
-        if (r[1] == r[0] + 1 && r[2] == r[1] + 1) return true
+        if (r1 == r0 + 1 && r2 == r1 + 1) return true
 
         // Ace-low straight (A, 2, 3).
         // After sorting: TWO(0), THREE(1), ACE(12).
-        return r[0] == Rank.TWO.ordinal && r[1] == Rank.THREE.ordinal && r[2] == Rank.ACE.ordinal
+        return r0 == Rank.TWO.ordinal && r1 == Rank.THREE.ordinal && r2 == Rank.ACE.ordinal
     }
 
     private fun isStraightFlush(
