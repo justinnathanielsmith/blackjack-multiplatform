@@ -92,27 +92,29 @@ fun CasinoButton(
     val isPressed by interactionSource.collectIsPressedAsState()
     val isFocused by interactionSource.collectIsFocusedAsState()
 
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec =
-            if (isPressed) {
-                tween(durationMillis = 80)
-            } else {
-                spring(dampingRatio = 0.4f, stiffness = 400f)
-            },
-        label = "buttonScale",
-    )
+    val scaleState =
+        animateFloatAsState(
+            targetValue = if (isPressed) 0.95f else 1f,
+            animationSpec =
+                if (isPressed) {
+                    tween(durationMillis = 80)
+                } else {
+                    spring(dampingRatio = 0.4f, stiffness = 400f)
+                },
+            label = "buttonScale",
+        )
 
-    val offsetY by animateFloatAsState(
-        targetValue = if (isPressed) 4f else 0f,
-        animationSpec =
-            if (isPressed) {
-                tween(durationMillis = 80)
-            } else {
-                spring(dampingRatio = 0.5f, stiffness = 400f)
-            },
-        label = "buttonOffset",
-    )
+    val offsetYState =
+        animateFloatAsState(
+            targetValue = if (isPressed) 4f else 0f,
+            animationSpec =
+                if (isPressed) {
+                    tween(durationMillis = 80)
+                } else {
+                    spring(dampingRatio = 0.5f, stiffness = 400f)
+                },
+            label = "buttonOffset",
+        )
 
     // Conditional shine loop — only consumes GPU when both showShine and enabled are true.
     // Keying on both cancels the coroutine immediately when either turns false.
@@ -149,9 +151,12 @@ fun CasinoButton(
         modifier =
             modifier
                 .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                    translationY = offsetY
+                    // Bolt Performance Optimization: Defer animation state reads (scale, offsetY)
+                    // to the layout/draw phase inside graphicsLayer. This eliminates O(frames) recompositions
+                    // of the entire button during press-back or continuous animations.
+                    scaleX = scaleState.value
+                    scaleY = scaleState.value
+                    translationY = offsetYState.value
                 }.then(
                     if (enabled) {
                         Modifier.shadow(

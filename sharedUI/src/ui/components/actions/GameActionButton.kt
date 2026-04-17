@@ -96,30 +96,30 @@ fun GameActionButton(
     val isPressed by interactionSource.collectIsPressedAsState()
     val isFocused by interactionSource.collectIsFocusedAsState()
 
-    val baseScale by animateFloatAsState(
-        targetValue = if (isPressed) 0.93f else 1f,
-        animationSpec =
-            if (isPressed) {
-                tween(durationMillis = 80)
-            } else {
-                spring(dampingRatio = 0.4f, stiffness = 400f)
-            },
-        label = "actionButtonScale",
-    )
+    val baseScale =
+        animateFloatAsState(
+            targetValue = if (isPressed) 0.93f else 1f,
+            animationSpec =
+                if (isPressed) {
+                    tween(durationMillis = 80)
+                } else {
+                    spring(dampingRatio = 0.4f, stiffness = 400f)
+                },
+            label = "actionButtonScale",
+        )
 
     val infiniteTransition = rememberInfiniteTransition(label = "breathing")
-    val breathingScale by infiniteTransition.animateFloat(
-        initialValue = 1.0f,
-        targetValue = if (isStrategic && enabled && !isPressed) 1.05f else 1.0f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "breathScale",
-    )
-
-    val scale = baseScale * if (isStrategic && enabled) breathingScale else 1.0f
+    val breathingScale =
+        infiniteTransition.animateFloat(
+            initialValue = 1.0f,
+            targetValue = if (isStrategic && enabled && !isPressed) 1.05f else 1.0f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(AnimationConstants.GlowBreatheDuration, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "breathScale",
+        )
 
     val resolvedContainerColor = containerColor ?: if (isStrategic) PrimaryGold else GlassDark
     val resolvedContentColor =
@@ -132,6 +132,10 @@ fun GameActionButton(
             modifier
                 .alpha(if (enabled) 1f else 0.5f)
                 .graphicsLayer {
+                    // Bolt Performance Optimization: Defer animation state reads (baseScale, breathingScale)
+                    // to the layout/draw phase inside graphicsLayer. This eliminates O(frames) recompositions
+                    // of the entire button during continuous breathing or press-back animations.
+                    val scale = baseScale.value * if (isStrategic && enabled) breathingScale.value else 1.0f
                     scaleX = scale
                     scaleY = scale
                 }.clickable(
