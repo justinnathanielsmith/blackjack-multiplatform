@@ -1,41 +1,55 @@
 package io.github.smithjustinn.blackjack.model
-import io.github.smithjustinn.blackjack.model.GameStatus
+
 import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 class GameStatusTest {
     @Test
-    fun isTerminal_returnsTrue_forTerminalStates() {
-        assertTrue(GameStatus.PLAYER_WON.isTerminal())
-        assertTrue(GameStatus.DEALER_WON.isTerminal())
-        assertTrue(GameStatus.PUSH.isTerminal())
+    fun testIsTerminal() {
+        val terminalStates =
+            setOf(
+                GameStatus.PLAYER_WON,
+                GameStatus.DEALER_WON,
+                GameStatus.PUSH
+            )
+
+        for (status in GameStatus.entries) {
+            val expected = status in terminalStates
+            assertEquals(
+                expected,
+                status.isTerminal(),
+                "isTerminal() failed for status: $status"
+            )
+        }
     }
 
     @Test
-    fun isTerminal_returnsFalse_forNonTerminalStates() {
-        assertFalse(GameStatus.BETTING.isTerminal())
-        assertFalse(GameStatus.DEALING.isTerminal())
-        assertFalse(GameStatus.IDLE.isTerminal())
-        assertFalse(GameStatus.PLAYING.isTerminal())
-        assertFalse(GameStatus.INSURANCE_OFFERED.isTerminal())
-        assertFalse(GameStatus.DEALER_TURN.isTerminal())
+    fun testIsProcess() {
+        val processStates =
+            setOf(
+                GameStatus.DEALING,
+                GameStatus.DEALER_TURN
+            )
+
+        for (status in GameStatus.entries) {
+            val expected = status in processStates
+            assertEquals(
+                expected,
+                status.isProcess(),
+                "isProcess() failed for status: $status"
+            )
+        }
     }
 
     @Test
-    fun isStatusVisible_returnsTrue_forVisibleStates() {
-        assertTrue(GameStatus.DEALING.isStatusVisible())
-        assertTrue(GameStatus.DEALER_TURN.isStatusVisible())
-        assertTrue(GameStatus.PLAYER_WON.isStatusVisible())
-        assertTrue(GameStatus.DEALER_WON.isStatusVisible())
-        assertTrue(GameStatus.PUSH.isStatusVisible())
-    }
-
-    @Test
-    fun isStatusVisible_returnsFalse_forHiddenStates() {
-        assertFalse(GameStatus.BETTING.isStatusVisible())
-        assertFalse(GameStatus.IDLE.isStatusVisible())
-        assertFalse(GameStatus.PLAYING.isStatusVisible())
-        assertFalse(GameStatus.INSURANCE_OFFERED.isStatusVisible())
+    fun testIsStatusVisible() {
+        for (status in GameStatus.entries) {
+            val expected = status.isProcess() || status.isTerminal()
+            assertEquals(
+                expected,
+                status.isStatusVisible(),
+                "isStatusVisible() failed for status: $status"
+            )
+        }
     }
 }
