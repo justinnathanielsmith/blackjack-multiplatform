@@ -248,6 +248,93 @@ object PlayerActionLogic {
         )
     }
 
+    /**
+     * Surrenders the active hand, refunding half the bet and ending the player's turn.
+     *
+     * Blocked if:
+     * - The game is not in [GameStatus.PLAYING].
+     * - The active hand does not have exactly 2 cards.
+     * - The house rules do not permit surrender.
+     *
+     * Emits [GameEffect.PlayLoseSound] and [GameEffect.ChipLoss] with the forfeited amount.
+     *
+     * @param state The current [GameState].
+     * @return A [PlayerActionOutcome] with the refunded balance and turn advanced.
+     */
+    fun surrender(state: GameState): PlayerActionOutcome {
+        if (state.status != GameStatus.PLAYING ||
+            state.activeHand.cards.size != 2 ||
+            !state.rules.allowSurrender
+        ) {
+            return PlayerActionOutcome.rejected(state)
+        }
+        val refund = state.activeBet / 2
+        val surrenderedHand = state.activeHand.copy(isSurrendered = true)
+        val updatedHands = state.playerHands.set(state.activeHandIndex, surrenderedHand)
+        val newState = state.copy(balance = state.balance + refund, playerHands = updatedHands)
+        val effects = listOf(GameEffect.PlayLoseSound, GameEffect.ChipLoss(state.activeBet - refund))
+        return PlayerActionOutcome(state = newState, effects = effects, shouldAdvanceTurn = true)
+    }
+
+    /**
+     * Places an insurance bet equal to half the main bet when the dealer shows an Ace.
+     *
+     * Blocked if:
+     * - The game is not in [GameStatus.INSURANCE_OFFERED].
+     * - The player lacks sufficient balance to cover the insurance bet.
+     *
+     * After placing the bet, delegates to [resolveInsuranceOutcome] to check for dealer Blackjack.
+     *
+     * @param state The current [GameState].
+     * @return A [PlayerActionOutcome] carrying the updated balance and resolved status.
+     */
+    fun takeInsurance(state: GameState): PlayerActionOutcome {
+        if (state.status != GameStatus.INSURANCE_OFFERED) return PlayerActionOutcome.rejected(state)
+        val insuranceBet = state.currentBet / 2
+        if (insuranceBet > state.balance) return PlayerActionOutcome.rejected(state)
+        val newState =
+            state.copy(
+                balance = state.balance - insuranceBet,
+                insuranceBet = insuranceBet,
+            )
+        return resolveInsuranceOutcome(newState)
+    }
+
+    /**
+     * Declines the insurance offer, clearing any pending insurance wager.
+     *
+     * Blocked if the game is not in [GameStatus.INSURANCE_OFFERED].
+     *
+     * Delegates to [resolveInsuranceOutcome] to proceed with the round.
+     *
+     * @param state The current [GameState].
+     * @return A [PlayerActionOutcome] with the resolved next status.
+     */
+    fun declineInsurance(state: GameState): PlayerActionOutcome {
+        if (state.status != GameStatus.INSURANCE_OFFERED) return PlayerActionOutcome.rejected(state)
+        val newState = state.copy(insuranceBet = 0)
+        return resolveInsuranceOutcome(newState)
+    }
+
+    /**
+     * Shared resolution path for both [takeInsurance] and [declineInsurance].
+     *
+     * If the dealer holds Blackjack, transitions to [GameStatus.DEALER_TURN] so the middleware
+     * can execute the reveal sequence. Otherwise, transitions to [GameStatus.PLAYING].
+     *
+     * The [PlayerActionOutcome.shouldAdvanceTurn] is `false` here — the caller ([GameReducer])
+     * is responsible for emitting [ReducerCommand.RunDealerTurn] when needed.
+     *
+     * @param state The [GameState] after the insurance bet has been resolved.
+     * @return A [PlayerActionOutcome] with the correct next status.
+     */
+    fun resolveInsuranceOutcome(state: GameState): PlayerActionOutcome =
+        if (state.dealerHand.score == BlackjackRules.BLACKJACK_SCORE) {
+            PlayerActionOutcome(state = state.copy(status = GameStatus.DEALER_TURN))
+        } else {
+            PlayerActionOutcome(state = state.copy(status = GameStatus.PLAYING))
+        }
+
     private fun getEffectsForHit(
         newCard: io.github.smithjustinn.blackjack.model.Card,
         newHand: Hand,

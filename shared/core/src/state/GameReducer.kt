@@ -1,7 +1,6 @@
 package io.github.smithjustinn.blackjack.state
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.action.GameEffect
-import io.github.smithjustinn.blackjack.logic.BlackjackRules
 import io.github.smithjustinn.blackjack.logic.PlayerActionLogic
 import io.github.smithjustinn.blackjack.logic.PlayerActionOutcome
 import io.github.smithjustinn.blackjack.model.GameState
@@ -118,9 +117,9 @@ private fun routePlayerAction(
         is GameAction.Stand -> buildPlayerActionResult(PlayerActionLogic.stand(state))
         is GameAction.DoubleDown -> buildPlayerActionResult(PlayerActionLogic.doubleDown(state))
         is GameAction.Split -> buildPlayerActionResult(PlayerActionLogic.split(state))
-        is GameAction.Surrender -> reduceSurrender(state)
-        is GameAction.TakeInsurance -> reduceTakeInsurance(state)
-        is GameAction.DeclineInsurance -> reduceDeclineInsurance(state)
+        is GameAction.Surrender -> buildPlayerActionResult(PlayerActionLogic.surrender(state))
+        is GameAction.TakeInsurance -> buildInsuranceResult(PlayerActionLogic.takeInsurance(state))
+        is GameAction.DeclineInsurance -> buildInsuranceResult(PlayerActionLogic.declineInsurance(state))
         else -> ReducerResult(state)
     }
 
@@ -141,53 +140,24 @@ private fun routeInternalAction(
 
 // ── Player action reducers ────────────────────────────────────────────────────
 
-private fun reduceSurrender(state: GameState): ReducerResult {
-    if (state.status != GameStatus.PLAYING ||
-        state.activeHand.cards.size != 2 ||
-        !state.rules.allowSurrender
-    ) {
-        return ReducerResult(state, listOf(GameEffect.Vibrate))
-    }
+// ── Shared helpers ────────────────────────────────────────────────────────────
 
-    val refund = state.activeBet / 2
-    val surrenderedHand = state.activeHand.copy(isSurrendered = true)
-    val updatedHands = state.playerHands.set(state.activeHandIndex, surrenderedHand)
-    val newState = state.copy(balance = state.balance + refund, playerHands = updatedHands)
-    val effects = listOf(GameEffect.PlayLoseSound, GameEffect.ChipLoss(state.activeBet - refund))
-    return buildPlayerActionResult(PlayerActionOutcome(state = newState, effects = effects, shouldAdvanceTurn = true))
+/**
+ * Bridges an insurance [PlayerActionOutcome] to a [ReducerResult], emitting
+ * [ReducerCommand.RunDealerTurn] when the domain resolves the outcome to [GameStatus.DEALER_TURN].
+ *
+ * This keeps the Reducer as a pure router: the command-dispatch concern stays in the
+ * infrastructure layer while the business logic lives in [PlayerActionLogic].
+ */
+private fun buildInsuranceResult(outcome: PlayerActionOutcome): ReducerResult {
+    val commands =
+        if (outcome.state.status == GameStatus.DEALER_TURN) {
+            listOf(ReducerCommand.RunDealerTurn)
+        } else {
+            emptyList()
+        }
+    return ReducerResult(state = outcome.state, effects = outcome.effects, commands = commands)
 }
-
-private fun reduceTakeInsurance(state: GameState): ReducerResult {
-    if (state.status != GameStatus.INSURANCE_OFFERED) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    val insuranceBet = state.currentBet / 2
-    if (insuranceBet > state.balance) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    val newState =
-        state.copy(
-            balance = state.balance - insuranceBet,
-            insuranceBet = insuranceBet,
-        )
-    // Hole card is still face-down but Hand.score counts all cards, so this correctly detects dealer BJ.
-    return resolveInsuranceOutcome(newState)
-}
-
-private fun reduceDeclineInsurance(state: GameState): ReducerResult {
-    if (state.status != GameStatus.INSURANCE_OFFERED) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    val newState = state.copy(insuranceBet = 0)
-    return resolveInsuranceOutcome(newState)
-}
-
-// Insurance resolution: identical outcome path regardless of accept/decline — single source for the dealer-BJ check.
-private fun resolveInsuranceOutcome(state: GameState): ReducerResult =
-    if (state.dealerHand.score == BlackjackRules.BLACKJACK_SCORE) {
-        ReducerResult(
-            state = state.copy(status = GameStatus.DEALER_TURN),
-            commands = listOf(ReducerCommand.RunDealerTurn),
-        )
-    } else {
-        ReducerResult(state = state.copy(status = GameStatus.PLAYING))
-    }
-
-// ── Shared helper ─────────────────────────────────────────────────────────────
 
 /**
  * Converts a [PlayerActionOutcome] into a [ReducerResult], handling multi-hand turn

@@ -27,5 +27,14 @@ _Non-obvious structural learnings and critical refactoring history for the Black
 
 ---
 
+## 2026-04-25 — Surrender & Insurance: Business Logic Was Hiding in the Reducer
+**Violation:** `reduceSurrender`, `reduceTakeInsurance`, `reduceDeclineInsurance`, and `resolveInsuranceOutcome` in `GameReducer.kt` contained business logic: balance calculations, rule guard checks (`rules.allowSurrender`), and dealer-blackjack detection. The Reducer's role is pure state routing — it should dispatch to the domain layer, not implement domain rules.
+**Location:** `shared/core/src/state/GameReducer.kt`
+**Fix:** Extracted all four functions into `PlayerActionLogic.kt` as public methods. `GameReducer` now delegates to `PlayerActionLogic.surrender/takeInsurance/declineInsurance`. A thin `buildInsuranceResult()` bridge in the Reducer maps the domain `PlayerActionOutcome` back to a `ReducerResult` with the `RunDealerTurn` command when the resolved status is `DEALER_TURN` — keeping infrastructure concerns out of the domain layer.
+**Key Signal:** Watch for `ReducerResult` functions that do more than read from state and construct `copy()` — any guard logic or calculation that references domain rules (`rules.*`) is a smell that the logic belongs in `logic/`.
+**Tests:** 406/406 pass. `ktlint --format` clean.
+
+---
+
 ## Known Violations (Future Work)
 - None currently explicitly tracked.
