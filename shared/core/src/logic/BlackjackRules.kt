@@ -11,6 +11,7 @@ import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.model.Suit
 import io.github.smithjustinn.blackjack.model.isTerminal
 import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
 
 /**
@@ -155,10 +156,17 @@ object BlackjackRules {
         var totalPayout = 0
         var anyWin = false
         var allPush = true
+        val netPayouts = mutableListOf<Int?>()
+
         for (i in state.playerHands.indices) {
             val hand = state.playerHands[i]
             val bet = hand.bet
-            totalPayout += resolveHand(hand, bet, dealerScore, dealerBust, state.rules)
+            val payout = resolveHand(hand, bet, dealerScore, dealerBust, state.rules)
+            totalPayout += payout
+
+            val net = if (hand.isSurrendered) -(bet - bet / 2) else payout - bet
+            netPayouts.add(net)
+
             if (hand.isSurrendered) {
                 // Surrendered hands are not wins or pushes; payout was already refunded at surrender time.
                 allPush = false
@@ -170,7 +178,31 @@ object BlackjackRules {
             if (outcome == HandOutcome.NATURAL_WIN || outcome == HandOutcome.WIN) anyWin = true
             if (outcome != HandOutcome.PUSH) allPush = false
         }
-        return HandResults(totalPayout, anyWin, allPush)
+        return HandResults(totalPayout, anyWin, allPush, netPayouts.toPersistentList())
+    }
+
+    /**
+     * Calculates the net profit/loss for all player hands.
+     * Used primarily to pre-calculate values exactly when the game reaches a terminal state.
+     * Elements are null for hands that are still actively playing.
+     */
+    fun calculateNetPayouts(
+        playerHands: List<Hand>,
+        dealerScore: Int,
+        dealerBust: Boolean,
+        rules: GameRules,
+        isTerminal: Boolean
+    ): kotlinx.collections.immutable.PersistentList<Int?> {
+        if (!isTerminal) return kotlinx.collections.immutable.persistentListOf()
+        val results = mutableListOf<Int?>()
+        for (i in playerHands.indices) {
+            val hand = playerHands[i]
+            val bet = hand.bet
+            val payout = resolveHand(hand, bet, dealerScore, dealerBust, rules)
+            val net = if (hand.isSurrendered) -(bet - bet / 2) else payout - bet
+            results.add(net)
+        }
+        return results.toPersistentList()
     }
 
     /**

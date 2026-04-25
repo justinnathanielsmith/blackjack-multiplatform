@@ -1,12 +1,10 @@
 package io.github.smithjustinn.blackjack.model
 import androidx.compose.runtime.Immutable
-import io.github.smithjustinn.blackjack.logic.BlackjackRules
 import io.github.smithjustinn.blackjack.logic.GameRules
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.serialization.Serializable
 
 /**
@@ -56,6 +54,18 @@ data class GameState(
     val rules: GameRules = GameRules(),
     val dealerDrawIsCritical: Boolean = false,
     val handOutcomes: PersistentList<HandOutcome> = persistentListOf(),
+    /**
+     * Net profit/loss for each hand: positive = win, negative = loss, zero = push.
+     * Elements are null while the round is not yet terminal.
+     * Bolt Performance Optimization: Pre-calculated once per state update.
+     */
+    val handNetPayouts: PersistentList<Int?> = persistentListOf(),
+    /**
+     * Total net across all hands: sum of [handNetPayouts].
+     * Null while the round is not yet terminal.
+     * Bolt Performance Optimization: Pre-calculated once per state update.
+     */
+    val totalNetPayout: Int? = null,
 ) {
     /**
      * Alias for the bet on the first hand. Used for backward compatibility with single-hand
@@ -88,41 +98,6 @@ data class GameState(
                 }
 
             mainBetsTotal + sideBetsTotal + insuranceBet
-        }
-
-    /**
-     * Net profit/loss for each hand: positive = win, negative = loss, zero = push.
-     * Elements are null while the round is not yet terminal.
-     * Bolt Performance Optimization: Pre-calculated once per state update.
-     */
-    val handNetPayouts: PersistentList<Int?> =
-        run {
-            if (!status.isTerminal()) return@run persistentListOf<Int?>()
-            val results = mutableListOf<Int?>()
-            for (i in playerHands.indices) {
-                val hand = playerHands[i]
-                val bet = hand.bet
-                val payout = BlackjackRules.resolveHand(hand, bet, dealerHand.score, dealerHand.isBust, rules)
-                val net = if (hand.isSurrendered) -(bet - bet / 2) else payout - bet
-                results.add(net)
-            }
-            results.toPersistentList()
-        }
-
-    /**
-     * Total net across all hands: sum of [handNetPayouts].
-     * Null while the round is not yet terminal.
-     * Bolt Performance Optimization: Pre-calculated once per state update.
-     */
-    val totalNetPayout: Int? =
-        if (!status.isTerminal()) {
-            null
-        } else {
-            var total = 0
-            for (i in handNetPayouts.indices) {
-                total += handNetPayouts[i] ?: 0
-            }
-            total
         }
 
     /** Returns the [Hand] corresponding to the [activeHandIndex]. */

@@ -26,9 +26,11 @@ enum class HandOutcome {
  * @param totalPayout sum of individual hand payouts (0 means all were lost)
  * @param anyWin true if at least one hand won or had a natural BJ
  * @param allPush true if every hand pushed (used to determine [GameStatus.PUSH])
+ * @param netPayouts individual net outcomes per hand (profit/loss)
  */
 data class HandResults(
     val totalPayout: Int,
     val anyWin: Boolean,
-    val allPush: Boolean
+    val allPush: Boolean,
+    val netPayouts: kotlinx.collections.immutable.PersistentList<Int?>
 )

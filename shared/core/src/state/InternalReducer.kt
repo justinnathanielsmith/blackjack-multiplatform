@@ -6,6 +6,7 @@ import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.HandOutcome
+import io.github.smithjustinn.blackjack.model.isTerminal
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
@@ -73,6 +74,16 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
             }
         }
 
+    val netPayouts =
+        BlackjackRules.calculateNetPayouts(
+            playerHands = settledHands,
+            dealerScore = outcome.dealerHand.score,
+            dealerBust = outcome.dealerHand.isBust,
+            rules = state.rules,
+            isTerminal = outcome.status.isTerminal()
+        )
+    val totalNet = if (outcome.status.isTerminal()) netPayouts.sumOf { it ?: 0 } else null
+
     val newState =
         state.copy(
             status = outcome.status,
@@ -82,6 +93,8 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
             sideBetResults = sideBetUpdate.results,
             lastSideBets = state.sideBets,
             sideBets = persistentMapOf(),
+            handNetPayouts = netPayouts,
+            totalNetPayout = totalNet,
         )
 
     val effects =
@@ -161,6 +174,8 @@ internal fun reduceFinalizeGame(state: GameState): ReducerResult {
             balance = state.balance + results.totalPayout,
             dealerDrawIsCritical = false,
             handOutcomes = outcomes,
+            handNetPayouts = results.netPayouts,
+            totalNetPayout = results.netPayouts.sumOf { it ?: 0 },
         )
 
     val effects = getEffectsForFinalizeGame(results, state, finalStatus)
