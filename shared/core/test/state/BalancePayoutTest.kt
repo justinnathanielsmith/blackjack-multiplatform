@@ -36,7 +36,7 @@ class BalancePayoutTest {
                         status = GameStatus.BETTING,
                         balance = 1000,
                         playerHands = persistentListOf(Hand(bet = 100)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
+                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO, deterministicReshuffle = true),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),
@@ -66,7 +66,7 @@ class BalancePayoutTest {
                         status = GameStatus.BETTING,
                         balance = 1000,
                         playerHands = persistentListOf(Hand(bet = 100)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE),
+                        rules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE, deterministicReshuffle = true),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),
@@ -96,7 +96,7 @@ class BalancePayoutTest {
                         status = GameStatus.BETTING,
                         balance = 997,
                         playerHands = persistentListOf(Hand(bet = 3)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
+                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO, deterministicReshuffle = true),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),
@@ -158,7 +158,7 @@ class BalancePayoutTest {
 // removed:                         currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN).copy(bet = 100)),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
-                        rules = GameRules(allowSurrender = true),
+                        rules = GameRules(allowSurrender = true, deterministicReshuffle = true),
                     ),
                 )
             sm.dispatch(GameAction.Surrender)
@@ -183,7 +183,7 @@ class BalancePayoutTest {
                                 Hand(persistentListOf(card(Rank.TEN), card(Rank.TWO), card(Rank.FIVE)), bet = 100),
                             ),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
-                        rules = GameRules(allowSurrender = true),
+                        rules = GameRules(allowSurrender = true, deterministicReshuffle = true),
                     ),
                 )
             sm.dispatch(GameAction.Surrender)
@@ -205,7 +205,7 @@ class BalancePayoutTest {
 // removed:                         currentBets = persistentListOf(100),
                         playerHands = persistentListOf(hand(Rank.TEN, Rank.SEVEN).copy(bet = 100)),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
-                        rules = GameRules(allowSurrender = false),
+                        rules = GameRules(allowSurrender = false, deterministicReshuffle = true),
                     ),
                 )
             sm.dispatch(GameAction.Surrender)
@@ -230,7 +230,7 @@ class BalancePayoutTest {
                         bets = listOf(100, 100),
                         activeHandIndex = 0,
                         dealerHand = dealerHand(Rank.TEN, Rank.EIGHT),
-                    ).copy(rules = GameRules(allowSurrender = true)),
+                    ).copy(rules = GameRules(allowSurrender = true, deterministicReshuffle = true)),
                 )
             sm.dispatch(GameAction.Surrender)
             advanceUntilIdle()
@@ -261,7 +261,7 @@ class BalancePayoutTest {
                         bets = listOf(100, 100),
                         activeHandIndex = 1,
                         dealerHand = dealerHand(Rank.TEN, Rank.EIGHT),
-                    ).copy(rules = GameRules(allowSurrender = true)),
+                    ).copy(rules = GameRules(allowSurrender = true, deterministicReshuffle = true)),
                 )
             sm.dispatch(GameAction.Surrender)
             advanceUntilIdle()
@@ -285,7 +285,7 @@ class BalancePayoutTest {
                         bets = listOf(100, 100),
                         activeHandIndex = 0,
                         dealerHand = dealerHand(Rank.TEN, Rank.EIGHT),
-                    ).copy(rules = GameRules(allowSurrender = true)),
+                    ).copy(rules = GameRules(allowSurrender = true, deterministicReshuffle = true)),
                 )
             sm.dispatch(GameAction.Surrender)
             advanceUntilIdle()

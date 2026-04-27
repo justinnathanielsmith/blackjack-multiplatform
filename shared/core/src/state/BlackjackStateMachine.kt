@@ -4,6 +4,7 @@ package io.github.smithjustinn.blackjack.state
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.action.GameEffect
+import io.github.smithjustinn.blackjack.middleware.GameFlowConfig
 import io.github.smithjustinn.blackjack.middleware.GameFlowMiddleware
 import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
@@ -97,12 +98,11 @@ interface BlackjackStateMachine {
  *
  * @param scope The lifetime for the internal loops. Machine is automatically [shutdown] on scope cancellation.
  * @param initialState Starting data anchor.
- * @param isTest Disables physical timing/delays (0ms) for deterministic unit testing.
  */
 class DefaultBlackjackStateMachine(
     private val scope: CoroutineScope,
     initialState: GameState = GameState(status = GameStatus.BETTING, balance = BlackjackConfig.INITIAL_BALANCE),
-    private val isTest: Boolean = false,
+    config: GameFlowConfig = GameFlowConfig(),
     private val logger: Logger = Logger.withTag("DefaultBlackjackStateMachine")
 ) : BlackjackStateMachine {
     private val _state = MutableStateFlow(initialState)
@@ -153,7 +153,7 @@ class DefaultBlackjackStateMachine(
                 yield()
             },
             emitEffect = ::emitEffect,
-            isTest = isTest,
+            config = config,
             logger = logger,
         )
 

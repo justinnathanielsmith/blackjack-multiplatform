@@ -50,4 +50,9 @@ data class GameRules(
      * When false (default), only cards of the exact same [Rank] may be split.
      */
     val splitOnValueOnly: Boolean = false,
+    /**
+     * When true, the deck will only reshuffle when strictly empty, ignoring the standard penetration threshold.
+     * This is useful for preserving deterministic card sequences in test environments.
+     */
+    val deterministicReshuffle: Boolean = false,
 )

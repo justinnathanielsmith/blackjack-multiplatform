@@ -125,7 +125,7 @@ class UpdateRulesTest {
                     ),
                 )
 
-            val newRules = GameRules(dealerHitsSoft17 = false)
+            val newRules = GameRules(dealerHitsSoft17 = false, deterministicReshuffle = true)
             sm.dispatch(GameAction.UpdateRules(newRules))
             advanceUntilIdle()
 

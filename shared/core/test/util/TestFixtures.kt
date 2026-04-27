@@ -5,6 +5,7 @@ import io.github.smithjustinn.blackjack.action.GameAction
 import io.github.smithjustinn.blackjack.logic.GameRules
 import io.github.smithjustinn.blackjack.logic.StrategyAction
 import io.github.smithjustinn.blackjack.logic.StrategyProvider
+import io.github.smithjustinn.blackjack.middleware.GameFlowConfig
 import io.github.smithjustinn.blackjack.model.Card
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
@@ -31,13 +32,25 @@ fun TestScope.testMachine(initialState: GameState,): BlackjackStateMachine =
     DefaultBlackjackStateMachine(
         CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         initialState,
-        isTest = true,
+        config = GameFlowConfig(
+            dealerTurnDelayMs = 0L,
+            dealCardDelayMs = 0L,
+            dealerCriticalPreDelayMs = 0L,
+            revealDelayMs = 0L,
+            slowRollDelayMs = 0L
+        )
     )
 
 fun TestScope.testMachine(): BlackjackStateMachine =
     DefaultBlackjackStateMachine(
         CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
-        isTest = true,
+        config = GameFlowConfig(
+            dealerTurnDelayMs = 0L,
+            dealCardDelayMs = 0L,
+            dealerCriticalPreDelayMs = 0L,
+            revealDelayMs = 0L,
+            slowRollDelayMs = 0L
+        )
     )
 
 // ── Card / Hand builders ──────────────────────────────────────────────────────
@@ -64,7 +77,7 @@ fun playingState(
     playerHand: Hand,
     dealerHand: Hand,
     deck: PersistentList<Card> = persistentListOf(),
-    rules: GameRules = GameRules(),
+    rules: GameRules = GameRules(deterministicReshuffle = true),
 ): GameState =
     GameState(
         status = GameStatus.PLAYING,
@@ -80,7 +93,7 @@ fun playingState(
 fun bettingState(
     balance: Int = 1000,
     handCount: Int = 1,
-    rules: GameRules = GameRules(),
+    rules: GameRules = GameRules(deterministicReshuffle = true),
 ): GameState =
     GameState(
         status = GameStatus.BETTING,

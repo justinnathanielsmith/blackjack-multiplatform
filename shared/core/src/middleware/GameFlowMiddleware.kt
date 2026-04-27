@@ -11,6 +11,14 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
+data class GameFlowConfig(
+    val dealerTurnDelayMs: Long = 600L,
+    val dealCardDelayMs: Long = 400L,
+    val dealerCriticalPreDelayMs: Long = 900L,
+    val revealDelayMs: Long = 1500L,
+    val slowRollDelayMs: Long = 2500L
+)
+
 /**
  * The **Temporal Orchestrator** for the Blackjack engine.
  *
@@ -31,21 +39,9 @@ internal class GameFlowMiddleware(
     private val state: StateFlow<GameState>,
     private val dispatch: suspend (GameAction) -> Unit,
     private val emitEffect: (GameEffect) -> Unit,
-    private val isTest: Boolean,
+    private val config: GameFlowConfig = GameFlowConfig(),
     private val logger: Logger,
 ) {
-    companion object {
-        private const val DEALER_TURN_DELAY_MS = 600L
-        private const val DEAL_CARD_DELAY_MS = 400L
-        private const val DEALER_CRITICAL_PRE_DELAY_MS = 900L
-        private const val REVEAL_DELAY_MS = 1500L
-        private const val SLOW_ROLL_DELAY_MS = 2500L
-    }
-
-    private val dealCardDelayMs: Long get() = if (isTest) 0L else DEAL_CARD_DELAY_MS
-    private val dealerTurnDelayMs: Long get() = if (isTest) 0L else DEALER_TURN_DELAY_MS
-    private val dealerCriticalPreDelayMs: Long get() = if (isTest) 0L else DEALER_CRITICAL_PRE_DELAY_MS
-
     /**
      * Executes the given [ReducerCommand], suspending until it completes.
      *
@@ -76,10 +72,10 @@ internal class GameFlowMiddleware(
         for (round in 0..1) {
             val handCount = state.value.handCount
             for (i in 0 until handCount) {
-                delay(dealCardDelayMs)
+                delay(config.dealCardDelayMs)
                 dispatch(GameAction.DealCardToPlayer(i))
             }
-            delay(dealCardDelayMs)
+            delay(config.dealCardDelayMs)
             dispatch(GameAction.DealCardToDealer(faceDown = round == 1))
         }
 
@@ -106,11 +102,11 @@ internal class GameFlowMiddleware(
             if (isCritical) {
                 // Emit DealerCriticalDraw BEFORE the card draw so the effect precedes PlayCardSound.
                 emitEffect(GameEffect.DealerCriticalDraw)
-                delay(dealerCriticalPreDelayMs)
+                delay(config.dealerCriticalPreDelayMs)
             }
 
             dispatch(GameAction.DealerDraw)
-            delay(dealerTurnDelayMs)
+            delay(config.dealerTurnDelayMs)
         }
 
         dispatch(GameAction.FinalizeGame)
@@ -124,7 +120,7 @@ internal class GameFlowMiddleware(
 
         // In test mode, only reshuffle when strictly empty to preserve deterministic sequences.
         // In production, reshuffle at the threshold.
-        val shouldReshuffle = current.deck.isEmpty() || (current.deck.size <= threshold && !isTest)
+        val shouldReshuffle = current.deck.isEmpty() || (current.deck.size <= threshold && !current.rules.deterministicReshuffle)
 
         return if (shouldReshuffle) {
             BlackjackRules.createDeck(current.rules)
@@ -134,7 +130,6 @@ internal class GameFlowMiddleware(
     }
 
     private fun getRevealDelayMs(hand: Hand): Long {
-        if (isTest) return 0L
-        return if (hand.isBlackjack) SLOW_ROLL_DELAY_MS else REVEAL_DELAY_MS
+        return if (hand.isBlackjack) config.slowRollDelayMs else config.revealDelayMs
     }
 }

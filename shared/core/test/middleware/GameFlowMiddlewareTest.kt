@@ -7,6 +7,7 @@ import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
+import io.github.smithjustinn.blackjack.logic.GameRules
 import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.Rank
 import io.github.smithjustinn.blackjack.state.ReducerCommand
@@ -47,7 +48,6 @@ class GameFlowMiddlewareTest {
                     state = state.asStateFlow(),
                     dispatch = { dispatchedActions.add(it) },
                     emitEffect = { },
-                    isTest = true,
                     logger = logger
                 )
 
@@ -68,7 +68,8 @@ class GameFlowMiddlewareTest {
                     GameState(
                         status = GameStatus.BETTING,
                         handCount = 1,
-                        deck = deckOf(Rank.ACE, Rank.KING, Rank.QUEEN, Rank.JACK)
+                        deck = deckOf(Rank.ACE, Rank.KING, Rank.QUEEN, Rank.JACK),
+                        rules = GameRules(deterministicReshuffle = true)
                     )
                 )
 
@@ -77,7 +78,6 @@ class GameFlowMiddlewareTest {
                     state = state.asStateFlow(),
                     dispatch = { dispatchedActions.add(it) },
                     emitEffect = { },
-                    isTest = true,
                     logger = logger
                 )
 
@@ -109,7 +109,8 @@ class GameFlowMiddlewareTest {
                         status = GameStatus.BETTING,
                         handCount = 2,
                         playerHands = persistentListOf(Hand(), Hand()),
-                        deck = deckOf(Rank.ACE, Rank.KING, Rank.QUEEN, Rank.JACK, Rank.TEN, Rank.NINE)
+                        deck = deckOf(Rank.ACE, Rank.KING, Rank.QUEEN, Rank.JACK, Rank.TEN, Rank.NINE),
+                        rules = GameRules(deterministicReshuffle = true)
                     )
                 )
 
@@ -118,7 +119,6 @@ class GameFlowMiddlewareTest {
                     state = state.asStateFlow(),
                     dispatch = { dispatchedActions.add(it) },
                     emitEffect = { },
-                    isTest = true,
                     logger = logger
                 )
 
@@ -176,7 +176,6 @@ class GameFlowMiddlewareTest {
                         }
                     },
                     emitEffect = { },
-                    isTest = true,
                     logger = logger
                 )
 
@@ -222,7 +221,6 @@ class GameFlowMiddlewareTest {
                         }
                     },
                     emitEffect = { emittedEffects.add(it) },
-                    isTest = true,
                     logger = logger
                 )
 

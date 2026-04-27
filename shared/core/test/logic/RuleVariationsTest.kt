@@ -36,7 +36,7 @@ class RuleVariationsTest {
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.SIX), // soft 17
                         deck = deckOf(Rank.TWO),
-                        rules = GameRules(dealerHitsSoft17 = false),
+                        rules = GameRules(dealerHitsSoft17 = false, deterministicReshuffle = true),
                     ),
                 )
             sm.dispatch(GameAction.Stand)
@@ -57,7 +57,7 @@ class RuleVariationsTest {
                         playerHand = hand(Rank.TEN, Rank.TEN),
                         dealerHand = dealerHand(Rank.ACE, Rank.SIX), // soft 17
                         deck = deckOf(Rank.TWO),
-                        rules = GameRules(dealerHitsSoft17 = true),
+                        rules = GameRules(dealerHitsSoft17 = true, deterministicReshuffle = true),
                     ),
                 )
             sm.dispatch(GameAction.Stand)
@@ -78,7 +78,7 @@ class RuleVariationsTest {
                         status = GameStatus.BETTING,
                         balance = 900,
                         playerHands = persistentListOf(Hand(bet = 100)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO),
+                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO, deterministicReshuffle = true),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),
@@ -104,7 +104,7 @@ class RuleVariationsTest {
                         status = GameStatus.BETTING,
                         balance = 900,
                         playerHands = persistentListOf(Hand(bet = 100)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE),
+                        rules = GameRules(blackjackPayout = BlackjackPayout.SIX_TO_FIVE, deterministicReshuffle = true),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),
@@ -130,7 +130,7 @@ class RuleVariationsTest {
                         balance = 900,
                         playerHand = hand(Rank.TEN, Rank.SIX),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
-                        rules = GameRules(allowSurrender = true),
+                        rules = GameRules(allowSurrender = true, deterministicReshuffle = true),
                     ),
                 )
             sm.dispatch(GameAction.Surrender)
@@ -151,7 +151,7 @@ class RuleVariationsTest {
                         bet = 100,
                         playerHand = hand(Rank.TEN, Rank.SIX),
                         dealerHand = dealerHand(Rank.TEN, Rank.SEVEN),
-                        rules = GameRules(allowSurrender = true),
+                        rules = GameRules(allowSurrender = true, deterministicReshuffle = true),
                     ),
                 )
             sm.effects.test {
