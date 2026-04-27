@@ -36,5 +36,14 @@ _Non-obvious structural learnings and critical refactoring history for the Black
 
 ---
 
+## 2026-04-27 — Betting Phase: Business Logic Extracted from Reducer
+**Violation:** `reducePlaceBet`, `reduceDeal`, and related betting functions in `BettingReducer.kt` contained extensive business logic for enforcing game status, balance checking, and calculating multi-hand wager distributions. This violated the principle that Reducers must remain pure state-routers.
+**Location:** `shared/core/src/state/BettingReducer.kt`
+**Fix:** Extracted a new `BettingLogic.kt` module containing pure domain functions that return a `BettingActionOutcome`. `BettingReducer.kt` now delegates entirely to these logic functions and merely maps the outcome to a `ReducerResult` with appropriate commands (e.g., `RunDealSequence`).
+**Key Signal:** Identical to the previous `PlayerActionLogic` refactor. If a reducer contains `if (amount > state.balance)` or `if (state.status != GameStatus.BETTING)`, it's enforcing rules and needs extraction.
+**Tests:** Existing tests (like `BettingEnforcementTest` and `NewGameLogicTest`) pass unchanged, proving the refactor was behaviour-preserving.
+
+---
+
 ## Known Violations (Future Work)
 - None currently explicitly tracked.

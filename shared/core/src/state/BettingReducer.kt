@@ -1,31 +1,18 @@
 package io.github.smithjustinn.blackjack.state
+
 import io.github.smithjustinn.blackjack.action.GameAction
-import io.github.smithjustinn.blackjack.action.GameEffect
+import io.github.smithjustinn.blackjack.logic.BettingActionOutcome
+import io.github.smithjustinn.blackjack.logic.BettingLogic
 import io.github.smithjustinn.blackjack.logic.GameRules
 import io.github.smithjustinn.blackjack.logic.NewGameLogic
-import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
-import io.github.smithjustinn.blackjack.model.GameStatus
-import io.github.smithjustinn.blackjack.model.Hand
 import io.github.smithjustinn.blackjack.model.SideBetType
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.mutate
-import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toPersistentList
 
 /**
  * State transitions for the pre-deal betting phase.
  *
- * This module handles all player wagers (Main Bets, Side Bets), seat configuration,
- * and rule updates. It enforces house limits and balance constraints.
- *
- * **Functional Intent:**
- * - **Bet Idempotency**: Actions like [reduceResetBet] ensure the table can be cleared
- *   safely regardless of current wager amounts.
- * - **Balance Protection**: [reducePlaceBet] and [reducePlaceSideBet] strictly guard
- *   against exceeding the available bankroll.
- * - **Transition Readiness**: [reduceDeal] validates that all active seats have a
- *   legal wager before transitioning to the dealing phase.
+ * This module routes betting actions to the [BettingLogic] domain layer and maps
+ * the resulting [BettingActionOutcome] to a [ReducerResult].
  */
 
 internal fun reduceNewGame(
@@ -45,145 +32,58 @@ internal fun reduceNewGame(
     )
 }
 
-internal fun reduceDeal(state: GameState): ReducerResult {
-    if (state.status != GameStatus.BETTING ||
-        state.playerHands.size != state.handCount ||
-        state.playerHands.any { it.bet <= 0 }
-    ) {
-        return ReducerResult(state, listOf(GameEffect.Vibrate))
-    }
-    val capturedBets = state.playerHands.map { it.bet }.toPersistentList()
-    return ReducerResult(
-        state =
-            state.copy(
-                status = GameStatus.DEALING,
-                lastBets = capturedBets
-            ),
-        commands = listOf(ReducerCommand.RunDealSequence),
-    )
-}
+internal fun reduceDeal(state: GameState): ReducerResult = buildBettingResult(BettingLogic.deal(state))
 
 internal fun reducePlaceBet(
     state: GameState,
     amount: Int,
     seatIndex: Int
-): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    if (amount <= 0 || seatIndex !in 0 until state.handCount) {
-        return ReducerResult(state, listOf(GameEffect.Vibrate))
-    }
-    if (amount > state.balance) {
-        return ReducerResult(state, listOf(GameEffect.Vibrate))
-    }
-    val currentHand = state.playerHands[seatIndex]
-    return ReducerResult(
-        state.copy(
-            balance = state.balance - amount,
-            playerHands = state.playerHands.set(seatIndex, currentHand.copy(bet = currentHand.bet + amount)),
-        ),
-        effects = listOf(GameEffect.PlayPlinkSound)
-    )
-}
+): ReducerResult = buildBettingResult(BettingLogic.placeBet(state, amount, seatIndex))
 
 internal fun reduceResetBet(
     state: GameState,
     seatIndex: Int?
-): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    return if (seatIndex == null) {
-        var refund = 0
-        for (i in 0 until state.handCount) refund += state.playerHands[i].bet
-        ReducerResult(
-            state.copy(
-                balance = state.balance + refund,
-                playerHands =
-                    state.playerHands.mutate { builder ->
-                        for (i in 0 until state.handCount) builder[i] = builder[i].copy(bet = 0)
-                    },
-            ),
-            effects = listOf(GameEffect.PlayPlinkSound)
-        )
-    } else {
-        if (seatIndex !in 0 until state.handCount) return ReducerResult(state)
-        val currentHand = state.playerHands[seatIndex]
-        ReducerResult(
-            state.copy(
-                balance = state.balance + currentHand.bet,
-                playerHands = state.playerHands.set(seatIndex, currentHand.copy(bet = 0)),
-            ),
-            effects = listOf(GameEffect.PlayPlinkSound)
-        )
-    }
-}
+): ReducerResult = buildBettingResult(BettingLogic.resetBet(state, seatIndex))
 
 internal fun reduceSelectHandCount(
     state: GameState,
     count: Int
-): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    if (count !in
-        BlackjackConfig.MIN_INITIAL_HANDS..BlackjackConfig.MAX_INITIAL_HANDS
-    ) {
-        return ReducerResult(state, listOf(GameEffect.Vibrate))
-    }
-    val delta = count - state.handCount
-    if (delta == 0) return ReducerResult(state)
-    val newHands: PersistentList<Hand>
-    val balanceDelta: Int
-    if (delta > 0) {
-        newHands = state.playerHands.addAll(List(delta) { Hand() })
-        balanceDelta = 0
-    } else {
-        var refund = 0
-        for (i in count until state.handCount) refund += state.playerHands.getOrNull(i)?.bet ?: 0
-        newHands = state.playerHands.subList(0, count).toPersistentList()
-        balanceDelta = refund
-    }
-    return ReducerResult(
-        state.copy(handCount = count, playerHands = newHands, balance = state.balance + balanceDelta)
-    )
-}
+): ReducerResult = buildBettingResult(BettingLogic.selectHandCount(state, count))
 
 internal fun reduceUpdateRules(
     state: GameState,
     rules: GameRules
-): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    return ReducerResult(state.copy(rules = rules))
-}
+): ReducerResult = buildBettingResult(BettingLogic.updateRules(state, rules))
 
 internal fun reducePlaceSideBet(
     state: GameState,
     type: SideBetType,
     amount: Int
-): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    if (amount <= 0 || amount > state.balance) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    val newSideBets = state.sideBets.put(type, (state.sideBets[type] ?: 0) + amount)
-    return ReducerResult(
-        state = state.copy(balance = state.balance - amount, sideBets = newSideBets),
-        effects = listOf(GameEffect.PlayPlinkSound)
-    )
-}
+): ReducerResult = buildBettingResult(BettingLogic.placeSideBet(state, type, amount))
 
-internal fun reduceResetSideBets(state: GameState): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    var totalRefund = 0
-    for ((_, betAmount) in state.sideBets) totalRefund += betAmount
-    return ReducerResult(
-        state = state.copy(balance = state.balance + totalRefund, sideBets = persistentMapOf()),
-        effects = listOf(GameEffect.PlayPlinkSound)
-    )
-}
+internal fun reduceResetSideBets(state: GameState): ReducerResult =
+    buildBettingResult(BettingLogic.resetSideBets(state))
 
 internal fun reduceResetSideBet(
     state: GameState,
     type: SideBetType
-): ReducerResult {
-    if (state.status != GameStatus.BETTING) return ReducerResult(state, listOf(GameEffect.Vibrate))
-    val betAmount = state.sideBets[type] ?: return ReducerResult(state, listOf(GameEffect.Vibrate))
+): ReducerResult = buildBettingResult(BettingLogic.resetSideBet(state, type))
+
+/**
+ * Converts a [BettingActionOutcome] into a [ReducerResult].
+ *
+ * If the outcome triggered the dealing sequence, it attaches a [ReducerCommand.RunDealSequence].
+ */
+private fun buildBettingResult(outcome: BettingActionOutcome): ReducerResult {
+    val commands =
+        if (outcome.isDealTriggered) {
+            listOf(ReducerCommand.RunDealSequence)
+        } else {
+            emptyList()
+        }
     return ReducerResult(
-        state = state.copy(balance = state.balance + betAmount, sideBets = state.sideBets.remove(type)),
-        effects = listOf(GameEffect.PlayPlinkSound)
+        state = outcome.state,
+        effects = outcome.effects,
+        commands = commands,
     )
 }
