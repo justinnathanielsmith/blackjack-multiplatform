@@ -32,7 +32,9 @@ class SideBetEdgeTest {
                     balance = 100,
                     playerHands = persistentListOf(Hand(bet = 100)), // Main bet already placed
                     handCount = 1,
-                    rules = io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)
+                    rules =
+                        io.github.smithjustinn.blackjack.logic
+                            .GameRules(deterministicReshuffle = true)
                 )
             val sm = testMachine(initialState)
 
@@ -77,7 +79,9 @@ class SideBetEdgeTest {
                     playerHands = persistentListOf(Hand(bet = 100), Hand(bet = 100)),
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 100),
                     deck = deck,
-                    rules = io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)
+                    rules =
+                        io.github.smithjustinn.blackjack.logic
+                            .GameRules(deterministicReshuffle = true)
                 )
             val sm = testMachine(initialState)
 
@@ -112,7 +116,9 @@ class SideBetEdgeTest {
                     playerHands = persistentListOf(Hand(bet = 100)),
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 100),
                     deck = deck,
-                    rules = io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)
+                    rules =
+                        io.github.smithjustinn.blackjack.logic
+                            .GameRules(deterministicReshuffle = true)
                 )
             val sm = testMachine(initialState)
 

@@ -32,25 +32,27 @@ fun TestScope.testMachine(initialState: GameState,): BlackjackStateMachine =
     DefaultBlackjackStateMachine(
         CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         initialState,
-        config = GameFlowConfig(
-            dealerTurnDelayMs = 0L,
-            dealCardDelayMs = 0L,
-            dealerCriticalPreDelayMs = 0L,
-            revealDelayMs = 0L,
-            slowRollDelayMs = 0L
-        )
+        config =
+            GameFlowConfig(
+                dealerTurnDelayMs = 0L,
+                dealCardDelayMs = 0L,
+                dealerCriticalPreDelayMs = 0L,
+                revealDelayMs = 0L,
+                slowRollDelayMs = 0L
+            )
     )
 
 fun TestScope.testMachine(): BlackjackStateMachine =
     DefaultBlackjackStateMachine(
         CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
-        config = GameFlowConfig(
-            dealerTurnDelayMs = 0L,
-            dealCardDelayMs = 0L,
-            dealerCriticalPreDelayMs = 0L,
-            revealDelayMs = 0L,
-            slowRollDelayMs = 0L
-        )
+        config =
+            GameFlowConfig(
+                dealerTurnDelayMs = 0L,
+                dealCardDelayMs = 0L,
+                dealerCriticalPreDelayMs = 0L,
+                revealDelayMs = 0L,
+                slowRollDelayMs = 0L
+            )
     )
 
 // ── Card / Hand builders ──────────────────────────────────────────────────────

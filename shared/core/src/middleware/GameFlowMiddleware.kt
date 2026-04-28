@@ -120,7 +120,8 @@ internal class GameFlowMiddleware(
 
         // In test mode, only reshuffle when strictly empty to preserve deterministic sequences.
         // In production, reshuffle at the threshold.
-        val shouldReshuffle = current.deck.isEmpty() || (current.deck.size <= threshold && !current.rules.deterministicReshuffle)
+        val shouldReshuffle =
+            current.deck.isEmpty() || (current.deck.size <= threshold && !current.rules.deterministicReshuffle)
 
         return if (shouldReshuffle) {
             BlackjackRules.createDeck(current.rules)

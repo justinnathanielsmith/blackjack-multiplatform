@@ -1,8 +1,8 @@
 package io.github.smithjustinn.blackjack.state
 import io.github.smithjustinn.blackjack.action.GameEffect
 import io.github.smithjustinn.blackjack.logic.BlackjackRules
+import io.github.smithjustinn.blackjack.logic.OutcomeEffectsLogic
 import io.github.smithjustinn.blackjack.logic.SideBetLogic
-import io.github.smithjustinn.blackjack.model.BlackjackConfig
 import io.github.smithjustinn.blackjack.model.GameState
 import io.github.smithjustinn.blackjack.model.GameStatus
 import io.github.smithjustinn.blackjack.model.HandOutcome
@@ -63,8 +63,6 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
         )
     val outcome =
         BlackjackRules.resolveInitialOutcomeValues(state, state.playerHands, state.dealerHand)
-    val isMassiveSideBetWin =
-        sideBetUpdate.results.values.any { it.payoutMultiplier >= BlackjackConfig.MASSIVE_WIN_MULTIPLIER }
 
     val settledHands =
         state.playerHands.mutate { builder ->
@@ -97,13 +95,13 @@ internal fun reduceApplyInitialOutcome(state: GameState): ReducerResult {
             totalNetPayout = totalNet,
         )
 
+    // Effect orchestration is a domain decision — see OutcomeEffectsLogic.
     val effects =
-        getEffectsForApplyInitialOutcome(
+        OutcomeEffectsLogic.buildInitialOutcomeEffects(
             balanceUpdate = outcome.balanceDelta,
             sideBetUpdate = sideBetUpdate,
             state = state,
             initialStatus = outcome.status,
-            isMassiveSideBetWin = isMassiveSideBetWin
         )
     return ReducerResult(state = newState, effects = effects)
 }
@@ -178,65 +176,7 @@ internal fun reduceFinalizeGame(state: GameState): ReducerResult {
             totalNetPayout = results.netPayouts.sumOf { it ?: 0 },
         )
 
-    val effects = getEffectsForFinalizeGame(results, state, finalStatus)
+    // Effect orchestration is a domain decision — see OutcomeEffectsLogic.
+    val effects = OutcomeEffectsLogic.buildFinalizeEffects(results, state, finalStatus)
     return ReducerResult(state = newState, effects = effects)
 }
-
-private fun getEffectsForFinalizeGame(
-    results: io.github.smithjustinn.blackjack.model.HandResults,
-    state: GameState,
-    finalStatus: GameStatus
-): List<GameEffect> =
-    buildList {
-        if (results.totalPayout > 0) add(GameEffect.ChipEruption(results.totalPayout))
-        var totalBet = 0
-        for (i in 0 until state.playerHands.size) totalBet += state.playerHands[i].bet
-        if (results.totalPayout < totalBet) add(GameEffect.ChipLoss(totalBet - results.totalPayout))
-        when (finalStatus) {
-            GameStatus.PLAYER_WON -> {
-                add(GameEffect.PlayWinSound)
-                add(GameEffect.WinPulse)
-            }
-            GameStatus.DEALER_WON -> {
-                add(GameEffect.PlayLoseSound)
-                if (state.playerHands.none { it.isBust }) add(GameEffect.Vibrate)
-            }
-            GameStatus.PUSH -> add(GameEffect.PlayPushSound)
-            else -> {}
-        }
-    }
-
-private fun getEffectsForApplyInitialOutcome(
-    balanceUpdate: Int,
-    sideBetUpdate: io.github.smithjustinn.blackjack.logic.SideBetResolution,
-    state: GameState,
-    initialStatus: GameStatus,
-    isMassiveSideBetWin: Boolean
-): List<GameEffect> =
-    buildList {
-        // Juice: Always emit winning eruptions first.
-        if (balanceUpdate > 0) add(GameEffect.ChipEruption(balanceUpdate))
-        sideBetUpdate.results.forEach { (type, result) ->
-            if (result.payoutAmount > 0) add(GameEffect.ChipEruption(result.payoutAmount, type))
-        }
-        // Then handle losses and sounds.
-        state.sideBets.forEach { (type, amount) ->
-            if (sideBetUpdate.results[type] == null) add(GameEffect.ChipLoss(amount))
-        }
-        val isWinOutcome = initialStatus == GameStatus.PLAYER_WON || sideBetUpdate.payoutTotal > 0
-        when {
-            isWinOutcome -> {
-                if (isMassiveSideBetWin) {
-                    add(GameEffect.BigWin(sideBetUpdate.payoutTotal))
-                } else {
-                    add(GameEffect.PlayWinSound)
-                }
-                if (initialStatus == GameStatus.PLAYER_WON) add(GameEffect.WinPulse)
-            }
-            initialStatus == GameStatus.DEALER_WON -> {
-                add(GameEffect.PlayLoseSound)
-                add(GameEffect.ChipLoss(state.currentBet))
-            }
-            initialStatus == GameStatus.PUSH -> add(GameEffect.PlayPushSound)
-        }
-    }

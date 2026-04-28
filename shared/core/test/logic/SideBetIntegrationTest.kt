@@ -45,7 +45,9 @@ class SideBetIntegrationTest {
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 100),
                     deck = deck,
                     handCount = 1,
-                    rules = io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)
+                    rules =
+                        io.github.smithjustinn.blackjack.logic
+                            .GameRules(deterministicReshuffle = true)
                 )
             val sm = testMachine(initialState)
 
@@ -108,7 +110,9 @@ class SideBetIntegrationTest {
                     sideBets = persistentMapOf(SideBetType.TWENTY_ONE_PLUS_THREE to 100),
                     deck = deck,
                     handCount = 1,
-                    rules = io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)
+                    rules =
+                        io.github.smithjustinn.blackjack.logic
+                            .GameRules(deterministicReshuffle = true)
                 )
             val sm = testMachine(initialState)
 
@@ -143,7 +147,9 @@ class SideBetIntegrationTest {
                         ),
                     deck = deck,
                     handCount = 1,
-                    rules = io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)
+                    rules =
+                        io.github.smithjustinn.blackjack.logic
+                            .GameRules(deterministicReshuffle = true)
                 )
             val sm = testMachine(initialState)
 
@@ -182,7 +188,9 @@ class SideBetIntegrationTest {
                     sideBets = persistentMapOf(SideBetType.PERFECT_PAIRS to 50),
                     deck = deck,
                     handCount = 1,
-                    rules = io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)
+                    rules =
+                        io.github.smithjustinn.blackjack.logic
+                            .GameRules(deterministicReshuffle = true)
                 )
             val sm = testMachine(initialState)
 

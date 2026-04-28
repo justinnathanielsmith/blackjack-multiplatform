@@ -36,7 +36,11 @@ class BalancePayoutTest {
                         status = GameStatus.BETTING,
                         balance = 1000,
                         playerHands = persistentListOf(Hand(bet = 100)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO, deterministicReshuffle = true),
+                        rules =
+                            GameRules(
+                                blackjackPayout = BlackjackPayout.THREE_TO_TWO,
+                                deterministicReshuffle = true
+                            ),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),
@@ -96,7 +100,11 @@ class BalancePayoutTest {
                         status = GameStatus.BETTING,
                         balance = 997,
                         playerHands = persistentListOf(Hand(bet = 3)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO, deterministicReshuffle = true),
+                        rules =
+                            GameRules(
+                                blackjackPayout = BlackjackPayout.THREE_TO_TWO,
+                                deterministicReshuffle = true
+                            ),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),

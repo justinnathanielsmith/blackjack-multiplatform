@@ -107,7 +107,12 @@ class LastBetPersistenceTest {
             // 1. Start game, place 10
             sm.dispatch(GameAction.NewGame(initialBalance = 1000, handCount = 1))
             sm.dispatch(GameAction.PlaceBet(amount = 10))
-            sm.dispatch(GameAction.UpdateRules(io.github.smithjustinn.blackjack.logic.GameRules(deterministicReshuffle = true)))
+            sm.dispatch(
+                GameAction.UpdateRules(
+                    io.github.smithjustinn.blackjack.logic
+                        .GameRules(deterministicReshuffle = true)
+                )
+            )
             sm.dispatch(GameAction.SetDeck(deck)) // Use fixed deck
             testScheduler.advanceUntilIdle()
 

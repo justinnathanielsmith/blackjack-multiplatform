@@ -78,7 +78,11 @@ class RuleVariationsTest {
                         status = GameStatus.BETTING,
                         balance = 900,
                         playerHands = persistentListOf(Hand(bet = 100)),
-                        rules = GameRules(blackjackPayout = BlackjackPayout.THREE_TO_TWO, deterministicReshuffle = true),
+                        rules =
+                            GameRules(
+                                blackjackPayout = BlackjackPayout.THREE_TO_TWO,
+                                deterministicReshuffle = true
+                            ),
                         deck =
                             persistentListOf(
                                 Card(Rank.ACE, Suit.SPADES),

@@ -209,7 +209,8 @@ class DefaultBlackjackComponent(
 
                             if (autoDealEnabled) {
                                 val postResetState = stateMachine.state.value
-                                if (postResetState.playerHands.all { it.bet > 0 }) {
+                                // Reuse the domain `canDeal` guard so the deal-eligibility rule lives in one place.
+                                if (postResetState.canDeal) {
                                     stateMachine.dispatch(GameAction.Deal)
                                 } else {
                                     updateSettings { it.copy(isAutoDealEnabled = false) }
